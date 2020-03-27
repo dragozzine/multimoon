@@ -21,6 +21,10 @@ import sys
 #multimoon_plot(plot_df)    
 
 def main_menu():
+    
+    print("Hello!")
+    print("I am the SPINNY user interface. What can I help you with?")
+    
     print("S: Run a system though SPINNY")
     print("F: Generate figures from an existing SPINNY integration")
     print("V: Generate a VPython animation")
@@ -163,9 +167,8 @@ def run_vpython():
         print('Invalid Response.')
         return run_vpython()
     
-print("Hello!")
-print("I am the SPINNY user interface. What can I help you with?")
-main_menu()
+
+#main_menu()
 
 
 

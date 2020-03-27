@@ -1,7 +1,7 @@
 import numpy as np
 import spiceypy as spice
 import pandas as pd
-from spinny_plugin import vec2orb
+from spinny_generate import vec2orb
 from time import ctime
 import time
 import matplotlib.pyplot as plt
