@@ -17,14 +17,14 @@ def test_runprops():
     runprops = {
         'date': 'today',
         'time': 'now',
-        'user': 'autogenerate'
-        'MultiMoon commit hash': 'autogenerate'
-        'mm_initguess_which' : 'get_init_guess_from_dist' # which function from mm_initguess to use
-        'numobjects' : 3
-        'RunGoal' 'user puts their goal for this run here'
-        'objectname' : 'Haumea'
-        'nwalkers' : 30
-        'nsteps' : 1001
+        'user': 'autogenerate',
+        'MultiMoon commit hash': 'autogenerate',
+        'mm_initguess_which' : 'get_init_guess_from_dist', # which function from mm_initguess to use
+        'numobjects' : 3,
+        'RunGoal' : 'user puts their goal for this run here',
+        'objectname' : 'Haumea',
+        'nwalkers' : 30,
+        'nsteps' : 1001,
         'nthinning' : 100
     }
     
