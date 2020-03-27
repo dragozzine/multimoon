@@ -1,0 +1,3 @@
+files needed to convert from older code/filetypes to MultiMoon
+example: Dallin's codes that convert astrometric files from GJD, RA, Dec to system-time, long, lat, delta(long), delta(lat), object number
+example: Dallin's code to create geocentric object position csv/dataframe codes if they don't exist
