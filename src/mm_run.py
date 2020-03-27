@@ -87,6 +87,37 @@ else:
 
 # Should we input a loop to test all walers to see if the return non-inf probabilities?
 # Doing this will really cut down the time for convergence since walkers aren't "blindly"
-# walking around in bad parameter space.
+# walking around in bad parameter space. 
+#The only problem might be that it takes a long time to test all of p0? Might be worth it
 
+reset = 0
 
+for i in range(walkers):
+	llhood = mm_likelihood(p0[:,i]) # add additional args if needs be
+	while (reset < 500) & (llhood == -np.Inf):
+		if (reset % 500 == 0) & (reset != 0):
+			print("ERROR: Initial guesses for walkers may be bad.")
+			abort = input("Abort script? (yes/no) ")
+			while abort != "yes" & abort != "no":
+				print("Invalid input")
+				abort = input("Abort script? (yes/no) ")
+			if abort == "yes":
+				sys.exit()
+		# reset parameter values for that walker
+		llhood = mm_likelihood(p0[:,i])
+		reset += 1
+
+# Now creating the sampler object
+sampler = emcee.EnsembleSampler(walkers, ndim, mm_likelihood, args = )
+
+#Starting the burnin
+state = sampler.run_mcmc(p0, nburnin)
+sampler.reset()
+
+# Now do the full run with the leftovers of the burnin
+sampler.run_mcmc(state, nsteps);
+
+# Once it's completed, we need to save the chain
+chain = sampler.get_chain()
+flatchain = sampler.get_chain(flat = True)
+# save chains
