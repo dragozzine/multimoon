@@ -7,6 +7,7 @@
 # that return valid "shapes" and types of various
 # planned pieces of MultiMoon. 
 
+import pandas
 
 # test_runprops
 # 
@@ -28,7 +29,6 @@ def test_runprops():
         'nthinning' : 100
     }
     
-    
 #Filename for starting guess - default = start_guess.csv
 #fixfloat_df - default="all float" dataframe in parameters format
 #lpriorfunc - default="log_prior"
@@ -43,3 +43,30 @@ def test_runprops():
 #other plots too
 
     return runprops
+
+
+def test_mmparamdf():
+    """ Returns a test parameters dataframe with fake values."""
+
+    objects=["0","1","2","3"] # 3 objects in KBO system and Sun (0)
+    objparams=["name","mass","sma","ecc","aop","inc","lan","mea","j2r2","c22r2","spaop","spinc","splan","sprate"]
+    
+    columns=[]
+    
+    for objectnum in objects:
+        for param in objparams:
+            columns.append(param+"_"+objectnum)
+
+    mmparamdf=pandas.DataFrame(index=[0],columns=columns)
+    
+    mmparamdf["name_0"]="Sun"
+    mmparamdf["mass_0"]=1.0
+    
+    
+    mmparamdf.fillna(0.0)
+    
+    return mmparamdf
+
+
+#test_runprops()
+print(test_mmparamdf())
