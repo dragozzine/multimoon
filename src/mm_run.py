@@ -70,7 +70,7 @@ if os.path.exists("geocentric_" + objname + "_position.csv"):
 	print("Object geocentric position file geocentric_" + objname + "_position.csv will be used")
 else:
 	print("No object geocentric position file exists. Creating new file.")
-	mm_make_geo_pos(objname)	# This is basically a function based on DS's makeHorFile
+	mm_make_geo_pos(objname, start='2000-01-01', end='2040-01-01', step='10d')	# This is basically a function based on DS's makeHorFile
 	print("geocentric_" + objname + "_position.csv has been created")
 
 

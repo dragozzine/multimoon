@@ -8,6 +8,7 @@
 # planned pieces of MultiMoon. 
 
 import pandas
+from astroquery.jplhorizons import Horizons
 
 # test_runprops
 # 
@@ -66,6 +67,18 @@ def test_mmparamdf():
     mmparamdf.fillna(0.0)
     
     return mmparamdf
+
+
+def mm_make_geo_pos(objname, start, end, step):
+    obj = Horizons(id=objname,location='500',epochs={'start':start, 'stop':end,'step':step})
+    obsDF = pandas.DataFrame()
+    obsDF['time'] = obj.vectors()['datetime_jd']
+    obsDF['x'] = obj.vectors()['x']
+    obsDF['y'] = obj.vectors()['y']
+    obsDF['z'] = obj.vectors()['z']
+    
+    filename = 'geocentric_'+objname+'_position.csv'
+    obsDF.to_csv(filename,index=False)  
 
 
 #test_runprops()
