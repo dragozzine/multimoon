@@ -1,0 +1,10 @@
+	mass_1	mass_2	sma_2	ecc_2	aop_2	inc_2	lan_2	mea_2	mass_3	sma_3	ecc_3	aop_3	inc_3	lan_3	mea_3	j2r2_1	c22r2_1	spaop_1	spinc_1	splan_1	sprate_1
+dist. shape	2	2	2	2	2	2	2	2	2	2	2	2	2	2	2	1	12	idk	irdk	isdk	wotfam
+uni-low	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	12	idk	irdk	isdk	wotfam
+uni-up	0	0	0	1	180	180	1	1	0	0	1	180	180	1	1	1	12	idk	irdk	isdk	wotfam
+log-uni-low	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	12	idk	irdk	isdk	wotfam
+log-uni-up	0	0	0	1	180	180	1	1	0	0	1	180	180	1	1	1	12	idk	irdk	isdk	wotfam
+norm-cen	4.006e+21	1.79e+19	49880	0.0513	154.1	126.356	206.766	152.8	1.79e+18	25657	0.249	178.9	113.013	205.016	178.5	1	12	idk	irdk	isdk	wotfam
+norm-spread	4e+18	1.1e+18	198	0.0078	5.8	0.064	0.033	6.1	1.48e+18	91	0.015	2.3	0.075	0.228	1.7	1	12	idk	irdk	isdk	wotfam
+log-norm-cen	4.006e+21	1.79e+19	49880	0.0513	154.1	126.356	206.766	152.8	1.79e+18	25657	0.249	178.9	113.013	205.016	178.5	1	12	idk	irdk	isdk	wotfam
+log-norm-spread	4e+18	1.1e+18	198	0.0078	5.8	0.064	0.033	6.1	1.48e+18	91	0.015	2.3	0.075	0.228	1.7	1	12	idk	irdk	isdk	wotfam

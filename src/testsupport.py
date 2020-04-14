@@ -69,7 +69,7 @@ def test_mmparamdf():
     return mmparamdf
 
 
-def mm_make_geo_pos(objname, start, end, step):
+def mm_make_geo_pos(objname, start='2000-01-01', end='2040-01-01', step='10d'):
     obj = Horizons(id=objname,location='500',epochs={'start':start, 'stop':end,'step':step})
     obsDF = pandas.DataFrame()
     obsDF['time'] = obj.vectors()['datetime_jd']
