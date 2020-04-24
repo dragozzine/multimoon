@@ -15,8 +15,7 @@ from astroquery.jplhorizons import Horizons
 
 def test_runprops():
     """ Returns a runprops dictionary. """
-    
-    runprops = {
+    """runprops = {
         'date': 'today',
         'time': 'now',
         'user': 'autogenerate',
@@ -28,7 +27,11 @@ def test_runprops():
         'nwalkers' : 30,
         'nsteps' : 1001,
         'nthinning' : 100
-    }
+    }"""
+    
+    import runprops as var
+    
+    runprops = var.runprops   
     
 #Filename for starting guess - default = start_guess.csv
 #fixfloat_df - default="all float" dataframe in parameters format
@@ -82,4 +85,4 @@ def mm_make_geo_pos(objname, start='2000-01-01', end='2040-01-01', step='10d'):
 
 
 #test_runprops()
-print(test_mmparamdf())
+#print(test_mmparamdf())

@@ -1,0 +1,13 @@
+{
+    "date": "today",
+    "time": "now",
+    "user": "autogenerate",
+    "MultiMoon commit hash": "autogenerate",
+    "mm_initguess_which" : "get_init_guess_from_dist",
+    "numobjects" : 3,
+    "RunGoal" : "user puts their goal for this run here",
+    "objectname" : "Haumea",
+    "nwalkers" : 30,
+    "nsteps" : 1001,
+    "nthinning" : 100
+}
