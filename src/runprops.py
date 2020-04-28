@@ -1,34 +1,15 @@
-import pandas as pd
-
-"""
-runprops = {
-        'date': 'today',
-        'time': 'now',
-        'user': 'autogenerate',
-        'MultiMoon commit hash': 'autogenerate',
-        'mm_initguess_which' : 'get_init_guess_from_dist', # which function from mm_initguess to use
-        'numobjects' : 3,
-        'RunGoal' : 'user puts their goal for this run here',
-        'objectname' : 'Haumea',
-        'nwalkers' : 30,
-        'nsteps' : 1001,
-        'nthinning' : 100
-    }
-
-"""
-
 import json
+import pandas as pd
 
 class ReadJson(object):
     def __init__(self):
-        print('shooby doo')
+        print('Read the runprops.txt file')
         self.data = json.load(open("runprops.txt"))
     def outProps(self):
         return self.data
 
 getData = ReadJson()
 runprops = getData.outProps()
-
 
 start_filename = runprops.get('objectname') + '_priors.csv'
 
