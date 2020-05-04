@@ -6,10 +6,10 @@ Outputs:
 1) log_likelihood, the log likelihood of the parameters with the priors
 
 """
-def log_likelihood(fit_array):
+def mm_likelihood(fit_array):
     
     
-    return log_likelihood
+    return 1
 
 """
 Inputs:
@@ -21,5 +21,5 @@ Outputs:
 """
 def mm_chisquare(modeldata, obsdata):
     
-    return chi_square
+    return 1
     

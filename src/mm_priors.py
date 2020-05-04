@@ -24,26 +24,10 @@ import time
 def mm_priors(priors, params):
     columnList = list(priors)
     totalLogProb = 0
-    priors['mass_1'].astype(float)
-    priors['mass_2'].astype(float)
-    priors['sma_2'].astype(float)
-    priors['ecc_2'].astype(float)
-    priors['aop_2'].astype(float)
-    priors['inc_2'].astype(float)
-    priors['lan_2'].astype(float)
-    priors['mea_2'].astype(float)
-    priors['mass_3'].astype(float)
-    priors['sma_3'].astype(float)
-    priors['ecc_3'].astype(float)
-    priors['aop_3'].astype(float)
-    priors['inc_3'].astype(float)
-    priors['lan_3'].astype(float)
-    priors['mea_3'].astype(float)
-    priors['j2r2_1'].astype(float)
-    priors['c22r2_1'].astype(float)
     
-    
-    probDist = pd.DataFrame(columns = ['mass_1','mass_2','sma_2','ecc_2','aop_2','inc_2','lan_2','mea_2','mass_3','sma_3','ecc_3','aop_3','inc_3','lan_3','mea_3','j2r2_1','c22r2_1','spaop_1','spinc_1','splan_1','sprate_1'],index=['PDF'])
+    #This loop is to make sure all of the column values are floats, because pandas sometimes turns the values to strings when read from file
+    for i in columnList:
+        priors[i].astype(float)
    
     count = 0
     allProbs = []

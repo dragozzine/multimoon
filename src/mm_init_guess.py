@@ -9,6 +9,7 @@ Output: "init_guess" dataframe in parameter format, nwalkers rows
 """
 def gen_init_guess_from_dist(dataframe, nwalkers):
     
+    return 1
     
     
 """
@@ -21,8 +22,12 @@ def get_init_guess_from_multirow_startguess(dataframe, nwalkers):
         
     if len(startguess) < nwalkers:
         
+    return 1
+        
         
 def get_init_guess_from_singlerow_startguess_rough():
+    return 1
     
 def get_init_guess_from_prior():
+    return 1
     
