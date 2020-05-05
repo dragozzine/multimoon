@@ -1,7 +1,9 @@
 # Multimoon–SPINNY README
 *****************************************************************
 Author: Seth Pincock
+
 Contributors: Darin Ragozzine, Brigham Young University
+
 Acknowledgements: Simon Porter, Southwest Research Institute
 *****************************************************************
   This program is coded using Python 3.5.2. SPINNY (the integrator itself) is coded in C++ and Cythonized.
