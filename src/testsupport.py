@@ -8,15 +8,18 @@
 # planned pieces of MultiMoon. 
 
 import pandas
+<<<<<<< HEAD
 import numpy as np
+=======
+from astroquery.jplhorizons import Horizons
+>>>>>>> ce080c0f795c24715121d3b2bcfb0107efd8e37f
 
 # test_runprops
 # 
 
 def test_runprops():
     """ Returns a runprops dictionary. """
-    
-    runprops = {
+    """runprops = {
         'date': 'today',
         'time': 'now',
         'user': 'autogenerate',
@@ -28,7 +31,11 @@ def test_runprops():
         'nwalkers' : 30,
         'nsteps' : 1001,
         'nthinning' : 100
-    }
+    }"""
+    
+    import runprops as var
+    
+    runprops = var.runprops   
     
 #Filename for starting guess - default = start_guess.csv
 #fixfloat_df - default="all float" dataframe in parameters format
@@ -106,5 +113,17 @@ def test_mmparamdf():
     return mmparamdf
 
 
+def mm_make_geo_pos(objname, start='2000-01-01', end='2040-01-01', step='10d'):
+    obj = Horizons(id=objname,location='500',epochs={'start':start, 'stop':end,'step':step})
+    obsDF = pandas.DataFrame()
+    obsDF['time'] = obj.vectors()['datetime_jd']
+    obsDF['x'] = obj.vectors()['x']
+    obsDF['y'] = obj.vectors()['y']
+    obsDF['z'] = obj.vectors()['z']
+    
+    filename = 'geocentric_'+objname+'_position.csv'
+    obsDF.to_csv(filename,index=False)  
+
+
 #test_runprops()
-print(test_mmparamdf())
+#print(test_mmparamdf())
