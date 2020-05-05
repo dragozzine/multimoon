@@ -8,6 +8,7 @@
 # planned pieces of MultiMoon. 
 
 import pandas
+import numpy as np
 
 # test_runprops
 # 
@@ -46,6 +47,10 @@ def test_runprops():
 
 
 def test_mmparamdf():
+    # Edited Seth Pincock 
+    # March 30, 2020
+    # Modified df to include parameters from Haumea system 
+    
     """ Returns a test parameters dataframe with fake values."""
 
     objects=["0","1","2","3"] # 3 objects in KBO system and Sun (0)
@@ -59,9 +64,42 @@ def test_mmparamdf():
 
     mmparamdf=pandas.DataFrame(index=[0],columns=columns)
     
-    mmparamdf["name_0"]="Sun"
-    mmparamdf["mass_0"]=1.0
+    # values from ORBITS AND MASSES OF THE SATELLITES OF THE DWARF PLANET HAUMEA = 2003 EL61
+    # Ragozzine & Brown (2009)
     
+    names = ["Sun","Haumea","Namaka","Hi'iaka"]
+    masses = [1.988e30, 4.006e21, 1.79e18, 1.79e19] # masses of the bodies in kg
+
+    for objectnum in objects:
+        mmparamdf["name_"+objectnum] = name
+        mmparamdf["mass_"+objectnum] = masses[objectnum]
+    
+    # orbital parameters
+    mmparamdf["sma0"] = 6.46e9  # km
+    mmparamdf["ecc0"] = 0.194
+    mmparamdf["aop0"] = np.pi/180.0*238.778 # radians
+    mmparamdf["inc0"] = np.pi/180.0*28.214
+    mmparamdf["lan0"] = np.pi/180.0*122.163
+    mmparamdf["mea0"] = np.pi/180.0*217.774
+    
+    mmparamdf["sma2"] = 25657.0
+    mmparamdf["ecc2"] = 0.249
+    mmparamdf["aop2"] = np.pi/180.0*178.9
+    mmparamdf["inc2"] = np.pi/180.0*13.013
+    mmparamdf["lan2"] = np.pi/180.0*205.016
+    mmparamdf["mea2"] = np.pi/180.0*178.5
+    
+    mmparamdf["sma3"] = 49880
+    mmparamdf["ecc3"] = 0.0513
+    mmparamdf["aop3"] = np.pi/180.0*154.1
+    mmparamdf["inc3"] = np.pi/180.0*126.356
+    mmparamdf["lan3"] = np.pi/180.0*206.766
+    mmparamdf["mea3"] = np.pi/180.0*152.8
+    
+    mmparamdf["j2r2_1"] = 1.04e5 #km^2 
+    mmparamdf["spaop_1"] = mmparamdf["aop3"] # Haumea's axis is aligned (roughly) with Hi'iaka's orbit
+    mmparamdf["spinc_1"] = mmparamdf["inc3"]
+    mmparamdf["splan_1"] = mmparamdf["lan3"]
     
     mmparamdf.fillna(0.0)
     
