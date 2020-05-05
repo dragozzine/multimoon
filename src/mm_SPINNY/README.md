@@ -17,6 +17,7 @@ The program has a number of automated functions:
   
 **NOTE:** This program is not yet capable of computing accurately the spin dynamics of the bodies due to unresolved issues within SPINNY. As such, it is only capable of accurately computing point masses. The spin data are still included in the integrations, but the output spin data are not physically accurate (as of May, 2020).
 *****************************************************************
+## Inputs/Outputs
 **ALL input data MUST be in units of kilometers, kilograms, seconds, and radians**
 
 Input:
@@ -61,6 +62,7 @@ Output:
 The spin orientation angles (precession, obliquity, and longitude) correspond to the longitude of the ascending node, inclination, and argument of pericenter, respectively. The angles also correspond to the ZXZ Euler transformation. **The orientation angles should be defined in the inertial (ecliptic) reference frame, NOT the orbit frame.**
 
 ****************************************************************
+# Prerequisites
 
 In order to run, the program requires the following files:
 - SPINNY files:
@@ -74,7 +76,7 @@ In order to run, the program requires the following files:
   - ~~quaternion.py~~  (no longer vital? These functions replaced with SciPy spatial transform)
   - spinny_generate.py
   - spinny_plots.py
-  - **SPINNY_User_Interface.py**
+  - **SPINNY_User_Interface.py** (the only script you should need to execute directly)
 
 ****************************************************************
 
