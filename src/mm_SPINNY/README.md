@@ -62,7 +62,7 @@ Output:
 The spin orientation angles (precession, obliquity, and longitude) correspond to the longitude of the ascending node, inclination, and argument of pericenter, respectively. The angles also correspond to the ZXZ Euler transformation. **The orientation angles should be defined in the inertial (ecliptic) reference frame, NOT the orbit frame.**
 
 ****************************************************************
-# Prerequisites
+## Prerequisites
 
 In order to run, the program requires the following files:
 - SPINNY files:
@@ -79,8 +79,7 @@ In order to run, the program requires the following files:
   - **SPINNY_User_Interface.py** (the only script you should need to execute directly)
 
 ****************************************************************
-
-## USING SPINNY:
+## Using SPINNY:
 
 1. If it has not been already, SPINNY will need to be installed. SPINNY is a C++ code that will need to be Cythonized in order to be read by the python scripts. To do this, execute one of the following from a command line:
     1. `python setup.py build_ext --inplace` to install in the local directory (useful for debugging. This command will need to be re-executed every time spinny.hpp or spinny.pyx is edited.)
