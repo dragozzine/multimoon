@@ -68,7 +68,7 @@ import mm_relast
 runprops = mm_runprops.runprops
 walkers = runprops.get("nwalkers")
 
-#ndim is equal to the numer of dimension, should this be equal to the length of the parameter array?
+#ndim is equal to the number of dimension, should this be equal to the length of the parameter array?
 ndim = 1
 
 # Generate the intial guess for emcee
@@ -76,7 +76,6 @@ guesses = mm_init_guess.mm_init_guess(runprops, walkers)	# maybe more args
 
 # Convert the guesses into fitting units and place in numpy array
 p0 = np.zeros((ndim, walkers))
-print(p0)
 for i in range(ndim):
 	p0[i,:] = guesses[i+1,:]
 
@@ -128,8 +127,11 @@ for i in range(walkers):
 sampler = emcee.EnsembleSampler(walkers, ndim, mm_likelihood.mm_likelihood, args = None)
 
 #Is this correct? I'm not sure
-nburnin = runprops.get("nthinning")
+nburnin = runprops.get("nburnin")
 #Starting the burnin
+p0 = np.transpose(p0)
+print(p0.shape)
+
 state = sampler.run_mcmc(p0, nburnin)
 sampler.reset()
 
@@ -139,8 +141,8 @@ nsteps = runprops.get("nsteps")
 sampler.run_mcmc(state, nsteps);
 
 # Once it's completed, we need to save the chain
-chain = sampler.get_chain()
-flatchain = sampler.get_chain(flat = True)
+chain = sampler.get_chain(thin = runprops.get("nthinning"))
+flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
 # save chains
 
 """

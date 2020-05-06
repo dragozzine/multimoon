@@ -2,7 +2,7 @@ import numpy as np
 
 def mm_init_guess(runprops, walkers):
     ndim = 2
-    p0 = np.zeros((ndim, walkers))
+    p0 = np.random.random((ndim, walkers))
     return p0
 """
 This file will have the user input their initial guess for where to start in the emcee program

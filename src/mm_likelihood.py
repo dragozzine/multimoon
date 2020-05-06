@@ -8,7 +8,6 @@ Outputs:
 """
 def mm_likelihood(fit_array):
     
-    
     return 1
 
 """
