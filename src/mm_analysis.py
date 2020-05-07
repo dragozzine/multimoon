@@ -21,7 +21,7 @@ def mm_analysis(sampler, parameters):
 	chain = sampler.get_chain(flat = False)
 	# First start by converting the paramaters into an array of strings
 	# code here
-	names = something.to.convert(paramaters)
+	names = list(paramaters)
 
 	fig = corner.corner(chain, bins = 40, labels = names, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
