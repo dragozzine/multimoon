@@ -69,6 +69,7 @@ The spin orientation angles (precession, obliquity, and longitude) correspond to
 In order to run, the program requires the following files:
 - SPINNY files:
   - cashkarp.hpp
+  - conics.hpp
   - spinny.hpp
   - spinny.pyx
   - setup.py
