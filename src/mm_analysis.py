@@ -10,6 +10,11 @@
 # and then immediately convert it back for the corner plots and walker plots. I don't think 
 # the step is necessary esp with the huge size of the chain.
 
+# WARNING: The indices for all of the work with the chains might be reversed to what I have here
+# I used the same as those in all of my julia codes, and I don't know if the indices are reversed
+# with emcee compared to AffineInvariantMCMC in julia. SO beware. 
+
+
 
 import corner
 import matplotlib.pyplot as plt
