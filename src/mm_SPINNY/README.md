@@ -88,7 +88,7 @@ In order to run, the program requires the following files:
     1. `python setup.py build_ext --inplace` to install in the local directory (useful for debugging. This command will need to be re-executed every time spinny.hpp or spinny.pyx is edited.)
     2. `python setup.py install --user` to install for the current user
     3. `sudo python setup.py install` to install globally
-2. Once SPINNY is installed, a new, computer-generated file called "spinny.cpp" should appear in the local directory. If SPINNY was already installed, the old "spinny.cpp" will be overwritten when "setup.py" is re-run. 
+2. Once SPINNY is installed, a new, computer-generated file called "spinny.cpp" should appear in the local directory. If SPINNY was already installed or a .cpp file already exists, the old "spinny.cpp" will be overwritten when "setup.py" is re-run. 
 3. From a command line, execute `python SPINNY_User_Interface.py` or from a Jupyter notebook `run SPINNY_User_Interface`. 
 4. The program is highly automated, and by design requires little user input. Follow the instructions printed onscreen in order to begin the desired function. **Note that any input files MUST be .csv files.**
 5. Any output files will be saved to the local directory. Note that the plots may not be visible if run from within a terminal window, but will still save to the directory. If run from a Jupyter notebook, run `%matplotlib inline` before the Interface is run in order to ensure the figures will be visible within the notebook environment.
