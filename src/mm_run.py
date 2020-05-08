@@ -52,6 +52,7 @@ Outputs:
 import sys
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 import mm_runprops.py
 import mm_init_guess.py
 import mm_likelihood.py
@@ -125,7 +126,8 @@ sampler = emcee.EnsembleSampler(walkers, ndim, mm_likelihood, args = )
 #Is this correct? I'm not sure
 nburnin = runprops.get("nthinning")
 #Starting the burnin
-state = sampler.run_mcmc(p0, nburnin)
+print("Starting the burn in")
+state = sampler.run_mcmc(p0, nburnin, progress = True)
 sampler.reset()
 
 nsteps = runprops.get("nsteps")
