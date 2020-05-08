@@ -9,6 +9,6 @@
     "objectname" : "Haumea",
     "nwalkers" : 30,
     "nsteps" : 1001,
-    "nthinning" : 100
+    "nthinning" : 100,
     "nburnin" : 1000
 }

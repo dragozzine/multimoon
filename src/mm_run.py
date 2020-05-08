@@ -60,6 +60,7 @@ import mm_likelihood
 import mm_make_geo_pos
 import mm_priors
 import mm_relast
+import mm_analysis
 
 
 # Read in the run props dictionary
@@ -144,6 +145,8 @@ sampler.run_mcmc(state, nsteps);
 chain = sampler.get_chain(thin = runprops.get("nthinning"))
 flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
 # save chains
+
+mm_analysis.mm_analysis(sampler,obsdata)
 
 """
 Function to convert the parameter dataframe to a scaled and fitted array.
