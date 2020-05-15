@@ -6,8 +6,13 @@ Outputs:
 1) log_likelihood, the log likelihood of the parameters with the priors
 
 """
-def mm_likelihood(fit_array):
+def log_likelihood(fit_array):
     
+    
+    return 1
+
+
+def log_probability(walkers,runprops, fitarray_to_params_dict, obsdf):
     
     return 1
 

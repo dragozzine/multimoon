@@ -53,12 +53,12 @@ import sys
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-import mm_runprops.py
-import mm_init_guess.py
-import mm_likelihood.py
-import mm_make_geo_pos.py
-import mm_priors.py
-import mm_relast.py
+import mm_runprops
+import mm_init_guess
+import mm_likelihood
+import mm_make_geo_pos
+import mm_priors
+import mm_relast
 
 
 # Read in the run props dictionary
@@ -67,16 +67,16 @@ import mm_relast.py
 runprops = mm_runprops.runprops
 walkers = runprops.get("nwalkers")
 
-#ndim is equal to the numer of dimension, should this be equal to the length of the parameter array?
-ndim = 1
-
 # Generate the intial guess for emcee
-guesses = mm_init_guess(runprops, walkers)	# maybe more args
+guesses = mm_init_guess.mm_init_guess(runprops, walkers)	# maybe more args
+
+#ndim is equal to the number of dimension, should this be equal to the number of columns of the init_guess array?
+ndim = len(guesses.columns)
 
 # Convert the guesses into fitting units and place in numpy array
 p0 = np.zeros((ndim, walkers))
-for i in range(ndim):
-	p0[i,:] = guesses[i+1,:]
+for col in guesses.columns:
+	p0[i,:] = guesses[col]
 
 # Check to see if geocentric_object_position.csv exists and if not creates it
 objname = runprops.get('objectname')
@@ -88,10 +88,10 @@ else:
 	print("geocentric_" + objname + "_position.csv has been created")
 
 
-geocentric_object_positions = pd.read_csv("geocentric_" + objname + "_position.csv")
+geocentric_object_positions = pd.read_csv("../data/" + objname + "/geocentric_" + objname + "_position.csv")
 
 # Now get observations data frame
-obsdata = "HaumeaObsDF.csv" #Just an exmaple filename rn
+obsdata = "../data/" + objname + "/" + objname + "/ObsDF.csv" #Just an exmaple filename rn
 if os.path.exists(obsdata):
 	print("Observational data file " + obsdata + " will be used")
 else:
@@ -123,7 +123,7 @@ for i in range(walkers):
 		reset += 1
         
 # Now creating the sampler object
-sampler = emcee.EnsembleSampler(walkers, ndim, mm_likelihood.mm_likelihood, args = None)
+sampler = emcee.EnsembleSampler(walkers, ndim, mm_likelihood.log_probability, args = (runprops, fitarray_to_params_dict, obsdf))
 
 #Is this correct? I'm not sure
 nburnin = runprops.get("nburnin")
