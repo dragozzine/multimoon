@@ -20,7 +20,7 @@ import corner
 import matplotlib.pyplot as plt
 
 
-def mm_analysis(sampler, parameters):
+def plots(sampler, parameters):
 			# Here parameters is whatever file/object will have the run params
 	flatchain = sampler.get_chain(flat = True)
 	chain = sampler.get_chain(flat = False)
@@ -38,13 +38,13 @@ def mm_analysis(sampler, parameters):
 
 	
 	# Now make the walker plots
-	numparams = chain.shape[0]
+	numparams = chain.shape[2]
 	numwalkers = chain.shape[1]
-	numgens = chain.shape[2]
+	numgens = chain.shape[0]
 	for i in range(numparams):
 		plt.figure()
 		for j in range(numwalkers):
-			plt.plot(np.reshape(chain[i,j,0:numgens))
+			plt.plot(np.reshape(chain[0:numgens,j,i], numgens))
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
 		plt.savefig
@@ -66,4 +66,81 @@ def mm_analysis(sampler, parameters):
 		plt.savefig(#place to save this)
 		plt.close("all")
 
+def auto_window(taus, c):
+	m = np.arange(len(taus)) < c * taus
+	if np.any(m):
+		return np.argmin(m)
+	return len(taus) - 1
 
+def autocorr_new(y, c = 5.0):
+	f = np.zeros(y.shape[1])
+	for yy in y:
+		f += emcee.autocorr.function_1d(yy)
+	f /= len(y)
+	taus = 2.0 * np.cumsum(f) - 1.0
+	window = auto_window(taus, c)
+	return taus[window]
+
+def autocorrelation(sampler, parameters):
+	# Getting chain for the first parameter to calculate different values
+	chain = sampler.get_chain()
+	
+	nwalkers = sampler.nwalkers
+	ndims = sampler.ndim
+	nsteps = chain.shape[0]
+	
+	# Converting parameters df to array of names
+	names = list(parameters)
+
+	# Calculating values to calculate tau for
+	# This chould be changed eventually
+	N = np.exp(np.linspace(np.log(100), np.log(nsteps), 10)).astype(int)
+
+	# Setting up array for tau estimates
+	tau = np.empty( (len(N), ndims) )
+
+	# Calculating tau for each value in N for each parameter
+	for i in range(ndims):
+		thischain = chain[:,:,i].T
+		for j, n in enumerate(N):
+			tau[j,i] = autocorr_new(chain[:, :n])
+
+	# Setting up to plot curves for tau in a grid
+	x = 3
+	y = ndims
+	nrows = 0
+	ncols = 3
+	while x <= y:
+		y = y - x
+		nrows += 1
+
+	# Plotting
+	fig, ax = plt.subplots(nrows = nrows, ncols = ncols, sharey=True, 
+			       gridspec_kw={'wspace': 0},
+			       figsize = (6.4*(ncols-1),4.8*(nrows)), 
+			       squeeze = False)
+	fig.suptitle("Autocorrelation estimates")
+	fig.add_subplot(111, frameon=False)
+	plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+	plt.grid(False)
+	plt.xlabel("number of samples, $N$")
+	plt.ylabel(r"$\tau$ estimates")
+	for i in range(nrows):
+		for j in range(ncols):
+			dim = i*ncols + j
+			taus = ax[i,j].loglog(N, new[:,dim], "o-", label="new")
+			line = ax[i,j].plot(N, N / 50.0, "--k", label=r"$\tau = N/50$")
+			ax[i,j].text(N[0], 100, names[dim])
+			if i == 0 and j == 0:
+				 plt.legend([l3],[r"$\tau = N/50$"],fontsize = 14,
+					    loc="lower right")
+
+	#fig.savefig("autocorr.png")
+	# Outputting the emcee calculated autocorrelation time as an additional check
+	print(
+		"Mean autocorrelation time: {0:.3f} steps".format(
+			np.mean(sampler.get_autocorr_time())
+		)
+	)
+	print("Estimated autocorrelation time for each parameter:")
+	print(sampler.get_autocorr_time())
