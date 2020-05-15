@@ -75,8 +75,10 @@ ndim = len(guesses.columns)
 
 # Convert the guesses into fitting units and place in numpy array
 p0 = np.zeros((ndim, walkers))
+i = 0
 for col in guesses.columns:
 	p0[i,:] = guesses[col]
+	i++
 
 # Check to see if geocentric_object_position.csv exists and if not creates it
 objname = runprops.get('objectname')
@@ -91,7 +93,7 @@ else:
 geocentric_object_positions = pd.read_csv("../data/" + objname + "/geocentric_" + objname + "_position.csv")
 
 # Now get observations data frame
-obsdata = "../data/" + objname + "/" + objname + "/ObsDF.csv" #Just an exmaple filename rn
+obsdata = "../data/" + objname + "/" + objname + "/ObsDF.csv" #Just an example filename rn
 if os.path.exists(obsdata):
 	print("Observational data file " + obsdata + " will be used")
 else:
