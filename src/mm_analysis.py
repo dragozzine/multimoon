@@ -55,9 +55,9 @@ def plots(sampler, parameters):
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
-		plt.hist(chain[i,:,:].flatten(), bins = 40, histtype = "step", color = "black")
+		plt.hist(chain[:,:,i].flatten(), bins = 40, histtype = "step", color = "black")
 		plt.subplot(223)
-		plt.scatter(flatchain[i,:].flatten(), llhoods.flatten())
+		plt.scatter(flatchain[:,i].flatten(), llhoods.flatten())
 		plt.xlabel(names[i])
 		plt.ylabel("Log(L)")
 		plt.subplot(224)
