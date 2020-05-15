@@ -110,7 +110,6 @@ else:
 reset = 0
 
 for i in range(walkers):
-
 	llhood = mm_likelihood.log_probability(p0[i,:]) # add additional args if needs be
 	while (reset < 500) & (llhood == -np.Inf):
 		if (reset % 500 == 0) & (reset != 0):
@@ -128,17 +127,14 @@ for i in range(walkers):
 # Now creating the sampler object
 sampler = emcee.EnsembleSampler(walkers, ndim, mm_likelihood.log_probability, args = (runprops, fitarray_to_params_dict, obsdf))
 
-#Is this correct? I'm not sure
-nburnin = runprops.get("nburnin")
 #Starting the burnin
+nburnin = runprops.get("nburnin")
 print("Starting the burn in")
-
-state = sampler.run_mcmc(p0, nburnin, progress = True)
+state = sampler.run_mcmc(p0, nburnin, progress = True, store = False)
 sampler.reset()
 
-nsteps = runprops.get("nsteps")
-
 # Now do the full run with the leftovers of the burnin
+nsteps = runprops.get("nsteps")
 sampler.run_mcmc(state, nsteps)
 
 # Once it's completed, we need to save the chain
