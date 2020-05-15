@@ -110,7 +110,7 @@ else:
 reset = 0
 
 for i in range(walkers):
-	llhood = mm_likelihood.mm_likelihood(p0[:,i]) # add additional args if needs be
+	llhood = mm_likelihood.log_probability(p0[:,i]) # add additional args if needs be
 	while (reset < 500) & (llhood == -np.Inf):
 		if (reset % 500 == 0) & (reset != 0):
 			print("ERROR: Initial guesses for walkers may be bad.")
@@ -121,7 +121,7 @@ for i in range(walkers):
 			if abort == "yes":
 				sys.exit()
 		# reset parameter values for that walker
-		llhood = mm_likelihood.mm_likelihood(p0[:,i])
+		llhood = mm_likelihood.log_probability(p0[:,i])
 		reset += 1
         
 # Now creating the sampler object
@@ -147,30 +147,3 @@ flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
 # save chains
 
 mm_analysis.mm_analysis(sampler,obsdata)
-
-"""
-Function to convert the parameter dataframe to a scaled and fitted array.
-Inputs: 
-1) The Parameters dataframe
-2) The fix/float/constrain constraints dictionary
-3) The dictionary describing the scale of each element
-
-Outputs:
-1) The fitted array of parameters
-2) The dictionary of the param fit data
-"""
-def from_param_df_to_fit_array(dataframe, contraints, param_to_fit_scale):
-    return 1
-    
-"""
-Function to convert a fitted array into the parameter dataframe
-Inputs: 
-1) The fitted array
-2) The fix/float/constrain constraints dictionary
-3) The dictionary describing the scale of each element
-
-Outputs:
-1) Dataframe in parameter format
-"""
-def from_fit_array_to_param_df(fit_array, contraints, param_to_fit_scale):
-    return 1
