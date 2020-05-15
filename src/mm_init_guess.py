@@ -26,7 +26,9 @@ def mm_init_guess(runprops, nwalkers):
         distribution.
     """
     filename = "../data/" + runprops("objname") + "/" + objname +"init_guess.csv"
-    start_guess_df = pd.read_csv(filename)
+    start_guess_df = pd.read_csv(filename,sep='\t',index_col=0)
+    start_guess_df = start_guess_df.transpose()
+    
     arrSet = start_guess_df.as_matrix()
       
     # Some code to help us get the names for the columns.
