@@ -10,13 +10,12 @@ Outputs:
 """
 def log_likelihood(params, obsdf, runprops, fitarray_to_params_dict):
     
-    
-    
     lh = mm_chisquare(params,obsdf)*-0.5
     return lh
 
 def log_probability(params, runprops, fitarray_to_params_dict, obsdf):
-    lp = prior.mm_prior()
+    lp = prior.mm_priors(priors,params)
+    
     if not np.isfinite(lp):
         return -np.inf
     return lp + log_likelihood(params, obsdf)
