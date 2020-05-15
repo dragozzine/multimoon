@@ -80,7 +80,7 @@ for i in range(ndim):
 
 # Check to see if geocentric_object_position.csv exists and if not creates it
 objname = runprops.get('objectname')
-if os.path.exists("geocentric_" + objname + "_position.csv"):
+if os.path.exists("../data/" + objname + "/geocentric_" + objname + "_position.csv"):
 	print("Object geocentric position file geocentric_" + objname + "_position.csv will be used")
 else:
 	print("No object geocentric position file exists. Creating new file.")
