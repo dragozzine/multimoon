@@ -52,7 +52,8 @@ Outputs:
 import sys
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
+import emcee
+#from tqdm import tqdm  # progress bar for emcee, but needs package
 import mm_runprops
 import mm_init_guess
 import mm_likelihood
@@ -68,17 +69,33 @@ runprops = mm_runprops.runprops
 walkers = runprops.get("nwalkers")
 
 # Generate the intial guess for emcee
+# starting guess is given by the user as specified in runprops
+# and turned into the official initial guess
+# DS TODO: "walkers" is redundant becuase it is in runproprs
+# LATER TODO: starting -> initial guess function is specificed by user
+
 guesses = mm_init_guess.mm_init_guess(runprops, walkers)	# maybe more args
+# ouptut from init_guess is a dataframe with all the desired parameters to be fit
+
+# BP TODO: check that flags/arguments in runprop are consistent with the parameters required
+# number of objects
+# flags: pointmass/oblate [J2R2, spinc, splan]/triaxial [J2R2, C22R2, ellip_c?, spinc, splan, spaop, sprate] x N objects
+# flags: include_sun = True/False
+
+
+
+# DS TODO: update this to use param_df_tofit_array code
 
 #ndim is equal to the number of dimension, should this be equal to the number of columns of the init_guess array?
 ndim = len(guesses.columns)
-
 # Convert the guesses into fitting units and place in numpy array
 p0 = np.zeros((ndim, walkers))
 i = 0
 for col in guesses.columns:
 	p0[i,:] = guesses[col]
 	i++
+
+
 
 # Check to see if geocentric_object_position.csv exists and if not creates it
 objname = runprops.get('objectname')
@@ -89,28 +106,25 @@ else:
 	mm_make_geo_pos(objname, start='2000-01-01', end='2040-01-01', step='10d')	# This is basically a function based on DS's makeHorFile
 	print("geocentric_" + objname + "_position.csv has been created")
 
-
+# Reads in th geocentric_object data file
 geocentric_object_positions = pd.read_csv("../data/" + objname + "/geocentric_" + objname + "_position.csv")
 
+
 # Now get observations data frame
+# DS TODO: take observations data frame from runprops
 obsdata = "../data/" + objname + "/" + objname + "/ObsDF.csv" #Just an example filename rn
 if os.path.exists(obsdata):
 	print("Observational data file " + obsdata + " will be used")
 else:
 	print("ERROR: No observational data file exists. Aborting run.")
 	sys.exit()
-	# Could change this to create a data file given the correct information,
-	# but for now I'm just aborting the run
 
-# Should we input a loop to test all walers to see if the return non-inf probabilities?
-# Doing this will really cut down the time for convergence since walkers aren't "blindly"
-# walking around in bad parameter space. 
-#The only problem might be that it takes a long time to test all of p0? Might be worth it
 
+# Go through initial guesses and check that all walkers have finite posterior probability
 reset = 0
-
 for i in range(walkers):
-	llhood = mm_likelihood.log_probability(p0[i,:]) # add additional args if needs be
+	llhood = mm_likelihood.log_probability(p0[i,:]) # TODO: add additional args if needs be
+        # BP TODO: change this to not require user input during run but rather to use runprops flags
 	while (reset < 500) & (llhood == -np.Inf):
 		if (reset % 500 == 0) & (reset != 0):
 			print("ERROR: Initial guesses for walkers may be bad.")
@@ -120,10 +134,14 @@ for i in range(walkers):
 				abort = input("Abort script? (yes/no) ")
 			if abort == "yes":
 				sys.exit()
-		# reset parameter values for that walker
+		# BP TODO: reset parameter values for that walker by using
+                # linear combinations of good walkers
 		llhood = mm_likelihood.log_probability(p0[i,:])
 		reset += 1
-        
+
+# We now have an initial guess for each walker that is not really bad.
+# Begin MCMC        
+
 # Now creating the sampler object
 sampler = emcee.EnsembleSampler(walkers, ndim, mm_likelihood.log_probability, args = (runprops, fitarray_to_params_dict, obsdf))
 
@@ -133,6 +151,10 @@ print("Starting the burn in")
 state = sampler.run_mcmc(p0, nburnin, progress = True, store = False)
 sampler.reset()
 
+
+# BP TODO: Update to use mm_autorun which automatically
+# tries to produce desired effective sample size
+
 # Now do the full run with the leftovers of the burnin
 nsteps = runprops.get("nsteps")
 sampler.run_mcmc(state, nsteps)
@@ -140,7 +162,13 @@ sampler.run_mcmc(state, nsteps)
 # Once it's completed, we need to save the chain
 chain = sampler.get_chain(thin = runprops.get("nthinning"))
 flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
-# save chains
 
+# TODO: save chains to file
+
+# make plots of MCMC results
 mm_analysis.plots(sampler,guesses.columns)
 mm_analysis.autocorrelation(sampler,guesses.columns)
+
+# make other diagnostic plots
+# TODO: orbit astrometry plots
+# TODO: residual plots

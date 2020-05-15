@@ -11,6 +11,10 @@ Outputs:
 
 """
 def log_likelihood(params, obsdf, runprops, fitarray_to_params_dict):
+    # assuming Guassian independent obsrvations log-likehood = -1/2 * chisqure
+
+    # DS TODO: convert parameters array to parameters dataframe
+
     lh = mm_chisquare(params,obsdf)*-0.5
     return lh
 
@@ -47,8 +51,20 @@ Inputs:
 Outputs:
 1) The chi-squared number of the likelihood
 """
+# calculates the chi-square for parameters given observations
 def mm_chisquare(modeldata, obsdata):
     
     
-    return 1
+    # SP TODO: fill this in
+    # use parameters dataframe with one set of parameters and observation times to call SPINNY to get the model dataframe
+    # SPINNY returns (full?) state vector of each object (in primaricentric ecliptic J2000 coordinates) at each time
+
     
+    # use mm_relast code to turn positions into geocentric relative astrometry
+
+    # calculate chisquare = sum [ (model-obs)/err ] ^2 
+
+    # return chisquare
+
+    
+    return 1
