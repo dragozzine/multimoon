@@ -26,7 +26,7 @@ def plots(sampler, parameters):
 	chain = sampler.get_chain(flat = False)
 	# First start by converting the paramaters into an array of strings
 	# code here
-	names = list(paramaters)
+	names = list(parameters)
 
 	fig = corner.corner(chain, bins = 40, labels = names, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
@@ -63,7 +63,7 @@ def plots(sampler, parameters):
 		plt.subplot(224)
 		plt.hist(llhoods.flatten(), bins = 40, orientation = "horizontal", 
 			 histtype = "step", color = "black")
-		plt.savefig(#place to save this)
+		#plt.savefig(#place to save this)
 		plt.close("all")
 
 def auto_window(taus, c):
