@@ -93,7 +93,9 @@ else:
 geocentric_object_positions = pd.read_csv("geocentric_" + objname + "_position.csv")
 
 # Now get observations data frame
-obsdata = "HaumeaObsDF.csv"
+#'../data/HaumeaObsDf.csv'
+
+obsdata = "../data/" + objname + "/HaumeaObsDF.csv"
 if os.path.exists(obsdata):
 	print("Observational data file " + obsdata + " will be used")
 else:
@@ -125,7 +127,8 @@ for i in range(walkers):
 		reset += 1
         
 # Now creating the sampler object
-sampler = emcee.EnsembleSampler(walkers, ndim, mm_likelihood.mm_likelihood, args = None)
+#You will pass some args int mm_likelihood, like the fit_array.
+sampler = emcee.EnsembleSampler(walkers, ndim, mm_likelihood.log_probability, args = None)
 
 #Is this correct? I'm not sure
 nburnin = runprops.get("nburnin")
@@ -147,32 +150,3 @@ flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
 # save chains
 
 mm_analysis.mm_analysis(sampler,obsdata)
-
-"""
-Function to convert the parameter dataframe to a scaled and fitted array.
-Inputs: 
-1) The Parameters dataframe
-2) The fix/float/constrain constraints dictionary
-3) The dictionary describing the scale of each element
-
-Outputs:
-1) The fitted array of parameters
-2) The dictionary of the param fit data
-"""
-def from_param_df_to_fit_array(dataframe, contraints, param_to_fit_scale):
-    return 1
-"""
-Function to convert a fitted array into the parameter dataframe
-Inputs: 
-1) The fitted array
-2) The fix/float/constrain constraints dictionary
-3) The dictionary describing the scale of each element
-
-Outputs:
-1) Dataframe in parameter format
-"""
-def from_fit_array_to_param_df(fit_array, contraints, param_to_fit_scale):
-    return 1
-
-    
-

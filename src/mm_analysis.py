@@ -33,7 +33,7 @@ def mm_analysis(sampler, parameters):
 	#	ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
 	#fig.savefig(place to save the corner plot)
 
-	
+
 	# Now make the walker plots
 	numsteps = chain.shape[0]
 	numwalkers = chain.shape[1]

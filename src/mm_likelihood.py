@@ -6,7 +6,7 @@ Outputs:
 1) log_likelihood, the log likelihood of the parameters with the priors
 
 """
-def mm_likelihood(fit_array):
+def log_likelihood(obsDF, paramDF):
     
     return 1
 
@@ -21,4 +21,14 @@ Outputs:
 def mm_chisquare(modeldata, obsdata):
     
     return 1
+
+
+def log_probability(fit_array, args, kwargs):
+    import mm_prior
+    
+    mm_prior.mm_prior(priors,param)
+    
+    
+    llhood = log_likelihood(obsDF, paramDF)
+    
     
