@@ -142,4 +142,5 @@ chain = sampler.get_chain(thin = runprops.get("nthinning"))
 flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
 # save chains
 
-mm_analysis.mm_analysis(sampler,obsdata)
+mm_analysis.plots(sampler,guesses.columns)
+mm_analysis.autocorrelation(sampler,guesses.columns)
