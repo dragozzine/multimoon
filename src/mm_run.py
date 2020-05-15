@@ -110,7 +110,11 @@ else:
 reset = 0
 
 for i in range(walkers):
+<<<<<<< HEAD
 	llhood = mm_likelihood.mm_likelihood(p0[i,:]) # add additional args if needs be
+=======
+	llhood = mm_likelihood.log_probability(p0[:,i]) # add additional args if needs be
+>>>>>>> 8f75ac3507e5bf3508487de2925621a1db76ac81
 	while (reset < 500) & (llhood == -np.Inf):
 		if (reset % 500 == 0) & (reset != 0):
 			print("ERROR: Initial guesses for walkers may be bad.")
@@ -121,7 +125,11 @@ for i in range(walkers):
 			if abort == "yes":
 				sys.exit()
 		# reset parameter values for that walker
+<<<<<<< HEAD
 		llhood = mm_likelihood.mm_likelihood(p0[i,:])
+=======
+		llhood = mm_likelihood.log_probability(p0[:,i])
+>>>>>>> 8f75ac3507e5bf3508487de2925621a1db76ac81
 		reset += 1
         
 # Now creating the sampler object
@@ -145,6 +153,7 @@ chain = sampler.get_chain(thin = runprops.get("nthinning"))
 flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
 # save chains
 
+<<<<<<< HEAD
 mm_analysis.mm_analysis(sampler,obsdata)
 
 """
@@ -173,3 +182,6 @@ Outputs:
 """
 def from_fit_array_to_param_df(fit_array, contraints, param_to_fit_scale):
     return 1
+=======
+mm_analysis.mm_analysis(sampler,obsdata)
+>>>>>>> 8f75ac3507e5bf3508487de2925621a1db76ac81
