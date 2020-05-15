@@ -110,7 +110,7 @@ else:
 reset = 0
 
 for i in range(walkers):
-	llhood = mm_likelihood.mm_likelihood(p0[:,i]) # add additional args if needs be
+	llhood = mm_likelihood.mm_likelihood(p0[i,:]) # add additional args if needs be
 	while (reset < 500) & (llhood == -np.Inf):
 		if (reset % 500 == 0) & (reset != 0):
 			print("ERROR: Initial guesses for walkers may be bad.")
@@ -121,7 +121,7 @@ for i in range(walkers):
 			if abort == "yes":
 				sys.exit()
 		# reset parameter values for that walker
-		llhood = mm_likelihood.mm_likelihood(p0[:,i])
+		llhood = mm_likelihood.mm_likelihood(p0[i,:])
 		reset += 1
         
 # Now creating the sampler object
@@ -131,7 +131,6 @@ sampler = emcee.EnsembleSampler(walkers, ndim, mm_likelihood.log_probability, ar
 nburnin = runprops.get("nburnin")
 #Starting the burnin
 print("Starting the burn in")
-p0 = np.transpose(p0)
 
 state = sampler.run_mcmc(p0, nburnin, progress = True)
 sampler.reset()
