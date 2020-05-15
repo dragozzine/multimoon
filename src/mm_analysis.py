@@ -60,7 +60,7 @@ def mm_analysis(sampler, parameters):
 		plt.subplot(223)
 		#print("Length flattened flatchain at line ", i, ": ", len(flatchain[i,:].flatten()))
 		#print("Length flattened likelihoods: ",len(llhoods.flatten()))
-		#plt.scatter(flatchain[i,:].flatten(), llhoods.flatten())
+		plt.scatter(flatchain[:,i].flatten(), llhoods.flatten())
 		plt.xlabel(names[i])
 		plt.ylabel("Log(L)")
 		plt.subplot(224)

@@ -6,7 +6,7 @@ Outputs:
 1) log_likelihood, the log likelihood of the parameters with the priors
 
 """
-def log_likelihood(obsDF, paramDF):
+def log_likelihood(obsDF):
     
     return 1
 
