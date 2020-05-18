@@ -1,6 +1,7 @@
 import numpy as np
 import mm_priors as prior
 import pandas as pd
+import mm_param
 
 """
 Inputs:
@@ -14,8 +15,13 @@ def log_likelihood(params, obsdf, runprops, fitarray_to_params_dict):
     # assuming Guassian independent obsrvations log-likehood = -1/2 * chisqure
 
     # DS TODO: convert parameters array to parameters dataframe
+    
+    #We currently do not have a defined constraints dictionary anywhere, so currently we'll define it as empty
+    constraints = {}
+    
+    paramdf = mm_param.from_fit_array_to_param_df(params, constraints, fitarray_to_params_dict)
 
-    lh = mm_chisquare(params,obsdf)*-0.5
+    lh = mm_chisquare(paramdf,obsdf)*-0.5
     return lh
 
 
@@ -45,14 +51,14 @@ def log_probability(params, runprops, fitarray_to_params_dict, obsdf):
 
 """
 Inputs:
-1)The Model Dataframe
+1)The Parameters dataframe
 2) The Observation Dataframe
 
 Outputs:
 1) The chi-squared number of the likelihood
 """
 # calculates the chi-square for parameters given observations
-def mm_chisquare(modeldata, obsdata):
+def mm_chisquare(paramdf, obsdf):
     
     
     # SP TODO: fill this in
