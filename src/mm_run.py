@@ -93,7 +93,7 @@ p0 = np.zeros((ndim, walkers))
 i = 0
 for col in guesses.columns:
 	p0[i,:] = guesses[col]
-	i++
+	i = i+1
 
 
 

@@ -11,6 +11,8 @@ class ReadJson(object):
 getData = ReadJson()
 runprops = getData.outProps()
 
+print(runprops.get("parameter_dict"))
+
 start_filename = runprops.get('objectname') + '_priors.csv'
 
 

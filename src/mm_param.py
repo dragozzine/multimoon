@@ -9,7 +9,7 @@ Outputs:
 1) The fitted array of parameters
 2) The dictionary of the param fit data
 """
-def from_param_df_to_fit_array(dataframe, contraints, param_to_fit_scale):
+def from_param_df_to_fit_array(dataframe, constraints, param_to_fit_scale):
     return 1
     
 """
@@ -22,6 +22,8 @@ Inputs:
 Outputs:
 1) Dataframe in parameter format
 """
-def from_fit_array_to_param_df(fit_array, contraints, param_to_fit_scale):
+def from_fit_array_to_param_df(fit_array, constraints, param_to_fit_scale):
+    
+    
     
     return 1
