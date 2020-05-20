@@ -71,10 +71,10 @@ walkers = runprops.get("nwalkers")
 # Generate the intial guess for emcee
 # starting guess is given by the user as specified in runprops
 # and turned into the official initial guess
-# DS TODO: "walkers" is redundant becuase it is in runproprs
+
 # LATER TODO: starting -> initial guess function is specificed by user
 
-guesses = mm_init_guess.mm_init_guess(runprops, walkers)	# maybe more args
+guesses = mm_init_guess.mm_init_guess(runprops)	# maybe more args
 # ouptut from init_guess is a dataframe with all the desired parameters to be fit
 
 # BP TODO: check that flags/arguments in runprop are consistent with the parameters required
@@ -89,12 +89,9 @@ guesses = mm_init_guess.mm_init_guess(runprops, walkers)	# maybe more args
 #ndim is equal to the number of dimension, should this be equal to the number of columns of the init_guess array?
 ndim = len(guesses.columns)
 # Convert the guesses into fitting units and place in numpy array
-p0 = np.zeros((ndim, walkers))
-i = 0
-for col in guesses.columns:
-	p0[i,:] = guesses[col]
-	i = i+1
 
+p0 = mm_params.from_param_df_to_fit_array(guesses)
+#we still do not have a constraints or fit scale defined
 
 
 # Check to see if geocentric_object_position.csv exists and if not creates it
@@ -112,12 +109,16 @@ geocentric_object_positions = pd.read_csv("../data/" + objname + "/geocentric_" 
 
 # Now get observations data frame
 # DS TODO: take observations data frame from runprops
-obsdata = "../data/" + objname + "/" + objname + "/ObsDF.csv" #Just an example filename rn
+obsdata = runprops.get('obsdata_file')
+
+obsDF = 0
 if os.path.exists(obsdata):
 	print("Observational data file " + obsdata + " will be used")
+	obsDF = pd.read_csv(obsdata)
 else:
 	print("ERROR: No observational data file exists. Aborting run.")
 	sys.exit()
+
 
 
 # Go through initial guesses and check that all walkers have finite posterior probability
