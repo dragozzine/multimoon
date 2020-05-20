@@ -50,14 +50,20 @@ def plots(sampler, parameters):
 		plt.savefig
 		plt.close()
 
-	# Likelihood plots??
+	# Likelihood plots
 	llhoods = sampler.get_log_prob(flat = True)
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
-		plt.hist(chain[:,:,i].flatten(), bins = 40, histtype = "step", color = "black")
+		for j in range(nwalkers):
+			plt.hist(chain[:,j,i].flatten(), bins = 40, histtype = "step",
+				color = "black",
+				alpha = 0.4, density = True)
+		plt.hist(chain[:,:,i].flatten(), bins = 40, histtype = "step", color = "black", density = True)
 		plt.subplot(223)
-		plt.scatter(flatchain[:,i].flatten(), llhoods.flatten())
+		plt.scatter(flatchain[:,i].flatten(), llhoods.flatten(),
+			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
+			    cmap = "nipy_spectral", edgecolors = "none")
 		plt.xlabel(names[i])
 		plt.ylabel("Log(L)")
 		plt.subplot(224)
