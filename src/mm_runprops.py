@@ -13,7 +13,8 @@ runprops = getData.outProps()
 
 print(runprops.get("parameter_dict"))
 
-start_filename = runprops.get('objectname') + '_priors.csv'
+runprops.get('priors_filename') = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "/_priors.csv"
+runprops.get("obsdata_file") = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "/ObsDF.csv"
 
 
 float_dict = {'name_1': 0,
@@ -44,7 +45,7 @@ fixfloat_df = pd.DataFrame(data = float_dict, index = [0])
 
 lpriorfunc = 'log_prior'
 llhoodfunc = 'log_likelihood'
-obsdata = 'obsdata.csv'
+
 posteriorfile = 'date_time_objname.csv'
 verbose = 1
 plotflags = True

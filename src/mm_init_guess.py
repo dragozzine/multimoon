@@ -9,7 +9,7 @@ Function to generate an initial guess for the emcee function
 Inputs: a filename or datafrme in a parameter-generator format, int nwalkers
 Output: "init_guess" dataframe in parameter format, nwalkers rows
 """
-def mm_init_guess(runprops, nwalkers):
+def mm_init_guess(runprops):
     """This function will produce the initial guess used in nPSF.
     
     Input: 
@@ -30,6 +30,8 @@ def mm_init_guess(runprops, nwalkers):
     start_guess_df = start_guess_df.transpose()
     
     arrSet = start_guess_df.as_matrix()
+    
+    nwalkers = runprops.get("nwalkers")
       
     # Some code to help us get the names for the columns.
     name_dict = {0:"Junk"}
