@@ -64,7 +64,21 @@ def mm_chisquare(paramdf, obsdf):
     # SP TODO: fill this in
     # use parameters dataframe with one set of parameters and observation times to call SPINNY to get the model dataframe
     # SPINNY returns (full?) state vector of each object (in primaricentric ecliptic J2000 coordinates) at each time
-
+    
+    # Are there "holes" in the dataframe when no value is initialized?
+    # what are the dimensions of this dataframe? Is it only one set of parameters?
+    
+    time_arr = obsdf['time'].values.flatten() # gets an array of observation times from the obs dataframe
+    T = len(time_arr)
+    
+    vec_df = spinny_vector(paramdf, time_arr) # returns a dataframe of state vectors for each body in the system
+    
+    
+    for t in range(0,T):
+        # what happens if the sun isn't included in the model? Can you still get heliocentric position?
+        # which numbers do I want from the obsdf?
+        
+        convert_ecl_rel_pos_to_geo_rel_ast(ecl_rel_pos, obj_rel_pos, rel_moon):
     
     # use mm_relast code to turn positions into geocentric relative astrometry
 
