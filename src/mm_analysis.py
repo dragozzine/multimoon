@@ -90,9 +90,9 @@ def autocorr_new(y, c = 5.0):
 	window = auto_window(taus, c)
 	return taus[window]
 
-def autocorrelation(sampler, filename = ""):
+def autocorrelation(sampler, filename = "", thin = 1):
 	# Getting chain for the first parameter to calculate different values
-	chain = sampler.get_chain()
+	chain = sampler.get_chain(thin = thin)
 	
 	nwalkers = sampler.nwalkers
 	ndims = sampler.ndim
