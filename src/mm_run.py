@@ -60,6 +60,7 @@ import mm_likelihood
 import mm_make_geo_pos
 import mm_priors
 import mm_relast
+import mm_autorun
 
 
 # Read in the run props dictionary
@@ -88,11 +89,10 @@ guesses = mm_init_guess.mm_init_guess(runprops)	# maybe more args
 
 #ndim is equal to the number of dimension, should this be equal to the number of columns of the init_guess array?
 ndim = len(guesses.columns)
-# Convert the guesses into fitting units and place in numpy array
 
+# Convert the guesses into fitting units and place in numpy array
 p0 = mm_params.from_param_df_to_fit_array(guesses)
 #we still do not have a constraints or fit scale defined
-
 
 # Check to see if geocentric_object_position.csv exists and if not creates it
 objname = runprops.get('objectname')
@@ -106,7 +106,6 @@ else:
 # Reads in th geocentric_object data file
 geocentric_object_positions = pd.read_csv("../data/" + objname + "/geocentric_" + objname + "_position.csv")
 
-
 # Now get observations data frame
 # DS TODO: take observations data frame from runprops
 obsdata = runprops.get('obsdata_file')
@@ -118,8 +117,6 @@ if os.path.exists(obsdata):
 else:
 	print("ERROR: No observational data file exists. Aborting run.")
 	sys.exit()
-
-
 
 # Go through initial guesses and check that all walkers have finite posterior probability
 reset = 0
@@ -152,13 +149,13 @@ print("Starting the burn in")
 state = sampler.run_mcmc(p0, nburnin, progress = True, store = False)
 sampler.reset()
 
+# Now do the full run with essgoal and initial n steps
 
-# BP TODO: Update to use mm_autorun which automatically
-# tries to produce desired effective sample size
-
-# Now do the full run with the leftovers of the burnin
 nsteps = runprops.get("nsteps")
-sampler.run_mcmc(state, nsteps)
+essgoal = runprops.get("essgoal")
+maxiter = runprops.get("maxiter")
+
+mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter)
 
 # Once it's completed, we need to save the chain
 chain = sampler.get_chain(thin = runprops.get("nthinning"))
