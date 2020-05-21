@@ -17,8 +17,11 @@
 
 
 import corner
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-
+import numpy as np
+import emcee
 
 def plots(sampler, parameters):
 			# Here parameters is whatever file/object will have the run params
@@ -87,7 +90,7 @@ def autocorr_new(y, c = 5.0):
 	window = auto_window(taus, c)
 	return taus[window]
 
-def autocorrelation(sampler, parameters):
+def autocorrelation(sampler, filename = ""):
 	# Getting chain for the first parameter to calculate different values
 	chain = sampler.get_chain()
 	
@@ -95,9 +98,6 @@ def autocorrelation(sampler, parameters):
 	ndims = sampler.ndim
 	nsteps = chain.shape[0]
 	
-	# Converting parameters df to array of names
-	names = list(parameters)
-
 	# Calculating values to calculate tau for
 	# This chould be changed eventually
 	N = np.exp(np.linspace(np.log(100), np.log(nsteps), 10)).astype(int)
@@ -109,7 +109,7 @@ def autocorrelation(sampler, parameters):
 	for i in range(ndims):
 		thischain = chain[:,:,i].T
 		for j, n in enumerate(N):
-			tau[j,i] = autocorr_new(chain[:, :n])
+			tau[j,i] = autocorr_new(thischain[:, :n])
 
 	# Setting up to plot curves for tau in a grid
 	x = 3
@@ -134,19 +134,9 @@ def autocorrelation(sampler, parameters):
 	for i in range(nrows):
 		for j in range(ncols):
 			dim = i*ncols + j
-			taus = ax[i,j].loglog(N, new[:,dim], "o-", label="new")
+			taus = ax[i,j].loglog(N, tau[:,dim], "o-", label="new")
 			line = ax[i,j].plot(N, N / 50.0, "--k", label=r"$\tau = N/50$")
-			ax[i,j].text(N[0], 100, names[dim])
-			if i == 0 and j == 0:
-				 plt.legend([l3],[r"$\tau = N/50$"],fontsize = 14,
-					    loc="lower right")
 
-	#fig.savefig("autocorr.png")
-	# Outputting the emcee calculated autocorrelation time as an additional check
-	print(
-		"Mean autocorrelation time: {0:.3f} steps".format(
-			np.mean(sampler.get_autocorr_time())
-		)
-	)
-	print("Estimated autocorrelation time for each parameter:")
-	print(sampler.get_autocorr_time())
+	fig.savefig("../results/autocorr" + filename + ".png")
+
+	return np.mean(sampler.get_autocorr_time(quiet = True))
