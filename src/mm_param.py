@@ -10,7 +10,19 @@ Outputs:
 2) The dictionary of the param fit data
 """
 def from_param_df_to_fit_array(dataframe, constraints={}, param_to_fit_scale={}):
-    return 1
+    
+    cols = dataframe.columns
+    numWalkers = len(dataframe.index)
+    
+    param_arr = []
+    
+    for i in range(numWalkers):
+        num = 0
+        for j in cols:
+            param_arr[num][i] = dataframe[j][i]
+            num = num+1
+    
+    return param_arr
     
 """
 Function to convert a fitted array into the parameter dataframe
