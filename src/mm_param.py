@@ -14,13 +14,15 @@ def from_param_df_to_fit_array(dataframe, constraints={}, param_to_fit_scale={})
     cols = dataframe.columns
     numWalkers = len(dataframe.index)
     
-    param_arr = []
+    param_arr = dataframe.to_numpy()
     
-    for i in range(numWalkers):
-        num = 0
-        for j in cols:
-            param_arr[num][i] = dataframe[j][i]
-            num = num+1
+    #Siphon through every row
+    #for i in range(numWalkers):
+     #   num = 0
+        #Iterate throgh each column
+      #  for j in cols:
+       #     param_arr[num][i] = dataframe[j][i]
+        #    num = num+1
     
     return param_arr
     
