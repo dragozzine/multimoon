@@ -141,6 +141,7 @@ for i in range(nwalkers):
 sampler = emcee.EnsembleSampler(nwalkers, ndim, mm_likelihood.log_probability, args = (runprops, fitarray_to_params_dict, obsdf))
 
 #Starting the burnin
+# BP TODO: autoburnin??
 nburnin = runprops.get("nburnin")
 print("Starting the burn in")
 state = sampler.run_mcmc(p0, nburnin, progress = True, store = False)

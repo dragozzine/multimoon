@@ -7,6 +7,12 @@
 #	Benjamin Proudfoot
 #	05/15/20
 #
+#	TODO: Add some methods which can estimate the time?? or maybe just use tqdm
+#
+#
+#
+#
+#
 
 import matplotlib
 matplotlib.use("Agg")
@@ -39,7 +45,7 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter):
 	"""
 	# First run the sampler for the specified number of initial steps
 	print("Running MultiMoon for ", initsteps, " steps")
-	state = sampler.run_mcmc(state, initsteps)
+	state = sampler.run_mcmc(state, initsteps, progress = True)
 
 	# Find the integrated autocorrelation time (iat) of the run
 	print(initsteps, " steps have been completed.")
@@ -51,7 +57,7 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter):
 	counter = 1
 	while (50*iat > ngens):
 		print("Runnning the sampler for another ", initsteps, " steps")
-		state = sampler.run_mcmc(state, initsteps)
+		state = sampler.run_mcmc(state, initsteps, progress = True)
 		print(initsteps, " steps have been completed.")
 		print("Calculating the effective sample size.")
 		iat = autocorrelation(sampler, filename = "_" + str(counter))
@@ -78,14 +84,14 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter):
 	# Making sure maxiter is not reached
 	if int(nadditional + ngens) > maxiter:
 		nadditional = int(maxiter - ngens)
-		state = sampler.run_mcmc(state, nadditional)
+		state = sampler.run_mcmc(state, nadditional, progress = True)
 		iat = autocorrelation(sampler, filename = "_" + str(counter))
 		counter += 1
 		ngens = sampler.get_chain().shape[0]
 		print("Maximum iterations has been reached, ending automated runs.")
 		return sampler, ngens/iat
 	else:
-		state = sampler.run_mcmc(state, nadditional)
+		state = sampler.run_mcmc(state, nadditional, progress = True)
 		iat = autocorrelation(sampler, filename = "_" + str(counter))
 		counter += 1
 		ngens = sampler.get_chain().shape[0]
