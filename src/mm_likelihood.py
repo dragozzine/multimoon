@@ -12,7 +12,7 @@ Outputs:
 
 """
 def log_likelihood(params, obsdf, runprops, fitarray_to_params_dict):
-    # assuming Guassian independent obsrvations log-likehood = -1/2 * chisqure
+    # assuming Guassian independent observations log-likehood = -1/2 * chisqure
 
     # DS TODO: convert parameters array to parameters dataframe
     
@@ -85,6 +85,5 @@ def mm_chisquare(paramdf, obsdf):
     # calculate chisquare = sum [ (model-obs)/err ] ^2 
 
     # return chisquare
-
     
     return 1

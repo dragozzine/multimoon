@@ -9,9 +9,9 @@ Outputs:
 1) The fitted array of parameters
 2) The dictionary of the param fit data
 """
-def from_param_df_to_fit_array(dataframe, constraints={}, param_to_fit_scale={}):
+def from_param_df_to_fit_array(dataframe, constraints, param_to_fit_scale):
     
-    cols = dataframe.columns
+    param_arr_names = dataframe.columns
     numWalkers = len(dataframe.index)
     
     param_arr = dataframe.to_numpy()
@@ -24,7 +24,7 @@ def from_param_df_to_fit_array(dataframe, constraints={}, param_to_fit_scale={})
        #     param_arr[num][i] = dataframe[j][i]
         #    num = num+1
     
-    return param_arr
+    return param_arr, param_arr_names
     
 """
 Function to convert a fitted array into the parameter dataframe
@@ -36,7 +36,7 @@ Inputs:
 Outputs:
 1) Dataframe in parameter format
 """
-def from_fit_array_to_param_df(fit_array, constraints={}, param_to_fit_scale={}):
+def from_fit_array_to_param_df(fit_array, constraints, param_to_fit_scale={}):
     import runprops
     
     dict_vals = runprops.runprops.get("float_dict").keys()

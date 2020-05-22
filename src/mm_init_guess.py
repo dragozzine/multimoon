@@ -25,7 +25,7 @@ def mm_init_guess(runprops):
         as start_guess_df and nwalker rows drawn from the 
         distribution.
     """
-    filename = "../data/" + runprops("objname") + "/" + objname +"init_guess.csv"
+    filename = runprops.get("init_filename")
     start_guess_df = pd.read_csv(filename,sep='\t',index_col=0)
     start_guess_df = start_guess_df.transpose()
     
