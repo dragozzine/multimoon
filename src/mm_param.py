@@ -2,18 +2,19 @@
 Function to convert the parameter dataframe to a scaled and fitted array.
 Inputs: 
 1) The Parameters dataframe
-2) The fix/float/constrain constraints dictionary
+2) The fix/float/constrain constraints dictionary is inside runprops
 
 Outputs:
 1) The fitted array of parameters
 2) The dictionary of the param fit data
 """
-def from_param_df_to_fit_array(dataframe, constraints):
+def from_param_df_to_fit_array(dataframe, runprops):
     
     param_arr_names = dataframe.columns
     numWalkers = len(dataframe.index)
     
-    param_arr = dataframe.to_numpy()
+    fix_float_dict = runprops.get("float_dict")
+    scale = dataframe.iloc[[0]]
     
     #Siphon through every row
     #for i in range(numWalkers):

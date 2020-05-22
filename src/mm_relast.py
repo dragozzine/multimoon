@@ -13,8 +13,9 @@ import pandas as pd
           deltaLong,deltaLat = convert_ecl_rel_pos_to_geo_rel_ast(ecl_rel_pos, obs_obj_rel_pos)
    
     INPUTS
-          ecl_rel_pos - The J2000 ecliptic relative position of the KBO in Cartesian coordinates
-          obs_obj_rel_pos - The J2000 ecliptic relative position of the Moon in Cartesian coordinates
+          ecl_rel_pos - The J2000 ecliptic relative position of the Observer in Cartesian coordinates
+          obj_rel_pos - The J2000 ecliptic relative position of the KBO in Cartesian coordinates
+          rel_moon -  The observer relative position of the Moon in Cartesian coordinates
    
     OUTPUTS:
           deltaLong - The difference in Longitude of the moon vs. it's primary KBO
@@ -24,6 +25,7 @@ def convert_ecl_rel_pos_to_geo_rel_ast(ecl_rel_pos, obj_rel_pos, rel_moon):
     
     #Get the Cartesian positions of the Observer
     x1,y1,z1 = ecl_rel_pos[0],ecl_rel_pos[1],ecl_rel_pos[2]
+    
     #Get the distance from the origin (Heliocenter) of the observer
     R1= np.sqrt(x1**2+y1**2+z1**2)    
 
