@@ -60,11 +60,12 @@ Outputs:
 # calculates the chi-square for parameters given observations
 def mm_chisquare(paramdf, obsdf, runprops):
 
-
-    # DS TODO: make sure "name_i" is in paramdf
     numObj = runprops.get("numobjects")
     
-    for i in numObj:
+    for i in range(numObj):
+        if not 'name_'+i in paramdf.columns:
+            print('The parameter name_' + i+ ' is not found in the parameter dataframe.')
+            sys.exit()
         
     
     # use parameters dataframe with one set of parameters and observation times to call SPINNY to get the model dataframe
@@ -105,9 +106,10 @@ def mm_chisquare(paramdf, obsdf, runprops):
     for t in time_arr:
 
         # DS TODO: get relative positions out of vec_df
-        x1,y1,z1 = vec_df["X_Pos_"+paramdf["name_1"],vec_df["Y_Pos_"+paramdf["name_1"],vec_df["Z_Pos_"+paramdf["name_1"]
-        x2,y2,z2 = vec_df["X_Pos_"+paramdf["name_2"],vec_df["Y_Pos_"+paramdf["name_2"],vec_df["Z_Pos_"+paramdf["name_2"]
-        x3,y3,z3 = vec_df["X_Pos_"+paramdf["name_3"],vec_df["Y_Pos_"+paramdf["name_3"],vec_df["Z_Pos_"+paramdf["name_3"]
+        positionData = []
+        for i in range(numObj):
+            positionData[i][0],positionData[i][1], positionData[i][2] = vec_df["X_Pos_"+paramdf["name_"+i],vec_df["Y_Pos_"+paramdf["name_"+i],vec_df["Z_Pos_"+paramdf["name_"+i]
+
 
         # tind = index/row number of vec_df corresponding to this time
 
