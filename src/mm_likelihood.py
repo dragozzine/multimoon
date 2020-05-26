@@ -11,7 +11,7 @@ Outputs:
 1) log_likelihood, the log likelihood of the parameters with the priors
 
 """
-def log_likelihood(params, obsdf, runprops, fitarray_to_params_dict):
+def log_likelihood(params, float_names,fixed_df, total_df_names, fit_scale, obsdf, runprops):
     # assuming Guassian independent observations log-likehood = -1/2 * chisqure
 
     # DS TODO: convert parameters array to parameters dataframe
@@ -19,9 +19,9 @@ def log_likelihood(params, obsdf, runprops, fitarray_to_params_dict):
     #We currently do not have a defined constraints dictionary anywhere, so currently we'll define it as empty
     constraints = {}
     
-    paramdf = mm_param.from_fit_array_to_param_df(params, constraints, fitarray_to_params_dict)
+    paramdf = mm_param.from_fit_array_to_param_df(params, float_names, fixed_df, total_df_names, fit_scale)
 
-    lh = mm_chisquare(paramdf,obsdf)*-0.5
+    lh = mm_chisquare(paramdf,obsdf, runprops)*-0.5
     return lh
 
 
@@ -36,7 +36,7 @@ Outputs:
 1) log_probability, the log_likelihood plus the priors, which is the total probability
 
 """
-def log_probability(params, runprops, fitarray_to_params_dict, obsdf):
+def log_probability(float_params, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf):
     
     objname = runprops.get("objname")
     priors = pd.read_csv("../data/" +objname + "/" + objname + "_priors_df.csv", sep='\t',index_col=0)
@@ -58,10 +58,14 @@ Outputs:
 1) The chi-squared number of the likelihood
 """
 # calculates the chi-square for parameters given observations
-def mm_chisquare(paramdf, obsdf):
+def mm_chisquare(paramdf, obsdf, runprops):
 
 
-    # DS TODO: make sure "name_i" is in paramdf    
+    # DS TODO: make sure "name_i" is in paramdf
+    numObj = runprops.get("numobjects")
+    
+    for i in numObj:
+        
     
     # use parameters dataframe with one set of parameters and observation times to call SPINNY to get the model dataframe
     # SPINNY returns (full?) state vector of each object (in primaricentric ecliptic J2000 coordinates) at each time
@@ -87,7 +91,7 @@ def mm_chisquare(paramdf, obsdf):
     # SP TODO: make sure SPINNY can handle i/o in MultiMoon units
     # SP TODO: return full state vector
     vec_df = spinny_vector(paramdf, time_arr) # returns a dataframe of state vectors for each body in the system
-    # vec_df is a dataframe with len(time_arr) row and 
+    # vec_df is a dataframe with len(time_arr) rows and 
     # columns are state parameters x nobjects
     # Example: vecdf["X_Pos_"+paramsdf["name_2"]] gets the x position of object 2
     # ecliptic (J2000) coordinates
@@ -101,6 +105,9 @@ def mm_chisquare(paramdf, obsdf):
     for t in time_arr:
 
         # DS TODO: get relative positions out of vec_df
+        x1,y1,z1 = vec_df["X_Pos_"+paramdf["name_1"],vec_df["Y_Pos_"+paramdf["name_1"],vec_df["Z_Pos_"+paramdf["name_1"]
+        x2,y2,z2 = vec_df["X_Pos_"+paramdf["name_2"],vec_df["Y_Pos_"+paramdf["name_2"],vec_df["Z_Pos_"+paramdf["name_2"]
+        x3,y3,z3 = vec_df["X_Pos_"+paramdf["name_3"],vec_df["Y_Pos_"+paramdf["name_3"],vec_df["Z_Pos_"+paramdf["name_3"]
 
         # tind = index/row number of vec_df corresponding to this time
 
@@ -116,8 +123,8 @@ def mm_chisquare(paramdf, obsdf):
         # Implicitly assume that observer is close to geocenter (within ~0.01 AU)
 
 
-        convert_ecl_rel_pos_to_geo_rel_ast(ecl_rel_pos, obj_rel_pos, rel_moon):
-        # DS TODO: study and update the code and comments
+        convert_ecl_rel_pos_to_geo_rel_ast(ecl_rel_pos, obj_rel_pos, obs_rel_moon):
+        # DS TODO: study and update the code and comments UPDATE: Have completed, should work.
         # mm_relast
         # ecl_rel_pos = position of the primary relative to the observer (in ecliptic frame)
           # input: numpy array of 3 values: x, y, z in units of km

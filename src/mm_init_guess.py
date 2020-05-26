@@ -10,17 +10,14 @@ Inputs: a filename or datafrme in a parameter-generator format, int nwalkers
 Output: "init_guess" dataframe in parameter format, nwalkers rows
 """
 def mm_init_guess(runprops):
-    """This function will produce the initial guess used in nPSF.
+    """This function will produce the initial guess used in multimoon.
     
     Input: 
     
     runprops- All run properties for the code. Will include
-        the name of the init_guess datafraem csv file.
-    nwalkers - number of walkers. Added by Rochelle to make
-        compatible with run_props in npsf_run.py 4/17/20
+        the name of the init_guess dataframe csv file.
     
-    Returns:
-    
+    Returns:    
     params_df - A parameters dataframe with the same column names
         as start_guess_df and nwalker rows drawn from the 
         distribution.

@@ -85,14 +85,11 @@ guesses = mm_init_guess.mm_init_guess(runprops)	# maybe more args
 # flags: include_sun = True/False
 
 
-
-# DS TODO: update this to use param_df_tofit_array code
-
 #ndim is equal to the number of dimension, should this be equal to the number of columns of the init_guess array?
 ndim = len(guesses.columns)
 
 # Convert the guesses into fitting units and place in numpy array
-p0 = mm_params.from_param_df_to_fit_array(guesses)
+p0,float_names,fixed_df,total_df_names,fit_scale = mm_params.from_param_df_to_fit_array(guesses,runprops)
 #we still do not have a constraints or fit scale defined
 
 # Check to see if geocentric_object_position.csv exists and if not creates it
@@ -123,12 +120,12 @@ else:
 reset = 0
 maxreset = runprops.get("maxreset")
 for i in range(nwalkers):
-	llhood = mm_likelihood.log_probability(p0[i,:], runprops, fitarray_to_params_dict, obsdf)
+	llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf)
 	while (llhood == -np.Inf):
 		# Resetting walker to be average of two other walkers
 		# BP TODO: Test this to make sure it works...
 		p0[i,:] = (p0[random.randrange(nwalkers),:] + p0[random.randrange(nwalkers),:])/2
-		llhood = mm_likelihood.log_probability(p0[i,:])
+		llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf)
 		reset += 1
 		if reset > maxreset:
 			print("Maximum number of resets has been reached, aborting run.")
@@ -138,7 +135,7 @@ for i in range(nwalkers):
 # Begin MCMC        
 
 # Now creating the sampler object
-sampler = emcee.EnsembleSampler(nwalkers, ndim, mm_likelihood.log_probability, args = (runprops, fitarray_to_params_dict, obsdf))
+sampler = emcee.EnsembleSampler(nwalkers, ndim, mm_likelihood.log_probability, args = (float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf))
 
 #Starting the burnin
 # BP TODO: autoburnin??
