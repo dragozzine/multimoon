@@ -17,7 +17,7 @@ mm_analysis: This file produces the many likelihood plots and diagnostic results
         
     auto_window: Automatically sets a window size for the user
         Inputs:
-            taus:
+            taus: 
             c: 
         
         Outputs:
@@ -38,7 +38,7 @@ mm_analysis: This file produces the many likelihood plots and diagnostic results
             thin: int, Default = 1, the thinning parameter for the sampler's data
         
         Outputs:
-            np.mean(sampler....) : int, 
+            np.mean(sampler....) : int, The auto correlation time for the ensemble
         
 mm_autorun: The purpose of this program is to autorun multimoon until an ESS (effective samplesize) is reached. Currently holds only 1 function, mm_autorun.
 
@@ -76,7 +76,7 @@ mm_init_guess: This function is used to generate an initial guess for the emcee 
         
 
     get_init_guess_from_singlerow_startguess_rough: Generates the init_guess from a given single row starting guess. The output is multirow equal to the number of walkers.
-        Inputs:
+        Inputs: 
         
         Outputs:
         
@@ -89,71 +89,112 @@ mm_init_guess: This function is used to generate an initial guess for the emcee 
 
 mm_likelihood: The functions in this file are used by the Emcee Sampler to determine the likelihood and probabiliy of the given parameters and the observed data. 
 
-    log_probability: This functino calls both the priors functino and the likelihood function to get the total log probability that is returned to emcee.
+    log_probability: This function calls both the priors function and the likelihood function to get the total log probability that is returned to emcee.
         Inputs:
-            float_params: pd.df, The parameter dataframe used by emcee
-            float_names:
-            fixed_df:
-            total_df_names:
-            fit_scale:
+            float_params: np.array, The parameter dataframe of floating values used by emcee
+            float_names: pd.df, A single row df that holds the names in order of the parameters in float_params
+            fixed_df: pd.df, The parameter dataframe of fixed values
+            total_df_names: pd.df, A single row of every parameter name in order as they were originally given 
+            fit_scale: pd.df, A row of parameters used to scale the parameters to a fitted size.
             obsdf: pd.df, The observation dataframe which is compared to the model
             runprops: dict, Dictionary holding all of the run information neded by many functions
 
         
         Outputs:
+            priors + likelihood: int, the total probability of the parameters given the observed data
         
     log_likelihood: This function calls chisquare to detemine the likelihood of the parameters matching the observations taken.
         Inputs:
-        
+            float_params: np.array, The parameter dataframe of floating values used by emcee
+            float_names: pd.df, A single row df that holds the names in order of the parameters in float_params
+            fixed_df: pd.df, The parameter dataframe of fixed values
+            total_df_names: pd.df, A single row of every parameter name in order as they were originally given 
+            fit_scale: pd.df, A row of parameters used to scale the parameters to a fitted size.
+            obsdf: pd.df, The observation dataframe which is compared to the model
+            runprops: dict, Dictionary holding all of the run information neded by many functions
+            
         Outputs:
+            chisquare*-0.5 : int, the log_likelihood
         
-    mm_chisquare: This functino uses the SPINNY integrator to build a model of the system using the given parameters, and compares the model to the observed data, returning a chi-squared likelihood of the parameters leading to the observed data. 
+    mm_chisquare: This function uses the SPINNY integrator to build a model of the system using the given parameters, and compares the model to the observed data, returning a chi-squared likelihood of the parameters leading to the observed data. 
         Inputs:
+            paramdf: pd.df, The parameter dataframe of all variables
+            obsdf: pd.df, The observed data for the object
+            runprops: dict, Dictionary holding all of the run information neded by many functions
         
         Outputs:
+            chisquare: The chisquare value of the parameters against the observed data
         
 
 mm_make_geo_pos: This file is used to create and modify geocentric positional dataframes
 
-    mm_make_geo_pos: This file will create a geocentric datafrmae of the requested object(typically a KBO) and will place the dataframe into its data folder.
+    mm_make_geo_pos: This file will create a geocentric dataframe of the requested object(typically a KBO) and will place the dataframe into its data folder.
         Inputs:
+            objname: str, The name of the object the user wants a geocentric file created for.
+            start: str, the start date in mm-dd-yyyy form.
+            end: str, the end sate in mm-dd-yyyy form.
+            step: str, the step size of time.
         
         Outputs:
+            No outputs, but creates a new geocentric observation dataframe in the data folder.
+       
         
-    geotoKBOtime: This function takes a given geocentirc observational dataframe and converts it to a KBO-centric dataframe.
+    geotoKBOtime: This function takes a given geocentric observational dataframe and converts it to a KBO-centric dataframe.
         Inputs:
+             objectName: str, The name of the object the user wants a KBO-centric file created for.
         
         Outputs:
+             No outputs, but creates a new file of the observed data in KBO-centric time in the data flder.
         
 
-mm_param: This file has two function that turn the parameter array used by the emcee sampler into a dataframe, and vice versa.
+mm_param: This file has two functions that turn the parameter array used by the emcee sampler into a dataframe, and vice versa.
 
     from_param_df_to_fit_array: This function converts the parameter dataframe given into the parameter array needed by emcee to run.
         Inputs:
-        
+            dataframe: pd.df, The Parameters dataframe
+            runprops: dict, Dictionary holding all of the run information neded by many functions
+
         Outputs:
+            float_arr: arr, The fitted array of floating parameters
+            float_names: pd.df, The array of the names of each array
+            fixed_df: pd.df, The dataframe of fixed values
+            total_df_names: pd.df, The list of all column names in order for recombination
+            fit_scale: pd.df, The original fit scale which will be needed later during recombination
         
     from_fit_array_to_param_df: This functino turns the parameter array from the emcee sampler back into a parameter dataframe. 
         Inputs:
+            float_arr: arr, The fitted array of floating parameters
+            float_names: pd.df, The array of the names of each array
+            fixed_df: pd.df, The dataframe of fixed values
+            total_df_names: pd.df, The list of all column names in order for recombination
+            fit_scale: pd.df, The original fit scale which will be needed later during recombination
         
         Outputs:
+            param_df: pd.df, The recombined dataframe
         
 
 mm_priors: This file reads in the priors file that is found in the data folder, and calculates the prior probability of the observed data.
 
     mm_priors: This file reads in the priors dataframe given, and determines the prior probability of the prior beliefs matching with the observed data.
         Inputs:
+             priors - pd.df, a dataframe of 9 rows which holds the prior for the data points given, and the distribution shape wanted.
+             params - pd.df, A single rowed dataframe of the actual observed parameters for the object. 
         
         Outputs:
-        
+            totalLogProb - int, The total Log of the probability of all the priors against the parameters        
     
 
 mm_relast: This file holds functions that determine the relative astrometry of the observed objects based on the observer relative positions given.
 
     convert_ecl_rel_pos_to_geo_rel_ast: This function uses the relative poistions of the observer, the KBO, and the satellite, and determines the deltaLat and deltaLong of the satellite according to the observer.
         Inputs:
+            ecl_rel_pos - np.array, The J2000 ecliptic relative position of the Observer in Cartesian coordinates
+            obj_rel_pos - np.array, The J2000 ecliptic relative position of the KBO in Cartesian coordinates
+            rel_moon -  np.array, The observer relative position of the Moon in Cartesian coordinates
         
         Outputs:
+            deltaLong - np.array, The difference in Longitude of the moon vs. it's primary KBO
+            deltaLat - np.array, The difference in Latitude of the moon vs. it's primary KBO
         
 
 mm_run: This file runs the multimoon program. It pulls together all of the functions and files in each the project and runs them using the information given by the user in the runprops files.
