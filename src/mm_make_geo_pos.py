@@ -16,8 +16,9 @@ def mm_make_geo_pos(objname, start, end, step):
     lightTime = vecKBO['lighttime']
     kboTime=jdTime-lightTime
     
-    geocentricFile = pd.DataFrame({'geocentricTime':ephKBO['datetime_jd'],'x':vecKBO['x'],'y':vecKBO['y'],'z':vecKBO['z']})
-    outFile = pd.DataFrame({'kboTIME':kboTime,'x':vecKBO['x'],'y':vecKBO['y'],'z':vecKBO['z']})
+    #taking care to convert the AU distances to kilometers
+    geocentricFile = pd.DataFrame({'geocentricTime':ephKBO['datetime_jd'],'x':vecKBO['x']*149597870.7,'y':vecKBO['y']*149597870.7 ,'z':vecKBO['z']*149597870.7})
+    outFile = pd.DataFrame({'kboTIME':kboTime,'x':vecKBO['x']*149597870.7 ,'y':vecKBO['y']*149597870.7 ,'z':vecKBO['z']*149597870.7 })
     
     filename1 = "../data/" + objname + "/geocentric_" + objname + "_position.csv"
     geocentricFile.to_csv(filename1)

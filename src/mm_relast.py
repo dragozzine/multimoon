@@ -10,18 +10,18 @@ import pandas as pd
          To determine the deltaLat and deltaLong of a moon from its primary KBO.
          
     CALLING SEQUENCE:
-          deltaLong,deltaLat = convert_ecl_rel_pos_to_geo_rel_ast(ecl_rel_pos, obs_obj_rel_pos)
+          deltaLong,deltaLat = convert_ecl_rel_pos_to_geo_rel_ast(obs_J2000_pos, obj_J2000_pos,moon_obs_pos)
    
     INPUTS
-          ecl_rel_pos - The J2000 ecliptic relative position of the Observer in Cartesian coordinates
-          obj_rel_pos - The J2000 ecliptic relative position of the KBO in Cartesian coordinates
-          rel_moon -  The observer relative position of the Moon in Cartesian coordinates
+          obs_J2000_pos - The J2000 ecliptic relative position of the Observer in Cartesian coordinates
+          obj_J2000_pos - The J2000 ecliptic relative position of the KBO in Cartesian coordinates
+          moon_obs_pos -  The observer relative position of the Moon in Cartesian coordinates
    
     OUTPUTS:
-          deltaLong - The difference in Longitude of the moon vs. it's primary KBO
-          deltaLat - The difference in Latitude of the moon vs. it's primary KBO
+          deltaLong - The difference in Longitude of the moon vs. it's primary KBO in arcseconds
+          deltaLat - The difference in Latitude of the moon vs. it's primary KBO in arcseconds
 '''
-def convert_ecl_rel_pos_to_geo_rel_ast(ecl_rel_pos, obj_rel_pos, rel_moon):
+def convert_ecl_rel_pos_to_geo_rel_ast(obs_J2000_pos, obj_J2000_pos, moon_obs_pos):
     
     #Get the Cartesian positions of the Observer
     x1,y1,z1 = ecl_rel_pos[0],ecl_rel_pos[1],ecl_rel_pos[2]

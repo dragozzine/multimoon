@@ -11,13 +11,8 @@ Outputs:
 1) log_likelihood, the log likelihood of the parameters with the priors
 
 """
-def log_likelihood(params, float_names,fixed_df, total_df_names, fit_scale, obsdf, runprops):
+def log_likelihood(params, float_names, fixed_df, total_df_names, fit_scale, obsdf, runprops):
     # assuming Guassian independent observations log-likehood = -1/2 * chisqure
-
-    # DS TODO: convert parameters array to parameters dataframe
-    
-    #We currently do not have a defined constraints dictionary anywhere, so currently we'll define it as empty
-    constraints = {}
     
     paramdf = mm_param.from_fit_array_to_param_df(params, float_names, fixed_df, total_df_names, fit_scale)
 
@@ -107,10 +102,14 @@ def mm_chisquare(paramdf, obsdf, runprops):
 
         # DS TODO: get relative positions out of vec_df
         positionData = []
+        names=[]
         for i in range(numObj):
-            positionData[i][0],positionData[i][1], positionData[i][2] = vec_df["X_Pos_"+paramdf["name_"+i],vec_df["Y_Pos_"+paramdf["name_"+i],vec_df["Z_Pos_"+paramdf["name_"+i]
-
-
+            names[i]=paramdf["name_"+i]
+            positionData[i][0] = vec_df["X_Pos_"+names[i]]
+            positionData[i][1] = vec_df["Y_Pos_"+names[i]]
+            positionData[i][2] = vec_df["Z_Pos_"+names[i]]
+                                      
+                                      
         # tind = index/row number of vec_df corresponding to this time
 
         # for object from 2:N
@@ -120,39 +119,44 @@ def mm_chisquare(paramdf, obsdf, runprops):
 
         # which numbers do I want from the obsdf?
 
-
-
         # Implicitly assume that observer is close to geocenter (within ~0.01 AU)
+        
+        #Does the positionData include theobserver, primary, and moons?
 
+        for i in range(numObj):
+            ModelDelta_Long[i], ModelDelta_Lat[i] = convert_ecl_rel_pos_to_geo_rel_ast(obs_J2000_pos, obj_J2000_pos, moon_obs_pos)
 
-        convert_ecl_rel_pos_to_geo_rel_ast(ecl_rel_pos, obj_rel_pos, obs_rel_moon):
-        # DS TODO: study and update the code and comments UPDATE: Have completed, should work.
         # mm_relast
-        # ecl_rel_pos = position of the primary relative to the observer (in ecliptic frame)
+        # obs_J2000_pos = position of the observer relative to the heliocenter (in J2000 ecliptic frame)
           # input: numpy array of 3 values: x, y, z in units of km
           # comes from geocentric_object_position dataframe (defined in mm_run)
           # DS TODO: change convert_ecl_rel_pos... to input in km and change geo_object to be in km too
-          
-        # obj_rel_pos = relative positions between object and primary (in ecliptic)
+                  
+        # obj_J2000_pos = position of the primary relative to the heliocenter (in J2000 ecliptic)
+          # numpy array of 3 values: x, y, z in units of km
+          # comes from thisdx, thisdy, thisdz from vec_df above
+        
+        # moon_obs_pos = observer-relative positions between object and primary
           # numpy array of 3 values: x, y, z in units of km
           # comes from thisdx, thisdy, thisdz from vec_df above
 
-        # rel_moon
-          # 
-
         # Output: Delta Long, Delta Lat in arcseconds
-       
-
         # Here is where you would correct for photocenter shifts
-
-
         # model delta long and delta lat
         # Put into model dataframe? 
 
 
     # DS TODO:
     # Now we have model delta Long and delta Lat for each object and each time 
-   
+    rows = obsdf.count
+    chisquare = 0 
+    for i in range(rows):
+        for j in range(numObj):
+            chisquare = chisquare + ((Model_DeltaLong[names[j]]-obsdf["DeltaLong_"+names[j]])/obsdf["DeltaLong_"+names[j]+"_err"])**2
+            chisquare = chisquare + ((Model_DeltaLat[names[j]]-obsdf["DeltaLat_"+names[j]])/obsdf["DeltaLat_"+names[j]+"_err"])**2
+        
+                                      
+        
     # Loop through obsdf and for each defined value of delta Long/Lat 
     # calculate chisquare = sum [ (model-obs)/err ] ^2 
     # associate the correct satellite in the observations with the objects from the model
@@ -163,4 +167,4 @@ def mm_chisquare(paramdf, obsdf, runprops):
 
     # return chisquare
     
-    return 1
+    return chisquare
