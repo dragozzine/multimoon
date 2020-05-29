@@ -56,6 +56,11 @@ Outputs:
 def mm_chisquare(paramdf, obsdf, runprops):
 
     numObj = runprops.get("numobjects")
+    verbose = runprops.get("verbose")
+    print(verbose, verbose == True)
+    if verbose: 
+        print("verbose test works")
+
     
     for i in range(numObj):
         if not 'name_'+i in paramdf.columns:

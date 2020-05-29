@@ -15,6 +15,7 @@
     "maxiter" : 100000,
     "spinny_tolerance": 1e-6,
     "maxreset" : 500,
+    "verbose" : 1,   
     "parameter_dict" : 
     { 
         "name_1": "Haumea",
@@ -41,7 +42,7 @@
         "spinc_1": 10,
         "splan_1": 10,
         "sprate_1": 10
-    }
+    },
     "float_dict" : 
     { 
         "mass_1": 0,
