@@ -15,7 +15,7 @@
     "maxiter" : 100000,
     "spinny_tolerance": 1e-6,
     "maxreset" : 500,
-    "verbose" : 1,
+    "verbose" : true,
     "dynamicstoincludeflags" : "201",
     "includesun" : 1,
     "parameter_dict" : 
