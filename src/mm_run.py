@@ -62,7 +62,7 @@ import mm_init_guess
 import mm_make_geo_pos
 import mm_priors
 import mm_relast
-#import mm_autorun
+import mm_autorun
 import mm_param
 import os
 
