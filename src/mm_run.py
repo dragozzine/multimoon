@@ -85,7 +85,6 @@ nwalkers = runprops.get("nwalkers")
 
 guesses = mm_init_guess.mm_init_guess(runprops)	# maybe more args
 print(guesses)
-sys.exit()
 # ouptut from init_guess is a dataframe with all the desired parameters to be fit
 
 # BP TODO: check that flags/arguments in runprop are consistent with the parameters required
