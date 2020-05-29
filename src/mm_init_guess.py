@@ -25,7 +25,7 @@ def mm_init_guess(runprops):
     filename = runprops.get("init_filename")
     start_guess_df = pd.read_csv(filename,sep='\t',index_col=0)
     start_guess_df = start_guess_df.transpose()
-    
+
     arrSet = start_guess_df.as_matrix()
     
     nwalkers = runprops.get("nwalkers")
@@ -49,9 +49,9 @@ def mm_init_guess(runprops):
         dict_vals.append(name_dict[x])
         
     dist_arr = np.transpose(dist_arr)
-    
+
     params_df = pd.DataFrame(dist_arr, columns = [dict_vals])
-    
+        
     return params_df
     
     
