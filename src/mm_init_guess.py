@@ -27,6 +27,7 @@ def mm_init_guess(runprops):
     start_guess_df = start_guess_df.transpose()
     
     arrSet = start_guess_df.to_numpy()
+
     
     nwalkers = runprops.get("nwalkers")
       
@@ -49,9 +50,9 @@ def mm_init_guess(runprops):
         dict_vals.append(name_dict[x])
         
     dist_arr = np.transpose(dist_arr)
-    
+
     params_df = pd.DataFrame(dist_arr, columns = [dict_vals])
-    
+        
     return params_df
     
     
