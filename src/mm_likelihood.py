@@ -87,12 +87,11 @@ def mm_chisquare(paramdf, obsdf, runprops):
     # MultiMoon units are km, kg, deg, seconds
 
 
-    time_arr = obsdf['time'].values.flatten() # gets an array of observation times from the obs dataframe
-    # SP TODO: should times be sorted?
+    time_arr = np.sort(obsdf['time'].values.flatten()) # gets an array of observation times from the obs dataframe
+                                                       # Sorts them into ascending order
 
-    # SP TODO: make sure SPINNY can handle i/o in MultiMoon units
-    # SP TODO: return full state vector
-    vec_df = generate_vector(paramdf, time_arr) # returns a dataframe of state vectors for each body in the system
+    vec_df = generate_vector(paramdf, time_arr) 
+    
     # vec_df is a dataframe with len(time_arr) rows and 
     # columns are state parameters x nobjects
     # Example: vecdf["X_Pos_"+paramsdf["name_2"]] gets the x position of object 2
