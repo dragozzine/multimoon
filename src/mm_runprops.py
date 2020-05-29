@@ -1,27 +1,23 @@
 import json
 import pandas as pd
+import sys
+
 
 class ReadJson(object):
-    def __init__(self):
+    def __init__(self, filename):
         print('Read the runprops.txt file')
-        self.data = json.load(open("runprops.txt"))
+        self.data = json.load(open(filename))
     def outProps(self):
         return self.data
 
-getData = ReadJson()
+if len(sys.argv) > 1:
+    filename = sys.argv[1]
+else:
+    filename = "runprops.txt"
+    
+getData = ReadJson("runprops.txt")
 runprops = getData.outProps()
 
 runprops["init_filename"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "/_init_guess.csv"
 runprops["priors_filename"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "/_priors.csv"
 runprops["obsdata_file"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "/ObsDF.csv"
-
-fixfloat_df = pd.DataFrame(data = runprops.get('float_dict'), index = [0])
-
-lpriorfunc = 'log_prior'
-llhoodfunc = 'log_likelihood'
-
-posteriorfile = 'date_time_objname.csv'
-verbose = 1
-plotflags = True
-plot_model_in_data = False
-plot_model_over_time = False

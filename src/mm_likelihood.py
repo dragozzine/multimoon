@@ -2,7 +2,9 @@ import numpy as np
 import mm_priors as prior
 import pandas as pd
 import mm_param
-from mm_SPINNY/spinny_vector import generate_vector
+import sys
+sys.path.insert(1, 'mm_SPINNY/')
+from mm_SPINNY.spinny_vector import generate_vector
 
 """
 Inputs:
@@ -161,12 +163,7 @@ def mm_chisquare(paramdf, obsdf, runprops):
         for j in range(numObj):
             
             #Check to make sure that these column names exist in the obsdf
-            if not names[j] in Model_DeltaLong.columns 
-            or not "DeltaLong_"+names[j] in obsdf.columns 
-            or not "DeltaLong_"+names[j]+"_err" in obsdf.columns
-            or not names[j] in Model_DeltaLat.columns 
-            or not "DeltaLat_"+names[j] in obsdf.columns 
-            or not "DeltaLat_"+names[j]+"_err" in obsdf.columns:
+            if not names[j] in Model_DeltaLong.columns or not "DeltaLong_"+names[j] in obsdf.columns or not "DeltaLong_"+names[j]+"_err" in obsdf.columns or not names[j] in Model_DeltaLat.columns or not "DeltaLat_"+names[j] in obsdf.columns or not "DeltaLat_"+names[j]+"_err" in obsdf.columns:
                 sys.exit()
             
             chisquare[names[j]][i] = ((Model_DeltaLong[names[j]][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])**2

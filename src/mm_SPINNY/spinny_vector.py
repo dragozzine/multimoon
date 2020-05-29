@@ -42,7 +42,7 @@ def generate_vector(paramsdf, t_arr):
     for n in range(0,N):
  
         # creates a new dataframe using just x,y,z position for each body    
-        vec_df = s_df[["X_Pos_"+name,"Y_Pos_"+name,"Z_Pos_"+name,"X_Vel_"+name,"Y_Vel_"+name,"Z_Vel_"+name for name in names]].copy() ## Does this work??
+        vec_df = s_df[["X_Pos_"+name,"Y_Pos_"+name,"Z_Pos_"+name,"X_Vel_"+name,"Y_Vel_"+name,"Z_Vel_"+name for name in names]].copy() # Does this work??
 
     return(vec_df)
             
