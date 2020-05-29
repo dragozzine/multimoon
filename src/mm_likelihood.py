@@ -122,21 +122,22 @@ def mm_chisquare(paramdf, obsdf, runprops):
         # Implicitly assume that observer is close to geocenter (within ~0.01 AU)
         
         #Does the positionData include theobserver, primary, and moons?
-
+        
+        # obs_to_prim_pos = vectors of observer to primary
+        # prim_to_sat__pos = vectors of primary to satellite
+        
+        obj_J2000_pos = positionData[1]
         for i in range(numObj):
-            ModelDelta_Long[i], ModelDelta_Lat[i] = convert_ecl_rel_pos_to_geo_rel_ast(obs_J2000_pos, obj_J2000_pos, moon_obs_pos)
+            ModelDelta_Long[i], ModelDelta_Lat[i] = convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos)
 
         # mm_relast
-        # obs_J2000_pos = position of the observer relative to the heliocenter (in J2000 ecliptic frame)
+        
+        # obs_to_prim_pos = vector position of the observer relative to the primary (in J2000 ecliptic frame)
           # input: numpy array of 3 values: x, y, z in units of km
           # comes from geocentric_object_position dataframe (defined in mm_run)
           # DS TODO: change convert_ecl_rel_pos... to input in km and change geo_object to be in km too
                   
-        # obj_J2000_pos = position of the primary relative to the heliocenter (in J2000 ecliptic)
-          # numpy array of 3 values: x, y, z in units of km
-          # comes from thisdx, thisdy, thisdz from vec_df above
-        
-        # moon_obs_pos = observer-relative positions between object and primary
+        # prim_to_sat_pos = position of the primary relative to the satellite (in J2000 ecliptic)
           # numpy array of 3 values: x, y, z in units of km
           # comes from thisdx, thisdy, thisdz from vec_df above
 
@@ -149,22 +150,38 @@ def mm_chisquare(paramdf, obsdf, runprops):
     # DS TODO:
     # Now we have model delta Long and delta Lat for each object and each time 
     rows = obsdf.count
-    chisquare = 0 
+    chisquare = pd.DataFrame()
     for i in range(rows):
         for j in range(numObj):
-            chisquare = chisquare + ((Model_DeltaLong[names[j]]-obsdf["DeltaLong_"+names[j]])/obsdf["DeltaLong_"+names[j]+"_err"])**2
-            chisquare = chisquare + ((Model_DeltaLat[names[j]]-obsdf["DeltaLat_"+names[j]])/obsdf["DeltaLat_"+names[j]+"_err"])**2
+            
+            #Check to make sure that these column names exist in the obsdf
+            if not names[j] in Model_DeltaLong.columns 
+            or if not "DeltaLong_"+names[j] in obsdf.columns 
+            or if not "DeltaLong_"+names[j]+"_err" in obsdf.columns:
+                sys.exit()
+            
+            elif not names[j] in Model_DeltaLat.columns 
+            or if not "DeltaLat_"+names[j] in obsdf.columns 
+            or if not "DeltaLat_"+names[j]+"_err" in obsdf.columns:
+                sys.exit()
+            
+            chisquare[names[j]][i] = ((Model_DeltaLong[names[j]][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])**2
+            chisquare[name[j]][i] = ((Model_DeltaLat[names[j]][i]-obsdf["DeltaLat_"+names[j]][i])/obsdf["DeltaLat_"+names[j]+"_err"][i])**2
         
                                       
-        
     # Loop through obsdf and for each defined value of delta Long/Lat 
     # calculate chisquare = sum [ (model-obs)/err ] ^2 
     # associate the correct satellite in the observations with the objects from the model
     # using the name of the object "Model_DeltaLong_Hiiaka" with "DeltaLong_Hiiaka" 
     # and "DeltaLong_Hiiaka_err"
     # AND throw an error if the names don't all line up right
-
+    
+    chisq_tot = pd.DataFrame()
+    for i in range(numObj):
+        chisq_tot[names[i]]=chisquare[names[i]].sum()
+        
+    chisquare_total = chisq_tot.sum()
 
     # return chisquare
     
-    return chisquare
+    return chisquare_total

@@ -13,6 +13,7 @@
     "nburnin" : 1000,
     "essgoal" : 100,
     "maxiter" : 100000,
+    "spinny_tolerance": 1e-6
     "maxreset" : 500,
     "parameter_dict" : 
     { 
