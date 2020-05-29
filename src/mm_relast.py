@@ -84,8 +84,8 @@ def convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos):
     longitude2 = np.arcsin(z2/R2)*360/2/np.pi
     latitude2 = np.arccos(x2/R2/np.cos(longitude2*u.degree))/u.rad*360/2/np.pi
     
-    deltaLat = (latitude3-latitude2)
-    deltaLong = (longitude3-longitude2)*np.cos(latitude2*u.degree)
+    deltaLat = (latitude2-latitude1)
+    deltaLong = (longitude2-longitude1)*np.cos(latitude1*u.degree)
     
     return deltaLong*3600, deltaLat*3600
 
