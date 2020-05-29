@@ -58,11 +58,11 @@ import h5py
 #from tqdm import tqdm  # progress bar for emcee, but needs package
 import mm_runprops
 import mm_init_guess
-import mm_likelihood
-import mm_make_geo_pos
-import mm_priors
-import mm_relast
-import mm_autorun
+#import mm_likelihood
+#import mm_make_geo_pos
+#import mm_priors
+#import mm_relast
+#import mm_autorun
 
 
 # DS TODO: get runprops.json file from argv
@@ -82,12 +82,28 @@ nwalkers = runprops.get("nwalkers")
 # LATER TODO: starting -> initial guess function is specificed by user
 
 guesses = mm_init_guess.mm_init_guess(runprops)	# maybe more args
+print(guesses)
+sys.exit()
 # ouptut from init_guess is a dataframe with all the desired parameters to be fit
 
 # BP TODO: check that flags/arguments in runprop are consistent with the parameters required
 # number of objects
 # flags: pointmass/oblate [J2R2, spinc, splan]/triaxial [J2R2, C22R2, ellip_c?, spinc, splan, spaop, sprate] x N objects
 # flags: include_sun = True/False
+
+dynamicstoincludeflags = runprops.get("dynamicstoincludeflags")
+	# First is primary, then satellites
+	# 0 = point mass, 1 = oblate, 2 = triaxial
+includesun = runprops.get("includesun")
+
+
+
+
+
+
+
+
+
 
 
 #ndim is equal to the number of dimension, should this be equal to the number of columns of the init_guess array?

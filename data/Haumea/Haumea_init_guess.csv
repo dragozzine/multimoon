@@ -2,7 +2,7 @@ mass_1	4.006e+21	4e+18
 mass_2	1.79e+19	1.1e+18
 sma_2	49880	198
 ecc_2	0.0513	0.0078
-aop_2		154.1	5.8
+aop_2	154.1	5.8
 inc_2	126.356	0.064
 lan_2	206.766	0.033
 mea_2	152.8	6.1
@@ -15,7 +15,7 @@ lan_3	205.016	0.228
 mea_3	178.5	1.7
 j2r2_1	1	1
 c22r2_1	12	12
-spaop_1	idk	idk
-spinc_1	irdk	irdk
-splan_1	isdk	isdk
-sprate_1	wotfam	wotfam
+spaop_1	1	1
+spinc_1	1	1
+splan_1	1	1
+sprate_1	1	1

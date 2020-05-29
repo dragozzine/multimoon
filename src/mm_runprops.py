@@ -11,9 +11,9 @@ class ReadJson(object):
 getData = ReadJson()
 runprops = getData.outProps()
 
-runprops["init_filename"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "/_init_guess.csv"
-runprops["priors_filename"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "/_priors.csv"
-runprops["obsdata_file"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "/ObsDF.csv"
+runprops["init_filename"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_init_guess.csv"
+runprops["priors_filename"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_priors_df.csv"
+runprops["obsdata_file"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_obs_df.csv"
 
 fixfloat_df = pd.DataFrame(data = runprops.get('float_dict'), index = [0])
 
