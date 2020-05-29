@@ -1,3 +1,5 @@
+import pandas as pd
+import numpy as np
 """
 Function to convert the parameter dataframe to a scaled and fitted array.
 Inputs: 

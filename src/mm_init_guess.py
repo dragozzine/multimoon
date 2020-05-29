@@ -26,7 +26,7 @@ def mm_init_guess(runprops):
     start_guess_df = pd.read_csv(filename,sep='\t',index_col=0)
     start_guess_df = start_guess_df.transpose()
     
-    arrSet = start_guess_df.as_matrix()
+    arrSet = start_guess_df.to_numpy()
     
     nwalkers = runprops.get("nwalkers")
       
@@ -36,7 +36,7 @@ def mm_init_guess(runprops):
     dist_arr = []
     for col in start_guess_df.columns:
         name_dict[n] = col
-        infos = start_guess_df[col].as_matrix()
+        infos = start_guess_df[col].to_numpy()
         mean1, stdev1 = infos[0],infos[1]
         if n == 0:
             dist_arr = np.random.normal(mean1,stdev1,nwalkers)

@@ -78,7 +78,7 @@ def geotoKBOtime(objectName):
     
     newData=newData.rename(columns = {'Dates':'datetime_jd'})
     
-    outFile = "../data/" + objectName + "/"objectName+'Data_KBOTime.csv'
+    outFile = "../data/" + objectName + "/"+ objectName+'Data_KBOTime.csv'
    
     newData.to_csv(outFile)
     

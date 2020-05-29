@@ -59,10 +59,12 @@ import h5py
 import mm_runprops
 import mm_init_guess
 #import mm_likelihood
-#import mm_make_geo_pos
-#import mm_priors
-#import mm_relast
+import mm_make_geo_pos
+import mm_priors
+import mm_relast
 #import mm_autorun
+import mm_param
+import os
 
 
 # DS TODO: get runprops.json file from argv
@@ -111,7 +113,7 @@ includesun = runprops.get("includesun")
 ndim = len(guesses.columns)
 
 # Convert the guesses into fitting units and place in numpy array
-p0,float_names,fixed_df,total_df_names,fit_scale = mm_params.from_param_df_to_fit_array(guesses,runprops)
+p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit_array(guesses,runprops)
 #we still do not have a constraints or fit scale defined
 
 # Check to see if geocentric_object_position.csv exists and if not creates it
@@ -120,7 +122,7 @@ if os.path.exists("../data/" + objname + "/geocentric_" + objname + "_position.c
 	print("Object geocentric position file geocentric_" + objname + "_position.csv will be used")
 else:
 	print("No object geocentric position file exists. Creating new file.")
-	mm_make_geo_pos(objname, start='2000-01-01', end='2040-01-01', step='10d')	# This is basically a function based on DS's makeHorFile
+	mm_make_geo_pos.mm_make_geo_pos(objname, start='2000-01-01', end='2040-01-01', step='10d')	# This is basically a function based on DS's makeHorFile
 	print("geocentric_" + objname + "_position.csv has been created")
 
 # Reads in th geocentric_object data file
