@@ -46,8 +46,6 @@ def generate_vector(paramsdf, t_arr):
 
     return(vec_df)
             
-            
-
 
 def build_spinny_multimoon(sys_df): 
     
