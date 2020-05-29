@@ -2,6 +2,7 @@ import numpy as np
 import mm_priors as prior
 import pandas as pd
 import mm_param
+from mm_SPINNY/spinny_vector import generate_vector
 
 """
 Inputs:
@@ -91,7 +92,7 @@ def mm_chisquare(paramdf, obsdf, runprops):
 
     # SP TODO: make sure SPINNY can handle i/o in MultiMoon units
     # SP TODO: return full state vector
-    vec_df = spinny_vector(paramdf, time_arr) # returns a dataframe of state vectors for each body in the system
+    vec_df = generate_vector(paramdf, time_arr) # returns a dataframe of state vectors for each body in the system
     # vec_df is a dataframe with len(time_arr) rows and 
     # columns are state parameters x nobjects
     # Example: vecdf["X_Pos_"+paramsdf["name_2"]] gets the x position of object 2
