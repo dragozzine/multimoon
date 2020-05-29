@@ -54,6 +54,7 @@ import numpy as np
 import pandas as pd
 import emcee
 import random
+import h5py
 #from tqdm import tqdm  # progress bar for emcee, but needs package
 import mm_runprops
 import mm_init_guess
@@ -138,10 +139,22 @@ for i in range(nwalkers):
 # Begin MCMC        
 
 # Now creating the sampler object
-sampler = emcee.EnsembleSampler(nwalkers, ndim, mm_likelihood.log_probability, args = (runprops, fitarray_to_params_dict, obsdf))
+filename = "tutorial.h5"	# BP TODO: rename this to be something meaningful
+# BP TODO: make an option in runprops to start from the end of another run and just append it
+backend = emcee.backends.HDFBackend(filename)
+backend.reset(nwalkers, ndim)
+
+sampler = emcee.EnsembleSampler(nwalkers, ndim, 
+	mm_likelihood.log_probability, backend=backend, 
+	args = (runprops, fitarray_to_params_dict, obsdf))
 
 #Starting the burnin
 # BP TODO: autoburnin??
+# So looking at how the emcee documentation does burn ins while saving the file, it seems like
+# the best way to do a run is to just do a single long run until the ess > 100 and cut the 
+# burn in off afterwards. This way you can save the whole chain and you can really analyze where to
+# cut off the burn in.
+
 nburnin = runprops.get("nburnin")
 print("Starting the burn in")
 state = sampler.run_mcmc(p0, nburnin, progress = True, store = False)
