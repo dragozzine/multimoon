@@ -46,13 +46,16 @@ def generate_vector(paramsdf, t_arr):
     for n in range(0,N):
  
         # creates a new dataframe using just x,y,z position for each body    
+<<<<<<< HEAD
         data = ["X_Pos_"+name,"Y_Pos_"+name,"Z_Pos_"+name,"X_Vel_"+name,"Y_Vel_"+name,"Z_Vel_"+name for name in names]
         vec_df = pd.concat(data, axis=1)
         
+=======
+        vec_df = s_df[["X_Pos_"+name,"Y_Pos_"+name,"Z_Pos_"+name,"X_Vel_"+name,"Y_Vel_"+name,"Z_Vel_"+name for name in names]].copy() # Does this work??
+
+>>>>>>> 96b3abcfd1c58876778cad50fc1c80f2763ce0f6
     return(vec_df)
             
-            
-
 
 def build_spinny_multimoon(sys_df): 
     
