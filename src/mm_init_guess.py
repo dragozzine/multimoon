@@ -61,10 +61,10 @@ Inputs: a filename or datafrme in a parameter-generator format, int nwalkers
 Output: "init_guess" dataframe in parameter format, nwalkers rows
 """     
 def get_init_guess_from_multirow_startguess(dataframe, nwalkers):
-    if len(startguess) > nwalkers:
-        
+    if len(startguess) > nwalkers:    
+         dum=0
     if len(startguess) < nwalkers:
-        
+         dum=0
     return 1
         
         
