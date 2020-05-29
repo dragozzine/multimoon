@@ -2,7 +2,9 @@ import numpy as np
 import mm_priors as prior
 import pandas as pd
 import mm_param
-from mm_SPINNY/spinny_vector import generate_vector
+import sys
+sys.path.insert(1, 'mm_SPINNY/')
+from mm_SPINNY.spinny_vector import generate_vector
 
 """
 Inputs:
@@ -87,12 +89,11 @@ def mm_chisquare(paramdf, obsdf, runprops):
     # MultiMoon units are km, kg, deg, seconds
 
 
-    time_arr = obsdf['time'].values.flatten() # gets an array of observation times from the obs dataframe
-    # SP TODO: should times be sorted?
+    time_arr = np.sort(obsdf['time'].values.flatten()) # gets an array of observation times from the obs dataframe
+                                                       # Sorts them into ascending order
 
-    # SP TODO: make sure SPINNY can handle i/o in MultiMoon units
-    # SP TODO: return full state vector
-    vec_df = generate_vector(paramdf, time_arr) # returns a dataframe of state vectors for each body in the system
+    vec_df = generate_vector(paramdf, time_arr) 
+    
     # vec_df is a dataframe with len(time_arr) rows and 
     # columns are state parameters x nobjects
     # Example: vecdf["X_Pos_"+paramsdf["name_2"]] gets the x position of object 2
@@ -161,12 +162,7 @@ def mm_chisquare(paramdf, obsdf, runprops):
         for j in range(numObj):
             
             #Check to make sure that these column names exist in the obsdf
-            if not names[j] in Model_DeltaLong.columns 
-            or not "DeltaLong_"+names[j] in obsdf.columns 
-            or not "DeltaLong_"+names[j]+"_err" in obsdf.columns
-            or not names[j] in Model_DeltaLat.columns 
-            or not "DeltaLat_"+names[j] in obsdf.columns 
-            or not "DeltaLat_"+names[j]+"_err" in obsdf.columns:
+            if not names[j] in Model_DeltaLong.columns or not "DeltaLong_"+names[j] in obsdf.columns or not "DeltaLong_"+names[j]+"_err" in obsdf.columns or not names[j] in Model_DeltaLat.columns or not "DeltaLat_"+names[j] in obsdf.columns or not "DeltaLat_"+names[j]+"_err" in obsdf.columns:
                 sys.exit()
             
             chisquare[names[j]][i] = ((Model_DeltaLong[names[j]][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])**2

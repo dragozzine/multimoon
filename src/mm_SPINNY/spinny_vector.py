@@ -6,7 +6,8 @@ import time
 from time import ctime
 import pandas as pd
 import sys
-
+sys.path.append("..")
+import mm_runprops
 
 def generate_vector(paramsdf, t_arr):
     global G
@@ -15,6 +16,9 @@ def generate_vector(paramsdf, t_arr):
     # need to rearrange the paramsdf into a shape that is easier for SPINNY to read?
     # TODO: Update this for when I know what the params dataframe looks like
     sys_df = paramsdf
+    runprops = mm_runprops.runprops
+    
+    tol = runprops.get("spinny_tolerance")
     
     N = len(sys_df.columns) # total number of objects in the system
     T = len(t_arr)          # number of observation times
@@ -39,15 +43,13 @@ def generate_vector(paramsdf, t_arr):
         s_df = spinny[0]
         names = spinny[2]
         
-    for n in range(0,N):
- 
-        # creates a new dataframe using just x,y,z position for each body    
-        vec_df = s_df[["X_Pos_"+name,"Y_Pos_"+name,"Z_Pos_"+name,"X_Vel_"+name,"Y_Vel_"+name,"Z_Vel_"+name for name in names]].copy() ## Does this work??
 
+    # creates a new dataframe using just x,y,z position for each body    
+    data = [s_df["X_Pos_"+name],s_df["Y_Pos_"+name],s_df["Z_Pos_"+name,s_df["X_Vel_"+name],s_df["Y_Vel_"+name],s_df["Z_Vel_"+name] for name in names]
+    vec_df = pd.concat(data, axis=1)
+        
     return(vec_df)
             
-            
-
 
 def build_spinny_multimoon(sys_df): 
     
@@ -58,7 +60,7 @@ def build_spinny_multimoon(sys_df):
     # in DESCENDING ORDER of size, an array of the masses 
     masses = sorted([sys_df[col].iloc[0] for col in sys_df.columns if "mass_" in col],reverse=True) 
     
-    N = len(masses) # number of bodies in the system
+    N = runprops.get("numobjects") #len(masses) # number of bodies in the system
     
     cols = list(sys_df.columns[[int(np.where(sys_df==m)[1].flatten()) for m in masses]])
     body_idx = [int(body[-1]) for body in cols]
