@@ -156,13 +156,11 @@ def mm_chisquare(paramdf, obsdf, runprops):
             
             #Check to make sure that these column names exist in the obsdf
             if not names[j] in Model_DeltaLong.columns 
-            or if not "DeltaLong_"+names[j] in obsdf.columns 
-            or if not "DeltaLong_"+names[j]+"_err" in obsdf.columns:
-                sys.exit()
-            
-            elif not names[j] in Model_DeltaLat.columns 
-            or if not "DeltaLat_"+names[j] in obsdf.columns 
-            or if not "DeltaLat_"+names[j]+"_err" in obsdf.columns:
+            or not "DeltaLong_"+names[j] in obsdf.columns 
+            or not "DeltaLong_"+names[j]+"_err" in obsdf.columns
+            or not names[j] in Model_DeltaLat.columns 
+            or not "DeltaLat_"+names[j] in obsdf.columns 
+            or not "DeltaLat_"+names[j]+"_err" in obsdf.columns:
                 sys.exit()
             
             chisquare[names[j]][i] = ((Model_DeltaLong[names[j]][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])**2
