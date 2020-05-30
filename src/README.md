@@ -186,7 +186,7 @@ mm_priors: This file reads in the priors file that is found in the data folder, 
 
 mm_relast: This file holds functions that determine the relative astrometry of the observed objects based on the observer relative positions given.
 
-    convert_ecl_rel_pos_to_geo_rel_ast: This function uses the relative poistions of the observer, the KBO, and the satellite, and determines the deltaLat and deltaLong of the satellite according to the observer.
+    convert_J2000_ecl_to_geo_pos_rel: This function uses the relative positions of the observer, the KBO, and the satellite, and determines the deltaLat and deltaLong of the satellite according to the observer.
         Inputs:
             ecl_rel_pos - np.array, The J2000 ecliptic relative position of the Observer in Cartesian coordinates
             obj_rel_pos - np.array, The J2000 ecliptic relative position of the KBO in Cartesian coordinates
@@ -195,6 +195,25 @@ mm_relast: This file holds functions that determine the relative astrometry of t
         Outputs:
             deltaLong - np.array, The difference in Longitude of the moon vs. it's primary KBO
             deltaLat - np.array, The difference in Latitude of the moon vs. it's primary KBO
+            
+    convert__ecl_rel_pos_to_geo_pos_rel: This function uses the position of the primary relative to the observer, aand the position of the satellite relative to the primary and determines the deltaLat and deltaLong of the satellite according to the observer.
+        Inputs:
+            obs_to_prim_pos - np.array, The relative position of the primary to the observer in km
+            prim_to_sat_pos - np.array, The relative position of the satellite to the primary in km
+            
+        Outputs:
+            deltaLong - np.array, The difference in Longitude of the moon vs. it's primary KBO
+            deltaLat - np.array, The difference in Latitude of the moon vs. it's primary KBO
+            
+    haversine: This function uses the haversine function to calculate the great circle distance between two bodies from their individual latitude and longitude.
+        Inputs:
+            lat1 - int, the latitude of object 1            
+            lon1 - int, the longitude of object 1            
+            lat2 - int, the latitude of object 2            
+            lon2 - int, the longitude of object 2
+            
+        Outputs:
+            distance - The distance between the two objects on the great circle        
         
 
 mm_run: This file runs the multimoon program. It pulls together all of the functions and files in each the project and runs them using the information given by the user in the runprops files.
