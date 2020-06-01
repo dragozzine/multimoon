@@ -110,7 +110,7 @@ def mm_chisquare(paramdf, obsdf, runprops):
         # DS TODO: get relative positions out of vec_df
         positionData = []
         names=[]
-        for i in range(numObj):
+        for i in range(1,numObj+1):
             names[i]=paramdf["name_"+i]
             positionData[i][0] = vec_df["X_Pos_"+names[i]]
             positionData[i][1] = vec_df["Y_Pos_"+names[i]]
@@ -133,9 +133,9 @@ def mm_chisquare(paramdf, obsdf, runprops):
         # obs_to_prim_pos = vectors of observer to primary
         # prim_to_sat__pos = vectors of primary to satellite
         
-        obj_J2000_pos = positionData[1]
-        for i in range(numObj):
-            ModelDelta_Long[i], ModelDelta_Lat[i] = convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos)
+        obj_to_prim_pos = positionData[0]
+        for i in range(2,numObj+1):
+            ModelDelta_Long[i], ModelDelta_Lat[i] = convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos[i])
 
         # mm_relast
         
@@ -154,12 +154,11 @@ def mm_chisquare(paramdf, obsdf, runprops):
         # Put into model dataframe? 
 
 
-    # DS TODO:
     # Now we have model delta Long and delta Lat for each object and each time 
     rows = obsdf.count
     chisquare = pd.DataFrame()
     for i in range(rows):
-        for j in range(numObj):
+        for j in range(1,numObj+1):
             
             #Check to make sure that these column names exist in the obsdf
             if not names[j] in Model_DeltaLong.columns or not "DeltaLong_"+names[j] in obsdf.columns or not "DeltaLong_"+names[j]+"_err" in obsdf.columns or not names[j] in Model_DeltaLat.columns or not "DeltaLat_"+names[j] in obsdf.columns or not "DeltaLat_"+names[j]+"_err" in obsdf.columns:
@@ -177,7 +176,7 @@ def mm_chisquare(paramdf, obsdf, runprops):
     # AND throw an error if the names don't all line up right
     
     chisq_tot = pd.DataFrame()
-    for i in range(numObj):
+    for i in range(1,numObj+1):
         chisq_tot[names[i]]=chisquare[names[i]].sum()
         
     chisquare_total = chisq_tot.sum()
