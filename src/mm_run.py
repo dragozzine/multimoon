@@ -87,8 +87,6 @@ guesses = mm_init_guess.mm_init_guess(runprops)	# maybe more args
 
 # Getting relevant checking flags from runprops
 dynamicstoincludeflags = runprops.get("dynamicstoincludeflags")
-	# First is primary, then satellites
-	# 0 = point mass, 1 = oblate, 2 = triaxial
 includesun = runprops.get("includesun")
 paramnames = list(sum(list(guesses), ()))
 
