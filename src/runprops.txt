@@ -17,7 +17,7 @@
     "maxreset" : 500,
     "verbose" : true,
     "dynamicstoincludeflags" : "201",
-    "includesun" : 1,
+    "includesun" : 0,
     "parameter_dict" : 
     { 
         "name_1": "Haumea",
