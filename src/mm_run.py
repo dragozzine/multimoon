@@ -156,7 +156,7 @@ for i in range(nwalkers):
 			sys.exit() 
 
 # We now have an initial guess for each walker that is not really bad.
-# Begin MCMC        
+# Begin MCMC
 
 # Now creating the sampler object
 filename = "tutorial.h5"	# BP TODO: rename this to be something meaningful
