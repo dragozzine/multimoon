@@ -58,8 +58,8 @@ import h5py
 #from tqdm import tqdm  # progress bar for emcee, but needs package
 import mm_runprops
 import mm_init_guess
-import mm_likelihood
-import mm_make_geo_pos
+#import mm_likelihood
+#import mm_make_geo_pos
 import mm_priors
 import mm_relast
 import mm_autorun
@@ -90,12 +90,12 @@ dynamicstoincludeflags = runprops.get("dynamicstoincludeflags")
 	# First is primary, then satellites
 	# 0 = point mass, 1 = oblate, 2 = triaxial
 includesun = runprops.get("includesun")
-paramnames = list(guesses)
+paramnames = list(sum(list(guesses), ()))
+print(paramnames)
 
 # Check to make sure that numobjects equals length of dynamics flag
-if len(dynamicstoinclude) != runprops.get("numobjects"):
-    print("ERROR: Number of objects given in runprops.txt does not match the 
-           length of dynamicstoincludeflags")
+if len(dynamicstoincludeflags) != runprops.get("numobjects"):
+    print("ERROR: Number of objects given in runprops.txt does not match the length of dynamicstoincludeflags")
     sys.exit()
 
 # Now checking each object sequentially
@@ -103,68 +103,70 @@ for i in range(runprops.get("numobjects")):
     if i == 0:
         if dynamicstoincludeflags[i] == "0":
             if not (("mass_" + str(i+1) in paramnames)):
-                print("ERROR: dynamics to include flags does not match the input parameters
-                       for object " + str(i+1))
+                print("aERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                 sys.exit()
         elif dynamicstoincludeflags[i] == "1":
-            if not (("mass_" + str(i+1) in paramnames) and ("j2r2_" + str(i+1) in paramnames)
+            if not (("mass_" + str(i+1) in paramnames) and ("j2r2_" + str(i+1) in paramnames) and
 		    ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames)):
-                print("ERROR: dynamics to include flags does not match the input parameters
-                       for object " + str(i+1))
+                print("bERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                 sys.exit()
         elif dynamicstoincludeflags[i] == "2":
-            if not (("mass_" + str(i+1) in paramnames) and ("j2r2_" + str(i+1) in paramnames)
-		    ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames)
-		    ("c22r2_" + str(i+1) in paramnames) and ("spaop_" + str(i+1) in paramnames)
+            if not (("mass_" + str(i+1) in paramnames) and ("j2r2_" + str(i+1) in paramnames) and
+		    ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames) and
+		    ("c22r2_" + str(i+1) in paramnames) and ("spaop_" + str(i+1) in paramnames) and
 		    ("sprate_" + str(i+1) in paramnames)):
-                print("ERROR: dynamics to include flags does not match the input parameters
-                       for object " + str(i+1))
+                print((("mass_" + str(i+1) in paramnames)))
+                print("cERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                 sys.exit()
-        else
+        else:
             print("ERROR: dynamicstoincludeflags contains unallowed numbers. Allowed numbers are 0, 1, 2.")
             sys.exit()
-    else
+    else:
         if dynamicstoincludeflags[i] == "0":
-            if not (("mass_" + str(i+1) in paramnames) and ("sma_" + str(i+1) in paramnames)
-		    ("ecc_" + str(i+1) in paramnames) and ("inc_" + str(i+1) in paramnames)
-		    ("aop_" + str(i+1) in paramnames) and ("lan_" + str(i+1) in paramnames)
+            if not (("mass_" + str(i+1) in paramnames) and ("sma_" + str(i+1) in paramnames) and
+		    ("ecc_" + str(i+1) in paramnames) and ("inc_" + str(i+1) in paramnames) and
+		    ("aop_" + str(i+1) in paramnames) and ("lan_" + str(i+1) in paramnames) and
 		    ("mea_" + str(i+1) in paramnames)):
-                print("ERROR: dynamics to include flags does not match the input parameters
-                       for object " + str(i+1))
+                print("ERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                 sys.exit()
         elif dynamicstoincludeflags[i] == "1":
-            if not (("mass_" + str(i+1) in paramnames) and ("sma_" + str(i+1) in paramnames)
-		    ("ecc_" + str(i+1) in paramnames) and ("inc_" + str(i+1) in paramnames)
-		    ("aop_" + str(i+1) in paramnames) and ("lan_" + str(i+1) in paramnames)
-		    ("mea_" + str(i+1) in paramnames) and ("j2r2_" + str(i+1) in paramnames)
+            if not (("mass_" + str(i+1) in paramnames) and ("sma_" + str(i+1) in paramnames) and
+		    ("ecc_" + str(i+1) in paramnames) and ("inc_" + str(i+1) in paramnames) and
+		    ("aop_" + str(i+1) in paramnames) and ("lan_" + str(i+1) in paramnames) and
+		    ("mea_" + str(i+1) in paramnames) and ("j2r2_" + str(i+1) in paramnames) and
                     ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames)):
-                print("ERROR: dynamics to include flags does not match the input parameters
-                       for object " + str(i+1))
+                print("ERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                 sys.exit()
         elif dynamicstoincludeflags[i] == "2":
-            if not (("mass_" + str(i+1) in paramnames) and ("sma_" + str(i+1) in paramnames)
-		    ("ecc_" + str(i+1) in paramnames) and ("inc_" + str(i+1) in paramnames)
-		    ("aop_" + str(i+1) in paramnames) and ("lan_" + str(i+1) in paramnames)
-		    ("mea_" + str(i+1) in paramnames) and ("j2r2_" + str(i+1) in paramnames)
-                    ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames)
-		    ("c22r2_" + str(i+1) in paramnames) and ("spaop_" + str(i+1) in paramnames)
+            if not (("mass_" + str(i+1) in paramnames) and ("sma_" + str(i+1) in paramnames) and
+		    ("ecc_" + str(i+1) in paramnames) and ("inc_" + str(i+1) in paramnames) and
+		    ("aop_" + str(i+1) in paramnames) and ("lan_" + str(i+1) in paramnames) and
+		    ("mea_" + str(i+1) in paramnames) and ("j2r2_" + str(i+1) in paramnames) and
+                    ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames) and
+		    ("c22r2_" + str(i+1) in paramnames) and ("spaop_" + str(i+1) in paramnames) and
 		    ("sprate_" + str(i+1) in paramnames)):
-                print("ERROR: dynamics to include flags does not match the input parameters
-                       for object " + str(i+1))
+                print("ERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                 sys.exit()
-        else
-            print("ERROR: dynamicstoincludeflags contains unallowed numbers. Allowed
-                   numbers are 0, 1, 2.")
+        else:
+            print("ERROR: dynamicstoincludeflags contains unallowed numbers. Allowed numbers are 0, 1, 2.")
             sys.exit()
 
-
-
-
-#sys.exit()
 # Now checking the includesun flag
 if includesun:
-    # checks
-
+    if not (("mass_0" in paramnames) and ("sma_0" in paramnames) and
+	    ("ecc_0" in paramnames) and ("inc_0" in paramnames) and
+	    ("aop_0" in paramnames) and ("lan_0" in paramnames) and
+	    ("mea_0" in paramnames)):
+        print("Error: includesun flag does not match inputs.")
+        sys.exit()
+if not includesun:
+    if (("mass_0" in paramnames) or ("sma_0" in paramnames) or
+	("ecc_0" in paramnames) or ("inc_0" in paramnames) or
+	("aop_0" in paramnames) or ("lan_0" in paramnames) or
+	("mea_0" in paramnames)):
+        print("Error: includesun flag does not match inputs.")
+        sys.exit()
+    
 
 
 #ndim is equal to the number of dimension, should this be equal to the number of columns of the init_guess array?
