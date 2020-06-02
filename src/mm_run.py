@@ -58,8 +58,8 @@ import h5py
 #from tqdm import tqdm  # progress bar for emcee, but needs package
 import mm_runprops
 import mm_init_guess
-#import mm_likelihood
-#import mm_make_geo_pos
+import mm_likelihood
+import mm_make_geo_pos
 import mm_priors
 import mm_relast
 import mm_autorun

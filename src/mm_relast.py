@@ -78,14 +78,18 @@ def convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos):
     
     R2 = np.sqrt(x2**2+y2**2+z2**2)
     
-    longitude1 = np.arcsin(z1/R1)*360/2/np.pi
-    latitude1 = np.arccos(x1/R1/np.cos(longitude1*u.degree))/u.rad*360/2/np.pi
+    longitude1 = asin(z1/R1)*360/2/np.pi
+    latitude1 = acos(x1/R1/cos(longitude1*u.degree))/u.rad*360/2/np.pi
     
-    longitude2 = np.arcsin(z2/R2)*360/2/np.pi
-    latitude2 = np.arccos(x2/R2/np.cos(longitude2*u.degree))/u.rad*360/2/np.pi
+    longitude2 = asin(z2/R2)*360/2/np.pi
+    latitude2 = acos(x2/R2/cos(longitude2*u.degree))/u.rad*360/2/np.pi
     
-    deltaLat = (latitude2-latitude1)
-    deltaLong = (longitude2-longitude1)*np.cos(latitude1*u.degree)
+    #deltaLat = (latitude2-latitude1)
+    #deltaLong = (longitude2-longitude1)*np.cos(latitude1*u.degree)
+    
+    ang_dist = haversine(latitude1, longitude1, latitude2, longitude2)
+    
+    
     
     return deltaLong*3600, deltaLat*3600
 
@@ -99,5 +103,5 @@ def haversine(lat1, lon1, lat2, lon2):
     a = sin(dLat / 2)**2 + cos(lat1) * cos(lat2) * sin(dLon / 2)**2
     c = 2 * asin(sqrt(a))
  
-    return R * c
+    return c
     
