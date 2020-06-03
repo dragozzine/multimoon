@@ -33,6 +33,7 @@ def from_param_df_to_fit_array(dataframe, runprops):
     
     num = 0
     #Split the fixed and floating values into seperate dataframes
+    print('The dataframe column names are: ',dataframe.columns)
     for col in dataframe.columns:
         #If the value is fixed
         if key_list[num] == 0:
@@ -43,6 +44,7 @@ def from_param_df_to_fit_array(dataframe, runprops):
         num = num+1
     
     float_names = float_df.columns
+    print('Currently in mm_params, dataframe is: ',dataframe)
     
     float_arr = float_df.to_numpy()
     

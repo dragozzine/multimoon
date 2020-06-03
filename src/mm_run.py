@@ -216,6 +216,7 @@ else:
 reset = 0
 maxreset = runprops.get("maxreset")
 for i in range(nwalkers):
+	print('p0 is currently : ',p0)    
 	llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf)
 	while (llhood == -np.Inf):
 		# Resetting walker to be average of two other walkers
