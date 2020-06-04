@@ -21,23 +21,24 @@ def generate_vector(paramsdf, t_arr):
     
     tol = runprops.get("spinny_tolerance")
     
-    N = len(sys_df.columns) # total number of objects in the system
-    T = len(t_arr)          # number of observation times
-    
+    N = runprops.get("numobjects") # total number of objects in the system
+    T = len(t_arr)                 # number of observation times
+
     j2s = []
     for col in sys_df.columns:
         if 'j2r2' in col:
-            j2s.append(sys_df[col])
+            j2s.append(sys_df[col].iloc[0])
+
     j2_sum = sum(j2s)
     #j2_sum = sum(sys_df.loc["j2r2",:].values.flatten())
-    names = list(sys_df.columns)
     
+
     if N == 2 and j2_sum == 0.00:  # checks if all objects are point masses, does keplerian integration instead
         kepler_system = kepler_integrate(sys_df,t_arr)
         kepler_df = kepler_system[0]
         names = kepler_system[1]
 
-    elif not "Sun" in names:       # runs a SPINNY integration without the sun if not included  
+    elif not "name_0" in sys_df.columns:       # runs a SPINNY integration without the sun if not included  
         system = build_spinny_multimoon(sys_df)
         spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
         s_df = spinny[0]
@@ -102,7 +103,7 @@ def build_spinny_multimoon(sys_df):
         if "ax_"+str(n) in sys_df.columns:
             ax_n = sys_df["ax_"+str(n)].iloc[0]
         else:
-            ax_n = 0.0
+            ax_n = 1.0
             
         if "j2r2_"+str(n) in sys_df.columns:
             j2r2_n = sys_df["j2r2_"+str(n)].iloc[0]
@@ -116,6 +117,7 @@ def build_spinny_multimoon(sys_df):
                 
         # set physical properties array
         phys_arr[i] = np.array([mass_n, ax_n, j2r2_n, c22r2_n])
+        
         
         if "sma_"+str(n) in sys_df.columns:
             sma_n = sys_df["sma_"+str(n)].iloc[0]
@@ -150,6 +152,7 @@ def build_spinny_multimoon(sys_df):
             
         # set orbital properties array
         orb_arr[i] = np.array([sma_n, ecc_n, aop_n, inc_n, lan_n, mea_n]) 
+        
         i = i + 1
     # set orbit of primary equal to orbit of secondary (it will be scaled later)
     if "Sun" in names_arr:
@@ -161,31 +164,31 @@ def build_spinny_multimoon(sys_df):
     for n in body_idx:
         # precession, obliquity angles are measured with respect to the ECLIPTIC, not the body's orbit
         # default values are set to be aligned with the orbit (LAN for prec, inc for obliq, AOP for longitude)
-        n= n-1
-        if "sp_prc_"+str(n) in sys_df.columns:
-            sp_prc_n = (2*np.pi/180.)*sys_df["sp_prc_"+str(n)].iloc[0]
+        #n= n-1
+        if "splan_"+str(n) in sys_df.columns:
+            sp_prc_n = (2*np.pi/180.)*sys_df["splan_"+str(n)].iloc[0]
         else:
             sp_prc_n = orb_arr[i,4]
             
-        if "sp_obl_"+str(n) in sys_df.columns:
-            sp_obl_n = (2*np.pi/180.)*sys_df["sp_obl_"+str(n)].iloc[0]
+        if "spinc_"+str(n) in sys_df.columns:
+            sp_obl_n = (2*np.pi/180.)*sys_df["spinc_"+str(n)].iloc[0]
         else:
             sp_obl_n = orb_arr[i,3]
             
-        if "sp_lon_"+str(n) in sys_df.columns:
-            sp_lon_n = (2*np.pi/180.)*sys_df["sp_lon_"+str(n)].iloc[0]
+        if "spaop_"+str(n) in sys_df.columns:
+            sp_lon_n = (2*np.pi/180.)*sys_df["spaop_"+str(n)].iloc[0]
         else:
             sp_lon_n = orb_arr[i,2]
             
-        if "sp_rate_"+str(n) in sys_df.columns:
-            sp_rate_n = sys_df["sp_rate_"+str(n)].iloc[0]
+        if "sprate_"+str(n) in sys_df.columns:
+            sp_rate_n = sys_df["sprate_"+str(n)].iloc[0]
         else:
             # the default is equal to the orbital period, calculated from semi-major axis, sum of masses of body and primary 
-            sp_rate_n = np.sqrt(orb_arr[i,0]**3/(G*(phys_arr[i,0]+phys_arr[1,0])) ) 
+            sp_rate_n = np.sqrt(orb_arr[i,0]**3.0/(G*(phys_arr[i,0]+phys_arr[1,0])) ) 
            
         # set spin properties array
-        spin_arr[int(n)] = np.array([sp_prc_n, sp_obl_n, sp_lon_n, sp_rate_n])
-    
+        spin_arr[i] = np.array([sp_prc_n, sp_obl_n, sp_lon_n, sp_rate_n])
+
         # create orientation quaternions for each body from spin/orbit data
         
         # generate quaternion for obliquity angle of rotation axis
@@ -201,7 +204,7 @@ def build_spinny_multimoon(sys_df):
         # set quaternion array
         # the order of the quaternion must be changed, since SPINNY needs scalar-first form
         quat_arr[i] = np.array([qr,qi,qj,qk]) #obliq_quat_n[0]
-        
+
         i = i+1
         
     return(N, names_arr, phys_arr, orb_arr, spin_arr, quat_arr)            
