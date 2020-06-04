@@ -137,8 +137,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
             qi = quat_n[1]
             qj = quat_n[2]
             qk = quat_n[3]
-<<<<<<< HEAD
-            
+
             r_n = R.from_quat(np.array([qi,qj,qk,qr])) # convert quaternion to rotation
             obj_pole = r_n.apply([0.0,0.0,1.0],inverse=False) # get orientation of spin pole in world frame
             state = s.get_state(n,0) # get state vector for the body
@@ -160,24 +159,12 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
                 orbit_pole = h/np.linalg.norm(h)  # compute direction of orbit normal
                 spin_orbit_angle = np.arccos(np.dot(obj_pole,orbit_pole))*180./np.pi
 
-                
-=======
 
-            state = s.get_state(n,0)
-            h = np.cross(state[:3],state[3:]) # Specific orbital angular momentum
-            orbit_pole = h/np.linalg.norm(h) #np.array([0.0,0.0,1.0]) #
-            r_n = R.from_quat(np.array([qi,qj,qk,qr]))
-            #mat_n = r_mat.as_matrix()  #quat2mat(s.get_quaternion(n)) #
-            obj_pole = r_n.apply([0.0,0.0,1.0],inverse=False) #mat_n.dot([0.0,0.0,1.0])
-            spin_orbit_angle = np.arccos(np.dot(obj_pole,orbit_pole))*180./np.pi
-           
->>>>>>> 1a0737b81f8adbbc37243cbe9b809e8cb54bc49a
             spin_arr[n,t,0] = spin_orbit_angle 
             spin_arr[n,t,1] = np.linalg.norm(s.get_spin(n)) # magnitude of spin vector (spin rate)
             
             # converts quaternion to euler angles, using ZXZ rotation sequence   
-            euler_arr[n,t] = r_n.as_euler('ZXZ') #quat2euler(quat_n) 
-            
+            euler_arr[n,t] = r_n.as_euler('ZXZ') #quat2euler(quat_n)            
             
             # calculate angular momentum for the system to check for conservation
             I0 = phys_objects[n].I[0] # moment of inertia
