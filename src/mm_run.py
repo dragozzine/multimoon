@@ -207,7 +207,7 @@ obsdata = runprops.get('obsdata_file')
 obsDF = 0
 if os.path.exists(obsdata):
 	print("Observational data file " + obsdata + " will be used")
-	obsDF = pd.read_csv(obsdata)
+	obsdf = pd.read_csv(obsdata)
 else:
 	print("ERROR: No observational data file exists. Aborting run.")
 	sys.exit()
@@ -215,8 +215,7 @@ else:
 # Go through initial guesses and check that all walkers have finite posterior probability
 reset = 0
 maxreset = runprops.get("maxreset")
-for i in range(nwalkers):
-	print('p0 is currently : ',p0)    
+for i in range(nwalkers):  
 	llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf)
 	while (llhood == -np.Inf):
 		# Resetting walker to be average of two other walkers

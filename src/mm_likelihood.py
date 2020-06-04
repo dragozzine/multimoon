@@ -14,12 +14,10 @@ Outputs:
 1) log_likelihood, the log likelihood of the parameters with the priors
 
 """
-def log_likelihood(params, float_names, fixed_df, total_df_names, fit_scale, obsdf, runprops):
+def log_likelihood(params, obsdf, runprops):
     # assuming Guassian independent observations log-likehood = -1/2 * chisqure
-    
-    paramdf = mm_param.from_fit_array_to_param_df(params, float_names, fixed_df, total_df_names, fit_scale)
 
-    lh = mm_chisquare(paramdf,obsdf, runprops)*-0.5
+    lh = mm_chisquare(params,obsdf, runprops)*-0.5
     return lh
 
 
@@ -36,15 +34,19 @@ Outputs:
 """
 def log_probability(float_params, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf):
     
-    objname = runprops.get("objname")
-    priors = pd.read_csv("../data/" +objname + "/" + objname + "_priors_df.csv", sep='\t',index_col=0)
+    objname = runprops.get("objectname")
+    priorFilename = "../data/" +objname + "/" + objname + "_priors_df.csv"
+    priors = pd.read_csv(priorFilename, sep='\t',index_col=0)
     priors = priors.transpose()
+    
+    name_dict = runprops.get("names_dict")
+    params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict)
     
     lp = prior.mm_priors(priors,params)
     
     if not np.isfinite(lp):
         return -np.inf
-    return lp + log_likelihood(params, obsdf, runprops, fitarray_to_params_dict)
+    return lp + log_likelihood(params, obsdf, runprops)
 
 
 """
@@ -64,10 +66,10 @@ def mm_chisquare(paramdf, obsdf, runprops):
     if verbose: 
         print("verbose test works")
 
-    
-    for i in range(numObj):
-        if not 'name_'+i in paramdf.columns:
-            print('The parameter name_' + i+ ' is not found in the parameter dataframe.')
+    print(paramdf)
+    for i in range(1,numObj):
+        if not 'name_'+str(i) in paramdf.columns:
+            print('The parameter name_' + str(i)+ ' is not found in the parameter dataframe.')
             sys.exit()
         
     

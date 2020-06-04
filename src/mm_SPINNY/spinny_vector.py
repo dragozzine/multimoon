@@ -8,6 +8,7 @@ import pandas as pd
 import sys
 sys.path.append("..")
 import mm_runprops
+runprops = mm_runprops.runprops
 
 def generate_vector(paramsdf, t_arr):
     global G
@@ -23,7 +24,12 @@ def generate_vector(paramsdf, t_arr):
     N = len(sys_df.columns) # total number of objects in the system
     T = len(t_arr)          # number of observation times
     
-    j2_sum = sum(sys_df.loc["j2r2",:].values.flatten())
+    j2s = []
+    for col in sys_df.columns:
+        if 'j2r2' in col:
+            j2s.append(sys_df[col])
+    j2_sum = sum(j2s)
+    #j2_sum = sum(sys_df.loc["j2r2",:].values.flatten())
     names = list(sys_df.columns)
     
     if N == 2 and j2_sum == 0.00:  # checks if all objects are point masses, does keplerian integration instead
@@ -67,7 +73,7 @@ def build_spinny_multimoon(sys_df):
     
     # in DESCENDING ORDER of size, an array of the masses 
     masses = sorted([sys_df[col].iloc[0] for col in sys_df.columns if "mass_" in col],reverse=True) 
-    
+
     N = runprops.get("numobjects") #len(masses) # number of bodies in the system
     
     cols = list(sys_df.columns[[int(np.where(sys_df==m)[1].flatten()) for m in masses]])
@@ -146,7 +152,7 @@ def build_spinny_multimoon(sys_df):
         orb_arr[i] = np.array([sma_n, ecc_n, aop_n, inc_n, lan_n, mea_n]) 
         i = i + 1
     # set orbit of primary equal to orbit of secondary (it will be scaled later)
-    if "Sun" in names:
+    if "Sun" in names_arr:
         orb_arr[1] = orb_arr[2]
     else:
         orb_arr[0] = orb_arr[1]
@@ -155,6 +161,7 @@ def build_spinny_multimoon(sys_df):
     for n in body_idx:
         # precession, obliquity angles are measured with respect to the ECLIPTIC, not the body's orbit
         # default values are set to be aligned with the orbit (LAN for prec, inc for obliq, AOP for longitude)
+        n= n-1
         if "sp_prc_"+str(n) in sys_df.columns:
             sp_prc_n = (2*np.pi/180.)*sys_df["sp_prc_"+str(n)].iloc[0]
         else:

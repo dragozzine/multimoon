@@ -18,11 +18,17 @@
     "verbose" : true,
     "dynamicstoincludeflags" : "200",
     "includesun" : 0,
+    "names_dict" :
+    {
+        "name_1": "Haumea",
+        "name_2": "Hiiaka",
+        "name_3": "Namaka"
+    },
     "parameter_dict" : 
     { 
         "name_1": "Haumea",
         "mass_1": 1.49e24,
-        "name_2": "Hi'aka",
+        "name_2": "Hiiaka",
         "mass_2": 1.9e21,
         "sma_2": 12,
         "ecc_2": 10,

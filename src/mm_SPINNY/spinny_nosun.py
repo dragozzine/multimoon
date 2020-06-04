@@ -133,6 +133,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
             qi = quat_n[1]
             qj = quat_n[2]
             qk = quat_n[3]
+            print(quat_n)
             state = s.get_state(n,0)
             h = np.cross(state[:3],state[3:]) # Specific orbital angular momentum
             orbit_pole = h/np.linalg.norm(h) #np.array([0.0,0.0,1.0]) #
