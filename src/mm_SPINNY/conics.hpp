@@ -104,16 +104,19 @@ void conics_util::kepler(const double &r0,const double &dt,const double &mu,cons
     const static double tol = 1e-13;
 
     // Simple initial value for small delta
-    if(fabs(dt/r0)<0.2)
+    if(fabs(dt/r0)<0.2){
         s = (dt/r0) - (dt*dt*u)/(2.*r0*r0*r0);
+    }
 
     // Smart initial value for elliptical motion
-    else if(alpha>0)
+    else if(alpha>0){
         s = conics_util::init_elip(dt,mu,alpha,r0,u);
+    }
 
     // Smart initial value for hyperbolic motion
-    else
+    else{
         s = conics_util::init_hyper(dt,mu,alpha,r0,u);
+    }
 
     // Save initial value
     double st = s, x,f,fpp,fppp,ds;
@@ -272,8 +275,9 @@ std::vector<double> oscelt(const std::vector<double> &state,const double &et,con
     // We begin by determining the size and shape of the orbit.
 
     double ecc = conics_util::norm(e);
-    if(fabs(ecc-1.)<1e-10)
+    if(fabs(ecc-1.)<1e-10){
         ecc = 1.;
+    }
     const double p = conics_util::dot(h, h) / mu;
     const double rp = p / (ecc + 1.);
 
@@ -296,13 +300,14 @@ std::vector<double> oscelt(const std::vector<double> &state,const double &et,con
     }
 
     double lnode = atan2(n[1], n[0]);
-    if(lnode<0.)
+    if(lnode<0.){
         lnode += 2.*M_PI;
-
+    }
     double argp;
 
-    if(ecc==0.)
+    if(ecc==0.){
         argp = 0.;
+    }
 
     else {
 
@@ -312,7 +317,7 @@ std::vector<double> oscelt(const std::vector<double> &state,const double &et,con
 
         if(argp!=0.) {
 
-            if((inc==0.) or (inc==M_PI)) {
+            if((inc==0.) || (inc==M_PI)) {
 
                 // The quadrant of ARGP is determined by the component of E
                 // in the direction H x N.
@@ -372,24 +377,28 @@ std::vector<double> oscelt(const std::vector<double> &state,const double &et,con
         const double sinea = (rmag / rp) * sqrt((1. - ecc) / (ecc + 1.)) * sin(nu);
         const double ea = atan2(sinea, cosea);
         m0 = fabs(ea - ecc * sin(ea));
-        if(nu<0)
+        if(nu<0){
             m0 *= -1.;
-        if(m0<0.)
+        }
+        if(m0<0.){
             m0 += 2.*M_PI;
+        }
     }
     else if (ecc>1.) {
         const double coshf = (ecc + cos(nu)) / (ecc * cos(nu) + 1.);
         const double ea = acosh(fmax(1.,coshf));
         m0 = fabs(ecc * sinh(ea) - ea);
-        if(nu<0)
+        if(nu<0){
             m0 *= -1.;
+        }
     }
     else {
         const double ea = tan(nu / 2.);
         // Computing 3rd power
         m0 = fabs(ea + (ea*ea*ea)/3.);
-        if(mu<0)
+        if(mu<0){
             m0 *= -1.;
+        }
     }
 
     std::vector<double> elts(8);

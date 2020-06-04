@@ -207,11 +207,11 @@ void Spinny::add_object(const std::string &name,const Physical_Properties &phys0
     arr0.insert(arr0.end(), quaternion.begin(), quaternion.end());
 
     // Do we need to spin math on the object
-    if(phys0.J2R2==0 and phys0.C22R2==0)
+    if(phys0.J2R2==0 && phys0.C22R2==0){
         hasspin.push_back(false);
-    else
+    } else {
         hasspin.push_back(true);
-
+    }
     nobj++;
 }
 
@@ -564,7 +564,7 @@ void Spinny::norm() {
     // Normalize quaternions
     for(unsigned i=0;i<nobj;i++) {
         unsigned i2 = 13*i;
-        if(not hasspin[i]) continue;
+        if(!hasspin[i]) continue;
         double iq = 1./sqrt(arr0[i2+9]*arr0[i2+9] + arr0[i2+10]*arr0[i2+10] 
                 + arr0[i2+11]*arr0[i2+11] + arr0[i2+12]*arr0[i2+12] );
         arr0[i2+ 9] *= iq;

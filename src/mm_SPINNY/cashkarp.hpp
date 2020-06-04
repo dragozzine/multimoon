@@ -181,8 +181,9 @@ void cashkarp_class<T>::step(
     (obj->*deriv)(y,t,k1);
 
     // Second step
-    for(unsigned i=0;i<neq;i++) 
+    for(unsigned i=0;i<neq;i++) {
         temp[i] = y[i] + A1[0]*h*k1[i];
+    }
     (obj->*deriv)(temp,t+C[1]*h,k2);
 
     nfun += 2;
@@ -213,13 +214,15 @@ void cashkarp_class<T>::step(
     }
         
     // Third step
-    for(unsigned i=0;i<neq;i++)
+    for(unsigned i=0;i<neq;i++){
         temp[i] = y[i] + A2[0]*h*k1[i] + A2[1]*h*k2[i];
+    }
     (obj->*deriv)(temp,t+C[2]*h,k3);
     
     // Fourth step
-    for(unsigned i=0;i<neq;i++)
+    for(unsigned i=0;i<neq;i++){
         temp[i] = y[i] + A3[0]*h*k1[i] + A3[1]*h*k2[i] + A3[2]*h*k3[i];
+    }
     (obj->*deriv)(temp,t+C[3]*h,k4);
 
     nfun += 2;
@@ -252,8 +255,9 @@ void cashkarp_class<T>::step(
             if(E15<tol) {
                 // Accept the second order solution
                 nu21++;
-                for(unsigned i=0;i<neq;i++)
+                for(unsigned i=0;i<neq;i++){
                     y[i] += .2*h*k1[i];
+                }
                 t += .2*h;
                 //h0 = .2*h;
                 h0 = fmax(.2,SF/E15)*h0;
@@ -355,8 +359,9 @@ void cashkarp_class<T>::step(
             if(E35<tol) {
                 // Accept the third order solution
                 nu3++;
-                for(unsigned i=0;i<neq;i++)
+                for(unsigned i=0;i<neq;i++){
                     y[i] += .6*h*k3[i];
+                }
                 t += .6*h;
                 //h0 = .6*h;
                 h0 = fmax(.6,SF/E4)*h0;
@@ -378,8 +383,9 @@ void cashkarp_class<T>::step(
                     if(E15<tol) {
                         nu22++;
                         // Accept the second order solution
-                        for(unsigned i=0;i<neq;i++)
+                        for(unsigned i=0;i<neq;i++){
                             y[i] += .2*h*k1[i];
+                        }
                         t += .2*h;
                         //h0 = .2*h;
                         h0 = fmax(.2,SF/E15)*h0;
@@ -427,15 +433,17 @@ void cashkarp_class<T>::step(
 
     double Q1 = E1/E4;
     double Q2 = E2/E4;
-    if(Q1>quit1)
+    if(Q1>quit1){
         Q1 = fmin(Q1,10.*quit1);
-    else
+    } else {
         Q1 = fmax(Q1,2.*quit1/3.);
+    }
     quit1 = fmax(1,fmin(10000,Q1));
-    if(Q2>quit2)
+    if(Q2>quit2){
         Q2 = fmin(Q2,10.*quit2);
-    else
-        Q2 = fmax(Q2,2.*quit2/3.);
+    } else {
+        Q2 = fmax(Q2,2.*quit2/3.); 
+    }
     quit2 = fmax(1,fmin(10000,Q2));
 
 }
@@ -468,13 +476,15 @@ void cashkarp_class<T>::evolve(
         ) {
 
     //  Allocate arrays if necessary
-    if(neq!=y.size())
+    if(neq!=y.size()){
         allocate(y.size());
+    }
 
     // Start with the default step size
     h0 = fabs(h0);
-    if (t_start>t_end) 
+    if (t_start>t_end){
         h0 *= -1;
+    }
     double t = t_start;
 
     // Step through until done
@@ -485,17 +495,18 @@ void cashkarp_class<T>::evolve(
             h00 = h0;
             h0 = t_end-t;
             recover = true;
-        } else
+        } else{
             recover = false;
+        }
         
         // The magic
         step(y,t);
         
         // If we had reduced the step size, and it worked, recover
-        if(recover and success)
+        if(recover && success){
             h0 = h00;
+        }
     }
-
 }
 
 template <class T>
