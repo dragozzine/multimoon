@@ -53,7 +53,7 @@ def generate_vector(paramsdf, t_arr):
         data.insert(s_df["X_Vel_"+name])
         data.insert(s_df["Y_Vel_"+name])
         data.insert(s_df["Z_Vel_"+name])
-    #data = [s_df["X_Pos_"+name],s_df["Y_Pos_"+name],s_df["Z_Pos_"+name],s_df["X_Vel_"+name],s_df["Y_Vel_"+name],s_df["Z_Vel_"+name] for name in names]
+
     vec_df = pd.concat(data, axis=1)
         
     return(vec_df)

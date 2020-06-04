@@ -9,6 +9,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 from scipy.spatial.transform import Rotation as R
 
+
 ##### ALL UNITS SHOULD BE GIVEN IN km, sec, AND rad IN ORDER FOR THE COMPUTATIONS TO WORK
 
 global G
@@ -72,8 +73,8 @@ def generate_system_ns(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr):
     # integration parameters
     P = (2*np.pi)/np.sqrt(G*phys_arr[N-1,0]/(orb_arr[N-1,0]**3))
 
-    tol = 1e-11                            # integration tolerance
-    h0P = 1e-5*P                           # initial step size
+    tol = 1e-11                          # integration tolerance
+    h0P = 1e-5                           # initial step size
     print("Building SPINNY system...")
     s = Spinny_System(0.,h0=h0P,tol=tol)        # initializes object s, which is the SPINNY system
     
@@ -111,49 +112,101 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
     spin_arr = np.empty((N,T,2))
     quat_arr = np.empty((N,T,4))
     euler_arr = np.empty((N,T,3))
-    
+    L_arr = np.empty((N,T))
+    E_arr = np.empty((N,T))
     print("Evolving SPINNY...")
     for t in range(0,T):
-
+        # Use s.get_state(n,0) with respect to the primary to ignore the motion of the Sun in our vectors,
+        # but we take s.arr0 in order to get orbital parameters which might not make any sense in a primaricentric frame
         s.evolve(t_arr[t]) #### <---- The actual integration
         body_arr[t] = np.concatenate([s.get_state(n,0) for n in range(0,N)]) # taken with respect to the primary
         inertial_arr[t] = s.arr0
-        print(s.get_spin(1))
-        #print(s.get_spin(1)/np.linalg.norm(s.get_spin(1)))
+        
         for n in range(0,N):
 
             quat_n = s.get_quaternion(n)     # quaternion, (qr, qi, qj, qk)
             
             if quat_n.all() == 0.0:
                 quat_n = [1.,0.,0.,0.]
+                has_spin = False
             else:
                 quat_n = quat_n
+                has_spin = True
             
             qr = quat_n[0]
             qi = quat_n[1]
             qj = quat_n[2]
             qk = quat_n[3]
-            state = s.get_state(n,0)
-            h = np.cross(state[:3],state[3:]) # Specific orbital angular momentum
-            orbit_pole = h/np.linalg.norm(h) #np.array([0.0,0.0,1.0]) #
-            r_n = R.from_quat(np.array([qi,qj,qk,qr]))
-            #mat_n = r_mat.as_matrix()  #quat2mat(s.get_quaternion(n)) #
-            obj_pole = r_n.apply([0.0,0.0,1.0],inverse=False) #mat_n.dot([0.0,0.0,1.0])
-            spin_orbit_angle = np.arccos(np.dot(obj_pole,orbit_pole))*180./np.pi
-           
+            
+            r_n = R.from_quat(np.array([qi,qj,qk,qr])) # convert quaternion to rotation
+            obj_pole = r_n.apply([0.0,0.0,1.0],inverse=False) # get orientation of spin pole in world frame
+            state = s.get_state(n,0) # get state vector for the body
+            
+            # These if statements should save some time in integration.
+             # For the primary body, measure spin with respect to the second body's orbit so
+             # that you don't get devide-by-zero warnings
+            if state.all == 0.00 and has_spin == True:  
+                state_sec = s.get_state(1,0)         
+                h = np.cross(state_sec[:3],state_sec[3:])# Specific orbital angular momentum (of secondary)
+                orbit_pole = h/np.linalg.norm(h)  # compute direction of orbit normal
+                spin_orbit_angle = np.arccos(np.dot(obj_pole,orbit_pole))*180./np.pi
+
+            elif has_spin == False: # don't try to compute spin angles if spin isn't included
+                spin_orbit_angle = 0.0
+                
+            else:
+                h = np.cross(state[:3],state[3:]) # Specific orbital angular momentum
+                orbit_pole = h/np.linalg.norm(h)  # compute direction of orbit normal
+                spin_orbit_angle = np.arccos(np.dot(obj_pole,orbit_pole))*180./np.pi
+
+                
             spin_arr[n,t,0] = spin_orbit_angle 
             spin_arr[n,t,1] = np.linalg.norm(s.get_spin(n)) # magnitude of spin vector (spin rate)
-               
+            
+            # converts quaternion to euler angles, using ZXZ rotation sequence   
             euler_arr[n,t] = r_n.as_euler('ZXZ') #quat2euler(quat_n) 
             
-            # converts quaternion to euler angles, using ZXZ rotation sequence
             
-        # Use s.get_state(n,0) with respect to the primary to ignore the motion of the Sun in our vectors,
-        # but we take s.arr0 in order to get orbital parameters which might not make any sense in a primaricentric frame
+            # calculate angular momentum for the system to check for conservation
+            I0 = phys_objects[n].I[0] # moment of inertia
+            I1 = phys_objects[n].I[1] # moment of inertia
+            I2 = phys_objects[n].I[2] # moment of inertia
+            w = s.get_spin(n)
+            
+            L_body = np.array([I0 * w[0],I1 * w[1],I2 * w[2]]) 
+            L_sp = r_n.apply(L_body,inverse=False) #translate angular momentum to world frame
+            
+            state_bary = s.get_state(n)
+            h_bary = np.cross(state_bary[:3],state_bary[3:]) # specific orbital angular momentum, barycentric frame
+            
+            L_orb = phys_objects[n].mass * h_bary
+            
+            L_tot = np.add(L_orb, L_sp)
+               
+            L_arr[n,t] = np.linalg.norm(L_tot)
+                  
+            # calculate total mechanical energy to check for conservation
+            K_sp = np.sum(0.5 * np.array([I0 * w[0]**2.0,I1 * w[1]**2.0,I2 * w[2]**2.0]))
+            K_orb = 0.5 * phys_objects[n].mass * np.linalg.norm(state_bary[3:])**2.0
+            U_grav = np.sum([(phys_objects[n].mass * phys_objects[i].mass)/np.linalg.norm((s.get_state(n,i)[:3])) for i in range(0,N) if i is not n])
+            E_tot = K_sp + K_orb - U_grav
+            E_arr[n,t] = E_tot
+    
+    L_arr = np.sum(L_arr,axis=0)
+    E_arr = np.sum(E_arr,axis=0)
+    L_arr[0] = L_arr[1]
+    E_arr[0] = E_arr[1]
+    max_diffE = np.max(abs(E_arr-E_arr[0]))
+    max_diffL = np.max(abs(L_arr-L_arr[0]))
+    percent_changeE = (np.max(E_arr)-E_arr[0])/E_arr[0]
+    percent_changeL = (np.max(L_arr)-L_arr[0])/L_arr[0]
+    
+    print("Change in Energy: "+str(percent_changeE))
+    print("Change in Angular Momentum: "+str(percent_changeL))
     
     body_dict = {"Times":t_arr}
     print("Constructing dataframe...")
-    
+
     for n in range(0,N):   
         body_dict.setdefault('X_Pos_'+name_arr[n] , body_arr[:,(n*6)+0])
         body_dict.setdefault('Y_Pos_'+name_arr[n] , body_arr[:,(n*6)+1])
@@ -196,7 +249,14 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
         body_dict.setdefault('longitude_'+name_arr[n],  180./np.pi*(euler_arr[n,:,2]) )
        
         body_dict.setdefault('spin_orbit_angle_'+name_arr[n], spin_arr[n,:,0])
-        body_dict.setdefault('spin_rate_'+name_arr[n], spin_arr[n,:,1])
+        body_dict.setdefault('spin_rate_'+name_arr[n],  spin_arr[n,:,1])
+        
+        body_dict.setdefault('L_'+name_arr[n], L_arr )
+        #body_dict.setdefault('Ly_'+name_arr[n], L_arr[n,:,1] )
+        #body_dict.setdefault('Lz_'+name_arr[n], L_arr[n,:,2] )
+        
+        body_dict.setdefault('E_'+name_arr[n], E_arr )
+        
                              
     spinny_df = pd.DataFrame(body_dict)
                                
@@ -328,24 +388,19 @@ def build_spinny_ns(sys_df):
         spin_arr[i] = np.array([sp_prc_n, sp_obl_n, sp_lon_n, sp_rate_n])
 
         # create orientation quaternions for each body from spin/orbit data
-        # the function: quaternion(phi,theta,psi) 
-        # returns a quaternion (idx 0) and a rotation matrix (idx 1) for given Euler angles
-        
-        # generates quaternion for the orbit normal
-        # Euler angles: longitude of ascending node, inclination, argument of pericenter
-        norm_quat_n = quaternion(orb_arr[i,2],orb_arr[i,3],orb_arr[i,4])
-     
         # generate quaternion for obliquity angle of rotation axis
         # Euler angles: precession, obliquity, longitude, relative to the ecliptic
-        obliq_quat_n = quaternion(spin_arr[i,0], spin_arr[i,1], spin_arr[i,2])
         
-        # set quaternion array
+        
         r = R.from_euler('ZXZ', [spin_arr[i,0], spin_arr[i,1], spin_arr[i,2]])
-        quat_i = r.as_quat()
+        quat_i = r.as_quat() 
+        
         qi = quat_i[0]
         qj = quat_i[1]
         qk = quat_i[2]
         qr = quat_i[3]
+        # set quaternion array
+        # the order of the quaternion must be changed, since SPINNY needs scalar-first form
         quat_arr[i] = np.array([qr,qi,qj,qk]) #obliq_quat_n[0]
         
         i = i+1
