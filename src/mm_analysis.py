@@ -31,7 +31,7 @@ def plots(sampler, parameters):
 	# code here
 	names = list(parameters)
 
-	fig = corner.corner(chain, bins = 40, labels = names, show_titles = True, 
+	fig = corner.corner(flatchain, bins = 40, labels = names, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".4f")
 	fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
