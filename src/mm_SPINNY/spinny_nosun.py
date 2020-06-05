@@ -116,7 +116,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
     L_arr = np.empty((N,T))
     E_arr = np.empty((N,T))
     print("Evolving SPINNY...")
-    
+    print(s.arr0[:13])
     for t in range(0,T):
         # Use s.get_state(n,0) with respect to the primary to ignore the motion of the Sun in our vectors,
         # but we take s.arr0 in order to get orbital parameters which might not make any sense in a primaricentric frame
