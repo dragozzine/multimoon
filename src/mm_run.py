@@ -76,7 +76,9 @@ runprops = mm_runprops.runprops
 
 verbose = runprops.get("verbose")
 nwalkers = runprops.get("nwalkers")
+startfromfile = runprops.get("startfromfile")
 
+# BP TODO: make an option in runprops to start from the end of another run and just append it
 # Generate the intial guess for emcee
 # starting guess is given by the user as specified in runprops
 # and turned into the official initial guess
@@ -238,8 +240,9 @@ for i in range(nwalkers):
 
 # Now creating the sampler object
 filename = "../results/" + runprops.get("objectname") + "/chain.h5"
+
 # BP TODO: make an option in runprops to start from the end of another run and just append it
-ndim = len(p0[0])
+
 backend = emcee.backends.HDFBackend(filename)
 backend.reset(nwalkers, ndim)
 
@@ -253,6 +256,8 @@ print('sampler created')
 # the best way to do a run is to just do a single long run until the ess > 100 and cut the 
 # burn in off afterwards. This way you can save the whole chain and you can really analyze where to
 # cut off the burn in.
+# I think i want to still create an autoburnin but I really would like to look at a completed
+# run to see what the burn in looks like... It should be a few autocorrelation times
 
 nburnin = runprops.get("nburnin")
 if verbose:

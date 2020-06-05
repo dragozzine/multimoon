@@ -19,6 +19,7 @@
     "get_resid":false,
     "dynamicstoincludeflags" : "200",
     "includesun" : 0,
+    "startfromfile" : true,
     "names_dict" :
     {
         "name_1": "Haumea",
