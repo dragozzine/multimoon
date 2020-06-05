@@ -12,7 +12,7 @@ runprops = mm_runprops.runprops
 
 def generate_vector(paramsdf, t_arr):
     global G
-    G = 6.67e-20 # Gravitational constant in km
+    G = 6.674e-20 # Gravitational constant in km
     
     # need to rearrange the paramsdf into a shape that is easier for SPINNY to read?
     # TODO: Update this for when I know what the params dataframe looks like
@@ -28,7 +28,7 @@ def generate_vector(paramsdf, t_arr):
     for col in sys_df.columns:
         if 'j2r2' in col:
             j2s.append(sys_df[col].iloc[0])
-
+    
     j2_sum = sum(j2s)
     #j2_sum = sum(sys_df.loc["j2r2",:].values.flatten())
     
@@ -53,14 +53,15 @@ def generate_vector(paramsdf, t_arr):
 
     # creates a new dataframe using just x,y,z position for each body
     data = []
+    
     for name in names:
-        data.insert(s_df["X_Pos_"+name])
-        data.insert(s_df["Y_Pos_"+name])
-        data.insert(s_df["Z_Pos_"+name])
-        data.insert(s_df["X_Vel_"+name])
-        data.insert(s_df["Y_Vel_"+name])
-        data.insert(s_df["Z_Vel_"+name])
-
+        data.append(s_df["X_Pos_"+name])
+        data.append(s_df["Y_Pos_"+name])
+        data.append(s_df["Z_Pos_"+name])
+        data.append(s_df["X_Vel_"+name])
+        data.append(s_df["Y_Vel_"+name])
+        data.append(s_df["Z_Vel_"+name])
+        
     vec_df = pd.concat(data, axis=1)
         
     return(vec_df)

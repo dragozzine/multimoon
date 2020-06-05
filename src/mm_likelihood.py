@@ -123,9 +123,15 @@ def mm_chisquare(paramdf, obsdf, runprops):
     # km, kg, rad, s
     # primaricentric 
     
+<<<<<<< HEAD
     name_1 = "X_Pos_"+paramdf["name_1"][0]
     if (vec_df[name_1][0] != 0.0):
         print("Not primaricentric like I thought!")
+=======
+    # SP: NOTE I commented this out because it was causing a TypeError -- fix later
+    #if (vec_df[0,"X_Pos_"+paramdf["name_1"]] != 0.0):
+    #    print("Not primaricentric like I thought!")
+>>>>>>> 40655afffc19d0ae7d8507e2f3778d5ac4ac8ed3
 
     Model_DeltaLong = pd.DataFrame(index = range(len(time_arr)),columns = names)
     Model_DeltaLat = pd.DataFrame(index = range(len(time_arr)), columns = names)
@@ -134,6 +140,7 @@ def mm_chisquare(paramdf, obsdf, runprops):
     
     for t in range(len(time_arr)):
         # DS TODO: get relative positions out of vec_df
+<<<<<<< HEAD
         positionData = pd.DataFrame()
       
         for i in range(0,numObj):
@@ -141,6 +148,17 @@ def mm_chisquare(paramdf, obsdf, runprops):
             positionData[names[i]] = vec_df["Y_Pos_"+names[i]]
             positionData[names[i]] = vec_df["Z_Pos_"+names[i]]
                                                                
+=======
+        positionData = np.empty(numObj,3)
+        names = np.empty(numObj)
+        for i in range(1,numObj+1):
+            names.append(paramdf["name_"+str(i)])
+            positionData[i][0] = vec_df["X_Pos_"+names[i]]
+            positionData[i][1] = vec_df["Y_Pos_"+names[i]]
+            positionData[i][2] = vec_df["Z_Pos_"+names[i]]
+                                      
+                                      
+>>>>>>> 40655afffc19d0ae7d8507e2f3778d5ac4ac8ed3
         # tind = index/row number of vec_df corresponding to this time
         
         # for object from 2:N
