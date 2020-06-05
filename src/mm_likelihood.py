@@ -65,7 +65,7 @@ def mm_chisquare(paramdf, obsdf, runprops):
     print(verbose, verbose == True)
     if verbose: 
         print("verbose test works")
-
+    pd.set_option('display.max_columns', None)
     print(paramdf)
     for i in range(1,numObj):
         if not 'name_'+str(i) in paramdf.columns:

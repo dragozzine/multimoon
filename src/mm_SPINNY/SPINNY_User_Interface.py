@@ -1,7 +1,8 @@
 from spinny_plots import spinny_plot
 from spinny_generate import *
+from spinny_nosun import *
 from mm_vpython import *
-from keplerian import kepler_integrate, kepler_plot
+from keplerian import *
 import numpy as np
 import time
 from time import ctime
@@ -11,34 +12,23 @@ import pandas as pd
 import sys
 
 
-#file = str(raw_input("Please input file name (MUST be .csv): "))
-
-#if not ".csv" in file:
-#    file += ".csv"
-    
-#plot_df = pd.read_csv(str(file), index_col=0)
-
-#multimoon_plot(plot_df)    
 
 def main_menu():
-    
-    print("Hello!")
-    print("I am the SPINNY user interface. What can I help you with?")
-    
     print("S: Run a system though SPINNY")
     print("F: Generate figures from an existing SPINNY integration")
     print("V: Generate a VPython animation")
     #print("C: Convert SPINNY data to/from barycentric and primaricentric frames") #### add later
     print("Q: Quit")
     
-    user_input = str(raw_input("Please make a selection: "))
+    user_input = str(input("Please make a selection: "))
     user_input = user_input.upper()
     
     if user_input == "S":
         run_spinny()
         
     elif user_input == "F":
-        file = str(raw_input("Please input SPINNY data filename (MUST be .csv): "))
+        file = str(input("Please input SPINNY data filename (MUST be .csv): "))
+        file = "output/"+file
         if not ".csv" in file:
             file += ".csv"
             
@@ -48,7 +38,7 @@ def main_menu():
         run_vpython()
             
     elif user_input == "Q":
-        user_input = str(raw_input("Are you sure you want to quit? (Y/N): "))
+        user_input = str(input("Are you sure you want to quit? (Y/N): "))
         user_input = user_input.upper()
         if user_input == "Y":
             print("Goodbye.")
@@ -69,9 +59,9 @@ def main_menu():
                 
 def run_spinny():
     
-    file_sys = str(raw_input("Please input file name with system parameters (MUST be .csv): "))
+    file_sys = str(input("Please input file name with system parameters (MUST be .csv): "))
 
-    file_t = str(raw_input("File name with list of times (MUST be .csv): "))
+    file_t = str(input("File name with list of times (MUST be .csv): "))
     
     if not ".csv" in file_sys:
         file_sys += ".csv"  
@@ -87,46 +77,56 @@ def run_spinny():
     N = len(sys_df.columns)
     
     j2_sum = sum(sys_df.loc["j2r2",:].values.flatten())
+    names = list(sys_df.columns)
     
-    if N == 2 and j2_sum == 0.0:
+    
+    if N == 2 and j2_sum == 0.00:
         kepler_system = kepler_integrate(sys_df,t_arr)
+        kepler_df = kepler_system[0]
+        names = kepler_system[1]
+        kepler_save(kepler_df, names)
         print("\n Returning to main menu...")    
         return main_menu()
-    
-    else:
+    elif not "Sun" in names:
+        system = build_spinny_ns(sys_df)
+        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
+        s_df = spinny[0]
+        names = spinny[2]
+        save(s_df,names)
+    else: 
         system = build_spinny(sys_df)
         spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
         s_df = spinny[0]
-        names = spinny[1]
+        names = spinny[2]
         save(s_df,names)
 
         
 def save(s_df,names):
 
-    save_yn = str(raw_input("Do you want to save this data? (Y/N): "))
+    save_yn = str(input("Do you want to save this data? (Y/N): "))
     save_yn = save_yn.upper()
     if save_yn=="Y":
         print("Generating .csv...")
         t_current = ctime().replace(" ","_")
         filename = names[1]+"_SPINNY_"+t_current+".csv"
-        s_df.to_csv(filename)
-        print("SPINNY data saved to the local file as "+filename)
-        plot_q(s_df)
+        s_df.to_csv("output/"+filename)
+        print("SPINNY data saved to the output file as "+filename)
+        plot_q(s_df, names)
     elif save_yn == "N":
         print("")
-        plot_q(s_df)
+        plot_q(s_df, names)
     else:
         print("")
         print('Invalid Response.')
         return save(s_df,names)   
     
     
-def plot_q(s_df): 
-    plot_yn = str(raw_input("Do you want me to generate figures from these data? (Y/N): "))
+def plot_q(s_df, names): 
+    plot_yn = str(input("Do you want me to generate figures from these data? (Y/N): "))
     plot_yn = plot_yn.upper()
     
     if plot_yn == "Y":
-        plot(s_df)
+        plot(s_df, names)
     elif plot_yn == "N":
         print("\n Returning to main menu...")
         return main_menu()
@@ -136,23 +136,24 @@ def plot_q(s_df):
         return plot_q(s_df)
            
 
-def plot(plot_df):
+def plot(plot_df, names):
 
     print("\n Generating figures...")
-    spinny_plot(plot_df)
+    spinny_plot(plot_df, names)
     print("\n Returning to main menu...")
     return main_menu()
 
+
 def run_vpython():
-    file = str(raw_input("Please input file name with parameters of system to animate (MUST be .csv): "))
+    file = str(input("Please input file name with parameters of system to animate (MUST be .csv): "))
     if not ".csv" in file:
         file += ".csv"  
-        
+
     sys_df = pd.read_csv(str(file),index_col=[0])
     print("Which data do you want me to animate?")
     print("S: Spins")
     print("O: Orbits")
-    user_input = str(raw_input("Please select : "))
+    user_input = str(input("Please select : "))
     
     user_input = user_input.upper()
     if user_input == "O":
@@ -167,8 +168,9 @@ def run_vpython():
         print('Invalid Response.')
         return run_vpython()
     
-
-#main_menu()
+print("Hello!")
+print("I am the SPINNY user interface. What can I help you with?")
+main_menu()
 
 
 

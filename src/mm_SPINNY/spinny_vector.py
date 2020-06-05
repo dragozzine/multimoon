@@ -93,7 +93,7 @@ def build_spinny_multimoon(sys_df):
             names_arr[i] = sys_df["name_"+str(n)].iloc[0] # set name of the body
             
         else:
-            names_arr[n] = "Body "+str(n) 
+            names_arr[i] = "Body_"+str(n) 
         
         if "mass_"+str(n) in sys_df.columns:
             mass_n = sys_df["mass_"+str(n)].iloc[0] # set mass of the body
@@ -117,7 +117,7 @@ def build_spinny_multimoon(sys_df):
                 
         # set physical properties array
         phys_arr[i] = np.array([mass_n, ax_n, j2r2_n, c22r2_n])
-        
+
         
         if "sma_"+str(n) in sys_df.columns:
             sma_n = sys_df["sma_"+str(n)].iloc[0]
@@ -136,22 +136,23 @@ def build_spinny_multimoon(sys_df):
             aop_n = 0.0
             
         if "inc_"+str(n) in sys_df.columns:
-            inc_n = (2*np.pi/180.)*sys_df["inc_"+str(n)].iloc[0]
+            inc_n = (np.pi/180.)*sys_df["inc_"+str(n)].iloc[0]
         else:
             inc_n = 0.0 
             
         if "lan_"+str(n) in sys_df.columns:
-            lan_n = (2*np.pi/180.)*sys_df["lan_"+str(n)].iloc[0]
+            lan_n = (np.pi/180.)*sys_df["lan_"+str(n)].iloc[0]
         else:
             lan_n = 0.0
         
         if "mea_"+str(n) in sys_df.columns:
-            mea_n = (2*np.pi/180.)*sys_df["mea_"+str(n)].iloc[0]
+            mea_n = (np.pi/180.)*sys_df["mea_"+str(n)].iloc[0]
         else:
             mea_n = 0.0
             
         # set orbital properties array
         orb_arr[i] = np.array([sma_n, ecc_n, aop_n, inc_n, lan_n, mea_n]) 
+        
         
         i = i + 1
     # set orbit of primary equal to orbit of secondary (it will be scaled later)
@@ -166,17 +167,17 @@ def build_spinny_multimoon(sys_df):
         # default values are set to be aligned with the orbit (LAN for prec, inc for obliq, AOP for longitude)
         #n= n-1
         if "splan_"+str(n) in sys_df.columns:
-            sp_prc_n = (2*np.pi/180.)*sys_df["splan_"+str(n)].iloc[0]
+            sp_prc_n = (np.pi/180.)*sys_df["splan_"+str(n)].iloc[0]
         else:
             sp_prc_n = orb_arr[i,4]
             
         if "spinc_"+str(n) in sys_df.columns:
-            sp_obl_n = (2*np.pi/180.)*sys_df["spinc_"+str(n)].iloc[0]
+            sp_obl_n = (np.pi/180.)*sys_df["spinc_"+str(n)].iloc[0]
         else:
             sp_obl_n = orb_arr[i,3]
             
         if "spaop_"+str(n) in sys_df.columns:
-            sp_lon_n = (2*np.pi/180.)*sys_df["spaop_"+str(n)].iloc[0]
+            sp_lon_n = (np.pi/180.)*sys_df["spaop_"+str(n)].iloc[0]
         else:
             sp_lon_n = orb_arr[i,2]
             
