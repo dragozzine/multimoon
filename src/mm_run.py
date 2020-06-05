@@ -231,7 +231,7 @@ for i in range(nwalkers):
 # Begin MCMC
 
 # Now creating the sampler object
-filename = "tutorial.h5"	# BP TODO: rename this to be something meaningful
+filename = "../results/" + runprops.get("objectname") + "/chain.h5"
 # BP TODO: make an option in runprops to start from the end of another run and just append it
 backend = emcee.backends.HDFBackend(filename)
 backend.reset(nwalkers, ndim)
@@ -263,8 +263,6 @@ mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter)
 # Once it's completed, we need to save the chain
 chain = sampler.get_chain(thin = runprops.get("nthinning"))
 flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
-
-# TODO: save chains to file
 
 # make plots of MCMC results
 mm_analysis.plots(sampler,guesses.columns)
