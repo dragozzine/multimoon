@@ -1,0 +1,41 @@
+TODOs for the MultiMoon Project
+Darin Ragozzine, Seth Pincock, Dallin Spencer, Ben Proudfoot 
+
+Most specific coding TODOs are listed in the individual files with 
+initials for the assigned person. This list is for more medium and 
+long-term TODOs. It is divided into code and science. Anyone can add 
+to it, but note that this may become public someday. A rough 
+timeframe for when this might be needed can be listed.
+
+
+TODO
+
+Code that takes orbital angles in equatorial (RA/Dec) and calculate 
+what these would be in ecliptic (Long/Lat). Could potentially also do 
+the analytical calculation of the mirror degeneracy orbital angles as 
+well. (June)
+
+Code that reads in entire Grundy database, but work with Grundy on 
+this (to get proprietary data he's willing to share too). (August?)
+
+Update likelihood function to use outputs from nPSF. nPSF should 
+probably have an addition post-processing calculation that calculates 
+likelihoods on a grid and thinks ahead to how the likelihood for an 
+arbitrary value would be calculated.
+
+
+
+
+
+SCIENCE TODOs
+See HST proposals
+See SSW proposal
+
+Check what J2 would be necessary for the incorrect mean motion to 
+significantly affect the mass/density estimate. Equal mass contact 
+binaries at what separation would lead to a 10% offset? Analytical 
+estimates could be made based on Ragozzine & Wolf 2009 or Emelyanov 
+et al. 2009. 
+
+
+

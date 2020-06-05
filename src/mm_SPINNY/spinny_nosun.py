@@ -73,8 +73,8 @@ def generate_system_ns(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr):
     # integration parameters
     P = (2*np.pi)/np.sqrt(G*phys_arr[N-1,0]/(orb_arr[N-1,0]**3))
 
-    tol = 1e-11                          # integration tolerance
-    h0P = 1e-5*P                           # initial step size
+    tol = 1.0e-11                           # integration tolerance
+    h0P = 1.0e-5*P                          # initial step size
     print("Building SPINNY system...")
     s = Spinny_System(0.,h0=h0P,tol=tol)        # initializes object s, which is the SPINNY system
     
@@ -92,7 +92,6 @@ def generate_system_ns(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr):
         globals()['sp_rate_'+str(n)] = spin_arr[n,3]
         #r = R.from_euler('XZX', [spin_arr[n,0], spin_arr[n,1], spin_arr[n,2]])
         globals()['spin_'+str(n)] = np.array([0.0, 0.0, globals()['sp_rate_'+str(n)]])     
-        
         
         s.add_object(name_arr[n],globals()['phys_'+str(n)],globals()['s_'+str(n)],globals()['spin_'+str(n)],quat_arr[n])
     
@@ -116,7 +115,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
     L_arr = np.empty((N,T))
     E_arr = np.empty((N,T))
     print("Evolving SPINNY...")
-    print(s.arr0[:13])
+    
     for t in range(0,T):
         # Use s.get_state(n,0) with respect to the primary to ignore the motion of the Sun in our vectors,
         # but we take s.arr0 in order to get orbital parameters which might not make any sense in a primaricentric frame
@@ -308,7 +307,7 @@ def build_spinny_ns(sys_df):
         if sys_df.loc["axis",name] != 0.00:
             ax_n = sys_df.loc["axis",name]
         else:
-            ax_n = 100.0
+            ax_n = 1.0
             
         if sys_df.loc["j2r2",name] != 0.00:
             j2r2_n = sys_df.loc["j2r2",name]

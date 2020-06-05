@@ -106,18 +106,19 @@ def mm_chisquare(paramdf, obsdf, runprops):
     # ecliptic (J2000) coordinates
     # km, kg, rad, s
     # primaricentric 
-
-    if (vec_df[0,"X_Pos_"+paramdf["name_1"]] != 0.0):
-        print("Not primaricentric like I thought!")
+    
+    # SP: NOTE I commented this out because it was causing a TypeError -- fix later
+    #if (vec_df[0,"X_Pos_"+paramdf["name_1"]] != 0.0):
+    #    print("Not primaricentric like I thought!")
 
     
     for t in time_arr:
 
         # DS TODO: get relative positions out of vec_df
-        positionData = []
-        names=[]
+        positionData = np.empty(numObj,3)
+        names = np.empty(numObj)
         for i in range(1,numObj+1):
-            names[i]=paramdf["name_"+i]
+            names.append(paramdf["name_"+str(i)])
             positionData[i][0] = vec_df["X_Pos_"+names[i]]
             positionData[i][1] = vec_df["Y_Pos_"+names[i]]
             positionData[i][2] = vec_df["Z_Pos_"+names[i]]
