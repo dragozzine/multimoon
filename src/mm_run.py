@@ -58,7 +58,7 @@ import h5py
 #from tqdm import tqdm  # progress bar for emcee, but needs package
 import mm_runprops
 import mm_init_guess
-import mm_likelihood
+#import mm_likelihood
 import mm_make_geo_pos
 import mm_priors
 import mm_relast
@@ -74,6 +74,7 @@ print('All import statements ran through.')
 
 runprops = mm_runprops.runprops
 
+verbose = runprops.get("verbose")
 nwalkers = runprops.get("nwalkers")
 
 # Generate the intial guess for emcee
@@ -190,12 +191,14 @@ p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit
 
 # Check to see if geocentric_object_position.csv exists and if not creates it
 objname = runprops.get('objectname')
-if os.path.exists("../data/" + objname + "/geocentric_" + objname + "_position.csv"):
+if os.path.exists("../data/" + objname + "/geocentric_" + objname + "_position.csv") and verbose:
 	print("Object geocentric position file geocentric_" + objname + "_position.csv will be used")
 else:
-	print("No object geocentric position file exists. Creating new file.")
+	if verbose:
+		print("No object geocentric position file exists. Creating new file.")
 	mm_make_geo_pos.mm_make_geo_pos(objname, start='2000-01-01', end='2040-01-01', step='10d')	# This is basically a function based on DS's makeHorFile
-	print("geocentric_" + objname + "_position.csv has been created")
+	if verbose:
+		print("geocentric_" + objname + "_position.csv has been created")
 
 # Reads in th geocentric_object data file
 geocentric_object_positions = pd.read_csv("../data/" + objname + "/geocentric_" + objname + "_position.csv")
@@ -205,11 +208,12 @@ geocentric_object_positions = pd.read_csv("../data/" + objname + "/geocentric_" 
 obsdata = runprops.get('obsdata_file')
 
 obsDF = 0
-if os.path.exists(obsdata):
+if os.path.exists(obsdata) and verbose:
 	print("Observational data file " + obsdata + " will be used")
 	obsdf = pd.read_csv(obsdata)
 else:
-	print("ERROR: No observational data file exists. Aborting run.")
+	if verbose:
+		print("ERROR: No observational data file exists. Aborting run.")
 	sys.exit()
 
 # Go through initial guesses and check that all walkers have finite posterior probability
@@ -224,7 +228,7 @@ for i in range(nwalkers):
 		llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf)
 		reset += 1
 		if reset > maxreset:
-			print("Maximum number of resets has been reached, aborting run.")
+			print("ERROR: Maximum number of resets has been reached, aborting run.")
 			sys.exit() 
 
 # We now have an initial guess for each walker that is not really bad.
@@ -248,7 +252,8 @@ sampler = emcee.EnsembleSampler(nwalkers, ndim,
 # cut off the burn in.
 
 nburnin = runprops.get("nburnin")
-print("Starting the burn in")
+if verbose:
+	print("Starting the burn in")
 state = sampler.run_mcmc(p0, nburnin, progress = True, store = False)
 sampler.reset()
 
@@ -258,7 +263,7 @@ nsteps = runprops.get("nsteps")
 essgoal = runprops.get("essgoal")
 maxiter = runprops.get("maxiter")
 
-mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter)
+mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose)
 
 # Once it's completed, we need to save the chain
 chain = sampler.get_chain(thin = runprops.get("nthinning"))

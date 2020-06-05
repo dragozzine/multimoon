@@ -23,7 +23,7 @@ import emcee
 from tqdm import tqdm
 from mm_analysis import *
 
-def mm_autorun(sampler, essgoal, state, initsteps, maxiter):
+def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose):
 	"""
 	Runs MultiMoon until an effective sample size goal is achieved
 	or the maximum number of iterations is reached. 
@@ -39,33 +39,40 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter):
 
 		maxiter: int, a maximum number of steps to take
 
+		verbose: bool, determines if print statments are used
+
 	Outputs:
 		emcee sampler object
 
 	"""
 	# First run the sampler for the specified number of initial steps
-	print("Running MultiMoon for ", initsteps, " steps")
+	if verbose:
+		print("Running MultiMoon for ", initsteps, " steps")
 	state = sampler.run_mcmc(state, initsteps, progress = True)
 
 	# Find the integrated autocorrelation time (iat) of the run
-	print(initsteps, " steps have been completed.")
-	print("Calculating the effective sample size.")
+	if verbose:
+		print(initsteps, " steps have been completed.")
+		print("Calculating the effective sample size.")
 	iat = autocorrelation(sampler, filename = "_0")
 
 	# Assess the accuracy of the iat estimate
 	ngens = sampler.get_chain().shape[0]	
 	counter = 1
 	while (50*iat > ngens):
-		print("Runnning the sampler for another ", initsteps, " steps")
+		if verbose:
+			print("Runnning the sampler for another ", initsteps, " steps")
 		state = sampler.run_mcmc(state, initsteps, progress = True)
-		print(initsteps, " steps have been completed.")
-		print("Calculating the effective sample size.")
+		if verbose:
+			print(initsteps, " steps have been completed.")
+			print("Calculating the effective sample size.")
 		iat = autocorrelation(sampler, filename = "_" + str(counter))
 		ngens = sampler.get_chain().shape[0]	
 		counter += 1
 		if ngens > maxiter:
-			print("Maximum iterations has been reached, ending automated runs.")
-			print("WARNING: The estimate for ESS cannot be trusted.")
+			if verbose:
+				print("Maximum iterations has been reached, ending automated runs.")
+				print("WARNING: The estimate for ESS cannot be trusted.")
 			return sampler, ngens/iat
 
 	# Now we have a reliable estimate for the iat, moving on to find ess		
@@ -88,14 +95,16 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter):
 		iat = autocorrelation(sampler, filename = "_" + str(counter))
 		counter += 1
 		ngens = sampler.get_chain().shape[0]
-		print("Maximum iterations has been reached, ending automated runs.")
+		if verbose:
+			print("Maximum iterations has been reached, ending automated runs.")
 		return sampler, ngens/iat
 	else:
 		state = sampler.run_mcmc(state, nadditional, progress = True)
 		iat = autocorrelation(sampler, filename = "_" + str(counter))
 		counter += 1
 		ngens = sampler.get_chain().shape[0]
-		print("ESS goal has been reached, ending automated runs.")
+		if verbose:
+			print("ESS goal has been reached, ending automated runs.")
 		return sampler, ngens/iat
 
 
