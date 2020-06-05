@@ -182,7 +182,7 @@ def mm_chisquare(paramdf, obsdf, runprops):
     chisquare = pd.DataFrame(columns = names, index = range(len(time_arr)))
     residuals = pd.DataFrame(columns = names, index = range(len(time_arr)))
     get_residuals = runprops.get("get_resid")
-    print('rows: ',rows)
+
     for i in range(rows):
         for j in range(1,numObj):
             #Check to make sure that these column names exist in the obsdf

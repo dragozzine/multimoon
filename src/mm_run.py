@@ -58,7 +58,7 @@ import h5py
 #from tqdm import tqdm  # progress bar for emcee, but needs package
 import mm_runprops
 import mm_init_guess
-#import mm_likelihood
+import mm_likelihood
 import mm_make_geo_pos
 import mm_priors
 import mm_relast
@@ -221,7 +221,6 @@ reset = 0
 maxreset = runprops.get("maxreset")
 for i in range(nwalkers):  
 	llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf)
-	print(llhood)
 	while (llhood == -np.Inf):
 		# Resetting walker to be a random linear combination of two other walkers
 		# BP TODO: Test this to make sure it works...
@@ -256,6 +255,7 @@ print('sampler created')
 nburnin = runprops.get("nburnin")
 if verbose:
 	print("Starting the burn in")
+print(p0.shape)
 state = sampler.run_mcmc(p0, nburnin, progress = True, store = False)
 sampler.reset()
 
