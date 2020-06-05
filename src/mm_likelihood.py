@@ -15,7 +15,7 @@ Outputs:
 
 """
 def log_likelihood(params, obsdf, runprops):
-    # assuming Guassian independent observations log-likehood = -1/2 * chisqure
+    # assuming Gaussian independent observations log-likelihood = -1/2 * chisquare
 
     if runprops.get("get_resid"):
         lh,residuals = mm_chisquare(params,obsdf, runprops)*-0.5
@@ -174,9 +174,9 @@ def mm_chisquare(paramdf, obsdf, runprops):
                 sys.exit()
             
             residuals[names[j]][i] = ((Model_DeltaLong[names[j]][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])**2
-            residuals[name[j]][i] = ((Model_DeltaLat[names[j]][i]-obsdf["DeltaLat_"+names[j]][i])/obsdf["DeltaLat_"+names[j]+"_err"][i])**2
+            residuals[names[j]][i] = ((Model_DeltaLat[names[j]][i]-obsdf["DeltaLat_"+names[j]][i])/obsdf["DeltaLat_"+names[j]+"_err"][i])**2
             chisquare[names[j]][i] = ((Model_DeltaLong[names[j]][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])**2
-            chisquare[name[j]][i] = ((Model_DeltaLat[names[j]][i]-obsdf["DeltaLat_"+names[j]][i])/obsdf["DeltaLat_"+names[j]+"_err"][i])**2
+            chisquare[names[j]][i] = ((Model_DeltaLat[names[j]][i]-obsdf["DeltaLat_"+names[j]][i])/obsdf["DeltaLat_"+names[j]+"_err"][i])**2
         
                                       
     # Loop through obsdf and for each defined value of delta Long/Lat 
@@ -195,5 +195,5 @@ def mm_chisquare(paramdf, obsdf, runprops):
     # return chisquare
     if get_residuals:
         return chisquare_total, residuals
-    else
+    else:
         return chisquare_total
