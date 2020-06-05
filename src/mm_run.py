@@ -217,6 +217,7 @@ reset = 0
 maxreset = runprops.get("maxreset")
 for i in range(nwalkers):  
 	llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf)
+	print(llhood)
 	while (llhood == -np.Inf):
 		# Resetting walker to be average of two other walkers
 		# BP TODO: Test this to make sure it works...
@@ -238,8 +239,8 @@ backend.reset(nwalkers, ndim)
 
 sampler = emcee.EnsembleSampler(nwalkers, ndim, 
 	mm_likelihood.log_probability, backend=backend, 
-	args = (runprops, fitarray_to_params_dict, obsdf))
-
+	args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf))
+print('sampler created')
 #Starting the burnin
 # BP TODO: autoburnin??
 # So looking at how the emcee documentation does burn ins while saving the file, it seems like

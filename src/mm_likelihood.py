@@ -5,6 +5,8 @@ import mm_param
 import sys
 sys.path.insert(1, 'mm_SPINNY/')
 from mm_SPINNY.spinny_vector import generate_vector
+import random
+import mm_relast
 
 """
 Inputs:
@@ -70,8 +72,9 @@ def mm_chisquare(paramdf, obsdf, runprops):
     if verbose: 
         print("verbose test works")
     pd.set_option('display.max_columns', None)
-    print(paramdf)
-    for i in range(1,numObj):
+    names = []
+    for i in range(1,numObj+1):
+        names.append('name_'+str(i))
         if not 'name_'+str(i) in paramdf.columns:
             print('The parameter name_' + str(i)+ ' is not found in the parameter dataframe.')
             sys.exit()
@@ -98,33 +101,48 @@ def mm_chisquare(paramdf, obsdf, runprops):
     time_arr = np.sort(obsdf['time'].values.flatten()) # gets an array of observation times from the obs dataframe
                                                        # Sorts them into ascending order
 
-    vec_df = generate_vector(paramdf, time_arr) 
+    #vec_df = generate_vector(paramdf, time_arr)
+    names=[0 for i in range(numObj)]
+    for i in range(0,numObj):
+        names[i] = paramdf["name_"+str(i+1)][0]
+
+    vec_df = pd.DataFrame(index = range(len(time_arr)))
+    for i in names:
+        x = "X_Pos_"+i
+        y = "Y_Pos_"+i
+        z = "Z_Pos_"+i
+        vec_df[x] = random.sample(range(50000), len(time_arr))
+        vec_df[y] = random.sample(range(50000), len(time_arr))
+        vec_df[z] = random.sample(range(50000), len(time_arr))
     
+    vec_df['time'] = time_arr
     # vec_df is a dataframe with len(time_arr) rows and 
     # columns are state parameters x nobjects
     # Example: vecdf["X_Pos_"+paramsdf["name_2"]] gets the x position of object 2
     # ecliptic (J2000) coordinates
     # km, kg, rad, s
     # primaricentric 
-
-    if (vec_df[0,"X_Pos_"+paramdf["name_1"]] != 0.0):
+    
+    name_1 = "X_Pos_"+paramdf["name_1"][0]
+    if (vec_df[name_1][0] != 0.0):
         print("Not primaricentric like I thought!")
 
+    Model_DeltaLong = pd.DataFrame(index = range(len(time_arr)),columns = names)
+    Model_DeltaLat = pd.DataFrame(index = range(len(time_arr)), columns = names)
+    Model_DeltaLong['time'] = time_arr
+    Model_DeltaLat['time'] = time_arr
     
-    for t in time_arr:
-
+    for t in range(len(time_arr)):
         # DS TODO: get relative positions out of vec_df
-        positionData = []
-        names=[]
-        for i in range(1,numObj+1):
-            names[i]=paramdf["name_"+i]
-            positionData[i][0] = vec_df["X_Pos_"+names[i]]
-            positionData[i][1] = vec_df["Y_Pos_"+names[i]]
-            positionData[i][2] = vec_df["Z_Pos_"+names[i]]
-                                      
-                                      
+        positionData = pd.DataFrame()
+      
+        for i in range(0,numObj):
+            positionData[names[i]] = vec_df["X_Pos_"+names[i]]
+            positionData[names[i]] = vec_df["Y_Pos_"+names[i]]
+            positionData[names[i]] = vec_df["Z_Pos_"+names[i]]
+                                                               
         # tind = index/row number of vec_df corresponding to this time
-
+        
         # for object from 2:N
              # gather relative positions
              # thisdx = vec_df[tind,"X_Pos_"+paramdf["name_"+str(object)] [ - X_Pos_1=0]
@@ -134,17 +152,15 @@ def mm_chisquare(paramdf, obsdf, runprops):
 
         # Implicitly assume that observer is close to geocenter (within ~0.01 AU)
         
-        #Does the positionData include theobserver, primary, and moons?
-        
         # obs_to_prim_pos = vectors of observer to primary
         # prim_to_sat__pos = vectors of primary to satellite
         
-        obj_to_prim_pos = positionData[0]
-        for i in range(2,numObj+1):
-            ModelDelta_Long[i], ModelDelta_Lat[i] = convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos[i])
-
+        obs_to_prim_pos = positionData[names[0]]
+        for i in range(1,numObj):
+            Model_DeltaLong[names[i]][t], Model_DeltaLat[names[i]][t] = mm_relast.convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, positionData[names[i]])
         # mm_relast
         
+
         # obs_to_prim_pos = vector position of the observer relative to the primary (in J2000 ecliptic frame)
           # input: numpy array of 3 values: x, y, z in units of km
           # comes from geocentric_object_position dataframe (defined in mm_run)
@@ -161,18 +177,36 @@ def mm_chisquare(paramdf, obsdf, runprops):
 
 
     # Now we have model delta Long and delta Lat for each object and each time 
-    rows = obsdf.count
-    chisquare = pd.DataFrame()
-    residuals = pd.DataFrame()
+    rows = len(obsdf.iloc[0])
+    chisquare = pd.DataFrame(columns = names, index = range(len(time_arr)))
+    residuals = pd.DataFrame(columns = names, index = range(len(time_arr)))
     get_residuals = runprops.get("get_resid")
-    
+    print('rows: ',rows)
     for i in range(rows):
-        for j in range(1,numObj+1):
-            
+        for j in range(1,numObj):
             #Check to make sure that these column names exist in the obsdf
-            if not names[j] in Model_DeltaLong.columns or not "DeltaLong_"+names[j] in obsdf.columns or not "DeltaLong_"+names[j]+"_err" in obsdf.columns or not names[j] in Model_DeltaLat.columns or not "DeltaLat_"+names[j] in obsdf.columns or not "DeltaLat_"+names[j]+"_err" in obsdf.columns:
+            if not names[j] in Model_DeltaLong.columns:
+                print(names[j], " is missing from the DeltaLong dataframe. Aborting run.")
+                print(Model_DeltaLong)
+            elif not "DeltaLong_"+names[j] in obsdf.columns:
+                print("DeltaLong_",names[j], " is missing from the DeltaLong dataframe. Aborting run.")
+                print(obsdf)
+            elif not "DeltaLong_"+names[j]+"_err" in obsdf.columns:
+                print("DeltaLong_",names[j], "_err is missing from the obsdf dataframe. Aborting run.")
+                print(obsdf)
+            elif not names[j] in Model_DeltaLat.columns: 
+                print(names[j], " is missing from the DeltaLat dataframe. Aborting run.")
+                print(Model_DeltaLat)
+            elif not "DeltaLat_"+names[j] in obsdf.columns:
+                print("DeltaLat_",names[j], " is missing from the obs dataframe. Aborting run.")
+                print(obsdf)
+            elif not "DeltaLat_"+names[j]+"_err" in obsdf.columns:
+                print("DeltaLat_",names[j], "_err is missing from the obs dataframe. Aborting run.")
+                print(obsdf)
+
                 sys.exit()
             
+
             residuals[names[j]][i] = ((Model_DeltaLong[names[j]][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])**2
             residuals[names[j]][i] = ((Model_DeltaLat[names[j]][i]-obsdf["DeltaLat_"+names[j]][i])/obsdf["DeltaLat_"+names[j]+"_err"][i])**2
             chisquare[names[j]][i] = ((Model_DeltaLong[names[j]][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])**2
@@ -186,11 +220,11 @@ def mm_chisquare(paramdf, obsdf, runprops):
     # and "DeltaLong_Hiiaka_err"
     # AND throw an error if the names don't all line up right
     
-    chisq_tot = pd.DataFrame()
-    for i in range(1,numObj+1):
+    chisq_tot = pd.DataFrame(columns = names, index = [0])
+    for i in range(1,numObj):
         chisq_tot[names[i]]=chisquare[names[i]].sum()
         
-    chisquare_total = chisq_tot.sum()
+    chisquare_total = chisq_tot.sum(axis = 1, skipna = True)[0]
 
     # return chisquare
     if get_residuals:
