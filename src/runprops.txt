@@ -16,6 +16,7 @@
     "spinny_tolerance": 1e-6,
     "maxreset" : 500,
     "verbose" : true,
+    "get_resid":false,
     "dynamicstoincludeflags" : "200",
     "includesun" : 0,
     "names_dict" :
