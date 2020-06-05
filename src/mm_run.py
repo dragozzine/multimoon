@@ -172,14 +172,14 @@ if includesun:
 	    ("ecc_0" in paramnames) and ("inc_0" in paramnames) and
 	    ("aop_0" in paramnames) and ("lan_0" in paramnames) and
 	    ("mea_0" in paramnames)):
-        print("Error: includesun flag does not match inputs.")
+        print("ERROR: includesun flag does not match inputs.")
         sys.exit()
 if not includesun:
     if (("mass_0" in paramnames) or ("sma_0" in paramnames) or
 	("ecc_0" in paramnames) or ("inc_0" in paramnames) or
 	("aop_0" in paramnames) or ("lan_0" in paramnames) or
 	("mea_0" in paramnames)):
-        print("Error: includesun flag does not match inputs.")
+        print("ERROR: includesun flag does not match inputs.")
         sys.exit()
     
 #ndim is equal to the number of dimension, should this be equal to the number of columns of the init_guess array?
@@ -222,9 +222,10 @@ maxreset = runprops.get("maxreset")
 for i in range(nwalkers):  
 	llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf)
 	while (llhood == -np.Inf):
-		# Resetting walker to be average of two other walkers
+		# Resetting walker to be a random linear combination of two other walkers
 		# BP TODO: Test this to make sure it works...
-		p0[i,:] = (p0[random.randrange(nwalkers),:] + p0[random.randrange(nwalkers),:])/2
+		p = random.random()
+		p0[i,:] = (p*p0[random.randrange(nwalkers),:] + (1-p)*p0[random.randrange(nwalkers),:])
 		llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf)
 		reset += 1
 		if reset > maxreset:
