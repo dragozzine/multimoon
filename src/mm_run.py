@@ -244,8 +244,8 @@ backend.reset(nwalkers, ndim)
 
 sampler = emcee.EnsembleSampler(nwalkers, ndim, 
 	mm_likelihood.log_probability, backend=backend, 
-	args = (runprops, fitarray_to_params_dict, obsdf))
-
+	args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf))
+print('sampler created')
 #Starting the burnin
 # BP TODO: autoburnin??
 # So looking at how the emcee documentation does burn ins while saving the file, it seems like
@@ -258,6 +258,7 @@ sampler = emcee.EnsembleSampler(nwalkers, ndim,
 nburnin = runprops.get("nburnin")
 if verbose:
 	print("Starting the burn in")
+print(p0.shape)
 state = sampler.run_mcmc(p0, nburnin, progress = True, store = False)
 sampler.reset()
 
