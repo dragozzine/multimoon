@@ -187,6 +187,7 @@ ndim = len(guesses.columns)
 
 # Convert the guesses into fitting units and place in numpy array
 p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit_array(guesses,runprops)
+
 #we still do not have a constraints or fit scale defined
 
 # Check to see if geocentric_object_position.csv exists and if not creates it
@@ -238,6 +239,7 @@ for i in range(nwalkers):
 # Now creating the sampler object
 filename = "../results/" + runprops.get("objectname") + "/chain.h5"
 # BP TODO: make an option in runprops to start from the end of another run and just append it
+ndim = len(p0[0])
 backend = emcee.backends.HDFBackend(filename)
 backend.reset(nwalkers, ndim)
 
@@ -255,7 +257,7 @@ print('sampler created')
 nburnin = runprops.get("nburnin")
 if verbose:
 	print("Starting the burn in")
-print(p0.shape)
+print(p0)
 state = sampler.run_mcmc(p0, nburnin, progress = True, store = False)
 sampler.reset()
 

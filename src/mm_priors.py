@@ -66,7 +66,7 @@ def mm_priors(priors, params):
             if not np.isnan(params[i][0]):
                 allProbs.append(np.exp(-1/2*(((np.log(params[i][0])-priors[i][8])**2)/(priors[i][7])**2))/params[i][0])
         else:
-            print('N/A input for column: ', i, ' in priors dataframe.') 
+            a = 1#print('N/A input for column: ', i, ' in priors dataframe.') 
             
         #Here, add the Prior Probability Density function for this element to the total
     for x in allProbs:

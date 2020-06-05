@@ -111,11 +111,11 @@ def mm_chisquare(paramdf, obsdf, runprops):
         x = "X_Pos_"+i
         y = "Y_Pos_"+i
         z = "Z_Pos_"+i
-        vec_df[x] = random.sample(range(50000), len(time_arr))
+        vec_df[x] = random.sample(range(50000), len(time_arr)) 
         vec_df[y] = random.sample(range(50000), len(time_arr))
         vec_df[z] = random.sample(range(50000), len(time_arr))
     
-    vec_df['time'] = time_arr
+    #vec_df['time'] = time_arr
     # vec_df is a dataframe with len(time_arr) rows and 
     # columns are state parameters x nobjects
     # Example: vecdf["X_Pos_"+paramsdf["name_2"]] gets the x position of object 2
@@ -204,7 +204,6 @@ def mm_chisquare(paramdf, obsdf, runprops):
             elif not "DeltaLat_"+names[j]+"_err" in obsdf.columns:
                 print("DeltaLat_",names[j], "_err is missing from the obs dataframe. Aborting run.")
                 print(obsdf)
-
                 sys.exit()
             
 

@@ -23,7 +23,7 @@ def from_param_df_to_fit_array(dataframe, runprops):
     num = 0
     #Scale every column down by the values in the first row.
     for col in dataframe.columns:
-        dataframe[col] = dataframe[col]/fit_scale[col]
+        dataframe[col] = dataframe[col]/fit_scale[col][0]
         num = num+1
     
     key_list = list(fix_float_dict.keys()) 
@@ -44,7 +44,6 @@ def from_param_df_to_fit_array(dataframe, runprops):
             float_df[name] = dataframe[col]
             float_names.append(name)
         num = num+1
-    
     
     float_arr = float_df.to_numpy()
     
@@ -81,7 +80,6 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
     
     for col in names_df.columns:
         param_df[col] = names_df[col][0]
-        print(names_df[col][0])
     
         
     #Now unfit all of the variables by multipliyng each column by its fit variable.
