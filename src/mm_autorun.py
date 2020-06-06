@@ -82,7 +82,8 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose):
 	if ess > essgoal:
 		return sampler, ess
 
-	# Calculating the number of steps to reach the ess goal
+	# Calculating the number of steps to reach the ess goal]
+	print(iat, essgoal, ngens)
 	nadditional = int(iat*essgoal - ngens)
 
 	# Adding in a 10% buffer on nadditional to be sure goal is reached

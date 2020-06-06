@@ -185,11 +185,11 @@ if not includesun:
         sys.exit()
     
 #ndim is equal to the number of dimension, should this be equal to the number of columns of the init_guess array?
-ndim = len(guesses.columns)
 
 # Convert the guesses into fitting units and place in numpy array
 p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit_array(guesses,runprops)
 
+ndim = len(p0[0])
 #we still do not have a constraints or fit scale defined
 
 # Check to see if geocentric_object_position.csv exists and if not creates it
@@ -262,8 +262,9 @@ print('sampler created')
 nburnin = runprops.get("nburnin")
 if verbose:
 	print("Starting the burn in")
-print(p0)
-state = sampler.run_mcmc(p0, nburnin, progress = True, store = False)
+print(p0.shape)
+print(ndim, nwalkers)
+state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
 sampler.reset()
 
 # Now do the full run with essgoal and initial n steps
@@ -271,8 +272,9 @@ sampler.reset()
 nsteps = runprops.get("nsteps")
 essgoal = runprops.get("essgoal")
 maxiter = runprops.get("maxiter")
+initsteps = runprops.get("nsteps")
 
-mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose)
+#mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose)
 
 # Once it's completed, we need to save the chain
 chain = sampler.get_chain(thin = runprops.get("nthinning"))
