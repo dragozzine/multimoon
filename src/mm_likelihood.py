@@ -40,14 +40,16 @@ Outputs:
 """
 def log_probability(float_params, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf):
     
+    #print('float_params read in from p0: \n',float_params)
     objname = runprops.get("objectname")
     priorFilename = "../data/" +objname + "/" + objname + "_priors_df.csv"
     priors = pd.read_csv(priorFilename, sep='\t',index_col=0)
     priors = priors.transpose()
     
     name_dict = runprops.get("names_dict")
-    params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict)
     
+    params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict)
+ 
     lp = prior.mm_priors(priors,params)
     
     if not np.isfinite(lp):
@@ -100,12 +102,15 @@ def mm_chisquare(paramdf, obsdf, runprops):
 
     time_arr = np.sort(obsdf['time'].values.flatten()) # gets an array of observation times from the obs dataframe
                                                        # Sorts them into ascending order
-
+    #print('This is the paramdf being put into SPINNY: \n',type(paramdf))
     #vec_df = generate_vector(paramdf, time_arr)
+    #print(vec_df)
     names=[0 for i in range(numObj)]
     for i in range(0,numObj):
         names[i] = paramdf["name_"+str(i+1)][0]
+        
 
+    #'''
     vec_df = pd.DataFrame(index = range(len(time_arr)))
     for i in names:
         x = "X_Pos_"+i
@@ -114,7 +119,7 @@ def mm_chisquare(paramdf, obsdf, runprops):
         vec_df[x] = random.sample(range(50000), len(time_arr)) 
         vec_df[y] = random.sample(range(50000), len(time_arr))
         vec_df[z] = random.sample(range(50000), len(time_arr))
-    
+    #'''
     #vec_df['time'] = time_arr
     # vec_df is a dataframe with len(time_arr) rows and 
     # columns are state parameters x nobjects

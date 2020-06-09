@@ -64,16 +64,19 @@ Outputs:
 def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_names, fit_scale, names_dict):
     
     #First, turn the float_array back into  dataframe with the column names given
-    Index = range(np.size(float_array,0))
+    Index = range(len(fixed_df.index))
     float_df = pd.DataFrame(data = [float_array],index = Index, columns = float_names)
     
     param_df = pd.DataFrame()
     #Recombine the float and fixed dataframes
     for i in total_df_names:
-        if i[0] in fixed_df:
-            param_df[i[0]] = fixed_df[i[0]]
-        elif i[0] in float_df:
-            param_df[i[0]] = float_df[i[0]]
+        name = i[0]
+        if name in fixed_df:
+            value = fixed_df[name].values
+            param_df[name] = value
+        elif name in float_df:
+            value = float_df[name].values
+            param_df[name] = value
     
     names_df = pd.DataFrame.from_dict(names_dict,orient='index')
     names_df = names_df.transpose()
@@ -81,9 +84,8 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
     for col in names_df.columns:
         param_df[col] = names_df[col][0]
     
-        
     #Now unfit all of the variables by multipliyng each column by its fit variable.
     for col in fit_scale.columns:
         param_df[col[0]] = param_df[col[0]]*fit_scale[col]
-    
+
     return param_df

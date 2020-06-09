@@ -69,7 +69,7 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose):
 		iat = autocorrelation(sampler, filename = "_" + str(counter))
 		ngens = sampler.get_chain().shape[0]	
 		counter += 1
-		if ngens > maxiter:
+		if ngens >= maxiter:
 			if verbose:
 				print("Maximum iterations has been reached, ending automated runs.")
 				print("WARNING: The estimate for ESS cannot be trusted.")

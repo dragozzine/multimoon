@@ -222,8 +222,9 @@ else:
 # Go through initial guesses and check that all walkers have finite posterior probability
 reset = 0
 maxreset = runprops.get("maxreset")
+
 for i in range(nwalkers):  
-	llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf)
+	llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf)
 	while (llhood == -np.Inf):
 		# Resetting walker to be a random linear combination of two other walkers
 		# BP TODO: Test this to make sure it works...
@@ -262,8 +263,9 @@ print('sampler created')
 nburnin = runprops.get("nburnin")
 if verbose:
 	print("Starting the burn in")
-print(p0.shape)
 print(ndim, nwalkers)
+#print('p0 going into the sampler is: \n', list(p0))
+p0 = list(p0)
 state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
 sampler.reset()
 
@@ -274,14 +276,16 @@ essgoal = runprops.get("essgoal")
 maxiter = runprops.get("maxiter")
 initsteps = runprops.get("nsteps")
 
-#mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose)
+sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose)
 
 # Once it's completed, we need to save the chain
 chain = sampler.get_chain(thin = runprops.get("nthinning"))
 flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
 
+print('Beginning mm_analysis plots')
 # make plots of MCMC results
 mm_analysis.plots(sampler,guesses.columns)
+print('Beginning mm_analysis autocorrelation')
 mm_analysis.autocorrelation(sampler,guesses.columns)
 
 # make other diagnostic plots
