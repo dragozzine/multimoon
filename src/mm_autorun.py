@@ -23,7 +23,7 @@ import emcee
 from tqdm import tqdm
 from mm_analysis import *
 
-def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose):
+def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname):
 	"""
 	Runs MultiMoon until an effective sample size goal is achieved
 	or the maximum number of iterations is reached. 
@@ -54,8 +54,8 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose):
 	if verbose:
 		print(initsteps, " steps have been completed.")
 		print("Calculating the effective sample size.")
-	iat = autocorrelation(sampler, filename = "_0")
-
+	iat = autocorrelation(sampler, objname, filename = "_0")
+	print('iat is ' ,iat)
 	# Assess the accuracy of the iat estimate
 	ngens = sampler.get_chain().shape[0]	
 	counter = 1
@@ -66,7 +66,7 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose):
 		if verbose:
 			print(initsteps, " steps have been completed.")
 			print("Calculating the effective sample size.")
-		iat = autocorrelation(sampler, filename = "_" + str(counter))
+		iat = autocorrelation(sampler,objname, filename = "_" + str(counter))
 		ngens = sampler.get_chain().shape[0]	
 		counter += 1
 		if ngens >= maxiter:
@@ -93,7 +93,7 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose):
 	if int(nadditional + ngens) > maxiter:
 		nadditional = int(maxiter - ngens)
 		state = sampler.run_mcmc(state, nadditional, progress = True)
-		iat = autocorrelation(sampler, filename = "_" + str(counter))
+		iat = autocorrelation(sampler,objname, filename = "_" + str(counter))
 		counter += 1
 		ngens = sampler.get_chain().shape[0]
 		if verbose:
@@ -101,7 +101,7 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose):
 		return sampler, ngens/iat
 	else:
 		state = sampler.run_mcmc(state, nadditional, progress = True)
-		iat = autocorrelation(sampler, filename = "_" + str(counter))
+		iat = autocorrelation(sampler, objname, filename = "_" + str(counter))
 		counter += 1
 		ngens = sampler.get_chain().shape[0]
 		if verbose:
