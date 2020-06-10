@@ -40,7 +40,7 @@ def generate_vector(paramsdf, t_arr):
 
     elif not "name_0" in sys_df.columns:       # runs a SPINNY integration without the sun if not included  
         system = build_spinny_multimoon(sys_df)
-        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
+        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol)
         s_df = spinny[0]
         names = spinny[2]
         
@@ -52,18 +52,18 @@ def generate_vector(paramsdf, t_arr):
         
 
     # creates a new dataframe using just x,y,z position for each body
-    data = []
+    data = {"Times":t_arr}
     
     for name in names:
-        data.append(s_df["X_Pos_"+name])
-        data.append(s_df["Y_Pos_"+name])
-        data.append(s_df["Z_Pos_"+name])
-        data.append(s_df["X_Vel_"+name])
-        data.append(s_df["Y_Vel_"+name])
-        data.append(s_df["Z_Vel_"+name])
+        data.setdefault("X_Pos_"+name, s_df["X_Pos_"+name])
+        data.setdefault("Y_Pos_"+name, s_df["Y_Pos_"+name])
+        data.setdefault("Z_Pos_"+name, s_df["Z_Pos_"+name])
+        data.setdefault("X_Vel_"+name, s_df["X_Vel_"+name])
+        data.setdefault("Y_Vel_"+name, s_df["Y_Vel_"+name])
+        data.setdefault("Z_Vel_"+name, s_df["Z_Vel_"+name])
         
-    vec_df = pd.concat(data, axis=1)
-        
+    vec_df = pd.DataFrame(data)
+       
     return(vec_df)
             
 
@@ -77,7 +77,7 @@ def build_spinny_multimoon(sys_df):
     masses = sorted([sys_df[col].iloc[0] for col in sys_df.columns if "mass_" in col],reverse=True) 
 
     N = runprops.get("numobjects") #len(masses) # number of bodies in the system
-    
+    tol = runprops.get("spinny_tolerance")
     cols = list(sys_df.columns[[int(np.where(sys_df==m)[1].flatten()) for m in masses]])
     body_idx = [int(body[-1]) for body in cols]
     
