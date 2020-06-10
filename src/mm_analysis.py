@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import emcee
 
-def plots(sampler, parameters):
+def plots(sampler, parameters, objname):
 			# Here parameters is whatever file/object will have the run params
 	flatchain = sampler.get_chain(flat = True)
 	chain = sampler.get_chain(flat = False)
@@ -37,7 +37,8 @@ def plots(sampler, parameters):
 	fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
 	for ax in fig.get_axes():
 		ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
-	#fig.savefig(place to save the corner plot)
+		fname = "../results/"+objname+"/corner.pdf"       
+		fig.savefig(fname, format = 'pdf')
 
 	
 	# Now make the walker plots
@@ -58,7 +59,7 @@ def plots(sampler, parameters):
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
-		for j in range(nwalkers):
+		for j in range(numwalkers):
 			plt.hist(chain[:,j,i].flatten(), bins = 40, histtype = "step",
 				color = "black",
 				alpha = 0.4, density = True)
@@ -72,7 +73,7 @@ def plots(sampler, parameters):
 		plt.subplot(224)
 		plt.hist(llhoods.flatten(), bins = 40, orientation = "horizontal", 
 			 histtype = "step", color = "black")
-		#plt.savefig(#place to save this)
+		fig.savefig("../results/"+objname+"/likelihood.pdf", format = 'pdf')
 		plt.close("all")
 
 def auto_window(taus, c):
@@ -90,7 +91,7 @@ def autocorr_new(y, c = 5.0):
 	window = auto_window(taus, c)
 	return taus[window]
 
-def autocorrelation(sampler, filename = "", thin = 1):
+def autocorrelation(sampler, objname, filename = "", thin = 1):
 	# Getting chain for the first parameter to calculate different values
 	chain = sampler.get_chain(thin = thin)
 	
@@ -116,10 +117,12 @@ def autocorrelation(sampler, filename = "", thin = 1):
 	y = ndims
 	nrows = 0
 	ncols = 3
-	while x <= y:
+	while x < y:
 		y = y - x
 		nrows += 1
 
+	if ncols > ndims:
+		ncols = ndims
 	# Plotting
 	fig, ax = plt.subplots(nrows = nrows, ncols = ncols, sharey=True, 
 			       gridspec_kw={'wspace': 0},
@@ -137,6 +140,6 @@ def autocorrelation(sampler, filename = "", thin = 1):
 			taus = ax[i,j].loglog(N, tau[:,dim], "o-", label="new")
 			line = ax[i,j].plot(N, N / 50.0, "--k", label=r"$\tau = N/50$")
 
-	fig.savefig("../results/autocorr" + filename + ".png")
+	fig.savefig("../results/"+objname+"/autocorr" + filename + ".png")
 
 	return np.mean(sampler.get_autocorr_time(quiet = True))

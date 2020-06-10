@@ -65,6 +65,7 @@ import mm_relast
 import mm_autorun
 import mm_param
 import os
+import mm_analysis
 
 
 # Read in the run props dictionary
@@ -276,7 +277,7 @@ essgoal = runprops.get("essgoal")
 maxiter = runprops.get("maxiter")
 initsteps = runprops.get("nsteps")
 
-sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose)
+sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname)
 
 # Once it's completed, we need to save the chain
 chain = sampler.get_chain(thin = runprops.get("nthinning"))
@@ -284,9 +285,9 @@ flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
 
 print('Beginning mm_analysis plots')
 # make plots of MCMC results
-mm_analysis.plots(sampler,guesses.columns)
+mm_analysis.plots(sampler, guesses.columns,objname)
 print('Beginning mm_analysis autocorrelation')
-mm_analysis.autocorrelation(sampler,guesses.columns)
+mm_analysis.autocorrelation(sampler, objname)
 
 # make other diagnostic plots
 # TODO: orbit astrometry plots
