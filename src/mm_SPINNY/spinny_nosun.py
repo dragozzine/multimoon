@@ -140,23 +140,27 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
             qi = quat_n[1]
             qj = quat_n[2]
             qk = quat_n[3]
-
-            r_n = R.from_quat(np.array([qi,qj,qk,qr])) # convert quaternion to rotation
-            obj_pole = r_n.apply([0.0,0.0,1.0],inverse=False) # get orientation of spin pole in world frame
-            state = s.get_state(n,0) # get state vector for the body
             
+            quat_arr[n,t] = np.array([qi,qj,qk,qr])
+
+    for t in range(0,T):
+        for n in range(0,N):
+            r_n = R.from_quat(quat_arr[n,t]) # convert quaternion to rotation
+            obj_pole = r_n.apply([0.0,0.0,1.0],inverse=False) # get orientation of spin pole in world frame
+            state = body_arr[t,(n*6):(n*6)+6] # get barycentric state vector for the body
+
             # These if statements should save some time in integration.
              # For the primary body, measure spin with respect to the second body's orbit so
              # that you don't get devide-by-zero warnings
             if state.all == 0.00 and has_spin == True:  
-                state_sec = s.get_state(1,0)         
+                state_sec = body_arr[t,(n*6):(n*6)+6]         
                 h = np.cross(state_sec[:3],state_sec[3:])# Specific orbital angular momentum (of secondary)
                 orbit_pole = h/np.linalg.norm(h)  # compute direction of orbit normal
                 spin_orbit_angle = np.arccos(np.dot(obj_pole,orbit_pole))*180./np.pi
 
             elif has_spin == False: # don't try to compute spin angles if spin isn't included
                 spin_orbit_angle = 0.0
-                
+
             else:
                 h = np.cross(state[:3],state[3:]) # Specific orbital angular momentum
                 orbit_pole = h/np.linalg.norm(h)  # compute direction of orbit normal
@@ -165,28 +169,29 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
 
             spin_arr[n,t,0] = spin_orbit_angle 
             spin_arr[n,t,1] = np.linalg.norm(s.get_spin(n)) # magnitude of spin vector (spin rate)
-            
+
             # converts quaternion to euler angles, using ZXZ rotation sequence   
-            euler_arr[n,t] = r_n.as_euler('ZXZ') #quat2euler(quat_n)            
-            
+            euler_arr[n,t] = r_n.as_euler('ZXZ') #quat2euler(quat_n) 
+
+
             # calculate angular momentum for the system to check for conservation
             I0 = phys_objects[n].I[0] # moment of inertia
             I1 = phys_objects[n].I[1] # moment of inertia
-            I2 = phys_objects[n].I[2] # moment of inertia
+            I2 = phys_objects[n].I[2] # moment of inertia (this is the spin axis)
             w = s.get_spin(n)
-            
+
             L_body = np.array([I0 * w[0],I1 * w[1],I2 * w[2]]) 
             L_sp = r_n.apply(L_body,inverse=False) #translate angular momentum to world frame
-            
+
             state_bary = s.get_state(n)
             h_bary = np.cross(state_bary[:3],state_bary[3:]) # specific orbital angular momentum, barycentric frame
-            
+
             L_orb = phys_objects[n].mass * h_bary
-            
+
             L_tot = np.add(L_orb, L_sp)
-               
+
             L_arr[n,t] = L_tot
-                  
+
             # calculate total mechanical energy to check for conservation
             K_sp = np.sum(0.5 * np.array([I0 * w[0]**2.0,I1 * w[1]**2.0,I2 * w[2]**2.0]))
             K_orb = 0.5 * phys_objects[n].mass * np.linalg.norm(state_bary[3:])**2.0
