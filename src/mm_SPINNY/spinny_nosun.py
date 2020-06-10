@@ -68,12 +68,12 @@ def vec2orb_ns(s,phys_objects,vec):  # converts a state vector to orbital parame
                             
 #### generate_system takes input from the dataframe and generates a 
 #### Physical_Properties class and SPINNY object for each body in the system
-def generate_system_ns(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr):
+def generate_system_ns(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr,tolerance):
     
     # integration parameters
     P = (2*np.pi)/np.sqrt(G*phys_arr[N-1,0]/(orb_arr[N-1,0]**3))
 
-    tol = 1.0e-11                           # integration tolerance
+    tol = tolerance                         # integration tolerance
     h0P = 1.0e-5*P                          # initial step size
     print("Building SPINNY system...")
     s = Spinny_System(0.,h0=h0P,tol=tol)        # initializes object s, which is the SPINNY system
@@ -112,7 +112,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
     spin_arr = np.empty((N,T,2))
     quat_arr = np.empty((N,T,4))
     euler_arr = np.empty((N,T,3))
-    L_arr = np.empty((N,T))
+    L_arr = np.empty((N,T,3))
     E_arr = np.empty((N,T))
     print("Evolving SPINNY...")
     
@@ -185,7 +185,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
             
             L_tot = np.add(L_orb, L_sp)
                
-            L_arr[n,t] = np.linalg.norm(L_tot)
+            L_arr[n,t] = L_tot
                   
             # calculate total mechanical energy to check for conservation
             K_sp = np.sum(0.5 * np.array([I0 * w[0]**2.0,I1 * w[1]**2.0,I2 * w[2]**2.0]))
@@ -196,15 +196,6 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
     
     L_arr = np.sum(L_arr,axis=0)
     E_arr = np.sum(E_arr,axis=0)
-    L_arr[0] = L_arr[1]
-    E_arr[0] = E_arr[1]
-    max_diffE = np.max(abs(E_arr-E_arr[0]))
-    max_diffL = np.max(abs(L_arr-L_arr[0]))
-    percent_changeE = (np.max(E_arr)-E_arr[0])/E_arr[0]
-    percent_changeL = (np.max(L_arr)-L_arr[0])/L_arr[0]
-    
-    print("Change in Energy: "+str(percent_changeE))
-    print("Change in Angular Momentum: "+str(percent_changeL))
     
     body_dict = {"Times":t_arr}
     print("Constructing dataframe...")
@@ -253,9 +244,9 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
         body_dict.setdefault('spin_orbit_angle_'+name_arr[n], spin_arr[n,:,0])
         body_dict.setdefault('spin_rate_'+name_arr[n],  spin_arr[n,:,1])
         
-        body_dict.setdefault('L_'+name_arr[n], L_arr )
-        #body_dict.setdefault('Ly_'+name_arr[n], L_arr[n,:,1] )
-        #body_dict.setdefault('Lz_'+name_arr[n], L_arr[n,:,2] )
+        body_dict.setdefault('Lx_'+name_arr[n], L_arr[:,0] )
+        body_dict.setdefault('Ly_'+name_arr[n], L_arr[:,1] )
+        body_dict.setdefault('Lz_'+name_arr[n], L_arr[:,2] )
         
         body_dict.setdefault('E_'+name_arr[n], E_arr )
         
@@ -410,10 +401,10 @@ def build_spinny_ns(sys_df):
     return(N, names, phys_arr, orb_arr, spin_arr, quat_arr)
     
     
-def evolve_spinny_ns(N, names, phys_arr, orb_arr, spin_arr, quat_arr, t_arr):
+def evolve_spinny_ns(N, names, phys_arr, orb_arr, spin_arr, quat_arr, t_arr, tol):
     
     start_time = time.time()
-    s = generate_system_ns(N,names,phys_arr,orb_arr,spin_arr,quat_arr)
+    s = generate_system_ns(N,names,phys_arr,orb_arr,spin_arr,quat_arr,tol)
     spinny = s[0]
     phys_arr = s[1]
     s_df = spinny_integrate_ns(spinny, names, phys_arr,t_arr)

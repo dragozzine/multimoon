@@ -13,7 +13,7 @@
     "nburnin" : 1,
     "essgoal" : 100,
     "maxiter" : 16,
-    "spinny_tolerance": 1e-6,
+    "spinny_tolerance": 1e-11,
     "maxreset" : 500,
     "verbose" : true,
     "get_resid":false,

@@ -103,24 +103,13 @@ def mm_chisquare(paramdf, obsdf, runprops):
     time_arr = np.sort(obsdf['time'].values.flatten()) # gets an array of observation times from the obs dataframe
                                                        # Sorts them into ascending order
     #print('This is the paramdf being put into SPINNY: \n',type(paramdf))
-    #vec_df = generate_vector(paramdf, time_arr)
+    vec_df = generate_vector(paramdf, time_arr)
     #print(vec_df)
     names=[0 for i in range(numObj)]
     for i in range(0,numObj):
         names[i] = paramdf["name_"+str(i+1)][0]
         
-
-    #'''
-    vec_df = pd.DataFrame(index = range(len(time_arr)))
-    for i in names:
-        x = "X_Pos_"+i
-        y = "Y_Pos_"+i
-        z = "Z_Pos_"+i
-        vec_df[x] = random.sample(range(50000), len(time_arr)) 
-        vec_df[y] = random.sample(range(50000), len(time_arr))
-        vec_df[z] = random.sample(range(50000), len(time_arr))
-    #'''
-    #vec_df['time'] = time_arr
+        
     # vec_df is a dataframe with len(time_arr) rows and 
     # columns are state parameters x nobjects
     # Example: vecdf["X_Pos_"+paramsdf["name_2"]] gets the x position of object 2
@@ -128,7 +117,8 @@ def mm_chisquare(paramdf, obsdf, runprops):
     # km, kg, rad, s
     # primaricentric 
 
-    name_1 = "X_Pos_"+paramdf["name_1"][0]
+    name_1 = "X_Pos_"+names[0]
+    
     if (vec_df[name_1][0] != 0.0):
         print("Not primaricentric like I thought!")
 
