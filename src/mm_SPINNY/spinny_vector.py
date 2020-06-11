@@ -63,7 +63,7 @@ def generate_vector(paramsdf, t_arr):
         data.setdefault("Z_Vel_"+name, s_df["Z_Vel_"+name])
         
     vec_df = pd.DataFrame(data)
-       
+    print('data: ',data)   
     return(vec_df)
             
 
