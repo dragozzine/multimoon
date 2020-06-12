@@ -224,6 +224,7 @@ else:
 reset = 0
 maxreset = runprops.get("maxreset")
 
+print('Testing to see if initial params are valid')
 for i in range(nwalkers):  
 	llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf)
 	while (llhood == -np.Inf):

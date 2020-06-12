@@ -1,6 +1,6 @@
 from spinny_generate import *
 from spinny_nosun import *
-from keplerian import kepler_integrate, kepler_plot
+from keplerian import *
 import numpy as np
 import time
 from time import ctime
@@ -84,8 +84,6 @@ def build_spinny_multimoon(sys_df):
 
     N = runprops.get("numobjects") #len(masses) # number of bodies in the system
     tol = runprops.get("spinny_tolerance")
-<<<<<<< HEAD
-=======
 
     cols = []
     num = 0
@@ -93,16 +91,12 @@ def build_spinny_multimoon(sys_df):
         if 'mass' in col:
             cols.append(num)
         num += 1
->>>>>>> 695b4dddb4e401139eae8ac230f92ea26aaee121
+
     
     #NOTE: as long as the runprops dict is sorted in order of descending mass, this should not be needed
     #cols = list(sys_df.columns[[int(np.where(sys_df==m)[1].flatten()) for m in masses]])
     #body_idx = [int(body[-1]) for body in cols]
-<<<<<<< HEAD
-   
-=======
-    
->>>>>>> 695b4dddb4e401139eae8ac230f92ea26aaee121
+
     names_arr = np.empty(N,dtype="object")
     phys_arr = np.zeros((N,4))
     orb_arr = np.zeros((N,6))
