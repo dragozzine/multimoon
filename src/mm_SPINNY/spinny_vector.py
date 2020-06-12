@@ -21,7 +21,8 @@ def generate_vector(paramsdf, t_arr):
     print('sys_df \n', sys_df)
     
     tol = runprops.get("spinny_tolerance")
-    
+    includesun = runprops.get("includesun")
+        
     N = runprops.get("numobjects") # total number of objects in the system
     T = len(t_arr)                 # number of observation times
 
@@ -33,7 +34,13 @@ def generate_vector(paramsdf, t_arr):
     j2_sum = sum(j2s)
     #j2_sum = sum(sys_df.loc["j2r2",:].values.flatten())
     
-
+    masses = []
+    for col in sys_df.columns:
+        if 'mass' in col:
+            masses.append(sys_df[col].iloc[0])
+    mass_sum = sum(masses)
+    mass_primary = sys_df["mass_1"].iloc[0]
+    
     if N == 2 and j2_sum == 0.00:  # checks if all objects are point masses, does keplerian integration instead
         kepler_system = kepler_2body(sys_df,t_arr)
         s_df = kepler_system[0]
