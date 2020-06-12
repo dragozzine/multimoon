@@ -122,7 +122,7 @@ def kepler_nbody(sys_df,t_arr): # runs Keplerian integrations for systems with O
     
     orb_arr = np.empty((N-1,T,8))
     vec_arr = np.empty((N-1,T,6))
-    print("Running "+str(N)"-body Keplerian integration...")
+    print("Running "+str(N)+"-body Keplerian integration...")
     for t in range(0,T):
         for n in range(1,N):
             vec_arr[n,t] = spice.conics(orb_init[n],t_arr[t])

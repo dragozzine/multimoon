@@ -1,6 +1,6 @@
 from spinny_generate import *
 from spinny_nosun import *
-from keplerian import kepler_integrate, kepler_plot
+from keplerian import *
 import numpy as np
 import time
 from time import ctime
@@ -20,7 +20,8 @@ def generate_vector(paramsdf, t_arr):
     runprops = mm_runprops.runprops
     
     tol = runprops.get("spinny_tolerance")
-    
+    includesun = runprops.get("includesun")
+        
     N = runprops.get("numobjects") # total number of objects in the system
     T = len(t_arr)                 # number of observation times
 
@@ -32,7 +33,13 @@ def generate_vector(paramsdf, t_arr):
     j2_sum = sum(j2s)
     #j2_sum = sum(sys_df.loc["j2r2",:].values.flatten())
     
-
+    masses = []
+    for col in sys_df.columns:
+        if 'mass' in col:
+            masses.append(sys_df[col].iloc[0])
+    mass_sum = sum(masses)
+    mass_primary = sys_df["mass_1"].iloc[0]
+    
     if N == 2 and j2_sum == 0.00:  # checks if all objects are point masses, does keplerian integration instead
         kepler_system = kepler_2body(sys_df,t_arr)
         s_df = kepler_system[0]
@@ -83,8 +90,6 @@ def build_spinny_multimoon(sys_df):
 
     N = runprops.get("numobjects") #len(masses) # number of bodies in the system
     tol = runprops.get("spinny_tolerance")
-<<<<<<< HEAD
-=======
 
     cols = []
     num = 0
@@ -92,16 +97,11 @@ def build_spinny_multimoon(sys_df):
         if 'mass' in col:
             cols.append(num)
         num += 1
->>>>>>> 695b4dddb4e401139eae8ac230f92ea26aaee121
     
     #NOTE: as long as the runprops dict is sorted in order of descending mass, this should not be needed
     #cols = list(sys_df.columns[[int(np.where(sys_df==m)[1].flatten()) for m in masses]])
     #body_idx = [int(body[-1]) for body in cols]
-<<<<<<< HEAD
-   
-=======
-    
->>>>>>> 695b4dddb4e401139eae8ac230f92ea26aaee121
+
     names_arr = np.empty(N,dtype="object")
     phys_arr = np.zeros((N,4))
     orb_arr = np.zeros((N,6))
