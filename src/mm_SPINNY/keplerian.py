@@ -7,25 +7,29 @@ import time
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from mpl_toolkits.mplot3d import Axes3D
+import sys
+sys.path.append("..")
+import mm_runprops
+runprops = mm_runprops.runprops
 
 # computes a two-body, Keplerian integration using spiceypy
-def kepler_integrate(sys_df,t_arr):
-    
-    G = 6.67e-20 # Gravitational constant in km
+def kepler_twobody(sys_df,t_arr):
+    runprops = mm_runprops.runprops
+    G = 6.674e-20 # Gravitational constant in km
     N = 2
     T = len(t_arr)
     
-    names = [sys_df.columns[0],sys_df.columns[1]]
+    names = [sys_df["name"+str(n)].iloc[0] for n in range(0,N)]
     masses = sys_df.loc["mass",names[1]] + sys_df.loc["mass",names[0]]   
 
     mu = G*masses # compute the gravitational parameter for the system
     
-    a0 = sys_df.loc["sma",names[1]]
-    e0 = sys_df.loc["ecc",names[1]]
-    i0 = sys_df.loc["inc",names[1]]
-    O0 = sys_df.loc["lan",names[1]]
-    w0 = sys_df.loc["aop",names[1]]
-    M0 = sys_df.loc["mea",names[1]]
+    a0 = sys_df["sma"+str(n)].iloc[0]
+    e0 = sys_df["ecc"+str(n)].iloc[0]
+    i0 = sys_df["inc"+str(n)].iloc[0]
+    O0 = sys_df["lan"+str(n)].iloc[0]
+    w0 = sys_df["aop"+str(n)].iloc[0]
+    M0 = sys_df["mea"+str(n)].iloc[0]
     p0 = a0*(1-e0) # periapsis distance
     
     T0 = 0.0 # epoch (seconds past J2000)
@@ -83,10 +87,90 @@ def kepler_integrate(sys_df,t_arr):
 
     kepler_df = pd.DataFrame(body_dict)
     
-    save(kepler_df, names)
+    return(kepler_df, names)
     
+def kepler_nbody(sys_df,t_arr): # runs Keplerian integrations for systems with ONE massive body and N massless bodies
+    runprops = mm_runprops.runprops
+    
+    G = 6.674e-20 # Gravitational constant in km
+    T = len(t_arr)
+    
+    N = runprops.get("numobjects")
+    names = [sys_df["name"+str(n)].iloc[0] for n in range(1,N)]
+    mass_1 = sys_df["mass_1"].iloc[0]
 
-def save(kepler_df, names):   
+    mu = G*mass_1 # compute the gravitational parameter for the system (only one body)
+    
+    T0 = 0.0 # epoch (seconds past J2000)
+    
+    orb_init = np.empty((N-1,8))
+    vec_init = np.empty((N-1,6))
+    for n in range(1,N): # exclude the primary, it should not have any orbital elements given
+        a_n = sys_df["sma"+str(n)].iloc[0]
+        e_n = sys_df["ecc"+str(n)].iloc[0]
+        i_n = sys_df["inc"+str(n)].iloc[0]
+        O_n = sys_df["lan"+str(n)].iloc[0]
+        w_n = sys_df["aop"+str(n)].iloc[0]
+        M_n = sys_df["mea"+str(n)].iloc[0]
+        p_n = a0*(1-e0) # periapsis distance
+    
+        orb_init[n] = [p0,e0,i0,O0,w0,M0,T0,mu] # set orbital params list
+     
+        vec_init[n] = spice.conics(orb0,0.0)
+    
+        start_time = time.time()
+    
+    orb_arr = np.empty((N-1,T,8))
+    vec_arr = np.empty((N-1,T,6))
+    print("Running "+str(N)"-body Keplerian integration...")
+    for t in range(0,T):
+        for n in range(1,N):
+            vec_arr[n,t] = spice.conics(orb_init[n],t_arr[t])
+            orb_arr[n,t] = spice.oscelt(vec_arr[t],t,mu)
+                         
+            # oscelt returns an array of 8 things:
+            # Perifocal distance.
+            # Eccentricity.
+            # Inclination.
+            # Longitude of the ascending node.
+            # Argument of periapsis.
+            # Mean anomaly at epoch.
+            # Epoch.
+            # Gravitational parameter.
+    print("Done.")
+
+    seconds_time = time.time() - start_time
+
+    if seconds_time >= 60.0:
+        minutes_time = seconds_time/60.0
+        print("Completed in "+str(minutes_time)+" minutes.")
+
+    else:
+        print("Completed in "+str(seconds_time)+" seconds.")
+        
+    body_dict = {"Times":t_arr}
+    print("Constructing dataframe...")
+    
+    for name in names[1:]:
+        body_dict.setdefault('X_Pos_'+name , vec_arr[:,0])
+        body_dict.setdefault('Y_Pos_'+name , vec_arr[:,1])
+        body_dict.setdefault('Z_Pos_'+name , vec_arr[:,2])
+        body_dict.setdefault('X_Vel_'+name , vec_arr[:,3])
+        body_dict.setdefault('Y_Vel_'+name , vec_arr[:,4])
+        body_dict.setdefault('Z_Vel_'+name , vec_arr[:,5])
+
+        body_dict.setdefault('sma_'+name , orb_arr[:,0]/(1-orb_arr[:,1]))
+        body_dict.setdefault('ecc_'+name , orb_arr[:,1])
+        body_dict.setdefault('inc_'+name , orb_arr[:,2])
+        body_dict.setdefault('lan_'+name , orb_arr[:,3])
+        body_dict.setdefault('aop_'+name , orb_arr[:,4])
+        body_dict.setdefault('mea_'+name , orb_arr[:,5])
+
+    kepler_df = pd.DataFrame(body_dict)
+    
+    return(kepler_df, names)
+    
+def kepler_save(kepler_df, names):   
     save_yn = str(raw_input("Do you want to save this data? (Y/N): "))
     save_yn = save_yn.upper()
     
@@ -96,17 +180,19 @@ def save(kepler_df, names):
         filename = names[0]+"_KEPLER_"+t_current+".csv"
         kepler_df.to_csv(filename)
         print("Data from SpiceyPy saved to the local file as "+filename)
-        plot_q(kepler_df,names)
+        kepler_plot_q(kepler_df,names)
 
     elif save_yn == "N":
         print("")
-        plot_q(kepler_df,names)
+        kepler_plot_q(kepler_df,names)
     else:
         print("")
         print('Invalid Response.')
         return save(kepler_df,names) 
     
-def plot_q(kepler_df,names): 
+    
+    
+def kepler_plot_q(kepler_df,names): 
     plot_yn = str(raw_input("Do you want me to generate figures from these data? (Y/N): "))
     plot_yn = plot_yn.upper()
     
