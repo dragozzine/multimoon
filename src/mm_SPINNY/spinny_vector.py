@@ -78,6 +78,7 @@ def build_spinny_multimoon(sys_df):
 
     N = runprops.get("numobjects") #len(masses) # number of bodies in the system
     tol = runprops.get("spinny_tolerance")
+    print(sys_df)
     cols = list(sys_df.columns[[int(np.where(sys_df==m)[1].flatten()) for m in masses]])
     body_idx = [int(body[-1]) for body in cols]
     
