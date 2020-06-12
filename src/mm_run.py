@@ -239,7 +239,7 @@ for i in range(nwalkers):
 
 # We now have an initial guess for each walker that is not really bad.
 # Begin MCMC
-
+p0 = list(p0)
 # Now creating the sampler object
 filename = "../results/" + runprops.get("objectname") + "/chain.h5"
 
@@ -266,7 +266,6 @@ if verbose:
 	print("Starting the burn in")
 print(ndim, nwalkers)
 #print('p0 going into the sampler is: \n', list(p0))
-p0 = list(p0)
 state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
 sampler.reset()
 
