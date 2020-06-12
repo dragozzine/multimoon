@@ -71,41 +71,21 @@ def mm_priors(priors, parameters):
         #Make sure the values in the params df are real.
         if i.find('mass'):
             if params[i][0] < 0:
-                params[i][0] = abs(params[i][0])
+                return np.inf
         elif i.find('ecc'):
             if params[i][0] < 0:
-                params[i][0] = abs(params[i][0])
+                return np.inf
             elif params[i][0] > 1:
-                params[i][0] = 1
+                return np.inf
         elif i.find('sma'):
             if params[i][0] < 0:
-                params[i][0] = abs(params[i][0])
-        elif i.find('aop'):
-            if params[i][0] < 0:
-                params[i][0] = params[i][0]+360
-            elif params[i][0] > 360:
-                arams[i][0] = params[i][0]-360
-        elif i.find('inc'):
-            if params[i][0] < 0:
-                params[i][0] = params[i][0]+360
-            elif params[i][0] > 360:
-                arams[i][0] = params[i][0]-360
-        elif i.find('lan'):
-            if params[i][0] < 0:
-                params[i][0] = params[i][0]+360
-            elif params[i][0] > 360:
-                arams[i][0] = params[i][0]-360           
-        elif i.find('mea'):
-            if params[i][0] < 0:
-                params[i][0] = params[i][0]+360
-            elif params[i][0] > 360:
-                arams[i][0] = params[i][0]-360
+                return np.inf
         elif i.find('j2r2'):
             if params[i][0] < 0:
-                params[i][0] = abs(params[i][0])       
+                return np.inf      
         elif i.find('c2r22'):
             if params[i][0] < 0:
-                params[i][0] = abs(params[i][0])       
+                return np.inf      
                 
         #Here, add the Prior Probability Density function for this element to the total
     for x in allProbs:

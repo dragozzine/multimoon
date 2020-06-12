@@ -40,6 +40,7 @@ def orb2vec_ns(orb_arr,phys_arr,n): # converts orbital parameters to state vecto
         
     else:         # all the other objects just use the defined orbits
         orb = [a*(1-e),e,i,O,w,M,0.0,mu]
+
         vec = spice.conics(orb,0)
 
     return(vec) 
