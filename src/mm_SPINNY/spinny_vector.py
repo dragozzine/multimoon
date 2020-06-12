@@ -112,7 +112,6 @@ def build_spinny_multimoon(sys_df):
     
     i = 0
     for n in (0,N): # for each body in the system, added in order of descending mass:
-
         if "name_"+str(n) in sys_df.columns:
             names_arr[i] = sys_df["name_"+str(n)].iloc[0] # set name of the body
             
