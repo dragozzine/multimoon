@@ -18,6 +18,7 @@ def generate_vector(paramsdf, t_arr):
     # TODO: Update this for when I know what the params dataframe looks like
     sys_df = paramsdf
     runprops = mm_runprops.runprops
+    print('sys_df \n', sys_df)
     
     tol = runprops.get("spinny_tolerance")
     includesun = runprops.get("includesun")
@@ -175,7 +176,7 @@ def build_spinny_multimoon(sys_df):
         # set orbital properties array
         orb_arr[i] = np.array([sma_n, ecc_n, aop_n, inc_n, lan_n, mea_n]) 
         
-        
+        print('orb_Arr \n',orb_arr,'\n phys_arr \n', phys_arr)
         i = i + 1
     # set orbit of primary equal to orbit of secondary (it will be scaled later)
     if "Sun" in names_arr:
