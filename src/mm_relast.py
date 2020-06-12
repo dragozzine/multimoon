@@ -2,6 +2,7 @@ import numpy as np
 from astropy import units as u
 import pandas as pd
 from math import radians, sin, cos, sqrt, asin
+import sys
 
 '''
     NAME:
@@ -45,7 +46,8 @@ def convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos):
     deltaLat = (latitude2-latitude1)
     deltaLong = (longitude2-longitude1)*np.cos(latitude1*u.degree)
     
-    #ang_dist = haversine(latitude1, longitude1, latitude2, longitude2)
+    print(obs_to_prim_pos,prim_to_sat_pos)
+    print(deltaLong*3600, deltaLat*3600)
     
     return deltaLong*3600, deltaLat*3600
 

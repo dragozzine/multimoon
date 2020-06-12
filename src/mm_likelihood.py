@@ -154,6 +154,7 @@ def mm_chisquare(paramdf, obsdf, runprops):
         obs_to_prim_pos = positionData[names[0]]
         for i in range(1,numObj):
             Model_DeltaLong[names[i]][t], Model_DeltaLat[names[i]][t] = mm_relast.convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, positionData[names[i]])
+        
         # mm_relast
         
 
