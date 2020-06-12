@@ -264,7 +264,7 @@ print('sampler created')
 nburnin = runprops.get("nburnin")
 if verbose:
 	print("Starting the burn in")
-print(ndim, nwalkers)
+
 #print('p0 going into the sampler is: \n', list(p0))
 state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
 sampler.reset()

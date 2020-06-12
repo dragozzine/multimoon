@@ -21,7 +21,8 @@ import time
     OUTPUTS:
           totalLogProb - The total Log of the probability of all the priors against the parameters
 '''
-def mm_priors(priors, params):
+def mm_priors(priors, parameters):
+    params = parameters
     columnList = list(priors)
     totalLogProb = 0
     
@@ -36,7 +37,6 @@ def mm_priors(priors, params):
     #function of the specified type.
     for i in columnList:
         count += 1
-        
         theInt = int(priors[i][0])
         #Uniform Distribution Shape
         if theInt == 0:
@@ -67,9 +67,48 @@ def mm_priors(priors, params):
                 allProbs.append(np.exp(-1/2*(((np.log(params[i][0])-priors[i][8])**2)/(priors[i][7])**2))/params[i][0])
         else:
             a = 1#print('N/A input for column: ', i, ' in priors dataframe.') 
-            
+        
+        #Make sure the values in the params df are real.
+        if i.find('mass'):
+            if params[i][0] < 0:
+                params[i][0] = abs(params[i][0])
+        elif i.find('ecc'):
+            if params[i][0] < 0:
+                params[i][0] = abs(params[i][0])
+            elif params[i][0] > 1:
+                params[i][0] = 1
+        elif i.find('sma'):
+            if params[i][0] < 0:
+                params[i][0] = abs(params[i][0])
+        elif i.find('aop'):
+            if params[i][0] < 0:
+                params[i][0] = params[i][0]+360
+            elif params[i][0] > 360:
+                arams[i][0] = params[i][0]-360
+        elif i.find('inc'):
+            if params[i][0] < 0:
+                params[i][0] = params[i][0]+360
+            elif params[i][0] > 360:
+                arams[i][0] = params[i][0]-360
+        elif i.find('lan'):
+            if params[i][0] < 0:
+                params[i][0] = params[i][0]+360
+            elif params[i][0] > 360:
+                arams[i][0] = params[i][0]-360           
+        elif i.find('mea'):
+            if params[i][0] < 0:
+                params[i][0] = params[i][0]+360
+            elif params[i][0] > 360:
+                arams[i][0] = params[i][0]-360
+        elif i.find('j2r2'):
+            if params[i][0] < 0:
+                params[i][0] = abs(params[i][0])       
+        elif i.find('c2r22'):
+            if params[i][0] < 0:
+                params[i][0] = abs(params[i][0])       
+                
         #Here, add the Prior Probability Density function for this element to the total
     for x in allProbs:
         totalLogProb = totalLogProb + np.log(x)
         
-    return totalLogProb
+    return totalLogProb, params
