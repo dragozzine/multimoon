@@ -35,11 +35,16 @@ def generate_vector(paramsdf, t_arr):
     
 
     if N == 2 and j2_sum == 0.00:  # checks if all objects are point masses, does keplerian integration instead
-        kepler_system = kepler_integrate(sys_df,t_arr)
-        kepler_df = kepler_system[0]
+        kepler_system = kepler_2body(sys_df,t_arr)
+        s_df = kepler_system[0]
         names = kepler_system[1]
 
-    elif not "name_0" in sys_df.columns:       # runs a SPINNY integration without the sun if not included  
+    if mass_sum == mass_primary: #checks if only the primary has mass, all other bodies are massless
+        kepler_system = kepler_Nbody(sys_df,t_arr)
+        s_df = kepler_system[0]
+        names = kepler_system[1]
+        
+    elif not "name_0" in sys_df.columns and not includesun: # runs a SPINNY integration without the sun if not included  
         system = build_spinny_multimoon(sys_df)
         spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol)
         s_df = spinny[0]
@@ -79,6 +84,8 @@ def build_spinny_multimoon(sys_df):
 
     N = runprops.get("numobjects") #len(masses) # number of bodies in the system
     tol = runprops.get("spinny_tolerance")
+<<<<<<< HEAD
+=======
 
     cols = []
     num = 0
@@ -86,11 +93,16 @@ def build_spinny_multimoon(sys_df):
         if 'mass' in col:
             cols.append(num)
         num += 1
+>>>>>>> 695b4dddb4e401139eae8ac230f92ea26aaee121
     
     #NOTE: as long as the runprops dict is sorted in order of descending mass, this should not be needed
     #cols = list(sys_df.columns[[int(np.where(sys_df==m)[1].flatten()) for m in masses]])
     #body_idx = [int(body[-1]) for body in cols]
+<<<<<<< HEAD
+   
+=======
     
+>>>>>>> 695b4dddb4e401139eae8ac230f92ea26aaee121
     names_arr = np.empty(N,dtype="object")
     phys_arr = np.zeros((N,4))
     orb_arr = np.zeros((N,6))
