@@ -71,12 +71,10 @@ def vec2orb_ns(s,phys_objects,vec):  # converts a state vector to orbital parame
 def generate_system_ns(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr,tolerance):
     
     # integration parameters
-    print('phys_arr' , phys_arr)
-    print('orb_arr', orb_arr)
     P = (2*np.pi)/np.sqrt(G*phys_arr[N-1,0]/(orb_arr[N-1,0]**3))
 
     tol = tolerance                         # integration tolerance
-    h0P = 1.0.                              # initial step size
+    h0P = 1.0                              # initial step size
     print("Building SPINNY system...")
     s = Spinny_System(0.,h0=h0P,tol=tol)        # initializes object s, which is the SPINNY system
     

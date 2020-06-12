@@ -78,8 +78,10 @@ def build_spinny_multimoon(sys_df):
 
     N = runprops.get("numobjects") #len(masses) # number of bodies in the system
     tol = runprops.get("spinny_tolerance")
-    cols = list(sys_df.columns[[int(np.where(sys_df==m)[1].flatten()) for m in masses]])
-    body_idx = [int(body[-1]) for body in cols]
+    
+    #NOTE: as long as the runprops dict is sorted in order of descending mass, this should not be needed
+    #cols = list(sys_df.columns[[int(np.where(sys_df==m)[1].flatten()) for m in masses]])
+    #body_idx = [int(body[-1]) for body in cols]
     
     names_arr = np.empty(N,dtype="object")
     phys_arr = np.zeros((N,4))
@@ -88,7 +90,7 @@ def build_spinny_multimoon(sys_df):
     quat_arr = np.zeros((N,4))
     
     i = 0
-    for n in body_idx: # for each body in the system, added in order of descending mass:
+    for n in (0,N): # for each body in the system, added in order of descending mass:
 
         if "name_"+str(n) in sys_df.columns:
             names_arr[i] = sys_df["name_"+str(n)].iloc[0] # set name of the body
@@ -163,7 +165,7 @@ def build_spinny_multimoon(sys_df):
         orb_arr[0] = orb_arr[1]
     
     i = 0
-    for n in body_idx:
+    for n in range(0,N):
         # precession, obliquity angles are measured with respect to the ECLIPTIC, not the body's orbit
         # default values are set to be aligned with the orbit (LAN for prec, inc for obliq, AOP for longitude)
         #n= n-1
