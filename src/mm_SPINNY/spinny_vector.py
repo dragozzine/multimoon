@@ -78,8 +78,15 @@ def build_spinny_multimoon(sys_df):
 
     N = runprops.get("numobjects") #len(masses) # number of bodies in the system
     tol = runprops.get("spinny_tolerance")
-    print(sys_df)
-    cols = list(sys_df.columns[[int(np.where(sys_df==m)[1].flatten()) for m in masses]])
+
+    cols = []
+    num = 0
+    for col in sys_df.columns:
+        if 'mass' in col:
+            cols.append(num)
+        num += 1
+    #cols = list(sys_df.columns[[int(np.where(sys_df==m)[1].flatten()) for m in masses]])
+    print(cols)
     body_idx = [int(body[-1]) for body in cols]
     
     names_arr = np.empty(N,dtype="object")
