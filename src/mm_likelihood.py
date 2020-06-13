@@ -49,9 +49,8 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     name_dict = runprops.get("names_dict")
     
     params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict)
-    print('Gathering prior probability')
     lp = prior.mm_priors(priors,params)
-    
+    print('prior: ', lp)
     if not np.isfinite(lp):
         return -np.inf
     return lp + log_likelihood(params, obsdf, runprops)
