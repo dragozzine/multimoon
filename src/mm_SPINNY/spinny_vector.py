@@ -80,9 +80,10 @@ def generate_vector(paramsdf, t_arr):
             
 
 def build_spinny_multimoon(sys_df): 
-    
-    
-    print("Reading file to dataframe...")
+    verbose = runprops.get("verbose")
+    if verbose:
+        print("Reading file to dataframe...")
+        
     sys_df.reset_index()
     
     # in DESCENDING ORDER of size, an array of the masses 
@@ -110,10 +111,7 @@ def build_spinny_multimoon(sys_df):
     quat_arr = np.zeros((N,4))
     
     i = 0
-<<<<<<< HEAD
-=======
 
->>>>>>> 7b2aa2dcae5895c871ea8e83bb297f0fba2722f2
     for n in range(1,N+1): # for each body in the system, added in order of descending mass:
 
         if "name_"+str(n) in sys_df.columns:
