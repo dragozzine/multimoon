@@ -80,9 +80,10 @@ def generate_vector(paramsdf, t_arr):
             
 
 def build_spinny_multimoon(sys_df): 
-    
-    
-    print("Reading file to dataframe...")
+    verbose = runprops.get("verbose")
+    if verbose:
+        print("Reading file to dataframe...")
+        
     sys_df.reset_index()
     
     # in DESCENDING ORDER of size, an array of the masses 

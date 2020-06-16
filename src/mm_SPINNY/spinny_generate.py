@@ -7,6 +7,9 @@ import time
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
+sys.path.append("..")
+import mm_runprops
+runprops = mm_runprops.runprops
 
 ##### ALL UNITS SHOULD BE GIVEN IN km, sec, AND rad IN ORDER FOR THE COMPUTATIONS TO WORK
 
@@ -73,11 +76,12 @@ def vec2orb(s,phys_objects,vec):  # converts a state vector to orbital parameter
 #### generate_system takes input from the dataframe and generates a 
 #### Physical_Properties class and SPINNY object for each body in the system
 def generate_system(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr):
-
+    verbose = runprops.get("verbose")
     # integration parameters
     tol = 1e-11                          # integration tolerance
     h0P = 1e-5                           # initial step size
-    print("Building SPINNY system...")
+    if verbose:
+        print("Building SPINNY system...")
     s = Spinny_System(0.,h0=h0P,tol=tol)        # initializes object s, which is the SPINNY system
     
     for n in range(0,N):
@@ -118,8 +122,9 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr): # evolves the SPINNY system
     spin_arr = np.empty((N,T))
     quat_arr = np.empty((N,T,4))
     euler_arr = np.empty((N,T,3))
-
-    print("Evolving SPINNY...")
+    
+    if verbose:
+        print("Evolving SPINNY...")
     for t in range(0,T):
 
         s.evolve(t_arr[t])
@@ -135,7 +140,9 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr): # evolves the SPINNY system
         # Use s.get_state(n,0) with respect to the primary to ignore the motion of the Sun in our vectors,
         # but we take s.arr0 in order to get orbital parameters which might not make any sense in a primaricentric frame
     body_dict = {"Times":t_arr}
-    print("Constructing dataframe...")
+    
+    if verbose:
+        print("Constructing dataframe...")
     m = N-1
     body_dict.setdefault('X_Pos_'+name_arr[0] , body_arr[:,(m*6)+0])
     body_dict.setdefault('Y_Pos_'+name_arr[0] , body_arr[:,(m*6)+1])
@@ -205,7 +212,8 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr): # evolves the SPINNY system
 def build_spinny(sys_df): 
     G = 6.67e-20 # Gravitational constant in km
     
-    print("Reading file to dataframe...")
+    if verbose:
+        print("Reading file to dataframe...")
     
     masses = -np.sort(-sys_df.loc["mass"].values.flatten()) # in DESCENDING ORDER of size, an array of the masses (sun is first)
     N = len(masses) # number of bodies in the system, including the Sun
@@ -343,18 +351,19 @@ def evolve_spinny(N, names, phys_arr, orb_arr, spin_arr, quat_arr, t_arr):
     spinny = s[0]
     phys_arr = s[1]
     s_df = spinny_evolve(spinny, names, phys_arr,t_arr)
-    print("Done.")
+    if verbose:
+        print("Done.")
 
     seconds_time = time.time() - start_time
+    if verbose:
+        if seconds_time >= 60.0:
+            minutes_time = seconds_time/60.0
+            print("Completed in "+str(minutes_time)+" minutes.")
 
-    if seconds_time >= 60.0:
-        minutes_time = seconds_time/60.0
-        print("Completed in "+str(minutes_time)+" minutes.")
+        else:
+            print("Completed in "+str(seconds_time)+" seconds.")
 
-    else:
-        print("Completed in "+str(seconds_time)+" seconds.")
-
-    print("")
+        print("")
 
     return(s_df, names)
 
