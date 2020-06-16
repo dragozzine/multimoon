@@ -305,8 +305,7 @@ def spinny_output():#sys_df,t_start,t_end):
 
     return(s_df)
     
-    
-spinny_output()
+
     
     
     
