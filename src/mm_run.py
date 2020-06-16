@@ -212,8 +212,9 @@ geocentric_object_positions = pd.read_csv("../data/" + objname + "/geocentric_" 
 obsdata = runprops.get('obsdata_file')
 
 obsDF = 0
-if os.path.exists(obsdata) and verbose:
-	print("Observational data file " + obsdata + " will be used")
+if os.path.exists(obsdata):
+	if verbose:
+		print("Observational data file " + obsdata + " will be used")
 	obsdf = pd.read_csv(obsdata)
 else:
 	if verbose:
@@ -285,7 +286,8 @@ flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
 
 print('Beginning mm_analysis plots')
 # make plots of MCMC results
-mm_analysis.plots(sampler, guesses.columns,objname)
+
+mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names)
 print('Beginning mm_analysis autocorrelation')
 mm_analysis.autocorrelation(sampler, objname)
 

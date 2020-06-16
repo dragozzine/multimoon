@@ -8,8 +8,9 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 from scipy.spatial.transform import Rotation as R
+import mm_runprops
 
-
+runprops = mm_runprops.runprops
 ##### ALL UNITS SHOULD BE GIVEN IN km, sec, AND rad IN ORDER FOR THE COMPUTATIONS TO WORK
 
 global G
@@ -76,7 +77,9 @@ def generate_system_ns(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr,tolerance):
 
     tol = tolerance                         # integration tolerance
     h0P = 1.0                              # initial step size
-    print("Building SPINNY system...")
+    verbose = runprops.get("verbose")
+    if verbose:
+        print("Building SPINNY system...")
     s = Spinny_System(0.,h0=h0P,tol=tol)        # initializes object s, which is the SPINNY system
     
     for n in range(0,N):
@@ -115,7 +118,9 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
     euler_arr = np.empty((N,T,3))
     L_arr = np.empty((N,T,3))
     E_arr = np.empty((N,T))
-    print("Evolving SPINNY...")
+    verbose = runprops.get('verbose')
+    if verbose:
+        print("Evolving SPINNY...")
     
     for t in range(0,T):
         # Use s.get_state(n,0) with respect to the primary to ignore the motion of the Sun in our vectors,
@@ -204,7 +209,8 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
     E_arr = np.sum(E_arr,axis=0)
     
     body_dict = {"Times":t_arr}
-    print("Constructing dataframe...")
+    if verbose:
+        print("Constructing dataframe...")
 
     for n in range(0,N):   
         body_dict.setdefault('X_Pos_'+name_arr[n] , body_arr[:,(n*6)+0])
@@ -275,7 +281,9 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
 def build_spinny_ns(sys_df): 
     G = 6.67e-20 # Gravitational constant in km
     
-    print("Reading file to dataframe...")
+    verbose = runprops.get('verbose')
+    if verbose:
+        print("Reading file to dataframe...")
     
     masses = -np.sort(-sys_df.loc["mass"].values.flatten()) # in DESCENDING ORDER of size, an array of the masses (sun is first)
     N = len(masses) 
@@ -414,18 +422,23 @@ def evolve_spinny_ns(N, names, phys_arr, orb_arr, spin_arr, quat_arr, t_arr, tol
     spinny = s[0]
     phys_arr = s[1]
     s_df = spinny_integrate_ns(spinny, names, phys_arr,t_arr)
-    print("Done.")
+    verbose = runprops.get('verbose')
+    if verbose:
+        print("Done.")
 
     seconds_time = time.time() - start_time
 
     if seconds_time >= 60.0:
         minutes_time = seconds_time/60.0
-        print("Completed in "+str(minutes_time)+" minutes.")
+        if verbose:
+            print("Completed in "+str(minutes_time)+" minutes.")
 
     else:
-        print("Completed in "+str(seconds_time)+" seconds.")
+        if verbose:
+            print("Completed in "+str(seconds_time)+" seconds.")
 
-    print("")
+    if verbose:
+        print("")
     np.insert(names,0,"Sun")
     return(s_df, phys_arr, names)
 
