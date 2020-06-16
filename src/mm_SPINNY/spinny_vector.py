@@ -243,11 +243,8 @@ The function returns a dataframe with all the bodies' orbital and spin parameter
     - Possibly add ability to create 3D VPython models?
     - Print out fractional change in energy/momentum if verbose flag?
 """ 
-def spinny_output():#sys_df,t_start,t_end):
-    sys_df = pd.read_csv("../data/haumea_spinny_test.csv")
+def spinny_output(sys_df,t_start,t_end):
     
-    t_start = 0.0
-    t_end = 60.*24.0*3600.0 #temporary for debugging
     runprops = mm_runprops.runprops
     
     t_arr = np.linspace(t_start,t_end,2000) # start and end times should be in SECONDS after a specified epoch
