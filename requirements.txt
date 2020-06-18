@@ -11,3 +11,5 @@ corner
 Vpython??
 pandas
 tqdm
+astroquery
+spiceypy

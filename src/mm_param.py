@@ -47,6 +47,9 @@ def from_param_df_to_fit_array(dataframe, runprops):
     
     float_arr = float_df.to_numpy()
     
+    for col in fit_scale.columns:
+        fit_scale.rename(columns={col: col[0]}, inplace=True)
+    
     return float_arr, float_names, fixed_df, total_df_names, fit_scale
     
 """

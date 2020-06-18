@@ -22,14 +22,36 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import emcee
+import sys
 
-def plots(sampler, parameters, objname):
+
+#chain = (nwalkers, nlink, ndim)
+def plots(sampler, parameters, objname, fit_scale, float_names):
 			# Here parameters is whatever file/object will have the run params
 	flatchain = sampler.get_chain(flat = True)
+	print('flatchain1: ', type(flatchain))
+	fit = []
+
+	for i in fit_scale.columns:
+		if i[0] in float_names:
+			val = fit_scale[i][0]
+			fit.append(val)
+        
+	fchain = [[0] * len(flatchain[0])] * len(flatchain)    
+	for i in range(len(flatchain)):
+		row = []
+		for j in range(len(flatchain[0])):
+			row.append(flatchain[i][j]*fit[j])
+		fchain[i] = row
+
+	flatchain = np.array(fchain)
+	print('flatchain2: ', type(flatchain))
 	chain = sampler.get_chain(flat = False)
 	# First start by converting the paramaters into an array of strings
 	# code here
-	names = list(parameters)
+	names = []
+	for i in parameters:
+		names.append(i[0])
 
 	fig = corner.corner(flatchain, bins = 40, labels = names, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
@@ -115,7 +137,7 @@ def autocorrelation(sampler, objname, filename = "", thin = 1):
 	# Setting up to plot curves for tau in a grid
 	x = 3
 	y = ndims
-	nrows = 0
+	nrows = 1
 	ncols = 3
 	while x < y:
 		y = y - x
@@ -124,9 +146,10 @@ def autocorrelation(sampler, objname, filename = "", thin = 1):
 	if ncols > ndims:
 		ncols = ndims
 	# Plotting
+	print(ncols, nrows)    
 	fig, ax = plt.subplots(nrows = nrows, ncols = ncols, sharey=True, 
 			       gridspec_kw={'wspace': 0},
-			       figsize = (6.4*(ncols-1),4.8*(nrows)), 
+			       figsize = (6.4*(ncols),4.8*(nrows)), 
 			       squeeze = False)
 	fig.suptitle("Autocorrelation estimates")
 	fig.add_subplot(111, frameon=False)
@@ -139,7 +162,7 @@ def autocorrelation(sampler, objname, filename = "", thin = 1):
 			dim = i*ncols + j
 			taus = ax[i,j].loglog(N, tau[:,dim], "o-", label="new")
 			line = ax[i,j].plot(N, N / 50.0, "--k", label=r"$\tau = N/50$")
-
-	fig.savefig("../results/"+objname+"/autocorr" + filename + ".png")
+	fname = "../results/"+objname+"/autocorr" + filename + ".png"
+	fig.savefig(fname, format='png')
 
 	return np.mean(sampler.get_autocorr_time(quiet = True))

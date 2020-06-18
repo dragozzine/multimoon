@@ -50,7 +50,6 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     
     params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict)
     lp = prior.mm_priors(priors,params)
-    print('prior: ', lp)
     if not np.isfinite(lp):
         return -np.inf
     return lp + log_likelihood(params, obsdf, runprops)
@@ -69,7 +68,6 @@ def mm_chisquare(paramdf, obsdf, runprops):
 
     numObj = runprops.get("numobjects")
     verbose = runprops.get("verbose")
-    print(verbose, verbose == True)
     if verbose: 
         print("verbose test works")
     pd.set_option('display.max_columns', None)
