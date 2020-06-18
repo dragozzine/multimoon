@@ -288,8 +288,8 @@ print('Beginning mm_analysis plots')
 # make plots of MCMC results
 
 mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names)
-print('Beginning mm_analysis autocorrelation')
-mm_analysis.autocorrelation(sampler, objname)
+#print('Beginning mm_analysis autocorrelation')
+#mm_analysis.autocorrelation(sampler, objname)
 
 # make other diagnostic plots
 # TODO: orbit astrometry plots

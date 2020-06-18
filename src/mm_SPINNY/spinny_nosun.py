@@ -151,6 +151,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
 
     for t in range(0,T):
         for n in range(0,N):
+            #print('quat_arr(n,t): ',quat_arr[n,t]) 
             r_n = R.from_quat(quat_arr[n,t]) # convert quaternion to rotation
             obj_pole = r_n.apply([0.0,0.0,1.0],inverse=False) # get orientation of spin pole in world frame
             state = body_arr[t,(n*6):(n*6)+6] # get barycentric state vector for the body
