@@ -288,7 +288,7 @@ def spinny_output(sys_df,t_start,t_end):
         s_df = spinny[0]
         names = spinny[2]
         
-    else:                         # runs SPINNY with the sun included
+    else:                         # runs SPINNY with the sun included (DOESN'T WORK YET)
         system = build_spinny_multimoon(sys_df)
         spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
         s_df = spinny[0]
