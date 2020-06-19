@@ -230,7 +230,9 @@ def build_spinny_multimoon(sys_df):
 
         i = i+1
         
-    return(N, names_arr, phys_arr, orb_arr, spin_arr, quat_arr)            
+    return(N, names_arr, phys_arr, orb_arr, spin_arr, quat_arr)
+
+
             
 """
 spinny_output takes paramaters from the fitter and generates dataframe and plots of orbits, orbital parameters, and spin parameters over a specified period of time
