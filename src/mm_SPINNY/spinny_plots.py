@@ -2,8 +2,6 @@ import numpy as np
 import time
 from time import ctime
 from quaternion import *
-from spinny_vector import build_spinny_multimoon
-from spinny_nosun import *
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from mpl_toolkits.mplot3d import Axes3D
@@ -235,26 +233,25 @@ def spinny_plot(plot_df, names):
        
     return()
              
-def spinny_plot_multiple():#sys_df,t_start,t_end): # takes a params dataframe with multiple rows
-    sys_df = pd.read_csv("../data/spinny_test_data/mm_multiple_test.csv")
-    t_start = 0.
-    t_end = 60.*24.*3600.0
-    num_rows = len(sys_df.index) # total number of rows/models to generate
-    t_arr = np.linspace(t_start,t_end,2000)
-    tol = runprops.get("spinny_tolerance")
-    N = runprops.get("numobjects")
-    T = len(t_arr)
-       
+def spinny_plot_multiple(df_list,names,t_arr):#sys_df,t_start,t_end): # takes a params dataframe with multiple rows
+    
+    for name in names:
+        if df_list[0]["X_Pos_"+name][0] == 0.0:
+                name_prim = name
+        else:
+            continue
+            
+    num_rows = len(df_list) 
     
     fig2,ax = plt.subplots(figsize=(10,10))
     ax2 = plt.subplot2grid((4, 4), [0, 1], 2 , 2)           
     ax3 = plt.subplot2grid((4, 4), (2, 2), 2 , 2, sharey=ax2)
     ax4 = plt.subplot2grid((4, 4), (2, 0), 2 , 2, sharey=ax2)
-   
+
     ax2.set_aspect('equal')
     ax3.set_aspect('equal')
     ax4.set_aspect('equal')
-    
+
     ax2.grid()
     ax3.grid()
     ax4.grid()
@@ -265,32 +262,15 @@ def spinny_plot_multiple():#sys_df,t_start,t_end): # takes a params dataframe wi
     ax3.set_xlabel('z (kilometers)', fontsize = 18)
     ax3.set_ylabel('y (kilometers)', fontsize = 18)
     plt.setp(ax3.get_yticklabels(), visible=False)
-    
+
     ax4.set_xlabel('x (kilometers)', fontsize = 18)
-    ax4.set_ylabel('y (kilometers)', fontsize = 18)    
+    ax4.set_ylabel('y (kilometers)', fontsize = 18)  
     
-    df_list = ["0"]*num_rows
-    
-    for i in range(0,num_rows):
-        i_df = sys_df.iloc[[i]]
-        
-        system = build_spinny_multimoon(i_df)
-        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol)
-        s_df = spinny[0]
-        names = spinny[2]
-        
-        df_list[i] = s_df
-        
-    for name in names:
-        if df_list[0]["X_Pos_"+name][0] == 0.0:
-                name_prim = name
-        else:
-            continue
-            
     t_current = ctime().replace(" ","_")
     filename = "../results/SPINNY-models/"+name_prim+"_figures_"+t_current+".pdf"  
+    color = 0
     with PdfPages(filename) as pdf:
-        
+
         for name in names:
             t = t_arr/(3600*24)
             if name == name_prim: # plots the primary as only a black dot at the origin
@@ -314,6 +294,7 @@ def spinny_plot_multiple():#sys_df,t_start,t_end): # takes a params dataframe wi
                 ax0[2].set_xlabel('Time (days)')
             
         ##### PLOTS THE ORBITAL PARAMETERS #####
+            
             if name != name_prim: # exclude the primary
                 for i in range(0,num_rows):
                     plot_df = df_list[i]
@@ -327,12 +308,12 @@ def spinny_plot_multiple():#sys_df,t_start,t_end): # takes a params dataframe wi
                     globals()[name+'_w'] = plot_df["argument_periapse_"+name]
                     globals()[name+'_M'] = plot_df["mean_anomaly_"+name]
                     
-                    ax1[0,0].plot(t,globals()[name+'_i'],label=name,color = "blue",alpha=0.8)
-                    ax1[0,1].plot(t,globals()[name+'_e'],label=name,color = "blue",alpha=0.8)
-                    ax1[1,0].plot(t,globals()[name+'_O'],label=name,color = "blue",alpha=0.8)
-                    ax1[1,1].plot(t,globals()[name+'_a'],label=name,color = "blue",alpha=0.8)
-                    ax1[2,0].plot(t,globals()[name+'_M'],label=name,color = "blue",alpha=0.8)
-                    ax1[2,1].plot(t,globals()[name+'_w'],label=name,color = "blue",alpha=0.8)
+                    ax1[0,0].plot(t,globals()[name+'_i'],label=name,color = "C0",alpha=0.1)
+                    ax1[0,1].plot(t,globals()[name+'_e'],label=name,color = "C0",alpha=0.1)
+                    ax1[1,0].plot(t,globals()[name+'_O'],label=name,color = "C0",alpha=0.1)
+                    ax1[1,1].plot(t,globals()[name+'_a'],label=name,color = "C0",alpha=0.1)
+                    ax1[2,0].plot(t,globals()[name+'_M'],label=name,color = "C0",alpha=0.1)
+                    ax1[2,1].plot(t,globals()[name+'_w'],label=name,color = "C0",alpha=0.1)
   
                     nx = globals()[name+'_x']
                     ny = globals()[name+'_y']
@@ -351,15 +332,16 @@ def spinny_plot_multiple():#sys_df,t_start,t_end): # takes a params dataframe wi
 
                         ax4.set_xlabel('x ($10^3$ kilometers)', fontsize = 18)
                         ax4.set_ylabel('y ($10^3$ kilometers)', fontsize = 18)
-
-                        ax2.plot(nx,nz,label=name,color = "blue",alpha=0.8)
-                        ax4.plot(nx,ny,color = "blue",alpha=0.8)
-                        ax3.plot(nz,ny,color = "blue",alpha=0.8)
+                        
+                        #cycles through the colors for orbit plots
+                        ax2.plot(nx,nz,label=name,color = "C"+str(color),alpha=0.1) 
+                        ax4.plot(nx,ny,color = "C"+str(color),alpha=0.1)
+                        ax3.plot(nz,ny,color = "C"+str(color),alpha=0.1)
 
                     else:
-                        ax2.plot(nx,nz,label=name,alpha=0.8)
-                        ax4.plot(nx,ny,alpha=0.8)
-                        ax3.plot(nz,ny,alpha=0.8)
+                        ax2.plot(nx,nz,color = "C"+str(color),label=name,alpha=0.1)
+                        ax4.plot(nx,ny,color = "C"+str(color),alpha=0.1)
+                        ax3.plot(nz,ny,color = "C"+str(color),alpha=0.1)
 
 
                 ax1[0,0].set_title('Inclination')
@@ -394,8 +376,8 @@ def spinny_plot_multiple():#sys_df,t_start,t_end): # takes a params dataframe wi
                 fig1.tight_layout(rect=[0, 0.03, 1, 0.95]) 
                 pdf.savefig(fig1)
             
-        ##### PLOTS SPIN PARAMETERS #####
-        # all bodies included #
+            ##### PLOTS SPIN PARAMETERS #####
+            # all bodies included #
             for i in range(0,num_rows):
                 plot_df = df_list[i]
                 globals()[name+'_obliq'] = plot_df["obliquity_"+name]
@@ -405,9 +387,9 @@ def spinny_plot_multiple():#sys_df,t_start,t_end): # takes a params dataframe wi
                 globals()[name+'_spin_angle'] = plot_df["spin_orbit_angle_"+name]
                 globals()[name+'_spin_rate'] = plot_df["spin_rate_"+name]
                 
-                ax0[0].plot(t,globals()[name+'_obliq'],label=name,color = "blue",alpha=0.8)
-                ax0[1].plot(t,globals()[name+'_prec'],label=name,color = "blue",alpha=0.8)
-                ax0[2].plot(t,globals()[name+'_spin_rate'],label=name,color = "blue",alpha=0.8)
+                ax0[0].plot(t,globals()[name+'_obliq'],label=name,color = "C0",alpha=0.1)
+                ax0[1].plot(t,globals()[name+'_prec'],label=name,color = "C0",alpha=0.1)
+                ax0[2].plot(t,globals()[name+'_spin_rate'],label=name,color = "C0",alpha=0.1)
 
             ax0[0].set_title('Axial Obliquity')
             ax0[1].set_title('Axial Precession')
@@ -429,8 +411,9 @@ def spinny_plot_multiple():#sys_df,t_start,t_end): # takes a params dataframe wi
             fig0.tight_layout(rect=[0, 0.03, 1, 0.95]) 
 
             pdf.savefig(fig0)
-                       
-            # end of big for loop
+            
+            color += color + 1               
+        # end of "names" for loop
         
         ax2.legend()    
         fig2.tight_layout(rect=[0, 0.03, 1, 0.95])
@@ -441,9 +424,7 @@ def spinny_plot_multiple():#sys_df,t_start,t_end): # takes a params dataframe wi
         plt.close(fig2)
        
     return()
-    
-    
-spinny_plot_multiple()    
+
     
     
     
