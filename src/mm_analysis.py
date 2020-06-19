@@ -29,7 +29,6 @@ import sys
 def plots(sampler, parameters, objname, fit_scale, float_names):
 			# Here parameters is whatever file/object will have the run params
 	flatchain = sampler.get_chain(flat = True)
-	print('flatchain1: ', type(flatchain))
 	fit = []
 
 	for i in fit_scale.columns:
@@ -41,11 +40,12 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 	for i in range(len(flatchain)):
 		row = []
 		for j in range(len(flatchain[0])):
-			row.append(flatchain[i][j]*fit[j])
+			val = flatchain[i][j]*fit[j]
+			row.append(val)
 		fchain[i] = row
 
 	flatchain = np.array(fchain)
-	print('flatchain2: ', type(flatchain))
+
 	chain = sampler.get_chain(flat = False)
 	# First start by converting the paramaters into an array of strings
 	# code here
@@ -55,13 +55,13 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 
 	fig = corner.corner(flatchain, bins = 40, labels = names, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
-			    title_fmt = ".4f")
+			    title_fmt = ".4e")
 	fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
 	for ax in fig.get_axes():
 		ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
-		fname = "../results/"+objname+"/corner.pdf"       
-		fig.savefig(fname, format = 'pdf')
-
+	fname = "../results/"+objname+"/corner.pdf"       
+	fig.savefig(fname, format = 'pdf')
+	plt.close("all")
 	
 	# Now make the walker plots
 	numparams = chain.shape[2]
@@ -73,7 +73,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 			plt.plot(np.reshape(chain[0:numgens,j,i], numgens))
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
-		plt.savefig
+		plt.savefig("../results/"+objname+"/walker_"+names[i]+".png")
 		plt.close()
 
 	# Likelihood plots
@@ -95,7 +95,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 		plt.subplot(224)
 		plt.hist(llhoods.flatten(), bins = 40, orientation = "horizontal", 
 			 histtype = "step", color = "black")
-		fig.savefig("../results/"+objname+"/likelihood.pdf", format = 'pdf')
+		plt.savefig("../results/"+objname+"/likelihood.pdf", format = 'pdf')
 		plt.close("all")
 
 def auto_window(taus, c):
@@ -145,8 +145,8 @@ def autocorrelation(sampler, objname, filename = "", thin = 1):
 
 	if ncols > ndims:
 		ncols = ndims
-	# Plotting
-	print(ncols, nrows)    
+	return np.mean(sampler.get_autocorr_time(quiet = True))
+'''   
 	fig, ax = plt.subplots(nrows = nrows, ncols = ncols, sharey=True, 
 			       gridspec_kw={'wspace': 0},
 			       figsize = (6.4*(ncols),4.8*(nrows)), 
@@ -164,5 +164,4 @@ def autocorrelation(sampler, objname, filename = "", thin = 1):
 			line = ax[i,j].plot(N, N / 50.0, "--k", label=r"$\tau = N/50$")
 	fname = "../results/"+objname+"/autocorr" + filename + ".png"
 	fig.savefig(fname, format='png')
-
-	return np.mean(sampler.get_autocorr_time(quiet = True))
+'''

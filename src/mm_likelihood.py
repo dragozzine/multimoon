@@ -99,8 +99,10 @@ def mm_chisquare(paramdf, obsdf, runprops):
 
     time_arr = np.sort(obsdf['time'].values.flatten()) # gets an array of observation times from the obs dataframe
                                                        # Sorts them into ascending order
-
-    vec_df = generate_vector(paramdf, time_arr)
+    try:
+        vec_df = generate_vector(paramdf, time_arr)
+    except:
+        return np.inf
 
     names=[0 for i in range(numObj)]
     for i in range(0,numObj):
