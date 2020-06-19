@@ -29,23 +29,26 @@ def from_param_df_to_fit_array(dataframe, runprops):
     key_list = list(fix_float_dict.keys()) 
     val_list = list(fix_float_dict.values())
     
-    fixed_df = pd.DataFrame()
+    fixed_df = pd.DataFrame(index = range(len(dataframe.index)))
     float_df = pd.DataFrame()
     float_names = []
     num = 0
-    #Split the fixed and floating values into seperate dataframes
-    for col in dataframe.columns:
-        #If the value is fixed
-        name = col[0]
-        if fix_float_dict.get(col[0]) == 0:
-            fixed_df[name] = dataframe[col]
-        #If the value is floating
-        elif fix_float_dict.get(col[0]) == 1:
-            float_df[name] = dataframe[col]
-            float_names.append(name)
-        num = num+1
-    
-    float_arr = float_df.to_numpy()
+    float_array = np.array([])
+    if len(key_list) == 0:
+        float_array = dataframe.to_numpy()
+    else:
+        #Split the fixed and floating values into seperate dataframes
+        for col in dataframe.columns:
+            #If the value is fixed
+            name = col[0]
+            if fix_float_dict.get(col[0]) == 0:
+                fixed_df[name] = dataframe[col]
+            #If the value is floating
+            elif fix_float_dict.get(col[0]) == 1:
+                float_df[name] = dataframe[col]
+                float_names.append(name)
+            num = num+1
+        float_arr = float_df.to_numpy()
     
     for col in fit_scale.columns:
         fit_scale.rename(columns={col: col[0]}, inplace=True)
@@ -71,24 +74,27 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
     float_df = pd.DataFrame(data = [float_array],index = Index, columns = float_names)
     
     param_df = pd.DataFrame()
+    if len(fixed_df) == 0:
+        param_df = float_df
+    else:
     #Recombine the float and fixed dataframes
-    for i in total_df_names:
-        name = i[0]
-        if name in fixed_df:
-            value = fixed_df[name].values
-            param_df[name] = value
-        elif name in float_df:
-            value = float_df[name].values
-            param_df[name] = value
+        for i in total_df_names:
+            name = i[0]
+            if name in fixed_df:
+                value = fixed_df[name].values
+                param_df[name] = value
+            elif name in float_df:
+                value = float_df[name].values
+                param_df[name] = value
     
-    names_df = pd.DataFrame.from_dict(names_dict,orient='index')
-    names_df = names_df.transpose()
+        names_df = pd.DataFrame.from_dict(names_dict,orient='index')
+        names_df = names_df.transpose()
     
-    for col in names_df.columns:
-        param_df[col] = names_df[col][0]
+        for col in names_df.columns:
+            param_df[col] = names_df[col][0]
     
-    #Now unfit all of the variables by multipliyng each column by its fit variable.
-    for col in fit_scale.columns:
-        param_df[col[0]] = param_df[col[0]]*fit_scale[col]
+        #Now unfit all of the variables by multipliyng each column by its fit variable.
+        for col in fit_scale.columns:
+            param_df[col[0]] = param_df[col[0]]*fit_scale[col]
 
     return param_df
