@@ -1,12 +1,13 @@
 from spinny_generate import *
 from spinny_nosun import *
 from keplerian import *
+from spinny_plots import *
 import numpy as np
 import time
 from time import ctime
 import pandas as pd
 import sys
-sys.path.append("..")
+sys.path.insert(1,"..")
 import mm_runprops
 runprops = mm_runprops.runprops
 
@@ -14,8 +15,6 @@ def generate_vector(paramsdf, t_arr):
     global G
     G = 6.674e-20 # Gravitational constant in km
     
-    # need to rearrange the paramsdf into a shape that is easier for SPINNY to read?
-    # TODO: Update this for when I know what the params dataframe looks like
     sys_df = paramsdf
     runprops = mm_runprops.runprops
     
@@ -31,8 +30,7 @@ def generate_vector(paramsdf, t_arr):
             j2s.append(sys_df[col].iloc[0])
     
     j2_sum = sum(j2s)
-    #j2_sum = sum(sys_df.loc["j2r2",:].values.flatten())
-    
+
     masses = []
     for col in sys_df.columns:
         if 'mass' in col:
@@ -63,7 +61,7 @@ def generate_vector(paramsdf, t_arr):
         names = spinny[2]
         
 
-    # creates a new dataframe using just x,y,z position for each body
+    # creates a new dataframe using x,y,z position and velocity for each body
     data = {"Times":t_arr}
     
     for name in names:
@@ -234,8 +232,82 @@ def build_spinny_multimoon(sys_df):
         
     return(N, names_arr, phys_arr, orb_arr, spin_arr, quat_arr)            
             
-            
-            
-            
-            
+"""
+spinny_output takes paramaters from the fitter and generates dataframe and plots of orbits, orbital parameters, and spin parameters over a specified period of time
+
+The function returns a dataframe with all the bodies' orbital and spin parameters at each time step
+
+## Future to do:
+    - Flags passed through to specify which plots will be generated
+    - Overplotting of multiple system models at once
+    - Possibly add ability to create 3D VPython models?
+    - Print out fractional change in energy/momentum if verbose flag?
+""" 
+def spinny_output(sys_df,t_start,t_end):
+    
+    runprops = mm_runprops.runprops
+    
+    t_arr = np.linspace(t_start,t_end,2000) # start and end times should be in SECONDS after a specified epoch
+                                            # TODO: add code to adjust sampling rate for any given system   
+    tol = runprops.get("spinny_tolerance")
+    includesun = runprops.get("includesun")
+        
+    N = runprops.get("numobjects") # total number of objects in the system
+    T = len(t_arr)                 # number of observation times
+
+    j2s = []
+    for col in sys_df.columns:
+        if 'j2r2' in col:
+            j2s.append(sys_df[col].iloc[0])
+    
+    j2_sum = sum(j2s)
+    
+    masses = []
+    for col in sys_df.columns:
+        if 'mass' in col:
+            masses.append(sys_df[col].iloc[0])
+    mass_sum = sum(masses)
+    mass_primary = sys_df["mass_1"].iloc[0]
+    name_primary = sys_df["name_1"].iloc[0]
+    
+    if N == 2 and j2_sum == 0.00:  # checks if all objects are point masses, does keplerian integration instead
+        kepler_system = kepler_2body(sys_df,t_arr)
+        s_df = kepler_system[0]
+        names = kepler_system[1]
+
+    if mass_sum == mass_primary: #checks if only the primary has mass, all other bodies are massless
+        kepler_system = kepler_Nbody(sys_df,t_arr)
+        s_df = kepler_system[0]
+        names = kepler_system[1]
+        
+    elif not "name_0" in sys_df.columns and not includesun: # runs a SPINNY integration without the sun if not included  
+        system = build_spinny_multimoon(sys_df)
+        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol)
+        s_df = spinny[0]
+        names = spinny[2]
+        
+    else:                         # runs SPINNY with the sun included
+        system = build_spinny_multimoon(sys_df)
+        spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
+        s_df = spinny[0]
+        names = spinny[2]        
+    
+    print("Generating .csv...")
+    t_current = ctime().replace(" ","_")
+    filename = name_primary+"_SPINNY_"+t_current+".csv"
+    s_df.to_csv("../results/SPINNY-models/"+filename) ### I don't know if this path works--should save to results folder
+    
+    print("\n Generating figures...")
+    spinny_plot(s_df, names)
+
+    return(s_df)
+    
+
+    
+    
+    
+    
+    
+    
+
         
