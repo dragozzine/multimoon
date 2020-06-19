@@ -59,10 +59,17 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname):
 	# Assess the accuracy of the iat estimate
 	ngens = sampler.get_chain().shape[0]	
 	counter = 1
+	if ngens >= maxiter:
+		if verbose:
+			print("Maximum iterations has been reached, ending automated runs.")
+		return sampler, ngens/iat
 	while (50*iat > ngens):
 		if verbose:
 			print("Runnning the sampler for another ", initsteps, " steps")
-		state = sampler.run_mcmc(state, initsteps, progress = True)
+		moresteps = initsteps
+		if 2*initsteps >= maxiter:
+			moresteps = maxiter - initsteps
+		state = sampler.run_mcmc(state, moresteps, progress = True)
 		if verbose:
 			print(initsteps, " steps have been completed.")
 			print("Calculating the effective sample size.")
