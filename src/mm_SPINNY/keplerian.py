@@ -1,7 +1,7 @@
 import numpy as np
 import spiceypy as spice
 import pandas as pd
-from spinny_generate import vec2orb
+from spinny_generate import * 
 from time import ctime
 import time
 import matplotlib.pyplot as plt
@@ -96,7 +96,7 @@ def kepler_nbody(sys_df,t_arr): # runs Keplerian integrations for systems with O
     T = len(t_arr)
     
     N = runprops.get("numobjects")
-    names = [sys_df["name"+str(n)].iloc[0] for n in range(1,N)]
+    names = [sys_df["name_"+str(n)].iloc[0] for n in range(1,N)]
     mass_1 = sys_df["mass_1"].iloc[0]
 
     mu = G*mass_1 # compute the gravitational parameter for the system (only one body)

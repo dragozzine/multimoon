@@ -1,5 +1,4 @@
 from spinny import Spinny_System, Physical_Properties
-from spinny_plots import *
 from quaternion import *
 import spiceypy as spice
 import numpy as np
