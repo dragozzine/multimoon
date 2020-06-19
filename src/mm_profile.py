@@ -1,3 +1,8 @@
+# OR
+# python -m cProfile -o output.pstats mm_run.py
+# python gprof2dot.py -f pstats output.pstats | dot -Tpng -o profile.png
+# then look at profile.png
+
 import cProfile
 import pstats
 import io
