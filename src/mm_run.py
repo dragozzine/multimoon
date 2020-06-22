@@ -250,11 +250,11 @@ filename = "../results/" + runprops.get("objectname") + "/chain.h5"
 backend = emcee.backends.HDFBackend(filename)
 backend.reset(nwalkers, ndim)
 
-from schwimmbad import MultiPool
-pool = MultiPool()
+#from schwimmbad import MultiPool
+#pool = MultiPool()
 
 sampler = emcee.EnsembleSampler(nwalkers, ndim, 
-mm_likelihood.log_probability, pool=pool, backend=backend,
+mm_likelihood.log_probability, backend=backend,
     args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf))
 print('sampler created')
 #Starting the burnin
@@ -273,7 +273,6 @@ if verbose:
 #print('p0 going into the sampler is: \n', list(p0))
 state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
 sampler.reset()
-pool.close()
 # Now do the full run with essgoal and initial n steps
 
 nsteps = runprops.get("nsteps")
