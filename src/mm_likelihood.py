@@ -64,7 +64,7 @@ Outputs:
 1) The chi-squared number of the likelihood
 """
 # calculates the chi-square for parameters given observations
-def mm_chisquare(paramdf, obsdf, runprops):
+def mm_chisquare(paramdf, obsdf, runprops, gensynth = False):
 
     numObj = runprops.get("numobjects")
     verbose = runprops.get("verbose")
@@ -171,6 +171,13 @@ def mm_chisquare(paramdf, obsdf, runprops):
         # model delta long and delta lat
         # Put into model dataframe? 
 
+
+    # Outputting the Model_DeltaLong and Lat if gensynth flag is included in function call
+    # This was done by BP. PLEASE let me know if this breaks things
+    if gensynth:
+        if verbose:
+            print("Returning the Model_DeltaLong and Lat dataframes for use in synthetic astrometry.")
+        return Model_DeltaLong, Model_DeltaLat
 
     # Now we have model delta Long and delta Lat for each object and each time 
     rows = len(obsdf.iloc[0])

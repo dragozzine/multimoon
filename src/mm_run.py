@@ -65,6 +65,7 @@ import mm_relast
 import mm_autorun
 import mm_param
 import os
+os.environ["OMP_NUM_THREADS"] = "1"
 import mm_analysis
 
 # Read in the run props dictionary
@@ -249,9 +250,12 @@ filename = "../results/" + runprops.get("objectname") + "/chain.h5"
 backend = emcee.backends.HDFBackend(filename)
 backend.reset(nwalkers, ndim)
 
+#from schwimmbad import MultiPool
+#pool = MultiPool()
+
 sampler = emcee.EnsembleSampler(nwalkers, ndim, 
-	mm_likelihood.log_probability, backend=backend, 
-	args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf))
+mm_likelihood.log_probability, backend=backend,
+    args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf))
 print('sampler created')
 #Starting the burnin
 # BP TODO: autoburnin??
@@ -269,28 +273,27 @@ if verbose:
 #print('p0 going into the sampler is: \n', list(p0))
 state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
 sampler.reset()
-
 # Now do the full run with essgoal and initial n steps
 
 nsteps = runprops.get("nsteps")
 essgoal = runprops.get("essgoal")
 maxiter = runprops.get("maxiter")
 initsteps = runprops.get("nsteps")
-
+    
 sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname)
-
-# Once it's completed, we need to save the chain
+    
+    # Once it's completed, we need to save the chain
 chain = sampler.get_chain(thin = runprops.get("nthinning"))
 flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
-
+    
 print('Beginning mm_analysis plots')
-# make plots of MCMC results
+    # make plots of MCMC results
 
 mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names)
-#print('Beginning mm_analysis autocorrelation')
-#mm_analysis.autocorrelation(sampler, objname)
+    #print('Beginning mm_analysis autocorrelation')
+    #mm_analysis.autocorrelation(sampler, objname)
 
 
-# make other diagnostic plots
-# TODO: orbit astrometry plots
-# TODO: residual plots
+    # make other diagnostic plots
+    # TODO: orbit astrometry plots
+    # TODO: residual plots
