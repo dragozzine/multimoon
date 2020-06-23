@@ -175,7 +175,9 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
 
 
             spin_arr[n,t,0] = spin_orbit_angle 
-            spin_arr[n,t,1] = np.linalg.norm(s.get_spin(n)) # magnitude of spin vector (spin rate)
+            spin_rate = np.linalg.norm(s.get_spin(n)) # magnitude of spin vector
+            spin_arr[n,t,1] = ((2.0*np.pi)/spin_rate) / 3600.0 # spin period in hours
+
 
             # converts quaternion to euler angles, using ZXZ rotation sequence   
             euler_arr[n,t] = r_n.as_euler('ZXZ') #quat2euler(quat_n) 
@@ -255,7 +257,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
         body_dict.setdefault('longitude_'+name_arr[n],  180./np.pi*(euler_arr[n,:,2]) )
        
         body_dict.setdefault('spin_orbit_angle_'+name_arr[n], spin_arr[n,:,0])
-        body_dict.setdefault('spin_rate_'+name_arr[n],  spin_arr[n,:,1])
+        body_dict.setdefault('spin_period_'+name_arr[n],  spin_arr[n,:,1])
         
         body_dict.setdefault('Lx_'+name_arr[n], L_arr[:,0] )
         body_dict.setdefault('Ly_'+name_arr[n], L_arr[:,1] )
