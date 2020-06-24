@@ -51,8 +51,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 	# First start by converting the paramaters into an array of strings
 	# code here
 	names = []
-	for i in parameters:
-		names.append(i[0])
+	for i in float_names:
+		names.append(i)
 
 	fig = corner.corner(flatchain, bins = 40, labels = names, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
