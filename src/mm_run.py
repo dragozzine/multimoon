@@ -193,25 +193,11 @@ p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit
 ndim = len(p0[0])
 #we still do not have a constraints or fit scale defined
 
-# Check to see if geocentric_object_position.csv exists and if not creates it
-objname = runprops.get('objectname')
-if os.path.exists("../data/" + objname + "/geocentric_" + objname + "_position.csv") and verbose:
-	print("Object geocentric position file geocentric_" + objname + "_position.csv will be used")
-else:
-	if verbose:
-		print("No object geocentric position file exists. Creating new file.")
-	mm_make_geo_pos.mm_make_geo_pos(objname, start='2000-01-01', end='2040-01-01', step='10d')	# This is basically a function based on DS's makeHorFile
-	if verbose:
-		print("geocentric_" + objname + "_position.csv has been created")
-
-# Reads in th geocentric_object data file
-geocentric_object_positions = pd.read_csv("../data/" + objname + "/geocentric_" + objname + "_position.csv")
-
 # Now get observations data frame
 # DS TODO: take observations data frame from runprops
 obsdata = runprops.get('obsdata_file')
 
-obsDF = 0
+obsdf = 0
 if os.path.exists(obsdata):
 	if verbose:
 		print("Observational data file " + obsdata + " will be used")
@@ -221,19 +207,34 @@ else:
 		print("ERROR: No observational data file exists. Aborting run.")
 	sys.exit()
 
+# Check to see if geocentric_object_position.csv exists and if not creates it
+objname = runprops.get('objectname')
+if os.path.exists("../data/" + objname + "/geocentric_" + objname + "_position.csv") and verbose:
+	print("Object geocentric position file geocentric_" + objname + "_position.csv will be used")
+else:
+	if verbose:
+		print("No object geocentric position file exists. Creating new file.")
+	times = obsdf['time'].tolist()
+	mm_make_geo_pos.mm_make_geo_pos(objname, times)	# This is basically a function based on DS's makeHorFile
+	if verbose:
+		print("geocentric_" + objname + "_position.csv has been created")
+
+# Reads in th geocentric_object data file
+geo_obj_pos = pd.read_csv("../data/" + objname + "/geocentric_" + objname + "_position.csv")
+
 # Go through initial guesses and check that all walkers have finite posterior probability
 reset = 0
 maxreset = runprops.get("maxreset")
 
 print('Testing to see if initial params are valid')
 for i in range(nwalkers):  
-	llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf)
+	llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos)
 	while (llhood == -np.Inf):
 		# Resetting walker to be a random linear combination of two other walkers
 		# BP TODO: Test this to make sure it works...
 		p = random.random()
 		p0[i,:] = (p*p0[random.randrange(nwalkers),:] + (1-p)*p0[random.randrange(nwalkers),:])
-		llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf)
+		llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf,geo_obj_pos)
 		reset += 1
 		if reset > maxreset:
 			print("ERROR: Maximum number of resets has been reached, aborting run.")
@@ -255,7 +256,7 @@ backend.reset(nwalkers, ndim)
 
 sampler = emcee.EnsembleSampler(nwalkers, ndim, 
 mm_likelihood.log_probability, backend=backend,
-    args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf))
+    args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos))
 print('sampler created')
 #Starting the burnin
 # BP TODO: autoburnin??
