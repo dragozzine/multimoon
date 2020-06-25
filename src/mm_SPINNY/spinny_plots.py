@@ -90,18 +90,18 @@ def spinny_plot(plot_df, names):
                 fig2.suptitle(name+' System Orbits',fontsize=18,fontweight='bold')
                 
             fig1, ax1 = plt.subplots(3,2,sharex=True,figsize=(10,10))
-            fig0, ax0 = plt.subplots(3,1,sharex=True,figsize=(10,10))
+            fig0, ax0 = plt.subplots(4,1,sharex=True,figsize=(10,10))
 
             if t[-1] > 1000:
                 t = t/365.25
                 ax1[2,0].set_xlabel('Time (years)')
                 ax1[2,1].set_xlabel('Time (years)')
-                ax0[2].set_xlabel('Time (years)')
+                ax0[3].set_xlabel('Time (years)')
 
             else:
                 ax1[2,0].set_xlabel('Time (days)')
                 ax1[2,1].set_xlabel('Time (days)')
-                ax0[2].set_xlabel('Time (days)')
+                ax0[3].set_xlabel('Time (days)')
             
         ##### PLOTS THE ORBITAL PARAMETERS #####
             if name != name_prim: # exclude the primary
@@ -194,15 +194,17 @@ def spinny_plot(plot_df, names):
         
             ax0[0].plot(t,globals()[name+'_obliq'],label=name)
             ax0[1].plot(t,globals()[name+'_prec'],label=name)
-            ax0[2].plot(t,globals()[name+'_spin_period'],label=name)
+            ax0[2].plot(t,globals()[name+'_spin_angle'],label=name)
+            ax0[3].plot(t,globals()[name+'_spin_period'],label=name)
             
             ax0[0].set_title('Axial Obliquity')
             ax0[1].set_title('Axial Precession')
-            ax0[2].set_title('Spin Rate')
+            ax0[2].set_title('Spin–Orbit Angle')
+            ax0[3].set_title('Spin Period')
 
             ax0[0].set_ylabel('Degrees')
             ax0[1].set_ylabel('Degrees')
-            ax0[2].set_ylabel('Seconds$^{-1}$')
+            ax0[2].set_ylabel('Hours')
 
             ax0[0].ticklabel_format(useOffset=False,style='plain',axis='y')
             ax0[1].ticklabel_format(useOffset=False,style='plain',axis='y')
@@ -219,10 +221,10 @@ def spinny_plot(plot_df, names):
                        
             # end of for loop
             
-        percent_changeL = (L_tot[-1]-L_tot[0])/L_tot[0]
-        percent_changeE = (pE(t)[-1]-pE(t)[0])/pE(t)[0]
-        print("Fractional change in E: "+str(percent_changeE))
-        print("Fractional change in L: "+str(percent_changeL))
+        #percent_changeL = (L_tot[-1]-L_tot[0])/L_tot[0]
+        #percent_changeE = (pE(t)[-1]-pE(t)[0])/pE(t)[0]
+        #print("Fractional change in E: "+str(percent_changeE))
+        #print("Fractional change in L: "+str(percent_changeL))
         
         ax2.legend()    
         fig2.tight_layout(rect=[0, 0.03, 1, 0.95])
@@ -282,18 +284,18 @@ def spinny_plot_multiple(df_list,names,t_arr):#sys_df,t_start,t_end): # takes a 
                 fig2.suptitle(name+' System Orbits',fontsize=18,fontweight='bold')
                 
             fig1, ax1 = plt.subplots(3,2,sharex=True,figsize=(10,10))
-            fig0, ax0 = plt.subplots(3,1,sharex=True,figsize=(10,10))
+            fig0, ax0 = plt.subplots(4,1,sharex=True,figsize=(10,10))
 
             if t[-1] > 1000:
                 t = t/365.25
                 ax1[2,0].set_xlabel('Time (years)')
                 ax1[2,1].set_xlabel('Time (years)')
-                ax0[2].set_xlabel('Time (years)')
+                ax0[3].set_xlabel('Time (years)')
 
             else:
                 ax1[2,0].set_xlabel('Time (days)')
                 ax1[2,1].set_xlabel('Time (days)')
-                ax0[2].set_xlabel('Time (days)')
+                ax0[3].set_xlabel('Time (days)')
             
         ##### PLOTS THE ORBITAL PARAMETERS #####
             
@@ -400,23 +402,28 @@ def spinny_plot_multiple(df_list,names,t_arr):#sys_df,t_start,t_end): # takes a 
                 
                 ax0[0].plot(t,globals()[name+'_obliq'],color = "C"+str(color),alpha=0.3)
                 ax0[1].plot(t,globals()[name+'_prec'],color = "C"+str(color),alpha=0.3)
-                ax0[2].plot(t,globals()[name+'_spin_period'],color = "C"+str(color),alpha=0.3)
+                ax0[2].plot(t,globals()[name+'_spin_angle'],color = "C"+str(color),alpha=0.3)
+                ax0[3].plot(t,globals()[name+'_spin_period'],color = "C"+str(color),alpha=0.3)
 
             ax0[0].set_title('Axial Obliquity')
             ax0[1].set_title('Axial Precession')
-            ax0[2].set_title('Spin Rate')
+            ax0[2].set_title('Spin–Orbit Angle')
+            ax0[3].set_title('Spin Rate')
 
             ax0[0].set_ylabel('Degrees')
             ax0[1].set_ylabel('Degrees')
-            ax0[2].set_ylabel('Hours')
+            ax0[2].set_ylabel('Degrees')
+            ax0[3].set_ylabel('Hours')
 
             ax0[0].ticklabel_format(useOffset=False,style='plain',axis='y')
             ax0[1].ticklabel_format(useOffset=False,style='plain',axis='y')
             ax0[2].ticklabel_format(useOffset=False,style='plain',axis='y')
+            ax0[3].ticklabel_format(useOffset=False,style='plain',axis='y')
 
             ax0[0].grid()
             ax0[1].grid()
             ax0[2].grid()
+            ax0[3].grid()
 
             fig0.suptitle('Spin Parameters -- '+name,fontsize=18,fontweight='bold')
             fig0.tight_layout(rect=[0, 0.03, 1, 0.95]) 

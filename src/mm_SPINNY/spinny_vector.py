@@ -330,7 +330,7 @@ def spinny_output_multiple(sys_df,t_start,t_end): #sys_df should have multiple r
         df_list[i] = s_df
         
     spinny_plot_multiple(df_list,names,t_arr)
- 
+
     
     
     
