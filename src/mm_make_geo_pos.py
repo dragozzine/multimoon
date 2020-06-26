@@ -4,11 +4,11 @@ import pandas as pd
 from astropy.time import Time
 import time
 
-def mm_make_geo_pos(objname, start, end, step):
+def mm_make_geo_pos(objname, times):
     """This function takes a name of a solar system body(a KBO), and creates a csv file of the body's ephemerides"""
     starttime = time.time()
     
-    ourKBO = Horizons(id=objname,location=399,epochs = {'start':start,'stop':end,'step':step})
+    ourKBO = Horizons(id=objname,location=399,epochs = times)
     ephKBO = ourKBO.ephemerides()['RA','DEC','datetime_jd']
     vecKBO = ourKBO.vectors()['lighttime','x','y','z']
     

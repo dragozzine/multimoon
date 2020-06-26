@@ -24,7 +24,6 @@ import sys
           deltaLat - The difference in Latitude of the moon vs. it's primary KBO in arcseconds
 '''
 def convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos):
-    
      #Get the Cartesian positions of the Observer
     x1,y1,z1 = obs_to_prim_pos[0],obs_to_prim_pos[1],obs_to_prim_pos[2]
     
