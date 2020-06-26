@@ -23,7 +23,7 @@ runprops = getData.outProps()
 if runprops.get("first_run") == True:
     x = datetime.datetime.now()
 
-    date = str(x.strftime("%Y"))+"-"+str(x.strftime("%m"))+"-"+str(x.strftime("%d"))+"_"+str(x.strftime("%H"))+"-"+str(x.strftime("%M"))+"-"+str(x.strftime("%S"))
+    date = str(x.strftime("%Y"))+"-"+str(x.strftime("%m"))+"-"+str(x.strftime("%d"))+"_"+str(x.strftime("%H"))+"."+str(x.strftime("%M"))+"."+str(x.strftime("%S"))
     runprops["date"] = date
     runprops['first_run'] = False
     
