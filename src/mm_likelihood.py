@@ -174,7 +174,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         return Model_DeltaLong, Model_DeltaLat
 
     # Now we have model delta Long and delta Lat for each object and each time 
-    rows = len(obsdf.iloc[0])
+    rows = obsdf.shape[0]
 
     residuals = np.zeros((numObj*2, rows))
     get_residuals = runprops.get("get_resid")

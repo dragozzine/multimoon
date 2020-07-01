@@ -23,7 +23,7 @@ def mm_init_guess(runprops):
         distribution.
     """
     filename = runprops.get("init_filename")
-    start_guess_df = pd.read_csv(filename,sep='\t',index_col=0)
+    start_guess_df = pd.read_csv(filename,index_col=0)
     start_guess_df = start_guess_df.transpose()
     
     arrSet = start_guess_df.to_numpy()
