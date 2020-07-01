@@ -10,7 +10,12 @@ timeframe for when this might be needed can be listed.
 
 TODO
 
-Code that takes orbital angles in equatorial (RA/Dec) and calculate 
+Set up mm_run so that it can accept as an argument a filename for the desired runprops. 
+
+Test/Ensure that a single user can run the code multiple times simultaneously, even in the same directory, 
+without running into issues.
+
+Code that takes binary orbital angles in equatorial (RA/Dec) and calculate 
 what these would be in ecliptic (Long/Lat). Could potentially also do 
 the analytical calculation of the mirror degeneracy orbital angles as 
 well. (June)
@@ -19,7 +24,7 @@ Code that reads in entire Grundy database, but work with Grundy on
 this (to get proprietary data he's willing to share too). (August?)
 
 Update likelihood function to use outputs from nPSF. nPSF should 
-probably have an addition post-processing calculation that calculates 
+probably have an additional post-processing calculation that calculates 
 likelihoods on a grid and thinks ahead to how the likelihood for an 
 arbitrary value would be calculated.
 
@@ -36,6 +41,3 @@ significantly affect the mass/density estimate. Equal mass contact
 binaries at what separation would lead to a 10% offset? Analytical 
 estimates could be made based on Ragozzine & Wolf 2009 or Emelyanov 
 et al. 2009. 
-
-
-
