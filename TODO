@@ -20,6 +20,13 @@ what these would be in ecliptic (Long/Lat). Could potentially also do
 the analytical calculation of the mirror degeneracy orbital angles as 
 well. (June)
 
+Keep track (probably in runprops) of current best set of parameters and 
+log-likelihood and when a better log-likelihood is found, output to a 
+text file.
+
+Have a non-auto version that can be set with a flag that just runs it a 
+fixed number of times.
+
 Code that reads in entire Grundy database, but work with Grundy on 
 this (to get proprietary data he's willing to share too). (August?)
 
