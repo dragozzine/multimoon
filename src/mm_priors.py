@@ -42,7 +42,7 @@ def mm_priors(priors, parameters):
         if theInt == 0:
             if params[i][0] < priors[i][2] and params[i][0] > priors[i][1]:
                 allProbs.append(1)
-            elif np.isnan(x[count]):
+            elif np.isnan(params[i][0]):
                 numNaNs += 1
             else:
                 allProbs.append(0)
