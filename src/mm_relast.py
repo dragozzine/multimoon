@@ -44,6 +44,9 @@ def convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos):
     
     deltaLat = (latitude2-latitude1)
     deltaLong = (longitude2-longitude1)*np.cos(latitude1*u.degree)
+    #print('lon1', longitude1, '\nlon2', longitude2)
+    #print('lat1', latitude1, '\nlat2', latitude2)
+    #print('dlat', deltaLat, '\ndlon', deltaLong)
     
     return deltaLong*3600, deltaLat*3600
 

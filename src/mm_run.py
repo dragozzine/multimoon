@@ -229,6 +229,7 @@ maxreset = runprops.get("maxreset")
 print('Testing to see if initial params are valid')
 for i in range(nwalkers):  
 	llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos)
+	reset = 0
 	while (llhood == -np.Inf):
 		# Resetting walker to be a random linear combination of two other walkers
 		# BP TODO: Test this to make sure it works...
@@ -236,6 +237,7 @@ for i in range(nwalkers):
 		p0[i,:] = (p*p0[random.randrange(nwalkers),:] + (1-p)*p0[random.randrange(nwalkers),:])
 		llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf,geo_obj_pos)
 		reset += 1
+#		print(llhood)
 		if reset > maxreset:
 			print("ERROR: Maximum number of resets has been reached, aborting run.")
 			sys.exit() 
@@ -244,7 +246,7 @@ for i in range(nwalkers):
 # Begin MCMC
 p0 = list(p0)
 # Now creating the sampler object
-filename = "../results/" + runprops.get("objectname") + "/chain.h5"
+filename = "../runs/" + runprops.get("objectname") + "_" + runprops.get("date") + "/chain.h5"
 
 # BP TODO: make an option in runprops to start from the end of another run and just append it
 
