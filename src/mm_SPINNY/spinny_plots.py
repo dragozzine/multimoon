@@ -2,6 +2,8 @@ import numpy as np
 import time
 from time import ctime
 from quaternion import *
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from mpl_toolkits.mplot3d import Axes3D

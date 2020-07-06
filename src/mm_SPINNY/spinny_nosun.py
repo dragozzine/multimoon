@@ -4,6 +4,8 @@ from quaternion import *
 import spiceypy as spice
 import numpy as np
 import time
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd

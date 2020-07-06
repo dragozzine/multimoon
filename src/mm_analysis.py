@@ -16,10 +16,10 @@
 
 
 
-import corner
 import matplotlib
-matplotlib.use("Agg")
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import corner
 import numpy as np
 import emcee
 import sys
