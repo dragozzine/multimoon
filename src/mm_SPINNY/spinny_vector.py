@@ -73,7 +73,6 @@ def generate_vector(paramsdf, t_arr):
         data.setdefault("Z_Vel_"+name, s_df["Z_Vel_"+name])
         
     vec_df = pd.DataFrame(data)
-  
     return(vec_df)
             
 
@@ -230,7 +229,9 @@ def build_spinny_multimoon(sys_df):
 
         i = i+1
         
-    return(N, names_arr, phys_arr, orb_arr, spin_arr, quat_arr)            
+    return(N, names_arr, phys_arr, orb_arr, spin_arr, quat_arr)
+
+
             
 """
 spinny_output takes paramaters from the fitter and generates dataframe and plots of orbits, orbital parameters, and spin parameters over a specified period of time
@@ -286,7 +287,7 @@ def spinny_output(sys_df,t_start,t_end):
         s_df = spinny[0]
         names = spinny[2]
         
-    else:                         # runs SPINNY with the sun included
+    else:                         # runs SPINNY with the sun included (DOESN'T WORK YET)
         system = build_spinny_multimoon(sys_df)
         spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
         s_df = spinny[0]
@@ -294,6 +295,7 @@ def spinny_output(sys_df,t_start,t_end):
     
     print("Generating .csv...")
     t_current = ctime().replace(" ","_")
+    t_current = ctime().replace(":",".")
     filename = name_primary+"_SPINNY_"+t_current+".csv"
     s_df.to_csv("../results/SPINNY-models/"+filename) ### I don't know if this path works--should save to results folder
     
@@ -301,10 +303,34 @@ def spinny_output(sys_df,t_start,t_end):
     spinny_plot(s_df, names)
 
     return(s_df)
-    
 
+def spinny_output_multiple(sys_df,t_start,t_end): #sys_df should have multiple rows with different parameters
     
+    #sys_df = pd.read_csv("../data/spinny_test_data/mm_multiple_test.csv")
+    #t_start = 0.
+    #t_end = 60.*24.*3600.0
     
+    num_rows = len(sys_df.index) # total number of rows/models to generate
+    t_arr = np.linspace(t_start,t_end,2000)
+    tol = runprops.get("spinny_tolerance")
+    N = runprops.get("numobjects")
+    T = len(t_arr)     
+     
+    
+    df_list = ["0"]*num_rows
+    
+    for i in range(0,num_rows):
+        i_df = sys_df.iloc[[i]]
+        
+        system = build_spinny_multimoon(i_df)
+        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol)
+        s_df = spinny[0]
+        names = spinny[2]
+        
+        df_list[i] = s_df
+        
+    spinny_plot_multiple(df_list,names,t_arr)
+
     
     
     

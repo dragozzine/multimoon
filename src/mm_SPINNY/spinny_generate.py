@@ -1,5 +1,4 @@
 from spinny import Spinny_System, Physical_Properties
-from spinny_plots import *
 from quaternion import *
 import spiceypy as spice
 import numpy as np
@@ -134,7 +133,8 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr): # evolves the SPINNY system
         
         for n in range(0,N-1):
             
-            spin_arr[n,t] = np.linalg.norm(s.get_spin(n)) # magnitude of spin vector
+            spin_rate = np.linalg.norm(s.get_spin(n)) # magnitude of spin vector
+            spin_arr[n,t] = ((2.0*np.pi)/spin_rate) * 3600.0 # spin period in hours
             quat_n = s.get_quaternion(n) # quaternion, (qr, qi, qj, qk)
             euler_arr[n,t] = quat2euler(quat_n) # converts quaternion to euler angles, using ZXZ rotation sequence
             
@@ -193,7 +193,7 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr): # evolves the SPINNY system
         body_dict.setdefault('obliquity_'+name_arr[n+1],  180/np.pi*(euler_arr[n,:,1]) )
         body_dict.setdefault('longitude_'+name_arr[n+1],  180/np.pi*(euler_arr[n,:,2]) )
         
-        body_dict.setdefault('spin_rate_'+name_arr[n+1], spin_arr[n,:])
+        body_dict.setdefault('spin_period_'+name_arr[n+1], spin_arr[n,:])
                              
     spinny_df = pd.DataFrame(body_dict)
                                
