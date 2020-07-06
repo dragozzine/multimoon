@@ -4,6 +4,8 @@ import pandas as pd
 from spinny_generate import * 
 from time import ctime
 import time
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from mpl_toolkits.mplot3d import Axes3D
