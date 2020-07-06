@@ -8,9 +8,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 from scipy.spatial.transform import Rotation as R
-import mm_runprops
 
-runprops = mm_runprops.runprops
 ##### ALL UNITS SHOULD BE GIVEN IN km, sec, AND rad IN ORDER FOR THE COMPUTATIONS TO WORK
 
 global G
@@ -70,7 +68,7 @@ def vec2orb_ns(s,phys_objects,vec):  # converts a state vector to orbital parame
                             
 #### generate_system takes input from the dataframe and generates a 
 #### Physical_Properties class and SPINNY object for each body in the system
-def generate_system_ns(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr,tolerance):
+def generate_system_ns(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr,tolerance, runprops):
     
     # integration parameters
     #P = (2*np.pi)/np.sqrt(G*phys_arr[N-1,0]/(orb_arr[N-1,0]**3))
@@ -106,7 +104,7 @@ def generate_system_ns(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr,tolerance):
     return(s, phys_objects)
         
         
-def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY system to each time given in t_arr
+def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPINNY system to each time given in t_arr
     global T
 
     T = int(len(t_arr))
@@ -281,7 +279,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
                      
 """                          
 
-def build_spinny_ns(sys_df): 
+def build_spinny_ns(sys_df, runprops): 
     G = 6.67e-20 # Gravitational constant in km
     
     verbose = runprops.get('verbose')
@@ -418,13 +416,13 @@ def build_spinny_ns(sys_df):
     return(N, names, phys_arr, orb_arr, spin_arr, quat_arr)
     
     
-def evolve_spinny_ns(N, names, phys_arr, orb_arr, spin_arr, quat_arr, t_arr, tol):
+def evolve_spinny_ns(N, names, phys_arr, orb_arr, spin_arr, quat_arr, t_arr, tol, runprops):
     
     start_time = time.time()
-    s = generate_system_ns(N,names,phys_arr,orb_arr,spin_arr,quat_arr,tol)
+    s = generate_system_ns(N,names,phys_arr,orb_arr,spin_arr,quat_arr,tol, runprops)
     spinny = s[0]
     phys_arr = s[1]
-    s_df = spinny_integrate_ns(spinny, names, phys_arr,t_arr)
+    s_df = spinny_integrate_ns(spinny, names, phys_arr,t_arr, runprops)
     verbose = runprops.get('verbose')
     if verbose:
         print("Done.")

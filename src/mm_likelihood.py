@@ -101,7 +101,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     time_arr = np.sort(obsdf['time'].values.flatten()) # gets an array of observation times from the obs dataframe
                                                        # Sorts them into ascending order
     try:
-        vec_df = generate_vector(paramdf, time_arr)
+        vec_df = generate_vector(paramdf, time_arr, runprops)
     except:
         print('There was an error thrown within spinny')
         return np.inf

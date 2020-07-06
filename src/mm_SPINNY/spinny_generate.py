@@ -8,8 +8,6 @@ from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import sys
 sys.path.append("..")
-import mm_runprops
-runprops = mm_runprops.runprops
 
 ##### ALL UNITS SHOULD BE GIVEN IN km, sec, AND rad IN ORDER FOR THE COMPUTATIONS TO WORK
 
@@ -75,7 +73,7 @@ def vec2orb(s,phys_objects,vec):  # converts a state vector to orbital parameter
         
 #### generate_system takes input from the dataframe and generates a 
 #### Physical_Properties class and SPINNY object for each body in the system
-def generate_system(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr):
+def generate_system(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr, runprops):
     verbose = runprops.get("verbose")
     # integration parameters
     tol = 1e-11                          # integration tolerance

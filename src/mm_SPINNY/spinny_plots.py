@@ -7,8 +7,6 @@ from matplotlib.backends.backend_pdf import PdfPages
 from mpl_toolkits.mplot3d import Axes3D
 import sys
 sys.path.insert(1,"..")
-import mm_runprops
-runprops = mm_runprops.runprops
 
 import pandas as pd
 
