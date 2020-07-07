@@ -4,6 +4,8 @@ from quaternion import *
 import spiceypy as spice
 import numpy as np
 import time
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
@@ -151,7 +153,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
 
     for t in range(0,T):
         for n in range(0,N):
-            #print('quat_arr(n,t): ',quat_arr[n,t]) 
+            
             r_n = R.from_quat(quat_arr[n,t]) # convert quaternion to rotation
             obj_pole = r_n.apply([0.0,0.0,1.0],inverse=False) # get orientation of spin pole in world frame
             state = body_arr[t,(n*6):(n*6)+6] # get barycentric state vector for the body
@@ -175,7 +177,9 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
 
 
             spin_arr[n,t,0] = spin_orbit_angle 
-            spin_arr[n,t,1] = np.linalg.norm(s.get_spin(n)) # magnitude of spin vector (spin rate)
+            spin_rate = np.linalg.norm(s.get_spin(n)) # magnitude of spin vector
+            spin_arr[n,t,1] = ((2.0*np.pi)/spin_rate) / 3600.0 # spin period in hours
+
 
             # converts quaternion to euler angles, using ZXZ rotation sequence   
             euler_arr[n,t] = r_n.as_euler('ZXZ') #quat2euler(quat_n) 
@@ -255,7 +259,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr): # evolves the SPINNY 
         body_dict.setdefault('longitude_'+name_arr[n],  180./np.pi*(euler_arr[n,:,2]) )
        
         body_dict.setdefault('spin_orbit_angle_'+name_arr[n], spin_arr[n,:,0])
-        body_dict.setdefault('spin_rate_'+name_arr[n],  spin_arr[n,:,1])
+        body_dict.setdefault('spin_period_'+name_arr[n],  spin_arr[n,:,1])
         
         body_dict.setdefault('Lx_'+name_arr[n], L_arr[:,0] )
         body_dict.setdefault('Ly_'+name_arr[n], L_arr[:,1] )

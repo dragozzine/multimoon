@@ -16,13 +16,13 @@ Outputs:
 1) log_likelihood, the log likelihood of the parameters with the priors
 
 """
-def log_likelihood(params, obsdf, runprops):
+def log_likelihood(params, obsdf, runprops, geo_obj_pos):
     # assuming Gaussian independent observations log-likelihood = -1/2 * chisquare
 
     if runprops.get("get_resid"):
-        lh,residuals = mm_chisquare(params,obsdf, runprops)*-0.5
+        lh,residuals = mm_chisquare(params,obsdf, runprops, geo_obj_pos)*-0.5
     else:
-        lh = mm_chisquare(params,obsdf, runprops)*-0.5
+        lh = mm_chisquare(params,obsdf, runprops, geo_obj_pos)*-0.5
     
     return lh
 
@@ -38,7 +38,7 @@ Outputs:
 1) log_probability, the log_likelihood plus the priors, which is the total probability
 
 """
-def log_probability(float_params, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf):
+def log_probability(float_params, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos):
     
     #print('float_params read in from p0: \n',float_params)
     objname = runprops.get("objectname")
@@ -50,9 +50,10 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     
     params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict)
     lp = prior.mm_priors(priors,params)
+
     if not np.isfinite(lp):
         return -np.inf
-    return lp + log_likelihood(params, obsdf, runprops)
+    return lp + log_likelihood(params, obsdf, runprops, geo_obj_pos)
 
 
 """
@@ -64,7 +65,7 @@ Outputs:
 1) The chi-squared number of the likelihood
 """
 # calculates the chi-square for parameters given observations
-def mm_chisquare(paramdf, obsdf, runprops, gensynth = False):
+def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     numObj = runprops.get("numobjects")
     verbose = runprops.get("verbose")
@@ -102,11 +103,12 @@ def mm_chisquare(paramdf, obsdf, runprops, gensynth = False):
     try:
         vec_df = generate_vector(paramdf, time_arr)
     except:
+        print('There was an error thrown within spinny')
         return np.inf
-
+    names_dict = runprops.get("names_dict")
     names=[0 for i in range(numObj)]
     for i in range(0,numObj):
-        names[i] = paramdf["name_"+str(i+1)][0]
+        names[i] = names_dict.get("name_"+str(i+1))
         
         
     # vec_df is a dataframe with len(time_arr) rows and 
@@ -120,21 +122,17 @@ def mm_chisquare(paramdf, obsdf, runprops, gensynth = False):
     
     if (vec_df[name_1][0] != 0.0):
         print("Not primaricentric like I thought!")
-
-    Model_DeltaLong = pd.DataFrame(index = range(len(time_arr)),columns = names)
-    Model_DeltaLat = pd.DataFrame(index = range(len(time_arr)), columns = names)
-    Model_DeltaLong['time'] = time_arr
-    Model_DeltaLat['time'] = time_arr
     
-    for t in range(len(time_arr)):
-        # DS TODO: get relative positions out of vec_df
+    Model_DeltaLong = np.zeros((numObj-1,len(time_arr)))
+    Model_DeltaLat = np.zeros((numObj-1,len(time_arr)))
+    
 
-        positionData = pd.DataFrame()
-      
-        for i in range(0,numObj):
-            positionData[names[i]] = vec_df["X_Pos_"+names[i]]
-            positionData[names[i]] = vec_df["Y_Pos_"+names[i]]
-            positionData[names[i]] = vec_df["Z_Pos_"+names[i]]
+    positionData = np.zeros((numObj*3,len(time_arr)))
+        
+    for i in range(0,numObj):
+        positionData[3*i] = vec_df["X_Pos_"+names[i]]
+        positionData[3*i+1] = vec_df["Y_Pos_"+names[i]]
+        positionData[3*i+2] = vec_df["Z_Pos_"+names[i]]
 
         # tind = index/row number of vec_df corresponding to this time
         
@@ -143,20 +141,20 @@ def mm_chisquare(paramdf, obsdf, runprops, gensynth = False):
              # thisdx = vec_df[tind,"X_Pos_"+paramdf["name_"+str(object)] [ - X_Pos_1=0]
              # same for dy and dz
 
-        # which numbers do I want from the obsdf?
-
         # Implicitly assume that observer is close to geocenter (within ~0.01 AU)
         
         # obs_to_prim_pos = vectors of observer to primary
         # prim_to_sat__pos = vectors of primary to satellite
+
+    obs_to_prim_pos = [positionData[0]+geo_obj_pos['x'].tolist(),positionData[1]+geo_obj_pos['y'].tolist(),positionData[2]+geo_obj_pos['z'].tolist()]
+    for i in range(1,numObj):
+        prim_to_sat_pos = [positionData[i*3],positionData[i*3+1],positionData[i*3+2]]
+        Model_DeltaLong[i-1], Model_DeltaLat[i-1] = mm_relast.convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos)
         
-        obs_to_prim_pos = positionData[names[0]]
-        for i in range(1,numObj):
-            Model_DeltaLong[names[i]][t], Model_DeltaLat[names[i]][t] = mm_relast.convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, positionData[names[i]])
-        
+        #print('obs_to_prim', obs_to_prim_pos,'\nprim_to', prim_to_sat_pos)
+        #print('DeltaLong', Model_DeltaLong, '\nDeltaLat', Model_DeltaLat)
         # mm_relast
         
-
         # obs_to_prim_pos = vector position of the observer relative to the primary (in J2000 ecliptic frame)
           # input: numpy array of 3 values: x, y, z in units of km
           # comes from geocentric_object_position dataframe (defined in mm_run)
@@ -180,40 +178,38 @@ def mm_chisquare(paramdf, obsdf, runprops, gensynth = False):
         return Model_DeltaLong, Model_DeltaLat
 
     # Now we have model delta Long and delta Lat for each object and each time 
-    rows = len(obsdf.iloc[0])
-    chisquare = pd.DataFrame(columns = names, index = range(len(time_arr)))
-    residuals = pd.DataFrame(columns = names, index = range(len(time_arr)))
+    rows = obsdf.shape[0]
+
+    residuals = np.zeros(((numObj-1)*2, rows))
     get_residuals = runprops.get("get_resid")
 
     for i in range(rows):
         for j in range(1,numObj):
-            #Check to make sure that these column names exist in the obsdf
-            if not names[j] in Model_DeltaLong.columns:
-                print(names[j], " is missing from the DeltaLong dataframe. Aborting run.")
-                print(Model_DeltaLong)
-            elif not "DeltaLong_"+names[j] in obsdf.columns:
-                print("DeltaLong_",names[j], " is missing from the DeltaLong dataframe. Aborting run.")
-                print(obsdf)
-            elif not "DeltaLong_"+names[j]+"_err" in obsdf.columns:
-                print("DeltaLong_",names[j], "_err is missing from the obsdf dataframe. Aborting run.")
-                print(obsdf)
-            elif not names[j] in Model_DeltaLat.columns: 
-                print(names[j], " is missing from the DeltaLat dataframe. Aborting run.")
-                print(Model_DeltaLat)
-            elif not "DeltaLat_"+names[j] in obsdf.columns:
-                print("DeltaLat_",names[j], " is missing from the obs dataframe. Aborting run.")
-                print(obsdf)
-            elif not "DeltaLat_"+names[j]+"_err" in obsdf.columns:
-                print("DeltaLat_",names[j], "_err is missing from the obs dataframe. Aborting run.")
-                print(obsdf)
-                sys.exit()
+#            #Check to make sure that these column names exist in the obsdf
+#            if not names[j] in Model_DeltaLong.columns:
+#                print(names[j], " is missing from the DeltaLong dataframe. Aborting run.")
+#                print(Model_DeltaLong)
+#            elif not "DeltaLong_"+names[j] in obsdf.columns:
+#                print("DeltaLong_",names[j], " is missing from the DeltaLong dataframe. Aborting run.")
+#                print(obsdf)
+#            elif not "DeltaLong_"+names[j]+"_err" in obsdf.columns:
+#                print("DeltaLong_",names[j], "_err is missing from the obsdf dataframe. Aborting run.")
+#                print(obsdf)
+#            elif not names[j] in Model_DeltaLat.columns: 
+#                print(names[j], " is missing from the DeltaLat dataframe. Aborting run.")
+#                print(Model_DeltaLat)
+#            elif not "DeltaLat_"+names[j] in obsdf.columns:
+#                print("DeltaLat_",names[j], " is missing from the obs dataframe. Aborting run.")
+#                print(obsdf)
+#            elif not "DeltaLat_"+names[j]+"_err" in obsdf.columns:
+#                print("DeltaLat_",names[j], "_err is missing from the obs dataframe. Aborting run.")
+#                print(obsdf)
+#                sys.exit()
             
+            #print('DLon', Model_DeltaLong[j-1][i],'\n obs_Dlon', obsdf["DeltaLong_"+names[j]][i],'\nobs_DLon_Err', obsdf["DeltaLong_"+names[j]+"_err"][i])
+            residuals[2*(j-1)][i] = ((Model_DeltaLong[j-1][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])
+            residuals[2*(j-1)+1][i] = ((Model_DeltaLat[j-1][i]-obsdf["DeltaLat_"+names[j]][i])/obsdf["DeltaLat_"+names[j]+"_err"][i])
 
-            residuals[names[j]][i] = ((Model_DeltaLong[names[j]][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])**2
-            residuals[names[j]][i] = ((Model_DeltaLat[names[j]][i]-obsdf["DeltaLat_"+names[j]][i])/obsdf["DeltaLat_"+names[j]+"_err"][i])**2
-            chisquare[names[j]][i] = ((Model_DeltaLong[names[j]][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])**2
-            chisquare[names[j]][i] = ((Model_DeltaLat[names[j]][i]-obsdf["DeltaLat_"+names[j]][i])/obsdf["DeltaLat_"+names[j]+"_err"][i])**2
-        
                                       
     # Loop through obsdf and for each defined value of delta Long/Lat 
     # calculate chisquare = sum [ (model-obs)/err ] ^2 
@@ -221,12 +217,17 @@ def mm_chisquare(paramdf, obsdf, runprops, gensynth = False):
     # using the name of the object "Model_DeltaLong_Hiiaka" with "DeltaLong_Hiiaka" 
     # and "DeltaLong_Hiiaka_err"
     # AND throw an error if the names don't all line up right
+    chisquares = residuals**2
+    #print('residuals ',residuals)
     
-    chisq_tot = pd.DataFrame(columns = names, index = [0])
-    for i in range(1,numObj):
-        chisq_tot[names[i]]=chisquare[names[i]].sum()
+    chisq_tot = np.zeros(2*numObj)
+    for i in range(0,2*numObj-2):
+        chisq_tot[i]=np.nansum(chisquares[i])
         
-    chisquare_total = chisq_tot.sum(axis = 1, skipna = True)[0]
+    chisquare_total = np.nansum(chisq_tot)
+
+    if verbose:
+        print(chisquares, chisq_tot, chisquare_total)
 
     # return chisquare
     if get_residuals:
