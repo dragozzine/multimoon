@@ -99,6 +99,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
 		for j in range(numwalkers):
+			print('indices: ',i,j)
 			plt.hist(chain[:,j,i], bins = 40, histtype = "step",
 				color = "black",
 				alpha = 0.4, density = True)
