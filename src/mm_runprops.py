@@ -34,6 +34,14 @@ if runprops.get("first_run") == True:
     import shutil
     shutil.copy(filename, '../runs/'+newpath+'/runprops.txt')
     
+    obs = "../data/"+runprops.get("objectname")+"/"+runprops.get("objectname")+"_obs_df.csv"
+    priors = "../data/"+runprops.get("objectname")+"/"+runprops.get("objectname")+"_priors_df.csv"
+    init = "../data/"+runprops.get("objectname")+"/"+runprops.get("objectname")+"_init_guess.csv"
+    
+    shutil.copy(obs, '../runs/'+newpath+'/'+runprops.get("objectname")+'_obs_df.csv')
+    shutil.copy(priors, '../runs/'+newpath+'/'+runprops.get("objectname")+'_priors_df.csv')
+    shutil.copy(init, '../runs/'+newpath+'/'+runprops.get("objectname")+'_init_guess.csv')
+    
     runprops["init_filename"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_init_guess.csv"
     runprops["priors_filename"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_priors_df.csv"
     runprops["obsdata_file"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_obs_df.csv"
