@@ -31,12 +31,13 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 			# Here parameters is whatever file/object will have the run params
 	flatchain = sampler.get_chain(flat = True)
 	fit = []
-    
+
 	for i in fit_scale.columns:
 		if i[0] in float_names:
 			val = fit_scale[i][0]
 			fit.append(val)
-        
+
+#First fit the flatchain with the fit parameters    
 	fchain = [[0] * len(flatchain[0])] * len(flatchain)    
 	for i in range(len(flatchain)):
 		row = []
@@ -48,8 +49,23 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 	flatchain = np.array(fchain)
 
 	chain = sampler.get_chain(flat = False)
-	# First start by converting the paramaters into an array of strings
-	# code here
+
+#Now fit the chain 
+	cchain = [[[0] * len(chain[0][0])] * len(chain[0])] * len(chain)    
+	for i in range(len(cchain)):
+		for j in range(len(cchain[0])):
+			row = []
+			for k in range(len(cchain[0][0])):
+				val = chain[i][j][k]*fit[k]
+				row.append(val)
+#				print(val)
+#			print(row)
+			cchain[i][j] = row
+
+
+	cchain = np.array(cchain)
+	print('chain: ', len(chain), len(chain[0]), len(chain[0][0]), len(cchain), len(cchain[0]), len(cchain[0][0]))
+	print(chain[:,0,0], '\n',cchain[:,0,0],'\n',chain[:,1,0], '\n',cchain[:,1,0])
 	names = []
 	for i in float_names:
 		names.append(i)
@@ -83,7 +99,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
 		for j in range(numwalkers):
-			plt.hist(chain[:,j,i].flatten(), bins = 40, histtype = "step",
+			plt.hist(chain[:,j,i], bins = 40, histtype = "step",
 				color = "black",
 				alpha = 0.4, density = True)
 		plt.hist(chain[:,:,i].flatten(), bins = 40, histtype = "step", color = "black", density = True)
