@@ -98,7 +98,7 @@ paramnames = list(sum(list(guesses), ()))
 if len(dynamicstoincludeflags) != runprops.get("numobjects"):
     print("ERROR: Number of objects given in runprops.txt does not match the length of dynamicstoincludeflags")
     sys.exit()
-
+'''
 # Now checking each object sequentially
 for i in range(runprops.get("numobjects")):
     if i == 0:
@@ -186,7 +186,7 @@ if not includesun:
         sys.exit()
     
 #ndim is equal to the number of dimension, should this be equal to the number of columns of the init_guess array?
-
+'''
 # Convert the guesses into fitting units and place in numpy array
 p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit_array(guesses,runprops)
 
@@ -229,6 +229,7 @@ maxreset = runprops.get("maxreset")
 
 print('Testing to see if initial params are valid')
 for i in range(nwalkers):  
+	print(i)
 	llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos)
 	reset = 0
 	while (llhood == -np.Inf):
