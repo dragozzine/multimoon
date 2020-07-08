@@ -7,7 +7,7 @@
     "mm_initguess_which" : "get_init_guess_from_dist",
     "numobjects" : 2,
     "RunGoal" : "user puts their goal for this run here",
-    "objectname" : "Lempo",
+    "objectname" : "Haumea",
     "nwalkers" : 10,
     "nsteps" : 50,
     "nthinning" : 1,
@@ -15,7 +15,7 @@
     "essgoal" : 1,
     "maxiter" : 1,
     "spinny_tolerance": 1e-10,
-    "maxreset" : 200,
+    "maxreset" : 1000,
     "verbose" : false,
     "get_resid":false,
     "dynamicstoincludeflags" : "00",
@@ -23,8 +23,8 @@
     "startfromfile" : true,
     "names_dict" :
     {
-        "name_1": "Lempo",
-        "name_2": "Hiisi"
+        "name_1": "Haumea",
+        "name_2": "Hiiaka"
     },
     "float_dict" : 
     { 
