@@ -6,3 +6,4 @@ src/__pycache__
 build/
 *.so
 spinny.cpp
+.DS_Store
