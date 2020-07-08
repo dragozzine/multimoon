@@ -209,8 +209,9 @@ else:
 
 # Check to see if geocentric_object_position.csv exists and if not creates it
 objname = runprops.get('objectname')
-if os.path.exists("../data/" + objname + "/geocentric_" + objname + "_position.csv") and verbose:
-	print("Object geocentric position file geocentric_" + objname + "_position.csv will be used")
+if os.path.exists("../data/" + objname + "/geocentric_" + objname + "_position.csv"):
+	if verbose:
+		print("Object geocentric position file geocentric_" + objname + "_position.csv will be used")
 else:
 	if verbose:
 		print("No object geocentric position file exists. Creating new file.")
