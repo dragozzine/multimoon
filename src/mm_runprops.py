@@ -17,8 +17,7 @@ if len(sys.argv) > 1:
 elif sys.argv[0] == "mm_synth.py":
     filename = "runprops_gensynth.txt"
 else:
-#    filename = "../runs/runprops.txt"
-    filename = "runprops.txt"
+    filename = "../runs/runprops.txt"
     
 getData = ReadJson(filename)
 runprops = getData.outProps()
