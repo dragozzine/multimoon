@@ -115,6 +115,14 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 		plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/likelihood.pdf", format = 'pdf')
 		plt.close("all")
 
+	# Astrometry plots
+
+
+
+
+
+
+
 def auto_window(taus, c):
 	m = np.arange(len(taus)) < c * taus
 	if np.any(m):

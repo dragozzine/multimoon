@@ -48,7 +48,7 @@ getData= ReadJson(filename)
 runprops = getData.outProps()
 
 # Setting the observations data file
-runprops["obsdata_file"] = 
+runprops["obsdata_file"] = # TODO: insert observations file here
 
 # Package the parameters wanted into a guesses-like df
 
@@ -59,7 +59,6 @@ paramdf = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_d
 
 # Outputting model astrometry based on the params df
 Model_DeltaLong, Model_DeltaLat = mm_chisquare(paramdf, obdsf, runprops, gensynth = True)
-
 
 # Need to think about excluding data points where the secondary/tertiary/etc is aligned with the 
 # primary. In theory the fitter will have no problem fitting to this data, but it really isn't 
