@@ -59,12 +59,12 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 				val = chain[i][j][k]*fit[k]
 				cchain[i][j][k] = val
 #				print(val)
-			print('\ncchain ',cchain[i][j],'\nchain ', chain[i][j])
+#			print('\ncchain ',cchain[i][j],'\nchain ', chain[i][j])
 #			cchain[i][j] = row
 
 
 	cchain = np.array(cchain)
-	print('chain: ', len(chain), len(chain[0]), len(chain[0][0]), len(cchain), len(cchain[0]), len(cchain[0][0]))
+#	print('chain: ', len(chain), len(chain[0]), len(chain[0][0]), len(cchain), len(cchain[0]), len(cchain[0][0]))
 #	print(chain[:,0,0], '\n',cchain[:,0,0],'\n',chain[:,1,0], '\n',cchain[:,1,0])
 #	print(chain)
 	names = []
@@ -88,7 +88,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 	for i in range(numparams):
 		plt.figure()
 		for j in range(numwalkers):
-			plt.plot(np.reshape(chain[0:numgens,j,i], numgens))
+			plt.plot(np.reshape(chain[0:numgens,j,i]*fit[i], numgens))
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
 		plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/walker_"+names[i]+".png")
@@ -100,9 +100,9 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
 		for j in range(numwalkers):
-			print('indices: ',i,j)
-			print('chain: ',chain[:,j,i])
-			print('cchain: ',cchain[:,j,i])
+			#print('indices: ',i,j)
+			#print('chain: ',chain[:,j,i])
+			#print('cchain: ',cchain[:,j,i])
 			plt.hist(chain[:,j,i], bins = 40, histtype = "step",
 				color = "black",
 				alpha = 0.4, density = True)
@@ -116,7 +116,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 		plt.subplot(224)
 		plt.hist(llhoods.flatten(), bins = 40, orientation = "horizontal", 
 			 histtype = "step", color = "black")
-		plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/likelihood.pdf", format = 'pdf')
+		plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/likelihood_" + names[i] + ".png")
 		plt.close("all")
 
 	# Astrometry plots
