@@ -2,4 +2,6 @@
 *.pyc
 runs
 *.h5
-
+src/__pycache__
+build/
+*.so
