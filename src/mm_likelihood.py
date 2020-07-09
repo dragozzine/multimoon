@@ -69,8 +69,6 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     numObj = runprops.get("numobjects")
     verbose = runprops.get("verbose")
-    if verbose: 
-        print("verbose test works")
     pd.set_option('display.max_columns', None)
     names = []
     for i in range(1,numObj+1):
@@ -101,7 +99,8 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     time_arr = np.sort(obsdf['time'].values.flatten()) # gets an array of observation times from the obs dataframe
                                                        # Sorts them into ascending order
     try:
-        vec_df = generate_vector(paramdf, time_arr)
+        time_arr_sec = time_arr*86400
+        vec_df = generate_vector(paramdf, time_arr_sec)
     except:
         print('There was an error thrown within spinny')
         return np.inf
