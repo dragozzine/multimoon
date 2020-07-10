@@ -41,6 +41,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 	numparams = chain.shape[2]
 	numwalkers = chain.shape[1]
 	numgens = chain.shape[0]
+
 #	print(len(flatchain))
 #First fit the flatchain with the fit parameters    
 	fchain = np.zeros((numgens*numwalkers,numparams))    
@@ -50,6 +51,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 			val = flatchain[i][j]*fit[j]
 			row[j] = val
 		fchain[i] = row
+
 
 	print('flatchain',flatchain,len(flatchain), len(flatchain[0]),'fchain',fchain, len(fchain),len(fchain[0]))
 	flatchain = np.array(fchain)
@@ -68,6 +70,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 
 	cchain = np.array(cchain)
 	print('chain',chain,len(chain), len(chain[0]),'cchain',cchain, len(cchain),len(cchain[0]))
+
 	oldchain = chain
 	chain = cchain
 #	print(chain[:,0,0])
