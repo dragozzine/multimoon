@@ -34,14 +34,14 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
     
 	for i in fit_scale.columns:
 		if i[0] in float_names:
-			val = fit_scale[i][0]
+			val = fit_scale[i,0]
 			fit.append(val)
         
 	fchain = [[0] * len(flatchain[0])] * len(flatchain)    
 	for i in range(len(flatchain)):
 		row = []
 		for j in range(len(flatchain[0])):
-			val = flatchain[i][j]*fit[j]
+			val = flatchain[i,j]*fit[j]
 			row.append(val)
 		fchain[i] = row
 
