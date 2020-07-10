@@ -36,26 +36,30 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 		if i[0] in float_names:
 			val = fit_scale[i][0]
 			fit.append(val)
-
+            
+	chain = sampler.get_chain(flat = False)            
+	numparams = chain.shape[2]
+	numwalkers = chain.shape[1]
+	numgens = chain.shape[0]
+	print(len(flatchain))
 #First fit the flatchain with the fit parameters    
-	fchain = [[0] * len(flatchain[0])] * len(flatchain)    
-	for i in range(len(flatchain)):
+	fchain = np.zeros((numgens,numparams))    
+	for i in range(numgens):
 		row = []
-		for j in range(len(flatchain[0])):
+		for j in range(numparams):
 			val = flatchain[i][j]*fit[j]
 			row.append(val)
 		fchain[i] = row
 
+	print('flatchain',flatchain,'fchain',fchain)
 	flatchain = np.array(fchain)
 
-	chain = sampler.get_chain(flat = False)
-
 #Now fit the chain 
-	cchain = [[[0] * len(chain[0][0])] * len(chain[0])] * len(chain)    
-	for i in range(len(cchain)):
-		for j in range(len(cchain[0])):
+	cchain = np.zeros((numgens,numwalkers, numparams))    
+	for i in range(numgens):
+		for j in range(numwalkers):
 			row = []
-			for k in range(len(cchain[0][0])):
+			for k in range(numparams):
 				val = chain[i][j][k]*fit[k]
 				cchain[i][j][k] = val
 #				print(val)
@@ -64,9 +68,9 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 
 
 	cchain = np.array(cchain)
-#	print('chain: ', len(chain), len(chain[0]), len(chain[0][0]), len(cchain), len(cchain[0]), len(cchain[0][0]))
-#	print(chain[:,0,0], '\n',cchain[:,0,0],'\n',chain[:,1,0], '\n',cchain[:,1,0])
-#	print(chain)
+	oldchain = chain
+	chain = cchain
+#	print(chain[:,0,0])
 	names = []
 	for i in float_names:
 		names.append(i)
@@ -82,13 +86,10 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 	plt.close("all")
 	
 	# Now make the walker plots
-	numparams = chain.shape[2]
-	numwalkers = chain.shape[1]
-	numgens = chain.shape[0]
 	for i in range(numparams):
 		plt.figure()
 		for j in range(numwalkers):
-			plt.plot(np.reshape(chain[0:numgens,j,i]*fit[i], numgens))
+			plt.plot(np.reshape(chain[0:numgens,j,i], numgens))
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
 		plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/walker_"+names[i]+".png")
@@ -100,13 +101,12 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
 		for j in range(numwalkers):
-			#print('indices: ',i,j)
-			#print('chain: ',chain[:,j,i])
+			oldrow = oldchain[0:numgens,j,i]
+			newrow = chain[0:numgens,j,i]
+#			print('flatchain: ',flatchain[:,i].flatten(),'\nllhoods: ',llhoods.flatten())
 			#print('cchain: ',cchain[:,j,i])
-			plt.hist(chain[:,j,i], bins = 40, histtype = "step",
-				color = "black",
-				alpha = 0.4, density = True)
-		plt.hist(chain[:,:,i].flatten(), bins = 40, histtype = "step", color = "black", density = True)
+			plt.hist(oldrow, bins = 40, histtype = "step", color = "black", alpha = 0.4, density = True)
+		plt.hist(oldchain[0:numgens,0:numwalkers,i].flatten(), bins = 40, histtype = "step", color = "black", density = True)
 		plt.subplot(223)
 		plt.scatter(flatchain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
