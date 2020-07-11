@@ -109,8 +109,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 			oldrow = oldchain[0:numgens,j,i]
 			newrow = chain[0:numgens,j,i]
 			print(oldrow,newrow)
-			plt.hist(newrow, bins = 40, histtype = "step", color = "black", alpha = 0.4, density = True)
-		plt.hist(chain[0:numgens,0:numwalkers,i].flatten(), bins = 40, histtype = "step", color = "black", density = True)
+			plt.hist(oldrow, bins = 40, histtype = "step", color = "black", alpha = 0.4, density = True)
+		plt.hist(oldchain[0:numgens,0:numwalkers,i].flatten(), bins = 40, histtype = "step", color = "black", density = True)
 #		print('flatchain: ',flatchain.flatten())
 #		print('llhood: ',llhoods)
 		plt.subplot(223)
