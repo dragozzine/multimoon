@@ -53,7 +53,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 		fchain[i] = row
 
 
-	print('flatchain',flatchain,len(flatchain), len(flatchain[0]),'fchain',fchain, len(fchain),len(fchain[0]))
+#	print('flatchain',flatchain,len(flatchain), len(flatchain[0]),'fchain',fchain, len(fchain),len(fchain[0]))
 	flatchain = np.array(fchain)
 
 #Now fit the chain 
@@ -69,7 +69,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 #			cchain[i][j] = row
 
 	cchain = np.array(cchain)
-	print('chain',chain,len(chain), len(chain[0]),'cchain',cchain, len(cchain),len(cchain[0]))
+#	print('chain',chain,len(chain), len(chain[0]),'cchain',cchain, len(cchain),len(cchain[0]))
 
 	oldchain = chain
 	chain = cchain
@@ -108,7 +108,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 			print(j)
 			oldrow = oldchain[0:numgens,j,i]
 			newrow = chain[0:numgens,j,i]
-			print(oldrow,newrow)
+#			print(oldrow,newrow)
 			plt.hist(newrow, bins = 40, histtype = "step", color = "black", alpha = 0.4, density = True)
 		plt.hist(chain[0:numgens,0:numwalkers,i].flatten(), bins = 40, histtype = "step", color = "black", density = True)
 #		print('flatchain: ',flatchain.flatten())
