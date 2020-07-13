@@ -98,7 +98,7 @@ paramnames = list(sum(list(guesses), ()))
 if len(dynamicstoincludeflags) != runprops.get("numobjects"):
     print("ERROR: Number of objects given in runprops.txt does not match the length of dynamicstoincludeflags")
     sys.exit()
-
+'''
 # Now checking each object sequentially
 for i in range(runprops.get("numobjects")):
     if i == 0:
@@ -186,7 +186,7 @@ if not includesun:
         sys.exit()
     
 #ndim is equal to the number of dimension, should this be equal to the number of columns of the init_guess array?
-
+'''
 # Convert the guesses into fitting units and place in numpy array
 p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit_array(guesses,runprops)
 
@@ -209,8 +209,9 @@ else:
 
 # Check to see if geocentric_object_position.csv exists and if not creates it
 objname = runprops.get('objectname')
-if os.path.exists("../data/" + objname + "/geocentric_" + objname + "_position.csv") and verbose:
-	print("Object geocentric position file geocentric_" + objname + "_position.csv will be used")
+if os.path.exists("../data/" + objname + "/geocentric_" + objname + "_position.csv"):
+	if verbose:
+		print("Object geocentric position file geocentric_" + objname + "_position.csv will be used")
 else:
 	if verbose:
 		print("No object geocentric position file exists. Creating new file.")
@@ -228,7 +229,9 @@ maxreset = runprops.get("maxreset")
 
 print('Testing to see if initial params are valid')
 for i in range(nwalkers):  
+#	print(i)
 	llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos)
+	reset = 0
 	while (llhood == -np.Inf):
 		# Resetting walker to be a random linear combination of two other walkers
 		# BP TODO: Test this to make sure it works...
@@ -236,6 +239,7 @@ for i in range(nwalkers):
 		p0[i,:] = (p*p0[random.randrange(nwalkers),:] + (1-p)*p0[random.randrange(nwalkers),:])
 		llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf,geo_obj_pos)
 		reset += 1
+#		print(llhood)
 		if reset > maxreset:
 			print("ERROR: Maximum number of resets has been reached, aborting run.")
 			sys.exit() 
@@ -244,7 +248,7 @@ for i in range(nwalkers):
 # Begin MCMC
 p0 = list(p0)
 # Now creating the sampler object
-filename = "../results/" + runprops.get("objectname") + "/chain.h5"
+filename = "../runs/" + runprops.get("objectname") + "_" + runprops.get("date") + "/chain.h5"
 
 # BP TODO: make an option in runprops to start from the end of another run and just append it
 

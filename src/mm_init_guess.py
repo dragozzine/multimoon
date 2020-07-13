@@ -23,18 +23,19 @@ def mm_init_guess(runprops):
         distribution.
     """
     filename = runprops.get("init_filename")
+
     start_guess_df = pd.read_csv(filename,index_col=0)
     start_guess_df = start_guess_df.transpose()
     
     arrSet = start_guess_df.to_numpy()
 
-    
     nwalkers = runprops.get("nwalkers")
       
     # Some code to help us get the names for the columns.
     name_dict = {0:"Junk"}
     n = 0
     dist_arr = []
+
     for col in start_guess_df.columns:
         name_dict[n] = col
         infos = start_guess_df[col].to_numpy()
