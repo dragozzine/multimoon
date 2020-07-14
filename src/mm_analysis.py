@@ -42,8 +42,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 	numwalkers = chain.shape[1]
 	numgens = chain.shape[0]
 
-#	print(len(flatchain))
-#First fit the flatchain with the fit parameters    
+	#First fit the flatchain with the fit parameters    
 	fchain = np.zeros((numgens*numwalkers,numparams))    
 	for i in range(numgens*numwalkers):
 		row = np.zeros(numparams)
@@ -53,10 +52,10 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 		fchain[i] = row
 
 
-	print('flatchain',flatchain,len(flatchain), len(flatchain[0]),'fchain',fchain, len(fchain),len(fchain[0]))
 	flatchain = np.array(fchain)
 
-#Now fit the chain 
+
+	#Now fit the chain 
 	cchain = np.zeros((numgens,numwalkers, numparams))    
 	for i in range(numgens):
 		for j in range(numwalkers):
@@ -64,20 +63,17 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 			for k in range(numparams):
 				val = chain[i][j][k]*fit[k]
 				cchain[i][j][k] = val
-#				print(val)
-#			print('\ncchain ',cchain[i][j],'\nchain ', chain[i][j])
-#			cchain[i][j] = row
 
 	cchain = np.array(cchain)
-	print('chain',chain,len(chain), len(chain[0]),'cchain',cchain, len(cchain),len(cchain[0]))
 
 	oldchain = chain
 	chain = cchain
-#	print(chain[:,0,0])
 	names = []
 	for i in float_names:
 		names.append(i)
 
+
+	# Make corner plot
 	fig = corner.corner(flatchain, bins = 40, labels = names, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".4e")
@@ -103,16 +99,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
-		print(i)
-		for j in range(numwalkers):
-			print(j)
-			oldrow = oldchain[0:numgens,j,i]
-			newrow = chain[0:numgens,j,i]
-			print(oldrow,newrow)
-			plt.hist(oldrow*fit[i], bins = 40, histtype = "step", color = "black", alpha = 0.4, density = True)
-		plt.hist(oldchain[0:numgens,0:numwalkers,i].flatten()*fit[i], bins = 40, histtype = "step", color = "black", density = True)
-#		print('flatchain: ',flatchain.flatten())
-#		print('llhood: ',llhoods)
+
+		plt.hist(flatchain[:,i].flatten(), bins = 40, histtype = "step", color = "black")
 		plt.subplot(223)
 		plt.scatter(flatchain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
