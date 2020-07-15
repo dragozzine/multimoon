@@ -51,7 +51,6 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 			row[j] = val
 		fchain[i] = row
 
-
 	flatchain = np.array(fchain)
 
 
@@ -127,7 +126,6 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 	geo_obj_pos = mm_make_geo_pos(objname, times)
 	Model_DeltaLong, Model_DeltaLat = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 """
-
 
 
 
