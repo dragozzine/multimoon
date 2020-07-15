@@ -3,11 +3,12 @@
     "time": "now",
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
-    "numobjects" : 3,
+    "testcase_name": "2_keplerian",
+    "numobjects" : 2,
     "objectname" : "Haumea",
     "spinny_tolerance": 1e-10,
     "verbose" : true,
-    "dynamicstoincludeflags" : "000",
+    "dynamicstoincludeflags" : "00",
     "includesun" : 0,
     "names_dict" :
     {

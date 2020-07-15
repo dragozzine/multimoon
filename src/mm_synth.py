@@ -28,6 +28,7 @@ import h5py
 import random
 import json
 import os
+import shutil
 #import matplotlib
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -109,10 +110,14 @@ paramdf.columns = paramnames
 Model_DeltaLong, Model_DeltaLat = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 #positionData = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 
-
+cols = ["time","Lat_Prim","Long_Prim"]
 for i in range(1,nobjects):
 	obsdf["DeltaLat_" + objectnames[i]] = Model_DeltaLat[i-1]
 	obsdf["DeltaLong_" + objectnames[i]] = Model_DeltaLong[i-1]
+	cols.append("DeltaLat_" + objectnames[i])
+	cols.append("DeltaLong_" + objectnames[i])
+	cols.append("DeltaLat_" + objectnames[i] + "_err")
+	cols.append("DeltaLong_" + objectnames[i] + "_err")
 
 for i in range(obsdf.shape[0]):
 	row = obsdf.iloc[i,:]
@@ -122,8 +127,7 @@ for i in range(obsdf.shape[0]):
 		if np.isnan(row["DeltaLong_" + objectnames[j] + "_err"]):
 			obsdf.iloc[i,:]["DeltaLong_" + objectnames[j]] = np.nan
 
-
-print(obsdf)
+obsdf = obsdf.drop(labels = [col for col in obsdf if col not in cols], axis = 1)
 
 # Now plot it to check to see if it look okay
 x = np.empty((nobjects-1, obsdf.shape[0]))
@@ -141,9 +145,23 @@ for i in range(1,nobjects):
 	ye[i-1,:] = obsdf["DeltaLong_" + objectnames[i] + "_err"].values
 	plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = fmts[i-1])
 
-plt.show()
 plt.axis('equal')
-plt.savefig("synthastrometry.png")
+
+# Saving things now
+savename = runprops.get("testcase_name")
+savedir = "../testcases/" + savename + "/"
+
+try:
+	os.mkdir(savedir)
+	if verbose:
+		print("Made directory to save testcase (" + savedir + ").")
+except FileExistsError:
+	if verbose:
+		print("directory already exists. Removing obsdf and .png files")
+	os.remove(savedir + "astrometry.png")
+	os.remove(savedir + "obsdf.csv")
+plt.savefig(savedir + "astrometry.png")
+obsdf.to_csv(savedir + "obsdf.csv")
 
 
 # Need to think about excluding data points where the secondary/tertiary/etc is aligned with the 

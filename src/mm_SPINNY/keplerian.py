@@ -11,15 +11,12 @@ from matplotlib.backends.backend_pdf import PdfPages
 from mpl_toolkits.mplot3d import Axes3D
 import sys
 sys.path.append("..")
-import mm_runprops
-runprops = mm_runprops.runprops
 
 # computes a two-body, Keplerian integration using spiceypy
-def kepler_2body(sys_df,t_arr):
+def kepler_2body(sys_df,t_arr, runprops):
     
     sys_df = sys_df.iloc[0]
     
-    runprops = mm_runprops.runprops
     verbose = runprops.get("verbose")
     
     G = 6.674e-20 # Gravitational constant in km
@@ -106,11 +103,10 @@ def kepler_2body(sys_df,t_arr):
     
     return(kepler_df, names)
     
-def kepler_nbody(sys_df,t_arr): # runs Keplerian integrations for systems with ONE massive body and N massless bodies
+def kepler_nbody(sys_df,t_arr, runprops): # runs Keplerian integrations for systems with ONE massive body and N massless bodies
         
     sys_df = sys_df.iloc[0]
     
-    runprops = mm_runprops.runprops
     verbose = runprops.get("verbose")
     
     G = 6.674e-20 # Gravitational constant in km
