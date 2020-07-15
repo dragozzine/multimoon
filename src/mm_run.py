@@ -294,7 +294,7 @@ flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
 print('Beginning mm_analysis plots')
     # make plots of MCMC results
 
-mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names)
+mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops)
     #print('Beginning mm_analysis autocorrelation')
     #mm_analysis.autocorrelation(sampler, objname)
 

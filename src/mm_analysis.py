@@ -27,7 +27,7 @@ from mm_runprops import runprops
 
 
 #chain = (nwalkers, nlink, ndim)
-def plots(sampler, parameters, objname, fit_scale, float_names):
+def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops):
 			# Here parameters is whatever file/object will have the run params
 	flatchain = sampler.get_chain(flat = True)
 	fit = []
@@ -50,7 +50,6 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 			val = flatchain[i][j]*fit[j]
 			row[j] = val
 		fchain[i] = row
-
 
 	flatchain = np.array(fchain)
 
@@ -113,9 +112,20 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 		plt.close("all")
 
 	# Astrometry plots
-
-
-
+"""	time_arr = obsdf['time'].values.flatten()
+	tmin = tim_arr.min()
+	tmax = tim_arr.max()
+	fakeobsdf = obsdf.loc[[1,2],:]
+	times = np.arange(tmin,tmax, 0.25)
+	for i in range(len(times)):
+		if i == 0 or i == 1:
+			fakeobsdf.iloc[i,0] = times[i]
+			# change row number?
+		fakeobsdf = fakeobsdf.append(fakedata.iloc[-1,:])
+		fakeobsdf.iloc[-1,0] = times[i]
+	geo_obj_pos = mm_make_geo_pos(objname, times)
+	Model_DeltaLong, Model_DeltaLat = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
+"""
 
 
 

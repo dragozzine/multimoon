@@ -11,7 +11,7 @@ timeframe for when this might be needed can be listed.
 TODO
 
 DS - Test/Ensure that a single user can run the code multiple times simultaneously, even in the same directory, 
-without running into issues.
+without running into issues. UPDATE: You can, and it works great.
 
 Code that takes binary orbital angles in equatorial (RA/Dec) and calculate 
 what these would be in ecliptic (Long/Lat). Could potentially also do 
