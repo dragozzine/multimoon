@@ -14,7 +14,6 @@ runprops = mm_runprops.runprops
 def generate_vector(paramsdf, t_arr):
     global G
     G = 6.674e-20 # Gravitational constant in km
-    
     sys_df = paramsdf
     runprops = mm_runprops.runprops
     
