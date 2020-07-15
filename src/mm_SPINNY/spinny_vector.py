@@ -12,7 +12,6 @@ sys.path.insert(1,"..")
 def generate_vector(paramsdf, t_arr, runprops):
     global G
     G = 6.674e-20 # Gravitational constant in km
-    
     sys_df = paramsdf
     
     tol = runprops.get("spinny_tolerance")
