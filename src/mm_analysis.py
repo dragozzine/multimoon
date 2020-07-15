@@ -23,7 +23,6 @@ import corner
 import numpy as np
 import emcee
 import sys
-from mm_runprops import runprops
 
 
 #chain = (nwalkers, nlink, ndim)
@@ -34,7 +33,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 
 	for i in fit_scale.columns:
 		if i[0] in float_names:
-			val = fit_scale[i][0]
+			val = fit_scale.loc[0, i]
 			fit.append(val)
             
 	chain = sampler.get_chain(flat = False)            
@@ -126,8 +125,6 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 	geo_obj_pos = mm_make_geo_pos(objname, times)
 	Model_DeltaLong, Model_DeltaLat = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 """
-
-
 
 
 def auto_window(taus, c):

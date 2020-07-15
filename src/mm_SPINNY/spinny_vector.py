@@ -8,15 +8,12 @@ from time import ctime
 import pandas as pd
 import sys
 sys.path.insert(1,"..")
-import mm_runprops
-runprops = mm_runprops.runprops
 
-def generate_vector(paramsdf, t_arr):
+def generate_vector(paramsdf, t_arr, runprops):
     global G
     G = 6.674e-20 # Gravitational constant in km
     
     sys_df = paramsdf
-    runprops = mm_runprops.runprops
     
     tol = runprops.get("spinny_tolerance")
     includesun = runprops.get("includesun")
@@ -52,14 +49,14 @@ def generate_vector(paramsdf, t_arr):
         names = kepler_system[1]
         
     elif not "name_0" in sys_df.columns and not includesun: # runs a SPINNY integration without the sun if not included  
-        system = build_spinny_multimoon(sys_df)
-        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol)
+        system = build_spinny_multimoon(sys_df, runprops)
+        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol, runprops)
         s_df = spinny[0]
         names = spinny[2]
         
     else:                         # runs SPINNY with the sun included
-        system = build_spinny_multimoon(sys_df)
-        spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
+        system = build_spinny_multimoon(sys_df, runprops)
+        spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr, runprops)
         s_df = spinny[0]
         names = spinny[2]
         
@@ -79,7 +76,7 @@ def generate_vector(paramsdf, t_arr):
     return(vec_df)
             
 
-def build_spinny_multimoon(sys_df): 
+def build_spinny_multimoon(sys_df, runprops): 
     verbose = runprops.get("verbose")
     if verbose:
         print("Reading file to dataframe...")
@@ -247,9 +244,8 @@ The function returns a dataframe with all the bodies' orbital and spin parameter
     - Possibly add ability to create 3D VPython models?
     - Print out fractional change in energy/momentum if verbose flag?
 """ 
-def spinny_output(sys_df,t_start,t_end):
+def spinny_output(sys_df,t_start,t_end, runprops):
     
-    runprops = mm_runprops.runprops
     
     t_arr = np.linspace(t_start,t_end,2000) # start and end times should be in SECONDS after a specified epoch
                                             # TODO: add code to adjust sampling rate for any given system   
@@ -285,14 +281,14 @@ def spinny_output(sys_df,t_start,t_end):
         names = kepler_system[1]
         
     elif not "name_0" in sys_df.columns and not includesun: # runs a SPINNY integration without the sun if not included  
-        system = build_spinny_multimoon(sys_df)
-        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol)
+        system = build_spinny_multimoon(sys_df, runprops)
+        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol, runprops)
         s_df = spinny[0]
         names = spinny[2]
         
     else:                         # runs SPINNY with the sun included (DOESN'T WORK YET)
-        system = build_spinny_multimoon(sys_df)
-        spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
+        system = build_spinny_multimoon(sys_df, runprops)
+        spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr, runprops)
         s_df = spinny[0]
         names = spinny[2]        
     
@@ -307,7 +303,7 @@ def spinny_output(sys_df,t_start,t_end):
 
     return(s_df)
 
-def spinny_output_multiple(sys_df,t_start,t_end): #sys_df should have multiple rows with different parameters
+def spinny_output_multiple(sys_df,t_start,t_end, runprops): #sys_df should have multiple rows with different parameters
     
     #sys_df = pd.read_csv("../data/spinny_test_data/mm_multiple_test.csv")
     #t_start = 0.
@@ -326,7 +322,7 @@ def spinny_output_multiple(sys_df,t_start,t_end): #sys_df should have multiple r
         i_df = sys_df.iloc[[i]]
         
         system = build_spinny_multimoon(i_df)
-        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol)
+        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol, runprops)
         s_df = spinny[0]
         names = spinny[2]
         
