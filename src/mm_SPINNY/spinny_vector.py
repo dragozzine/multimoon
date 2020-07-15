@@ -24,6 +24,9 @@ def generate_vector(paramsdf, t_arr):
     N = runprops.get("numobjects") # total number of objects in the system
     T = len(t_arr)                 # number of observation times
 
+    # Edit made by BP on 07/08/20: Please tell me if this breaks something!
+    t_arr = t_arr - t_arr[0]
+
     j2s = []
     for col in sys_df.columns:
         if 'j2r2' in col:

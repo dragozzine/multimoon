@@ -16,10 +16,10 @@
 
 
 
-import corner
 import matplotlib
-matplotlib.use("Agg")
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import corner
 import numpy as np
 import emcee
 import sys
@@ -27,33 +27,52 @@ from mm_runprops import runprops
 
 
 #chain = (nwalkers, nlink, ndim)
-def plots(sampler, parameters, objname, fit_scale, float_names):
+def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops):
 			# Here parameters is whatever file/object will have the run params
 	flatchain = sampler.get_chain(flat = True)
 	fit = []
-    
+
 	for i in fit_scale.columns:
 		if i[0] in float_names:
 			val = fit_scale[i][0]
 			fit.append(val)
-        
-	fchain = [[0] * len(flatchain[0])] * len(flatchain)    
-	for i in range(len(flatchain)):
-		row = []
-		for j in range(len(flatchain[0])):
+            
+	chain = sampler.get_chain(flat = False)            
+	numparams = chain.shape[2]
+	numwalkers = chain.shape[1]
+	numgens = chain.shape[0]
+
+	#First fit the flatchain with the fit parameters    
+	fchain = np.zeros((numgens*numwalkers,numparams))    
+	for i in range(numgens*numwalkers):
+		row = np.zeros(numparams)
+		for j in range(numparams):
 			val = flatchain[i][j]*fit[j]
-			row.append(val)
+			row[j] = val
 		fchain[i] = row
 
 	flatchain = np.array(fchain)
 
-	chain = sampler.get_chain(flat = False)
-	# First start by converting the paramaters into an array of strings
-	# code here
+
+	#Now fit the chain 
+	cchain = np.zeros((numgens,numwalkers, numparams))    
+	for i in range(numgens):
+		for j in range(numwalkers):
+			row = []
+			for k in range(numparams):
+				val = chain[i][j][k]*fit[k]
+				cchain[i][j][k] = val
+
+	cchain = np.array(cchain)
+
+	oldchain = chain
+	chain = cchain
 	names = []
 	for i in float_names:
 		names.append(i)
 
+
+	# Make corner plot
 	fig = corner.corner(flatchain, bins = 40, labels = names, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".4e")
@@ -65,9 +84,6 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 	plt.close("all")
 	
 	# Now make the walker plots
-	numparams = chain.shape[2]
-	numwalkers = chain.shape[1]
-	numgens = chain.shape[0]
 	for i in range(numparams):
 		plt.figure()
 		for j in range(numwalkers):
@@ -82,11 +98,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
-		for j in range(numwalkers):
-			plt.hist(chain[:,j,i].flatten(), bins = 40, histtype = "step",
-				color = "black",
-				alpha = 0.4, density = True)
-		plt.hist(chain[:,:,i].flatten(), bins = 40, histtype = "step", color = "black", density = True)
+		plt.hist(flatchain[:,i].flatten(), bins = 40, histtype = "step", color = "black")
 		plt.subplot(223)
 		plt.scatter(flatchain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
@@ -96,8 +108,27 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 		plt.subplot(224)
 		plt.hist(llhoods.flatten(), bins = 40, orientation = "horizontal", 
 			 histtype = "step", color = "black")
-		plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/likelihood.pdf", format = 'pdf')
+		plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/likelihood_" + names[i] + ".png")
 		plt.close("all")
+
+	# Astrometry plots
+"""	time_arr = obsdf['time'].values.flatten()
+	tmin = tim_arr.min()
+	tmax = tim_arr.max()
+	fakeobsdf = obsdf.loc[[1,2],:]
+	times = np.arange(tmin,tmax, 0.25)
+	for i in range(len(times)):
+		if i == 0 or i == 1:
+			fakeobsdf.iloc[i,0] = times[i]
+			# change row number?
+		fakeobsdf = fakeobsdf.append(fakedata.iloc[-1,:])
+		fakeobsdf.iloc[-1,0] = times[i]
+	geo_obj_pos = mm_make_geo_pos(objname, times)
+	Model_DeltaLong, Model_DeltaLat = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
+"""
+
+
+
 
 def auto_window(taus, c):
 	m = np.arange(len(taus)) < c * taus

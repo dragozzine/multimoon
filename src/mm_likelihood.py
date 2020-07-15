@@ -50,6 +50,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     
     params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict)
     lp = prior.mm_priors(priors,params)
+
     if not np.isfinite(lp):
         return -np.inf
     return lp + log_likelihood(params, obsdf, runprops, geo_obj_pos)
@@ -68,8 +69,6 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     numObj = runprops.get("numobjects")
     verbose = runprops.get("verbose")
-    if verbose: 
-        print("verbose test works")
     pd.set_option('display.max_columns', None)
     names = []
     for i in range(1,numObj+1):
@@ -100,8 +99,10 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     time_arr = np.sort(obsdf['time'].values.flatten()) # gets an array of observation times from the obs dataframe
                                                        # Sorts them into ascending order
     try:
-        vec_df = generate_vector(paramdf, time_arr)
+        time_arr_sec = time_arr*86400
+        vec_df = generate_vector(paramdf, time_arr_sec)
     except:
+        print('There was an error thrown within spinny')
         return np.inf
     names_dict = runprops.get("names_dict")
     names=[0 for i in range(numObj)]
@@ -121,8 +122,8 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     if (vec_df[name_1][0] != 0.0):
         print("Not primaricentric like I thought!")
     
-    Model_DeltaLong = np.zeros((numObj+1,len(time_arr)))
-    Model_DeltaLat = np.zeros((numObj+1,len(time_arr)))
+    Model_DeltaLong = np.zeros((numObj-1,len(time_arr)))
+    Model_DeltaLat = np.zeros((numObj-1,len(time_arr)))
     
 
     positionData = np.zeros((numObj*3,len(time_arr)))
@@ -147,8 +148,10 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     obs_to_prim_pos = [positionData[0]+geo_obj_pos['x'].tolist(),positionData[1]+geo_obj_pos['y'].tolist(),positionData[2]+geo_obj_pos['z'].tolist()]
     for i in range(1,numObj):
         prim_to_sat_pos = [positionData[i*3],positionData[i*3+1],positionData[i*3+2]]
-        Model_DeltaLong[i], Model_DeltaLat[i] = mm_relast.convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos)
-            
+        Model_DeltaLong[i-1], Model_DeltaLat[i-1] = mm_relast.convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos)
+        
+        #print('obs_to_prim', obs_to_prim_pos,'\nprim_to', prim_to_sat_pos)
+        #print('DeltaLong', Model_DeltaLong, '\nDeltaLat', Model_DeltaLat)
         # mm_relast
         
         # obs_to_prim_pos = vector position of the observer relative to the primary (in J2000 ecliptic frame)
@@ -176,7 +179,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     # Now we have model delta Long and delta Lat for each object and each time 
     rows = obsdf.shape[0]
 
-    residuals = np.zeros((numObj*2, rows))
+    residuals = np.zeros(((numObj-1)*2, rows))
     get_residuals = runprops.get("get_resid")
 
     for i in range(rows):
@@ -202,9 +205,9 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 #                print(obsdf)
 #                sys.exit()
             
-
-            residuals[2*j][i] = ((Model_DeltaLong[j][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])**2
-            residuals[2*j+1][i] = ((Model_DeltaLat[j][i]-obsdf["DeltaLat_"+names[j]][i])/obsdf["DeltaLat_"+names[j]+"_err"][i])**2
+            #print('DLon', Model_DeltaLong[j-1][i],'\n obs_Dlon', obsdf["DeltaLong_"+names[j]][i],'\nobs_DLon_Err', obsdf["DeltaLong_"+names[j]+"_err"][i])
+            residuals[2*(j-1)][i] = ((Model_DeltaLong[j-1][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])
+            residuals[2*(j-1)+1][i] = ((Model_DeltaLat[j-1][i]-obsdf["DeltaLat_"+names[j]][i])/obsdf["DeltaLat_"+names[j]+"_err"][i])
 
                                       
     # Loop through obsdf and for each defined value of delta Long/Lat 
@@ -213,15 +216,18 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     # using the name of the object "Model_DeltaLong_Hiiaka" with "DeltaLong_Hiiaka" 
     # and "DeltaLong_Hiiaka_err"
     # AND throw an error if the names don't all line up right
+    chisquares = residuals**2
+    #print('residuals ',residuals)
     
     chisq_tot = np.zeros(2*numObj)
     for i in range(0,2*numObj-2):
-        chisq_tot[i]=np.nansum(residuals[i])
+        chisq_tot[i]=np.nansum(chisquares[i])
         
     chisquare_total = np.nansum(chisq_tot)
 
     if verbose:
-        print(chisquare_total, residuals)
+        print(chisq_tot, chisquare_total, residuals)
+
 
     # return chisquare
     if get_residuals:

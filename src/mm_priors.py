@@ -42,7 +42,7 @@ def mm_priors(priors, parameters):
         if theInt == 0:
             if params[i][0] < priors[i][2] and params[i][0] > priors[i][1]:
                 allProbs.append(1)
-            elif np.isnan(x[count]):
+            elif np.isnan(params[i][0]):
                 numNaNs += 1
             else:
                 allProbs.append(0)
@@ -69,22 +69,23 @@ def mm_priors(priors, parameters):
             a = 1 #print('N/A input for column: ', i, ' in priors dataframe.') 
         
         #Make sure the values in the params df are real.
+        
         if 'mass' in i:
-            if params[i][0] < 0:
+            if i in params and params[i][0] < 0:
                 return -np.inf
         elif 'ecc' in i:
-            if params[i][0] < 0:
+            if i in params and params[i][0] < 0:
                 return -np.inf
-            elif params[i][0] > 1:
+            elif i in params and params[i][0] > 1:
                 return -np.inf
         elif 'sma' in i:
-            if params[i][0] < 0:
+            if i in params and params[i][0] < 0:
                 return -np.inf
         elif 'j2r2' in i:
-            if params[i][0] < 0:
+            if i in params and params[i][0] < 0:
                 return -np.inf      
         elif 'c22r2' in i:
-            if params[i][0] < 0:
+            if i in params and params[i][0] < 0:
                 return -np.inf      
                 
         #Here, add the Prior Probability Density function for this element to the total

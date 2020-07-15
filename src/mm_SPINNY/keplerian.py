@@ -4,6 +4,8 @@ import pandas as pd
 from spinny_generate import * 
 from time import ctime
 import time
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from mpl_toolkits.mplot3d import Axes3D
@@ -30,10 +32,10 @@ def kepler_2body(sys_df,t_arr):
     
     a2 = sys_df["sma_2"]
     e2 = sys_df["ecc_2"]
-    i2 = sys_df["inc_2"]
-    O2 = sys_df["lan_2"]
-    w2 = sys_df["aop_2"]
-    M2 = sys_df["mea_2"]
+    i2 = sys_df["inc_2"]*(np.pi/180.0)
+    O2 = sys_df["lan_2"]*(np.pi/180.0)
+    w2 = sys_df["aop_2"]*(np.pi/180.0)
+    M2 = sys_df["mea_2"]*(np.pi/180.0)
     p2 = a2*(1-e2) # perifocal distance
     
     T0 = t_arr[0] # epoch (seconds past J2000)
