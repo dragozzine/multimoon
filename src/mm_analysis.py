@@ -34,7 +34,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
     
 	for i in fit_scale.columns:
 		if i[0] in float_names:
-			val = fit_scale[i,0]
+			val = fit_scale.loc[0, i]
 			fit.append(val)
         
 	fchain = [[0] * len(flatchain[0])] * len(flatchain)    
