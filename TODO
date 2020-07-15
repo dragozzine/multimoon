@@ -15,7 +15,7 @@ Set up mm_run so that it can accept as an argument a filename for the desired ru
 Test/Ensure that a single user can run the code multiple times simultaneously, even in the same directory, 
 without running into issues.
 
-Code that takes binary orbital angles in equatorial (RA/Dec) and calculate 
+SP: Code that takes binary orbital angles in equatorial (RA/Dec) and calculate 
 what these would be in ecliptic (Long/Lat). Could potentially also do 
 the analytical calculation of the mirror degeneracy orbital angles as 
 well. (June)
