@@ -99,7 +99,6 @@ def plots(sampler, parameters, objname, fit_scale, float_names):
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
-
 		plt.hist(flatchain[:,i].flatten(), bins = 40, histtype = "step", color = "black")
 		plt.subplot(223)
 		plt.scatter(flatchain[:,i].flatten(), llhoods.flatten(),

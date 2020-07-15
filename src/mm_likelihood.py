@@ -226,11 +226,8 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     chisquare_total = np.nansum(chisq_tot)
 
     if verbose:
-<<<<<<< HEAD
         print(chisq_tot, chisquare_total, residuals)
-=======
-        print(chisquares, chisq_tot, chisquare_total)
->>>>>>> e3037d41a535e1a9dddff0e03f5869d3abb437d7
+
 
     # return chisquare
     if get_residuals:
