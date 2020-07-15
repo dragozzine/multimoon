@@ -39,12 +39,12 @@ def generate_vector(paramsdf, t_arr, runprops):
     mass_primary = sys_df["mass_1"].iloc[0]
     
     if N == 2 and j2_sum == 0.00:  # checks if all objects are point masses, does keplerian integration instead
-        kepler_system = kepler_2body(sys_df,t_arr)
+        kepler_system = kepler_2body(sys_df,t_arr, runprops)
         s_df = kepler_system[0]
         names = kepler_system[1]
 
     if mass_sum == mass_primary: #checks if only the primary has mass, all other bodies are massless
-        kepler_system = kepler_Nbody(sys_df,t_arr)
+        kepler_system = kepler_Nbody(sys_df,t_arr, runprops)
         s_df = kepler_system[0]
         names = kepler_system[1]
         
