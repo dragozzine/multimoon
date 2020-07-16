@@ -230,10 +230,6 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     if verbose:
         print(chisq_tot, chisquare_total, residuals)
-<<<<<<< HEAD
-=======
-
->>>>>>> 1c43d57d69e3c4af4a6edf3cbd08f56a4d0e521d
 
     # return chisquare
     if get_residuals:

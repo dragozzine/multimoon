@@ -46,8 +46,7 @@ def generate_vector(paramsdf, t_arr, runprops):
         kepler_system = kepler_Nbody(sys_df,t_arr, runprops)
         s_df = kepler_system[0]
         names = kepler_system[1]
-        
-<<<<<<< HEAD
+
     elif not includesun and N > 2: # runs a SPINNY integration without the sun if not included 
         system = build_spinny_multimoon(sys_df)
         spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol)
@@ -57,19 +56,9 @@ def generate_vector(paramsdf, t_arr, runprops):
     elif includesun and N > 2:                         # runs SPINNY with the sun included
         system = build_spinny_multimoon(sys_df)
         spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
-=======
-    elif not "name_0" in sys_df.columns and not includesun: # runs a SPINNY integration without the sun if not included  
-        system = build_spinny_multimoon(sys_df, runprops)
-        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol, runprops)
         s_df = spinny[0]
         names = spinny[2]
-        
-    else:                         # runs SPINNY with the sun included
-        system = build_spinny_multimoon(sys_df, runprops)
-        spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr, runprops)
->>>>>>> 1c43d57d69e3c4af4a6edf3cbd08f56a4d0e521d
-        s_df = spinny[0]
-        names = spinny[2]
+
       
     # creates a new dataframe using x,y,z position and velocity for each body
     data = {"Times":t_arr}
