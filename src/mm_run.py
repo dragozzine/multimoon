@@ -265,7 +265,7 @@ if __name__ == '__main__':
     backend = emcee.backends.HDFBackend(filename)
     backend.reset(nwalkers, ndim)
     
-    with Pool(32) as pool:
+    with Pool(runprops.get("numprocesses")) as pool:
     
         sampler = emcee.EnsembleSampler(nwalkers, ndim, 
         mm_likelihood.log_probability, backend=backend, pool = pool,
@@ -303,7 +303,7 @@ if __name__ == '__main__':
     print('Beginning mm_analysis plots')
         # make plots of MCMC results
     
-    mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names)
+    mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops)
         #print('Beginning mm_analysis autocorrelation')
         #mm_analysis.autocorrelation(sampler, objname)
     
@@ -533,4 +533,4 @@ def run():
     print('Beginning mm_analysis plots')
         # make plots of MCMC results
     
-    mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names)
+    mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops)
