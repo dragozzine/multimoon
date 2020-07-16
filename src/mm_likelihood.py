@@ -231,7 +231,6 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     if verbose:
         print(chisq_tot, chisquare_total, residuals)
 
-
     # return chisquare
     if get_residuals:
         return chisquare_total, residuals

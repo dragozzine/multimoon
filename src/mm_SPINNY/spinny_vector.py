@@ -36,7 +36,7 @@ def generate_vector(paramsdf, t_arr, runprops):
             masses.append(sys_df[col].iloc[0])
     mass_sum = sum(masses)
     mass_primary = sys_df["mass_1"].iloc[0]
-    
+   
     if N == 2 and j2_sum == 0.00:  # checks if all objects are point masses, does keplerian integration instead
         kepler_system = kepler_2body(sys_df,t_arr, runprops)
         s_df = kepler_system[0]
@@ -46,23 +46,22 @@ def generate_vector(paramsdf, t_arr, runprops):
         kepler_system = kepler_Nbody(sys_df,t_arr, runprops)
         s_df = kepler_system[0]
         names = kepler_system[1]
-        
-    elif not "name_0" in sys_df.columns and not includesun: # runs a SPINNY integration without the sun if not included  
-        system = build_spinny_multimoon(sys_df, runprops)
-        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol, runprops)
-        s_df = spinny[0]
-        names = spinny[2]
-        
-    else:                         # runs SPINNY with the sun included
-        system = build_spinny_multimoon(sys_df, runprops)
-        spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr, runprops)
-        s_df = spinny[0]
-        names = spinny[2]
-        
 
+    elif not includesun and N > 2: # runs a SPINNY integration without the sun if not included 
+        system = build_spinny_multimoon(sys_df)
+        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol)
+        s_df = spinny[0]
+        names = spinny[2]
+        
+    elif includesun and N > 2:                         # runs SPINNY with the sun included
+        system = build_spinny_multimoon(sys_df)
+        spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
+        s_df = spinny[0]
+        names = spinny[2]
+
+      
     # creates a new dataframe using x,y,z position and velocity for each body
     data = {"Times":t_arr}
-    
     for name in names:
         data.setdefault("X_Pos_"+name, s_df["X_Pos_"+name])
         data.setdefault("Y_Pos_"+name, s_df["Y_Pos_"+name])
@@ -70,7 +69,7 @@ def generate_vector(paramsdf, t_arr, runprops):
         data.setdefault("X_Vel_"+name, s_df["X_Vel_"+name])
         data.setdefault("Y_Vel_"+name, s_df["Y_Vel_"+name])
         data.setdefault("Z_Vel_"+name, s_df["Z_Vel_"+name])
-        
+    
     vec_df = pd.DataFrame(data)
     return(vec_df)
             
