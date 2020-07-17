@@ -8,3 +8,4 @@ build/
 spinny.cpp
 .DS_Store
 *.csv.save
+*.pyc

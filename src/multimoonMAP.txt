@@ -93,8 +93,7 @@ mm_priors.py
 1) log_prior
 Input: prior parameters dataframe in parameter-generation format, list of parameters in parameter format
 Output: log of the prior probability
-For now, just return 1
-Later: make this work correctly
+
 
 
 mm_params.py
@@ -110,7 +109,6 @@ param_to_fit_info dictionary
 each column name (e.g., parameter name like j2r2_2) in the parameter dataframe is a key and the associated value is
  - float: an index number for the value in the fit_array
  - fix: the value to be fixed at
- - constrain: Later: some way to figure out the constraint
 
 
 Takes a parameters dataframe and convert them to a fit array
@@ -244,6 +242,6 @@ sprate_1 - spin (angular) frequency of primary (rad/s)
 
 How to run MultiMoon-
 1) Prep = Setup RunProps dictionary
-2) mm_run.py runprops.json
+2) mm_run.py runprops.txt
 
 

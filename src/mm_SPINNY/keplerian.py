@@ -11,15 +11,12 @@ from matplotlib.backends.backend_pdf import PdfPages
 from mpl_toolkits.mplot3d import Axes3D
 import sys
 sys.path.append("..")
-import mm_runprops
-runprops = mm_runprops.runprops
 
 # computes a two-body, Keplerian integration using spiceypy
-def kepler_2body(sys_df,t_arr):
+def kepler_2body(sys_df,t_arr, runprops):
     
     sys_df = sys_df.iloc[0]
     
-    runprops = mm_runprops.runprops
     verbose = runprops.get("verbose")
     
     G = 6.674e-20 # Gravitational constant in km
@@ -90,20 +87,26 @@ def kepler_2body(sys_df,t_arr):
 
     body_dict.setdefault('sma_'+names[1] , orb_arr[:,0]/(1-orb_arr[:,1]))
     body_dict.setdefault('ecc_'+names[1] , orb_arr[:,1])
-    body_dict.setdefault('inc_'+names[1] , orb_arr[:,2])
-    body_dict.setdefault('lan_'+names[1] , orb_arr[:,3])
-    body_dict.setdefault('aop_'+names[1] , orb_arr[:,4])
-    body_dict.setdefault('mea_'+names[1] , orb_arr[:,5])
-
+    body_dict.setdefault('inc_'+names[1] , orb_arr[:,2]*(180.0/np.pi))
+    body_dict.setdefault('lan_'+names[1] , orb_arr[:,3]*(180.0/np.pi))
+    body_dict.setdefault('aop_'+names[1] , orb_arr[:,4]*(180.0/np.pi))
+    body_dict.setdefault('mea_'+names[1] , orb_arr[:,5]*(180.0/np.pi))
+    
+    body_dict.setdefault('X_Pos_'+names[0] , 0.0)
+    body_dict.setdefault('Y_Pos_'+names[0] , 0.0)
+    body_dict.setdefault('Z_Pos_'+names[0] , 0.0)
+    body_dict.setdefault('X_Vel_'+names[0] , 0.0)
+    body_dict.setdefault('Y_Vel_'+names[0] , 0.0)
+    body_dict.setdefault('Z_Vel_'+names[0] , 0.0)
+    
     kepler_df = pd.DataFrame(body_dict)
     
     return(kepler_df, names)
     
-def kepler_nbody(sys_df,t_arr): # runs Keplerian integrations for systems with ONE massive body and N massless bodies
+def kepler_nbody(sys_df,t_arr, runprops): # runs Keplerian integrations for systems with ONE massive body and N massless bodies
         
     sys_df = sys_df.iloc[0]
     
-    runprops = mm_runprops.runprops
     verbose = runprops.get("verbose")
     
     G = 6.674e-20 # Gravitational constant in km
