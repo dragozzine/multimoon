@@ -21,7 +21,7 @@ import time
     OUTPUTS:
           totalLogProb - The total Log of the probability of all the priors against the parameters
 '''
-def mm_priors(priors, parameters):
+def mm_priors(priors, parameters, runprops):
     params = parameters
     columnList = list(priors)
     totalLogProb = 0
@@ -89,6 +89,8 @@ def mm_priors(priors, parameters):
                 return -np.inf      
                 
         #Here, add the Prior Probability Density function for this element to the total
+    if runprops.get('verbose'):
+        print('AllProbs:' ,allProbs)
     for x in allProbs:
         totalLogProb = totalLogProb + np.log(x)
         
