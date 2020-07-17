@@ -7,3 +7,4 @@ build/
 *.so
 spinny.cpp
 .DS_Store
+*.pyc
