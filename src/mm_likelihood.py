@@ -209,6 +209,10 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
             residuals[2*(j-1)][i] = ((Model_DeltaLong[j-1][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])
             residuals[2*(j-1)+1][i] = ((Model_DeltaLat[j-1][i]-obsdf["DeltaLat_"+names[j]][i])/obsdf["DeltaLat_"+names[j]+"_err"][i])
 
+            if verbose:
+                print("i,j,model,obs,err")
+                print(i, j, Model_DeltaLong[j-1][i], obsdf["DeltaLong_"+names[j]][i], obsdf["DeltaLong_"+names[j]+"_err"][i])
+
                                       
     # Loop through obsdf and for each defined value of delta Long/Lat 
     # calculate chisquare = sum [ (model-obs)/err ] ^2 
@@ -226,6 +230,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     chisquare_total = np.nansum(chisq_tot)
 
     if verbose:
+        print("chisq_tot, chisquare_total, residuals")
         print(chisq_tot, chisquare_total, residuals)
 
 
