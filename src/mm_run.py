@@ -86,6 +86,7 @@ if __name__ == '__main__':
     
     
     runprops = mm_runprops.runprops
+    runprops['best_llhood'] = -np.inf
 
     verbose = runprops.get("verbose")
     nwalkers = runprops.get("nwalkers")
@@ -110,7 +111,7 @@ if __name__ == '__main__':
     if len(dynamicstoincludeflags) != runprops.get("numobjects"):
         print("ERROR: Number of objects given in runprops.txt does not match the length of dynamicstoincludeflags")
         sys.exit()
-    '''
+
 # Now checking each object sequentially
     for i in range(runprops.get("numobjects")):
         if i == 0:
@@ -198,7 +199,7 @@ if __name__ == '__main__':
             sys.exit()
         
     #ndim is equal to the number of dimension, should this be equal to the number of columns of the init_guess array?
-    '''    
+ 
     # Convert the guesses into fitting units and place in numpy array
     p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit_array(guesses,runprops)
     
@@ -300,6 +301,7 @@ if __name__ == '__main__':
     chain = sampler.get_chain(thin = runprops.get("nthinning"))
     flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
         
+    print(runprops)
     print('Beginning mm_analysis plots')
         # make plots of MCMC results
     
@@ -529,7 +531,7 @@ def run():
         # Once it's completed, we need to save the chain
     chain = sampler.get_chain(thin = runprops.get("nthinning"))
     flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
-        
+    
     print('Beginning mm_analysis plots')
         # make plots of MCMC results
     

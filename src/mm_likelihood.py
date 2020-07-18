@@ -52,10 +52,17 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     lp = prior.mm_priors(priors,params,runprops)
     if runprops.get('verbose'):
         print('LogPriors: ',lp)
-
+    
+    llhood = lp + log_likelihood(params, obsdf, runprops, geo_obj_pos)
+    
     if not np.isfinite(lp):
         return -np.inf
-    return lp + log_likelihood(params, obsdf, runprops, geo_obj_pos)
+    
+    if llhood > runprops.get("best_llhood"):
+        runprops['best_llhood'] = llhood
+        runprops['best_params'] = params
+
+    return llhood
 
 
 """
@@ -214,6 +221,10 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
             residuals[2*(j-1)][i] = ((Model_DeltaLong[j-1][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])
             residuals[2*(j-1)+1][i] = ((Model_DeltaLat[j-1][i]-obsdf["DeltaLat_"+names[j]][i])/obsdf["DeltaLat_"+names[j]+"_err"][i])
 
+            if verbose:
+                print("i,j,model,obs,err")
+                print(i, j, Model_DeltaLong[j-1][i], obsdf["DeltaLong_"+names[j]][i], obsdf["DeltaLong_"+names[j]+"_err"][i])
+
                                       
     # Loop through obsdf and for each defined value of delta Long/Lat 
     # calculate chisquare = sum [ (model-obs)/err ] ^2 
@@ -231,6 +242,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     chisquare_total = np.nansum(chisq_tot)
 
     if verbose:
+        print("chisq_tot, chisquare_total, residuals")
         print(chisq_tot, chisquare_total, residuals)
 
     # return chisquare
