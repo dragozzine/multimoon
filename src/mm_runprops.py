@@ -34,6 +34,7 @@ if runprops.get("first_run") == True:
     if not os.path.exists(newpath):
         os.makedirs(newpath)
     
+    runprops['runs_folder'] = newpath
     import shutil
     shutil.copy(filename, '../runs/'+newpath+'/runprops.txt')
     
