@@ -54,10 +54,10 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     if runprops.get('verbose'):
         print('LogPriors: ',lp)
     
-    llhood = lp + log_likelihood(params, obsdf, runprops, geo_obj_pos)
-    
     if not np.isfinite(lp):
         return -np.inf
+    
+    llhood = lp + log_likelihood(params, obsdf, runprops, geo_obj_pos)
     
     if llhood > best_llhoods.get("best_llhood") and runprops.get("is_mcmc") and runprops.get("updatebestfitfile") :
         print(best_llhoods.get('best_llhood'), llhood)
@@ -114,8 +114,8 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     # MultiMoon units are km, kg, deg, seconds
 
-
-    time_arr = np.sort(obsdf['time'].values.flatten()) # gets an array of observation times from the obs dataframe
+    obsdf = obsdf.sort_values(by=['time'])
+    time_arr = obsdf['time'].values.flatten() # gets an array of observation times from the obs dataframe
     
     # Sorts them into ascending order
     import logging 

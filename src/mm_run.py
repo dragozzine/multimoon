@@ -320,7 +320,7 @@ if __name__ == '__main__':
     chain = sampler.get_chain(thin = runprops.get("nthinning"))
     flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
         
-    print(runprops)
+    #print(runprops)
     print('Beginning mm_analysis plots')
         # make plots of MCMC results
     
@@ -476,8 +476,9 @@ def run():
     
     # Check to see if geocentric_object_position.csv exists and if not creates it
     objname = runprops.get('objectname')
-    if os.path.exists("../data/" + objname + "/geocentric_" + objname + "_position.csv") and verbose:
-        print("Object geocentric position file geocentric_" + objname + "_position.csv will be used")
+    if os.path.exists("../data/" + objname + "/geocentric_" + objname + "_position.csv"):
+        if verbose:
+            print("Object geocentric position file geocentric_" + objname + "_position.csv will be used")
     else:
         if verbose:
             print("No object geocentric position file exists. Creating new file.")
