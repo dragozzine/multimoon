@@ -7,6 +7,7 @@ sys.path.insert(1, 'mm_SPINNY/')
 from mm_SPINNY.spinny_vector import generate_vector
 import random
 import mm_relast
+from csv import writer
 
 """
 Inputs:
@@ -38,7 +39,7 @@ Outputs:
 1) log_probability, the log_likelihood plus the priors, which is the total probability
 
 """
-def log_probability(float_params, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos):
+def log_probability(float_params, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods):
     
     #print('float_params read in from p0: \n',float_params)
     objname = runprops.get("objectname")
@@ -52,15 +53,25 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     lp = prior.mm_priors(priors,params,runprops)
     if runprops.get('verbose'):
         print('LogPriors: ',lp)
-        
+
     if not np.isfinite(lp):
         return -np.inf
     
     llhood = lp + log_likelihood(params, obsdf, runprops, geo_obj_pos)
     
-    if llhood > runprops.get("best_llhood"):
-        runprops['best_llhood'] = llhood
-        runprops['best_params'] = params
+
+    if llhood > best_llhoods.get("best_llhood") and runprops.get("is_mcmc") and runprops.get("updatebestfitfile") :
+        print(best_llhoods.get('best_llhood'), llhood)
+        best_llhoods['best_llhood'] = llhood
+        best_llhoods['best_params'] = params.to_dict()
+        the_file = runprops.get('runs_folder') + '/best_likelihoods.csv'
+        with open(the_file, 'a+', newline='') as write_obj:
+            csv_writer = writer(write_obj)
+            thelist = params.head(1).values.tolist()[0]
+            thelist.insert(0, llhood)
+            for i in range(runprops.get('numobjects')):
+                thelist.pop()
+            csv_writer.writerow(thelist)
 
     return llhood
 
@@ -104,8 +115,8 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     # MultiMoon units are km, kg, deg, seconds
 
-
-    time_arr = np.sort(obsdf['time'].values.flatten()) # gets an array of observation times from the obs dataframe
+    obsdf = obsdf.sort_values(by=['time'])
+    time_arr = obsdf['time'].values.flatten() # gets an array of observation times from the obs dataframe
     
     # Sorts them into ascending order
     import logging 
