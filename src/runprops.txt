@@ -1,5 +1,7 @@
 {
     "first_run": true,
+    "test_case": true,
+    "test_name": "2_keplerian",
     "date": "today",
     "time": "now",
     "user": "autogenerate",

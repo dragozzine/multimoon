@@ -162,6 +162,7 @@ except FileExistsError:
 	os.remove(savedir + "obsdf.csv")
 plt.savefig(savedir + "astrometry.png")
 obsdf.to_csv(savedir + "obsdf.csv")
+shutil.copy("runprops_gensynth.txt", savedir)
 
 
 # Need to think about excluding data points where the secondary/tertiary/etc is aligned with the 

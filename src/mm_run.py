@@ -521,7 +521,7 @@ def run():
     backend = emcee.backends.HDFBackend(filename)
     backend.reset(nwalkers, ndim)
     
-    with Pool() as pool:
+    with Pool(runprops.get("numprocesses")) as pool:
     
         sampler = emcee.EnsembleSampler(nwalkers, ndim, 
         mm_likelihood.log_probability, backend=backend, pool = pool,
