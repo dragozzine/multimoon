@@ -50,25 +50,16 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     name_dict = runprops.get("names_dict")
     
     params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict)
-<<<<<<< HEAD
-    lp = prior.mm_priors(priors,params)
-    
-=======
+
     lp = prior.mm_priors(priors,params,runprops)
     if runprops.get('verbose'):
         print('LogPriors: ',lp)
 
->>>>>>> be6cde0c93029fd26c6a6f4097c4e688eaa78653
     if not np.isfinite(lp):
         return -np.inf
     
     llhood = lp + log_likelihood(params, obsdf, runprops, geo_obj_pos)
-    
-<<<<<<< HEAD
-    if llhood > runprops.get("best_llhood"):
-        runprops['best_llhood'] = llhood
-        runprops['best_params'] = params
-=======
+
 
     if llhood > best_llhoods.get("best_llhood") and runprops.get("is_mcmc") and runprops.get("updatebestfitfile") :
         if runprops.get('verbose'):
@@ -83,7 +74,6 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
             for i in range(runprops.get('numobjects')):
                 thelist.pop()
             csv_writer.writerow(thelist)
->>>>>>> be6cde0c93029fd26c6a6f4097c4e688eaa78653
 
     return llhood
 
