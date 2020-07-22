@@ -51,10 +51,10 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict)
     lp = prior.mm_priors(priors,params)
     
-    llhood = lp + log_likelihood(params, obsdf, runprops, geo_obj_pos)
-    
     if not np.isfinite(lp):
         return -np.inf
+    
+    llhood = lp + log_likelihood(params, obsdf, runprops, geo_obj_pos)
     
     if llhood > runprops.get("best_llhood"):
         runprops['best_llhood'] = llhood
