@@ -48,14 +48,14 @@ def generate_vector(paramsdf, t_arr, runprops):
         names = kepler_system[1]
 
     elif not includesun and N > 2: # runs a SPINNY integration without the sun if not included 
-        system = build_spinny_multimoon(sys_df)
-        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol)
+        system = build_spinny_multimoon(sys_df, runprops)
+        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol, runprops)
         s_df = spinny[0]
         names = spinny[2]
         
     elif includesun and N > 2:                         # runs SPINNY with the sun included
-        system = build_spinny_multimoon(sys_df)
-        spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
+        system = build_spinny_multimoon(sys_df, runprops)
+        spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr, runprops)
         s_df = spinny[0]
         names = spinny[2]
 

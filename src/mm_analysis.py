@@ -21,6 +21,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import corner
 import numpy as np
+import pandas as pd
 import emcee
 import sys
 
@@ -94,6 +95,28 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 
 	# Likelihood plots
 	llhoods = sampler.get_log_prob(flat = True)
+	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma'], index = names)
+	for i in range(len(flatchain[0])):        
+		median = np.percentile(flatchain[:,i],50, axis = None)
+		neg3sig= np.percentile(flatchain[:,i],0.37, axis = None)
+		neg2sig = np.percentile(flatchain[:,i],2.275, axis = None)
+		neg1sig = np.percentile(flatchain[:,i],15.866, axis = None)
+		pos1sig = np.percentile(flatchain[:,i],84.134, axis = None)
+		pos2sig = np.percentile(flatchain[:,i],97.724, axis = None)
+		pos3sig = np.percentile(flatchain[:,i],99.63, axis = None)
+		sigsdf['-3sigma'].iloc[i] = neg3sig
+		sigsdf['-2sigma'].iloc[i] = neg2sig
+		sigsdf['-1sigma'].iloc[i] = neg1sig
+		sigsdf['median'].iloc[i] = median
+		sigsdf['1sigma'].iloc[i] = pos1sig
+		sigsdf['2sigma'].iloc[i] = pos2sig
+		sigsdf['3sigma'].iloc[i] = pos3sig
+	#if runprops.get('verbose'):
+	print(sigsdf)
+	filename = runprops.get('runs_folder') + '/sigsdf.csv'    
+	sigsdf.to_csv(filename)
+    
+    
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
