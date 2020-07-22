@@ -11,13 +11,18 @@ import io
 pr = cProfile.Profile()
 pr.enable()
 
-import mm_run
+if __name__ == '__main__':
+    import mm_run
+    mm_run.run()
 
 pr.disable()
 import os, glob
 folder = max(glob.glob(os.path.join('../runs/', '*/')), key=os.path.getmtime)
 filename = folder+'profile.prof'
 pr.dump_stats(filename)
+
+pr.dump_stats('profile.prof')
+
 s1 = io.StringIO()
 ps1 = pstats.Stats(pr, stream=s1).sort_stats('cumtime')
 ps1.print_stats()

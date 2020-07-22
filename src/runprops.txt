@@ -51,5 +51,6 @@
         "spinc_1": 0,
         "splan_1": 0,
         "sprate_1": 0
-    }    
+    },
+    "best_llhood": 0
 }
