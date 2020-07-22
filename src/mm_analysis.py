@@ -111,7 +111,10 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 		sigsdf['1sigma'].iloc[i] = pos1sig
 		sigsdf['2sigma'].iloc[i] = pos2sig
 		sigsdf['3sigma'].iloc[i] = pos3sig
+	#if runprops.get('verbose'):
 	print(sigsdf)
+	filename = runprops.get('runs_folder') + '/sigsdf.csv'    
+	sigsdf.to_csv(filename)
     
     
 	for i in range(numparams):
