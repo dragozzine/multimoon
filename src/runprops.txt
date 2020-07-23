@@ -1,36 +1,33 @@
 {
     "first_run": true,
-    "test_case": true,
-    "test_name": "2_keplerian",
     "date": "today",
     "time": "now",
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
     "mm_initguess_which" : "get_init_guess_from_dist",
-    "numobjects" : 3,
+    "numobjects" : 2,
     "RunGoal" : "user puts their goal for this run here",
-    "objectname" : "Lempo",
-    "nwalkers" : 250,
-    "nsteps" : 400,
+    "objectname" : "HH_test",
+    "nwalkers" : 100,
+    "nsteps" : 5000,
     "nthinning" : 1,
-    "nburnin" : 200,
+    "nburnin" : 1,
     "essgoal" : 10,
-    "maxiter" : 100,
+    "maxiter" : 10,
     "updatebestfitfile":true,
     "is_mcmc":false,
     "spinny_tolerance": 1e-10,
     "maxreset" : 100,
     "verbose" : false,
     "get_resid":false,
-    "dynamicstoincludeflags" : "000",
+    "dynamicstoincludeflags" : "00",
     "includesun" : 0,
-    "startfromfile" : true,
-    "numprocesses": 20,
+    "startfromfile" : false,
+    "numprocesses": 1,
     "names_dict" :
     {
-        "name_1": "Lempo",
-        "name_2": "Hiisi",
-        "name_3": "Paha"
+        "name_1": "Haumea",
+        "name_2": "Hiiaka"
     },
     "float_dict" : 
     { 
@@ -41,19 +38,6 @@
         "aop_2": 1,
         "inc_2": 1,
         "lan_2": 1,
-        "mea_2": 1,
-        "mass_3": 1,
-        "sma_3": 1,
-        "ecc_3": 1,
-        "aop_3": 1,
-        "inc_3": 1,
-        "lan_3": 1,
-        "mea_3": 1,
-        "j2r2_1": 0,
-        "c22r2_1": 0,
-        "spaop_1": 0,
-        "spinc_1": 0,
-        "splan_1": 0,
-        "sprate_1": 0
+        "mea_2": 1
     }    
 }
