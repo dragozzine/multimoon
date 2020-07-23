@@ -20,7 +20,7 @@
     "is_mcmc":false,
     "spinny_tolerance": 1e-10,
     "maxreset" : 100,
-    "verbose" : false,
+    "verbose" : true,
     "get_resid":false,
     "dynamicstoincludeflags" : "000",
     "includesun" : 0,
