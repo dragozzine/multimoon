@@ -18,12 +18,10 @@ Outputs:
 def log_likelihood(params, obsdf, runprops, geo_obj_pos):
     # assuming Gaussian independent observations log-likelihood = -1/2 * chisquare
 
-    if runprops.get("get_resid"):
-        lh,residuals = mm_chisquare(params,obsdf, runprops, geo_obj_pos)*-0.5
-    else:
-        lh = mm_chisquare(params,obsdf, runprops, geo_obj_pos)*-0.5
-    
-    return lh
+    lh,residuals = mm_chisquare(params,obsdf, runprops, geo_obj_pos)
+    lh = lh*-0.5
+
+    return lh, residuals
 
 
 """
@@ -54,8 +52,8 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     if not np.isfinite(lp):
         return -np.inf
     
-    llhood = lp + log_likelihood(params, obsdf, runprops, geo_obj_pos)
-
+    log_likeli, residuals = log_likelihood(params, obsdf, runprops, geo_obj_pos)
+    llhood = lp + log_likeli
 
     if llhood > best_llhoods.get("best_llhood") and runprops.get("is_mcmc") and runprops.get("updatebestfitfile") :
         if runprops.get('verbose'):
@@ -64,11 +62,14 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
         best_llhoods['best_params'] = params.to_dict()
         the_file = runprops.get('runs_folder') + '/best_likelihoods.csv'
         with open(the_file, 'a+', newline='') as write_obj:
-            csv_writer = writer(write_obj)
+            csv_writer = writer(write_obj, delimiter = '\t')
             thelist = params.head(1).values.tolist()[0]
             thelist.insert(0, llhood)
             for i in range(runprops.get('numobjects')):
                 thelist.pop()
+            for i in range(runprops.get("numobjects")-1):
+                thelist.append(residuals[i])
+                thelist.append(residuals[i+1])
             csv_writer.writerow(thelist)
 
     return llhood
@@ -255,7 +256,9 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         print(chisq_tot, chisquare_total, residuals)
 
     # return chisquare
+
     if get_residuals:
         return chisquare_total, residuals
     else:
         return chisquare_total
+

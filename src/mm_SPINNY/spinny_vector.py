@@ -43,7 +43,7 @@ def generate_vector(paramsdf, t_arr, runprops):
         names = kepler_system[1]
 
     if mass_sum == mass_primary: #checks if only the primary has mass, all other bodies are massless
-        kepler_system = kepler_Nbody(sys_df,t_arr, runprops)
+        kepler_system = kepler_nbody(sys_df,t_arr, runprops)
         s_df = kepler_system[0]
         names = kepler_system[1]
 
@@ -151,7 +151,7 @@ def build_spinny_multimoon(sys_df, runprops):
             
         if "aop_"+str(n) in sys_df.columns:
              # convert all degree arguments to radians for SPINNY
-            aop_n = (2*np.pi/180.)*sys_df["aop_"+str(n)].iloc[0]
+            aop_n = (np.pi/180.)*sys_df["aop_"+str(n)].iloc[0]
         else:
             aop_n = 0.0
             

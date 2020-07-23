@@ -78,7 +78,6 @@ if __name__ == '__main__':
     dynamicstoincludeflags = runprops.get("dynamicstoincludeflags")
     includesun = runprops.get("includesun")
     paramnames = list(sum(list(guesses), ()))
-
 # Check to make sure that numobjects equals length of dynamics flag
     if len(dynamicstoincludeflags) != runprops.get("numobjects"):
         print("ERROR: Number of objects given in runprops.txt does not match the length of dynamicstoincludeflags")
@@ -194,8 +193,9 @@ if __name__ == '__main__':
     
     # Check to see if geocentric_object_position.csv exists and if not creates it
     objname = runprops.get('objectname')
-    if os.path.exists("../data/" + objname + "/geocentric_" + objname + "_position.csv") and verbose:
-        print("Object geocentric position file geocentric_" + objname + "_position.csv will be used")
+    if os.path.exists("../data/" + objname + "/geocentric_" + objname + "_position.csv"):
+        if verbose:
+            print("Object geocentric position file geocentric_" + objname + "_position.csv will be used")
     else:
         if verbose:
             print("No object geocentric position file exists. Creating new file.")
@@ -244,8 +244,11 @@ if __name__ == '__main__':
     if runprops.get('updatebestfitfile'):
         the_file = runprops.get('runs_folder') + '/best_likelihoods.csv'
         with open(the_file, 'a+', newline='') as write_obj:
-            csv_writer = writer(write_obj)
+            csv_writer = writer(write_obj, delimiter = '\t')
             the_names.insert(0,'Likelihood')
+            for i in range(runprops.get('numobjects')-1):
+                the_names.append('Residuals_Lat_Obj_'+str(i+1))
+                the_names.append('Residuals_Lon_Obj_'+str(i+1))
             csv_writer.writerow(the_names)
             
         
@@ -280,6 +283,7 @@ if __name__ == '__main__':
         
         sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname)
         
+    print("effective sample size = ", ess)
     chain = sampler.get_chain(thin = runprops.get("nthinning"))
     flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
         
