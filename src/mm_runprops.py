@@ -28,7 +28,6 @@ if runprops.get("first_run") == True:
     date = str(x.strftime("%Y"))+"-"+str(x.strftime("%m"))+"-"+str(x.strftime("%d"))+"_"+str(x.strftime("%H"))+"."+str(x.strftime("%M"))+"."+str(x.strftime("%S"))
     runprops["date"] = date
     runprops['first_run'] = False
-    runprops['numprocesses'] = 20
     
     newpath = "../runs/"+runprops.get("objectname")+"_"+date
     if not os.path.exists(newpath):
