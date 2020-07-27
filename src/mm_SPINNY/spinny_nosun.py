@@ -108,7 +108,7 @@ def generate_system_ns(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr,tolerance, 
         
 def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPINNY system to each time given in t_arr
     global T
-
+    #epoch = 2453880.0 * 24.*3600.
     T = int(len(t_arr))
     N = int(len(s.arr0)/13)
     body_arr = np.empty((T,(N*6)))
@@ -125,8 +125,9 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
     for t in range(0,T):
         # Use s.get_state(n,0) with respect to the primary to ignore the motion of the Sun in our vectors,
         # but we take s.arr0 in order to get orbital parameters which might not make any sense in a primaricentric frame
-       
+        #t_adj = t_arr[t] - epoch
         s.evolve(t_arr[t]) #### <---- The actual integration
+        
         body_arr[t] = np.concatenate([s.get_state(n,0) for n in range(0,N)]) # taken with respect to the primary
         
         inertial_arr[t] = s.arr0

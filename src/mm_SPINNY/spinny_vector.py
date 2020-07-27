@@ -151,7 +151,7 @@ def build_spinny_multimoon(sys_df, runprops):
             
         if "aop_"+str(n) in sys_df.columns:
              # convert all degree arguments to radians for SPINNY
-            aop_n = (2*np.pi/180.)*sys_df["aop_"+str(n)].iloc[0]
+            aop_n = (np.pi/180.)*sys_df["aop_"+str(n)].iloc[0]
         else:
             aop_n = 0.0
             

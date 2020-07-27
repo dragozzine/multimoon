@@ -12,10 +12,8 @@ from csv import writer
 """
 Inputs:
 1) fit_array, the array of all the fitted parameters
-
 Outputs:
 1) log_likelihood, the log likelihood of the parameters with the priors
-
 """
 def log_likelihood(params, obsdf, runprops, geo_obj_pos):
     # assuming Gaussian independent observations log-likelihood = -1/2 * chisquare
@@ -32,10 +30,8 @@ Inputs:
 2) runprops
 3) fitarray_dict
 4) 
-
 Outputs:
 1) log_probability, the log_likelihood plus the priors, which is the total probability
-
 """
 def log_probability(float_params, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods):
     
@@ -83,7 +79,6 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
 Inputs:
 1)The Parameters dataframe
 2) The Observation Dataframe
-
 Outputs:
 1) The chi-squared number of the likelihood
 """
@@ -261,4 +256,9 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         print(chisq_tot, chisquare_total, residuals)
 
     # return chisquare
-    return chisquare_total, residuals
+
+    if get_residuals:
+        return chisquare_total, residuals
+    else:
+        return chisquare_total
+
