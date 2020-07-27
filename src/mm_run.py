@@ -295,6 +295,25 @@ if __name__ == '__main__':
     with open(runpath, 'w') as file:
         file.write(json.dumps(runprops, indent = 4))
         
+    if runprops.get('build_init_from_llhood'):
+        csvfile = "../runs/"+runprops.get("objectname")+"_"+runprops.get("date")+"/best_likelihoods.csv"
+        likelihoods = pd.read_csv(csvfile, sep = '\t', header = 0)
+        
+        
+        params = likelihoods.iloc[[-1]].transpose()
+        params = params.drop(['Likelihood'], axis=0)
+        for i in range(runprops.get('numobjects')-1):
+            params = params.drop(['Residuals_Lat_Obj_'+str(i+1),'Residuals_Lon_Obj_'+str(i+1)], axis =0)
+
+        init_guess = pd.read_csv(runprops.get('init_filename'))
+        stddev  = init_guess['stddev'].tolist()
+
+        params['stddev'] = stddev
+        params.columns = ['mean', 'stddev']
+        #print(params)
+        new_init = "../data/"+runprops.get("objectname")+"/"+runprops.get("objectname")+"_init_guess_from_llhood.csv"
+        params.to_csv(new_init, sep = ',')
+        
 
     # make other diagnostic plots
     # TODO: orbit astrometry plots
