@@ -17,9 +17,11 @@ Outputs:
 """
 def log_likelihood(params, obsdf, runprops, geo_obj_pos):
     # assuming Gaussian independent observations log-likelihood = -1/2 * chisquare
-
+    
+   # print(params, obsdf, geo_obj_pos)
     lh,residuals = mm_chisquare(params,obsdf, runprops, geo_obj_pos)
     lh = lh*-0.5
+    #print('lh ',lh)
 
     return lh, residuals
 
@@ -43,8 +45,11 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     
     name_dict = runprops.get("names_dict")
     
+    
     params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict)
 
+    #print(params, float_params, float_names)
+    
     lp = prior.mm_priors(priors,params,runprops)
     if runprops.get('verbose'):
         print('LogPriors: ',lp)
@@ -257,8 +262,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     # return chisquare
 
-    if get_residuals:
-        return chisquare_total, residuals
-    else:
-        return chisquare_total
+    
+    return chisquare_total, residuals
+
 
