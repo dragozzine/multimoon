@@ -4,6 +4,6 @@ Darin Ragozzine, Benjamin Proudfoot, Seth Pincock, Dallin Spencer
 Brigham Young University
 contact darin_ragozzine@byu.edu for more information
 
-An extension of the code used in Ragozzine & Brown 2009 with many additions and improvements. Uses SPINNY (Simon Porter, Darin Ragozzine, et al.) as the n-quadrupole integrater at the core. Designed for Kuiper Belt Object systems (but ostensibly could be used for any solar system binary). 
+An extension of the code used in Ragozzine & Brown 2009 with many additions and improvements. Uses SPINNY (Simon Porter, Darin Ragozzine, et al.) as 
+the n-quadrupole integrater at the core. Designed for Kuiper Belt Object systems (but ostensibly could be used for any solar system binary).
 
-FOR NOW see example.ipynb to see how to run things
