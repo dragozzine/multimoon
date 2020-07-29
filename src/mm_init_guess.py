@@ -31,6 +31,8 @@ def mm_init_guess(runprops):
     arrSet = start_guess_df.to_numpy()
 
     nwalkers = runprops.get("nwalkers")
+    fix_float = runprops.get("float_dict")
+    
       
     # Some code to help us get the names for the columns.
     name_dict = {0:"Junk"}
@@ -41,10 +43,19 @@ def mm_init_guess(runprops):
         name_dict[n] = col
         infos = start_guess_df[col].to_numpy()
         mean1, stdev1 = infos[0],infos[1]
+        #print(col)
+        #print(fix_float.get(col))
         if n == 0:
-            dist_arr = np.random.normal(mean1,stdev1,nwalkers)
+            if fix_float.get(col) == 0:
+                dist_arr = mean1*np.ones(nwalkers)
+            else:
+                dist_arr = np.random.normal(mean1,stdev1,nwalkers)
         else:
-            dist_arr = np.vstack((dist_arr,np.random.normal(mean1,stdev1,nwalkers)))
+            if fix_float.get(col) == 0:
+                dist_arr = np.vstack((dist_arr, mean1*np.ones(nwalkers)))
+            else:
+                dist_arr = np.vstack((dist_arr,np.random.normal(mean1,stdev1,nwalkers)))
+            
         n += 1
     
     dict_vals = []

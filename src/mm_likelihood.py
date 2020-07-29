@@ -12,20 +12,18 @@ from csv import writer
 """
 Inputs:
 1) fit_array, the array of all the fitted parameters
-
 Outputs:
 1) log_likelihood, the log likelihood of the parameters with the priors
-
 """
 def log_likelihood(params, obsdf, runprops, geo_obj_pos):
     # assuming Gaussian independent observations log-likelihood = -1/2 * chisquare
-
-    if runprops.get("get_resid"):
-        lh,residuals = mm_chisquare(params,obsdf, runprops, geo_obj_pos)*-0.5
-    else:
-        lh = mm_chisquare(params,obsdf, runprops, geo_obj_pos)*-0.5
     
-    return lh
+   # print(params, obsdf, geo_obj_pos)
+    lh,residuals = mm_chisquare(params,obsdf, runprops, geo_obj_pos)
+    lh = lh*-0.5
+    #print('lh ',lh)
+
+    return lh, residuals
 
 
 """
@@ -34,10 +32,8 @@ Inputs:
 2) runprops
 3) fitarray_dict
 4) 
-
 Outputs:
 1) log_probability, the log_likelihood plus the priors, which is the total probability
-
 """
 def log_probability(float_params, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods):
     
@@ -49,7 +45,11 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     
     name_dict = runprops.get("names_dict")
     
+    
     params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict)
+
+    #print(params)
+    
     lp = prior.mm_priors(priors,params,runprops)
     if runprops.get('verbose'):
         print('LogPriors: ',lp)
@@ -57,8 +57,8 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     if not np.isfinite(lp):
         return -np.inf
     
-    llhood = lp + log_likelihood(params, obsdf, runprops, geo_obj_pos)
-    
+    log_likeli, residuals = log_likelihood(params, obsdf, runprops, geo_obj_pos)
+    llhood = lp + log_likeli
 
     if llhood > best_llhoods.get("best_llhood") and runprops.get("is_mcmc") and runprops.get("updatebestfitfile") :
         if runprops.get('verbose'):
@@ -67,11 +67,14 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
         best_llhoods['best_params'] = params.to_dict()
         the_file = runprops.get('runs_folder') + '/best_likelihoods.csv'
         with open(the_file, 'a+', newline='') as write_obj:
-            csv_writer = writer(write_obj)
+            csv_writer = writer(write_obj, delimiter = '\t')
             thelist = params.head(1).values.tolist()[0]
             thelist.insert(0, llhood)
             for i in range(runprops.get('numobjects')):
                 thelist.pop()
+            for i in range(runprops.get("numobjects")-1):
+                thelist.append(residuals[i])
+                thelist.append(residuals[i+1])
             csv_writer.writerow(thelist)
 
     return llhood
@@ -81,7 +84,6 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
 Inputs:
 1)The Parameters dataframe
 2) The Observation Dataframe
-
 Outputs:
 1) The chi-squared number of the likelihood
 """
@@ -259,7 +261,8 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         print(chisq_tot, chisquare_total, residuals)
 
     # return chisquare
-    if get_residuals:
-        return chisquare_total, residuals
-    else:
-        return chisquare_total
+
+    
+    return chisquare_total, residuals
+
+
