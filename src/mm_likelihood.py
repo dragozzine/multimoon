@@ -48,7 +48,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     
     params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict)
 
-    #print(params, float_params, float_names)
+    #print(params)
     
     lp = prior.mm_priors(priors,params,runprops)
     if runprops.get('verbose'):
