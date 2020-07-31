@@ -177,8 +177,11 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         prim_to_sat_pos = [positionData[i*3],positionData[i*3+1],positionData[i*3+2]]
         Model_DeltaLong[i-1], Model_DeltaLat[i-1] = mm_relast.convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos)
         
-        #print('obs_to_prim', obs_to_prim_pos,'\nprim_to', prim_to_sat_pos)
-        #print('DeltaLong', Model_DeltaLong, '\nDeltaLat', Model_DeltaLat)
+
+        if verbose: 
+            print('i', i)
+            print('obs_to_prim', obs_to_prim_pos,'\nprim_to', prim_to_sat_pos)
+            print('DeltaLong', Model_DeltaLong, '\nDeltaLat', Model_DeltaLat)
         # mm_relast
         
         # obs_to_prim_pos = vector position of the observer relative to the primary (in J2000 ecliptic frame)

@@ -7,7 +7,7 @@
     "mm_initguess_which" : "get_init_guess_from_dist",
     "numobjects" : 2,
     "RunGoal" : "user puts their goal for this run here",
-    "objectname" : "HH_test",
+    "objectname" : "Haumea",
     "nwalkers" : 100,
     "nsteps" : 5000,
     "nthinning" : 1,
