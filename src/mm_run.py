@@ -247,8 +247,8 @@ if __name__ == '__main__':
             csv_writer = writer(write_obj, delimiter = '\t')
             the_names.insert(0,'Likelihood')
             for i in range(runprops.get('numobjects')-1):
-                the_names.append('Residuals_Lat_Obj_'+str(i+1))
                 the_names.append('Residuals_Lon_Obj_'+str(i+1))
+                the_names.append('Residuals_Lat_Obj_'+str(i+1))
             csv_writer.writerow(the_names)
             
         

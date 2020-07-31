@@ -9,3 +9,4 @@ spinny.cpp
 .DS_Store
 *.csv.save
 *.pyc
+src/__pycache__/mm_runprops.cpython-37.pyc
