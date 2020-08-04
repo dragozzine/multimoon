@@ -5,29 +5,30 @@
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
     "mm_initguess_which" : "get_init_guess_from_dist",
-    "numobjects" : 2,
+    "numobjects" : 3,
     "RunGoal" : "user puts their goal for this run here",
-    "objectname" : "HH_test",
-    "nwalkers" : 100,
-    "nsteps" : 5000,
+    "objectname" : "HHN_test",
+    "nwalkers" : 30,
+    "nsteps" : 5,
     "nthinning" : 1,
     "nburnin" : 1,
     "essgoal" : 10,
-    "maxiter" : 10,
+    "maxiter" : 5,
     "updatebestfitfile":true,
     "is_mcmc":false,
     "spinny_tolerance": 1e-10,
-    "maxreset" : 100,
+    "maxreset" : 10000,
     "verbose" : false,
     "get_resid":false,
-    "dynamicstoincludeflags" : "00",
+    "dynamicstoincludeflags" : "000",
     "includesun" : 0,
     "startfromfile" : false,
     "numprocesses": 1,
     "names_dict" :
     {
         "name_1": "Haumea",
-        "name_2": "Hiiaka"
+        "name_2": "Hiiaka",
+        "name_3": "Namaka"
     },
     "float_dict" : 
     { 
@@ -38,6 +39,13 @@
         "aop_2": 1,
         "inc_2": 1,
         "lan_2": 1,
-        "mea_2": 1
-    }    
+        "mea_2": 1,
+        "mass_3": 1,
+        "sma_3": 1,
+        "ecc_3": 1,
+        "aop_3": 1,
+        "inc_3": 1,
+        "lan_3": 1,
+        "mea_3": 1
+    }
 }

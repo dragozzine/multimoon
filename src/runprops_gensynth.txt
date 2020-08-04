@@ -3,12 +3,12 @@
     "time": "now",
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
-    "testcase_name": "2_keplerian_unittest",
-    "numobjects" : 2,
+    "testcase_name": "3_keplerian",
+    "numobjects" : 3,
     "objectname" : "Haumea",
     "spinny_tolerance": 1e-10,
     "verbose" : true,
-    "dynamicstoincludeflags" : "00",
+    "dynamicstoincludeflags" : "000",
     "includesun" : 0,
     "names_dict" :
     {
@@ -25,20 +25,14 @@
         "aop_2": 154.1,
         "inc_2": 126.356,
         "lan_2": 206.766,
-        "mea_2": 0.1,
-        "mass_3": 1.79e+19,
-        "sma_3": 25000,
-        "ecc_3": 0.0513,
-        "aop_3": 154.1,
-        "inc_3": 126.356,
+        "mea_2": 152.8,
+        "mass_3": 1.79e+18,
+        "sma_3": 25657,
+        "ecc_3": 0.249,
+        "aop_3": 178.9,
+        "inc_3": 113.013,
         "lan_3": 206.766,
-        "mea_3": 152.8,
-        "j2r2_1": 0.0,
-        "c22r2_1": 0.0,
-        "spaop_1": 0.0,
-        "spinc_1": 0.0,
-        "splan_1": 0.0,
-        "sprate_1": 0.0
+        "mea_3": 178.5
     },
     "float_dict" :
     {
@@ -56,13 +50,7 @@
         "aop_3": 1,
         "inc_3": 1,
         "lan_3": 1,
-        "mea_3": 1,
-        "j2r2_1": 1,
-        "c22r2_1": 1,
-        "spaop_1": 1,
-        "spinc_1": 1,
-        "splan_1": 1,
-        "sprate_1": 1
+        "mea_3": 1
     }
 
 }
