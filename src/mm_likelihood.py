@@ -121,7 +121,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     obsdf = obsdf.sort_values(by=['time'])
     #time_arr = np.sort(obsdf['time'].values.flatten())
     time_arr = obsdf['time'].values.flatten()# gets an array of observation times from the obs dataframe
-    
+
     # Sorts them into ascending order
     import logging 
     try:
@@ -201,7 +201,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     if gensynth:
         if verbose:
             print("Returning the Model_DeltaLong and Lat dataframes for use in synthetic astrometry.")
-        return Model_DeltaLong, Model_DeltaLat
+        return Model_DeltaLong, Model_DeltaLat, obsdf
 
     # Now we have model delta Long and delta Lat for each object and each time 
     rows = obsdf.shape[0]

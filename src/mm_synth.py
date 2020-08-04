@@ -107,8 +107,10 @@ paramdf = pd.DataFrame(params).transpose()
 paramdf.columns = paramnames
 
 # Outputting model astrometry based on the params df
-Model_DeltaLong, Model_DeltaLat = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
+Model_DeltaLong, Model_DeltaLat, obsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 #positionData = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
+
+print(obsdf["time"])
 
 cols = ["time","Lat_Prim","Long_Prim"]
 for i in range(1,nobjects):
