@@ -56,7 +56,9 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
 
     if not np.isfinite(lp):
         return -np.inf
-    
+    #print(params)
+    #print(obsdf)
+    #print(geo_obj_pos)
     log_likeli, residuals = log_likelihood(params, obsdf, runprops, geo_obj_pos)
     llhood = lp + log_likeli
 
@@ -151,7 +153,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     
     Model_DeltaLong = np.zeros((numObj-1,len(time_arr)))
     Model_DeltaLat = np.zeros((numObj-1,len(time_arr)))
-    
+    #print(vec_df)
 
     positionData = np.zeros((numObj*3,len(time_arr)))
         

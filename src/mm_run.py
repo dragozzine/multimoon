@@ -281,7 +281,7 @@ if __name__ == '__main__':
         maxiter = runprops.get("maxiter")
         initsteps = runprops.get("nsteps")
         
-        sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname)
+        sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0, runprops)
         
     print("effective sample size = ", ess)
     chain = sampler.get_chain(thin = runprops.get("nthinning"))

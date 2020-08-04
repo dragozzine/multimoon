@@ -23,7 +23,7 @@ import emcee
 from tqdm import tqdm
 from mm_analysis import *
 
-def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname):
+def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0, runprops):
 	"""
 	Runs MultiMoon until an effective sample size goal is achieved
 	or the maximum number of iterations is reached. 
@@ -48,7 +48,10 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname):
 	# First run the sampler for the specified number of initial steps
 	if verbose:
 		print("Running MultiMoon for ", initsteps, " steps")
-	state = sampler.run_mcmc(state, initsteps, progress = True)
+	if runprops.get('nburnin') == 0:
+		state = sampler.run_mcmc(p0, initsteps, progress = True)
+	else:
+		state = sampler.run_mcmc(state, initsteps, progress = True)
 
 	# Find the integrated autocorrelation time (iat) of the run
 	if verbose:
