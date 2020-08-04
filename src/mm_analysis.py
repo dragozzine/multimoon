@@ -27,7 +27,7 @@ import sys
 
 
 #chain = (nwalkers, nlink, ndim)
-def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops):
+def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops, mm_make_geo_pos):
 			# Here parameters is whatever file/object will have the run params
 	flatchain = sampler.get_chain(flat = True)
 	fit = []
@@ -73,7 +73,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 
 
 	# Make corner plot
-	fig = corner.corner(flatchain, bins = 40, labels = names, show_titles = True, 
+	#plt.rc('text', usetex=True)
+	fig = corner.corner(flatchain, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".4e")
 	fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
@@ -82,7 +83,9 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 	fname = "../runs/"+objname+"_"+runprops.get("date")+"/corner.pdf"       
 	fig.savefig(fname, format = 'pdf')
 	plt.close("all")
+	#plt.rc('text', usetex=False)
 	
+
 	# Now make the walker plots
 	for i in range(numparams):
 		plt.figure()
@@ -136,20 +139,61 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 		plt.close("all")
 
 	# Astrometry plots
-"""	time_arr = obsdf['time'].values.flatten()
-	tmin = tim_arr.min()
-	tmax = tim_arr.max()
+	time_arr = obsdf['time'].values.flatten()
+	tmin = time_arr.min()
+	tmax = time_arr.max()
 	fakeobsdf = obsdf.loc[[1,2],:]
 	times = np.arange(tmin,tmax, 0.25)
 	for i in range(len(times)):
 		if i == 0 or i == 1:
 			fakeobsdf.iloc[i,0] = times[i]
 			# change row number?
-		fakeobsdf = fakeobsdf.append(fakedata.iloc[-1,:])
+		fakeobsdf = fakeobsdf.append(fakeobsdf.iloc[-1,:])
 		fakeobsdf.iloc[-1,0] = times[i]
-	geo_obj_pos = mm_make_geo_pos(objname, times)
-	Model_DeltaLong, Model_DeltaLat = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
-"""
+	geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos("Haumea", times)
+
+	llhoods = sampler.get_log_prob(flat = True)
+	ind = np.argmin(llhoods)
+	paramdf = flatchain[ind,:]
+
+	Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
+
+	modelx = np.empty((nobjects-1, obsdf.shape[0]))
+	modely = np.empty((nobjects-1, obsdf.shape[0]))
+
+	x = np.empty((nobjects-1, obsdf.shape[0]))
+	xe = np.empty((nobjects-1, obsdf.shape[0]))
+	y = np.empty((nobjects-1, obsdf.shape[0]))
+	ye = np.empty((nobjects-1, obsdf.shape[0]))
+
+	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
+
+	name_dict = runprops.get("names_dict")
+	objectnames = []
+	for i in name_dict.values():
+		objectnames.append(i)
+
+	fig = plt.figure()
+	for i in range(1,nobjects):
+		modelx[i-1,:] = Model_DeltaLong[i-1]
+		modely[i-1,:] = Model_DeltaLat[i-1]
+
+		x[i-1,:] = obsdf["DeltaLat_" + objectnames[i]].values
+		xe[i-1,:] = obsdf["DeltaLat_" + objectnames[i] + "_err"].values
+		y[i-1,:] = obsdf["DeltaLong_" + objectnames[i]].values
+		ye[i-1,:] = obsdf["DeltaLong_" + objectnames[i] + "_err"].values
+
+		plt.plot(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = objectnames[i])
+		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko")
+
+	plt.axis('equal')
+	plt.xlabel("Delta Latitude")
+	plt.ylabel("Delta Longitude")
+	plt.legend()
+
+	plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/best_astrometry.png")
+	plt.close()
+
 
 
 def auto_window(taus, c):
