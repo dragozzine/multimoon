@@ -63,7 +63,7 @@ verbose = runprops.get("verbose")
 nobjects = runprops.get("numobjects")
 
 # Setting the observations data file and geo position data file
-runprops["obsdata_file"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_obs_df.csv"
+runprops["obsdata_file"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_obs_df_2005Keck.csv"
 obsdata = runprops.get('obsdata_file')
 
 obsdf = 0
@@ -72,6 +72,7 @@ if os.path.exists(obsdata):
 		print("Observational data file " + obsdata + " will be used")
 	obsdf = pd.read_csv(obsdata)
 else:
+	print(obsdata)
 	print("ERROR: No observational data file exists. Aborting run.")
 	sys.exit()
 
@@ -84,7 +85,7 @@ else:
 	if verbose:
 		print("No object geocentric position file exists. Aborting Run.")
 	sys.exit()
-geo_obj_pos = pd.read_csv("../data/" + objname + "/geocentric_" + objname + "_position.csv")
+geo_obj_pos = pd.read_csv("../data/" + objname + "/geocentric_" + objname + "_position_Keck2005.csv")
 
 # Package the parameters wanted into a guesses-like df
 params = []

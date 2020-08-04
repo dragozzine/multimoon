@@ -5,30 +5,29 @@
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
     "mm_initguess_which" : "get_init_guess_from_dist",
-    "numobjects" : 3,
+    "numobjects" : 2,
     "RunGoal" : "user puts their goal for this run here",
-    "objectname" : "HHN_test",
-    "nwalkers" : 30,
-    "nsteps" : 5,
+    "objectname" : "HH_test",
+    "nwalkers" : 50,
+    "nsteps" : 1000,
     "nthinning" : 1,
-    "nburnin" : 1,
+    "nburnin" : 200,
     "essgoal" : 10,
-    "maxiter" : 5,
+    "maxiter" : 1000,
     "updatebestfitfile":true,
     "is_mcmc":false,
     "spinny_tolerance": 1e-10,
     "maxreset" : 10000,
     "verbose" : false,
     "get_resid":false,
-    "dynamicstoincludeflags" : "000",
+    "dynamicstoincludeflags" : "00",
     "includesun" : 0,
     "startfromfile" : false,
     "numprocesses": 1,
     "names_dict" :
     {
         "name_1": "Haumea",
-        "name_2": "Hiiaka",
-        "name_3": "Namaka"
+        "name_2": "Hiiaka"
     },
     "float_dict" : 
     { 
@@ -39,13 +38,10 @@
         "aop_2": 1,
         "inc_2": 1,
         "lan_2": 1,
-        "mea_2": 1,
-        "mass_3": 1,
-        "sma_3": 1,
-        "ecc_3": 1,
-        "aop_3": 1,
-        "inc_3": 1,
-        "lan_3": 1,
-        "mea_3": 1
-    }
+        "mea_2": 1
+    },
+    "init_filename":"../data/HH_test/HH_test_init_guess.csv",
+    "priors_filename": "../data/HH_test/HH_test_priors_df.csv",
+    "obsdata_file": "../data/HH_test/HH_test_obs_df.csv"
 }
+
