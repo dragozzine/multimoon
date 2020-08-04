@@ -13,7 +13,7 @@ import sys
 sys.path.append("..")
 
 # computes a two-body, Keplerian integration using spiceypy
-def kepler_2body(sys_df,t_arr, runprops):
+def kepler_2body(sys_df, t_arr, runprops):
     
     sys_df = sys_df.iloc[0]
     
@@ -126,10 +126,10 @@ def kepler_nbody(sys_df,t_arr, runprops): # runs Keplerian integrations for syst
     for n in range(2,N): # exclude the primary, it should not have any orbital elements given
         a_n = sys_df["sma"+str(n)].iloc[0]
         e_n = sys_df["ecc"+str(n)].iloc[0]
-        i_n = sys_df["inc"+str(n)].iloc[0]
-        O_n = sys_df["lan"+str(n)].iloc[0]
-        w_n = sys_df["aop"+str(n)].iloc[0]
-        M_n = sys_df["mea"+str(n)].iloc[0]
+        i_n = sys_df["inc"+str(n)].iloc[0]*(np.pi/180.0)
+        O_n = sys_df["lan"+str(n)].iloc[0]*(np.pi/180.0)
+        w_n = sys_df["aop"+str(n)].iloc[0]*(np.pi/180.0)
+        M_n = sys_df["mea"+str(n)].iloc[0]*(np.pi/180.0)
         p_n = a_n*(1-e_n) # periapsis distance
     
         orb_init[n] = [p_n,e_n,i_n,O_n,w_n,M_n,T0,mu] # set orbital params list
@@ -179,10 +179,10 @@ def kepler_nbody(sys_df,t_arr, runprops): # runs Keplerian integrations for syst
 
         body_dict.setdefault('sma_'+name , orb_arr[:,0]/(1-orb_arr[:,1]))
         body_dict.setdefault('ecc_'+name , orb_arr[:,1])
-        body_dict.setdefault('inc_'+name , orb_arr[:,2])
-        body_dict.setdefault('lan_'+name , orb_arr[:,3])
-        body_dict.setdefault('aop_'+name , orb_arr[:,4])
-        body_dict.setdefault('mea_'+name , orb_arr[:,5])
+        body_dict.setdefault('inc_'+name , orb_arr[:,2])*(180.0/np.pi)
+        body_dict.setdefault('lan_'+name , orb_arr[:,3])*(180.0/np.pi)
+        body_dict.setdefault('aop_'+name , orb_arr[:,4])*(180.0/np.pi)
+        body_dict.setdefault('mea_'+name , orb_arr[:,5])*(180.0/np.pi)
 
     kepler_df = pd.DataFrame(body_dict)
     

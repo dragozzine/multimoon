@@ -247,8 +247,8 @@ if __name__ == '__main__':
             csv_writer = writer(write_obj, delimiter = '\t')
             the_names.insert(0,'Likelihood')
             for i in range(runprops.get('numobjects')-1):
-                the_names.append('Residuals_Lat_Obj_'+str(i+1))
                 the_names.append('Residuals_Lon_Obj_'+str(i+1))
+                the_names.append('Residuals_Lat_Obj_'+str(i+1))
             csv_writer.writerow(the_names)
             
         
@@ -281,7 +281,7 @@ if __name__ == '__main__':
         maxiter = runprops.get("maxiter")
         initsteps = runprops.get("nsteps")
         
-        sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname)
+        sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0, runprops)
         
     print("effective sample size = ", ess)
     chain = sampler.get_chain(thin = runprops.get("nthinning"))
@@ -295,6 +295,25 @@ if __name__ == '__main__':
     
     with open(runpath, 'w') as file:
         file.write(json.dumps(runprops, indent = 4))
+        
+    if runprops.get('build_init_from_llhood'):
+        csvfile = "../runs/"+runprops.get("objectname")+"_"+runprops.get("date")+"/best_likelihoods.csv"
+        likelihoods = pd.read_csv(csvfile, sep = '\t', header = 0)
+        
+        
+        params = likelihoods.iloc[[-1]].transpose()
+        params = params.drop(['Likelihood'], axis=0)
+        for i in range(runprops.get('numobjects')-1):
+            params = params.drop(['Residuals_Lat_Obj_'+str(i+1),'Residuals_Lon_Obj_'+str(i+1)], axis =0)
+
+        init_guess = pd.read_csv(runprops.get('init_filename'))
+        stddev  = init_guess['stddev'].tolist()
+
+        params['stddev'] = stddev
+        params.columns = ['mean', 'stddev']
+        #print(params)
+        new_init = "../data/"+runprops.get("objectname")+"/"+runprops.get("objectname")+"_init_guess_from_llhood.csv"
+        params.to_csv(new_init, sep = ',')
         
 
     # make other diagnostic plots

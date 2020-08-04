@@ -12,16 +12,16 @@ from csv import writer
 """
 Inputs:
 1) fit_array, the array of all the fitted parameters
-
 Outputs:
 1) log_likelihood, the log likelihood of the parameters with the priors
-
 """
 def log_likelihood(params, obsdf, runprops, geo_obj_pos):
     # assuming Gaussian independent observations log-likelihood = -1/2 * chisquare
-
+    
+   # print(params, obsdf, geo_obj_pos)
     lh,residuals = mm_chisquare(params,obsdf, runprops, geo_obj_pos)
     lh = lh*-0.5
+    #print('lh ',lh)
 
     return lh, residuals
 
@@ -32,10 +32,8 @@ Inputs:
 2) runprops
 3) fitarray_dict
 4) 
-
 Outputs:
 1) log_probability, the log_likelihood plus the priors, which is the total probability
-
 """
 def log_probability(float_params, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods):
     
@@ -47,15 +45,20 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     
     name_dict = runprops.get("names_dict")
     
+    
     params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict)
 
+    #print(params)
+    
     lp = prior.mm_priors(priors,params,runprops)
     if runprops.get('verbose'):
         print('LogPriors: ',lp)
 
     if not np.isfinite(lp):
         return -np.inf
-    
+    #print(params)
+    #print(obsdf)
+    #print(geo_obj_pos)
     log_likeli, residuals = log_likelihood(params, obsdf, runprops, geo_obj_pos)
     llhood = lp + log_likeli
 
@@ -83,7 +86,6 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
 Inputs:
 1)The Parameters dataframe
 2) The Observation Dataframe
-
 Outputs:
 1) The chi-squared number of the likelihood
 """
@@ -151,7 +153,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     
     Model_DeltaLong = np.zeros((numObj-1,len(time_arr)))
     Model_DeltaLat = np.zeros((numObj-1,len(time_arr)))
-    
+    #print(vec_df)
 
     positionData = np.zeros((numObj*3,len(time_arr)))
         
@@ -177,8 +179,11 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         prim_to_sat_pos = [positionData[i*3],positionData[i*3+1],positionData[i*3+2]]
         Model_DeltaLong[i-1], Model_DeltaLat[i-1] = mm_relast.convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos)
         
-        #print('obs_to_prim', obs_to_prim_pos,'\nprim_to', prim_to_sat_pos)
-        #print('DeltaLong', Model_DeltaLong, '\nDeltaLat', Model_DeltaLat)
+
+        if verbose: 
+            print('i', i)
+            print('obs_to_prim', obs_to_prim_pos,'\nprim_to', prim_to_sat_pos)
+            print('DeltaLong', Model_DeltaLong, '\nDeltaLat', Model_DeltaLat)
         # mm_relast
         
         # obs_to_prim_pos = vector position of the observer relative to the primary (in J2000 ecliptic frame)
@@ -261,4 +266,8 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         print(chisq_tot, chisquare_total, residuals)
 
     # return chisquare
+
+    
     return chisquare_total, residuals
+
+

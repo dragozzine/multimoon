@@ -36,24 +36,24 @@ def generate_vector(paramsdf, t_arr, runprops):
             masses.append(sys_df[col].iloc[0])
     mass_sum = sum(masses)
     mass_primary = sys_df["mass_1"].iloc[0]
-   
+    
     if N == 2 and j2_sum == 0.00:  # checks if all objects are point masses, does keplerian integration instead
         kepler_system = kepler_2body(sys_df,t_arr, runprops)
         s_df = kepler_system[0]
         names = kepler_system[1]
 
     if mass_sum == mass_primary: #checks if only the primary has mass, all other bodies are massless
-        kepler_system = kepler_Nbody(sys_df,t_arr, runprops)
+        kepler_system = kepler_nbody(sys_df,t_arr, runprops)
         s_df = kepler_system[0]
         names = kepler_system[1]
 
-    elif not includesun and N > 2: # runs a SPINNY integration without the sun if not included 
+    elif not includesun and N >= 2: # runs a SPINNY integration without the sun if not included 
         system = build_spinny_multimoon(sys_df, runprops)
         spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol, runprops)
         s_df = spinny[0]
         names = spinny[2]
         
-    elif includesun and N > 2:                         # runs SPINNY with the sun included
+    elif includesun and N >= 2:                         # runs SPINNY with the sun included
         system = build_spinny_multimoon(sys_df, runprops)
         spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr, runprops)
         s_df = spinny[0]
@@ -151,7 +151,7 @@ def build_spinny_multimoon(sys_df, runprops):
             
         if "aop_"+str(n) in sys_df.columns:
              # convert all degree arguments to radians for SPINNY
-            aop_n = (2*np.pi/180.)*sys_df["aop_"+str(n)].iloc[0]
+            aop_n = (np.pi/180.)*sys_df["aop_"+str(n)].iloc[0]
         else:
             aop_n = 0.0
             
