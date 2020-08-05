@@ -57,13 +57,19 @@ if __name__ == '__main__':
     best_llhoods = manager.dict()
     best_llhoods['best_llhood'] = -np.inf
     best_llhoods['best_params'] = []
-                 
+
     runprops = mm_runprops.runprops
     runprops['best_llhood'] = -np.inf
 
     verbose = runprops.get("verbose")
     nwalkers = runprops.get("nwalkers")
     startfromfile = runprops.get("startfromfile")
+    nobjects = runprops.get("numobjects")
+
+    name_dict = runprops.get("names_dict")
+    objectnames = []
+    for i in name_dict.values():
+        objectnames.append(i)
 
 # BP TODO: make an option in runprops to start from the end of another run and just append it
 # Generate the intial guess for emcee
@@ -191,6 +197,19 @@ if __name__ == '__main__':
         if verbose:
             print("ERROR: No observational data file exists. Aborting run.")
         sys.exit()
+
+    # Calculating the degrees of freedom
+    nobservations = 0
+    for i in range(1, nobjects):
+        obsdata = obsdf["DeltaLat_" + objectnames[i]].values
+        for j in range(len(obsdata)):
+            if not np.isnan(obsdata[j]):
+                nobservations += 1
+        obsdata = obsdf["DeltaLong_" + objectnames[i]].values
+        for j in range(len(obsdata)):
+            if not np.isnan(obsdata[j]):
+                nobservations += 1
+    best_llhoods['deg_freedom'] = nobservations - ndim
     
     # Check to see if geocentric_object_position.csv exists and if not creates it
     objname = runprops.get('objectname')
@@ -247,7 +266,9 @@ if __name__ == '__main__':
     if runprops.get('updatebestfitfile'):
         the_file = runprops.get('runs_folder') + '/best_likelihoods.csv'
         with open(the_file, 'a+', newline='') as write_obj:
-            csv_writer = writer(write_obj, delimiter = '\t')
+            csv_writer = writer(write_obj, delimiter = ',')
+            the_names.insert(0,'Prior')
+            the_names.insert(0,'Reduced chi-sq')
             the_names.insert(0,'Likelihood')
             for i in range(runprops.get('numobjects')-1):
                 the_names.append('Residuals_Lon_Obj_'+str(i+1))
@@ -297,7 +318,7 @@ if __name__ == '__main__':
     # Begin analysis!
     print('Beginning mm_analysis plots')
     
-    mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, mm_make_geo_pos)
+    mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos)
     runpath = "../runs/"+runprops.get("objectname")+"_"+runprops.get("date")+"/runprops.txt"
     
     with open(runpath, 'w') as file:

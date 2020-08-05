@@ -68,16 +68,20 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
         best_llhoods['best_llhood'] = llhood
         best_llhoods['best_params'] = params.to_dict()
         the_file = runprops.get('runs_folder') + '/best_likelihoods.csv'
+
+        reduced_chi_sq = llhood/(-0.5)/best_llhoods.get('deg_freedom')
+
         with open(the_file, 'a+', newline='') as write_obj:
-            csv_writer = writer(write_obj, delimiter = '\t')
+            csv_writer = writer(write_obj, delimiter = ',')
             thelist = params.head(1).values.tolist()[0]
+            thelist.insert(0, lp)
+            thelist.insert(0, reduced_chi_sq)
             thelist.insert(0, llhood)
             for i in range(runprops.get('numobjects')):
                 thelist.pop()
             for i in range(runprops.get("numobjects")-1):
                 thelist.append(residuals[i])
                 thelist.append(residuals[i+1])
-                thelist.append(lp)
             csv_writer.writerow(thelist)
 
     return llhood
