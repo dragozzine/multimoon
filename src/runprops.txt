@@ -11,7 +11,7 @@
     "nwalkers" : 50,
     "nsteps" : 1000,
     "nthinning" : 1,
-    "nburnin" : 200,
+    "nburnin" : 1000,
     "essgoal" : 10,
     "maxiter" : 1000,
     "updatebestfitfile":true,

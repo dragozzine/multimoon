@@ -14,12 +14,13 @@ import random
 import json
 import emcee
 
-def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset, const = 100, lag = 10, cluster_frac = 0.25):
+def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset, const = 10, lag = 10, max_prune_frac = 0.75):
 	verbose = True
 	nwalkers = runprops.get("nwalkers")
 	reburnin = runprops.get("nburnin")
 
 	# Getting important values from the chain
+	avllhood = np.mean(sampler.get_log_prob()[-lag:,:], axis = 0)
 	lastparams = sampler.get_chain()[-1,:,:]
 	ngens = sampler.get_chain().shape[0]
 	
@@ -44,6 +45,7 @@ def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_sca
 	for i in range(1,nwalkers-1):
 		term1 = -llhoodparam[i+1,0] + llhoodparam[i,0]
 		term2 = const*(-llhoodparam[i,0] + llhoodparam[0,0])/(i)
+		print(term1, term2)
 		if term1 > term2:
 			reject[(i+1):] = 1
 			break
@@ -54,7 +56,7 @@ def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_sca
 	# Pruning walkers based on the clusters found, 
 	# replacing them with random linear combinations of walkers within the cluster
 	# Skipping if cluster is not big enough
-	if freject > cluster_frac:
+	if freject < max_prune_frac:
 		params = llhoodparam[:,1:]
 		for i in range(len(reject)):
 			if reject[i] == 1:
