@@ -63,7 +63,7 @@ verbose = runprops.get("verbose")
 nobjects = runprops.get("numobjects")
 
 # Setting the observations data file and geo position data file
-runprops["obsdata_file"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_obs_df.csv"
+runprops["obsdata_file"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_obs_df_Keck_and_HST_2009.csv"
 obsdata = runprops.get('obsdata_file')
 
 obsdf = 0
@@ -72,6 +72,7 @@ if os.path.exists(obsdata):
 		print("Observational data file " + obsdata + " will be used")
 	obsdf = pd.read_csv(obsdata)
 else:
+	print(obsdata)
 	print("ERROR: No observational data file exists. Aborting run.")
 	sys.exit()
 
@@ -84,7 +85,7 @@ else:
 	if verbose:
 		print("No object geocentric position file exists. Aborting Run.")
 	sys.exit()
-geo_obj_pos = pd.read_csv("../data/" + objname + "/geocentric_" + objname + "_position.csv")
+geo_obj_pos = pd.read_csv("../data/" + objname + "/geocentric_" + objname + "_position_KeckHST.csv")
 
 # Package the parameters wanted into a guesses-like df
 params = []
@@ -107,8 +108,10 @@ paramdf = pd.DataFrame(params).transpose()
 paramdf.columns = paramnames
 
 # Outputting model astrometry based on the params df
-Model_DeltaLong, Model_DeltaLat = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
+Model_DeltaLong, Model_DeltaLat, obsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 #positionData = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
+
+print(obsdf["time"])
 
 cols = ["time","Lat_Prim","Long_Prim"]
 for i in range(1,nobjects):
@@ -128,6 +131,11 @@ for i in range(obsdf.shape[0]):
 			obsdf.iloc[i,:]["DeltaLong_" + objectnames[j]] = np.nan
 
 obsdf = obsdf.drop(labels = [col for col in obsdf if col not in cols], axis = 1)
+
+# Adding random errors to obsdf
+for i in range(1,nobjects):
+	obsdf["DeltaLat_" + objectnames[i]] = obsdf["DeltaLat_" + objectnames[i]].values + np.random.normal(size = obsdf.shape[0])*obsdf["DeltaLat_" + objectnames[i] + "_err"].values
+	obsdf["DeltaLong_" + objectnames[i]] = obsdf["DeltaLong_" + objectnames[i]].values + np.random.normal(size = obsdf.shape[0])*obsdf["DeltaLong_" + objectnames[i] + "_err"].values
 
 # Now plot it to check to see if it look okay
 x = np.empty((nobjects-1, obsdf.shape[0]))

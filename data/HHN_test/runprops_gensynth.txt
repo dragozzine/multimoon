@@ -3,8 +3,8 @@
     "time": "now",
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
-    "testcase_name": "new_2body",
-    "numobjects" : 2,
+    "testcase_name": "new_3body",
+    "numobjects" : 3,
     "objectname" : "Haumea",
     "spinny_tolerance": 1e-10,
     "verbose" : false,
@@ -13,7 +13,8 @@
     "names_dict" :
     {
         "name_1": "Haumea",
-        "name_2": "Hiiaka"
+        "name_2": "Hiiaka",
+        "name_3": "Namaka"
     },
     "params_dict" : 
     { 
@@ -24,7 +25,14 @@
         "aop_2": 154.1,
         "inc_2": 126.356,
         "lan_2": 206.766,
-        "mea_2": 152.8
+        "mea_2": 152.8,
+        "mass_3": 1.79e+18,
+        "sma_3": 25657,
+        "ecc_3": 0.249,
+        "aop_3": 178.9,
+        "inc_3": 113.013,
+        "lan_3": 206.766,
+        "mea_3": 178.5
     },
     "float_dict" :
     {
@@ -35,7 +43,13 @@
         "aop_2": 1,
         "inc_2": 1,
         "lan_2": 1,
-        "mea_2": 1
+        "mea_2": 1,
+        "mass_3": 1,
+        "sma_3": 1,
+        "ecc_3": 1,
+        "aop_3": 1,
+        "inc_3": 1,
+        "lan_3": 1,
+        "mea_3": 1    
     }
-
 }
