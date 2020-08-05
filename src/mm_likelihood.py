@@ -77,6 +77,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
             for i in range(runprops.get("numobjects")-1):
                 thelist.append(residuals[i])
                 thelist.append(residuals[i+1])
+                thelist.append(lp)
             csv_writer.writerow(thelist)
 
     return llhood
