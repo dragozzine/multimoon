@@ -27,7 +27,7 @@ import sys
 
 
 #chain = (nwalkers, nlink, ndim)
-def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops, mm_make_geo_pos):
+def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos):
 			# Here parameters is whatever file/object will have the run params
 	flatchain = sampler.get_chain(flat = True)
 	fit = []
@@ -137,6 +137,28 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			 histtype = "step", color = "black")
 		plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/likelihood_" + names[i] + ".png")
 		plt.close("all")
+
+	# Residual plots
+	llhoods = sampler.get_log_prob(flat = True)
+	ind = np.argmin(llhoods)
+	paramdf = flatchain[ind,:]
+
+	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
+
+	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
+	objectnames = []
+	for i in name_dict.values():
+		objectnames.append(i)
+
+	plt.figure()
+	plt.Circle((0, 0), 1.0, color='black', fill=False)
+	for i in range(1, nobjects):
+		plt.scatter(residuals[2*(i-1)][:], residuals[2*(i-1)+1][:], c = colorcycle[i], label = objectnames[i], edgecolors = None)
+	plt.xlabel("Delta Longitude")
+	plt.ylabel("Delta Latitude")
+	plt.axis("equal")
+	plt.legend()
+	plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/best_residuals.png")
 
 	# Astrometry plots
 	time_arr = obsdf['time'].values.flatten()
