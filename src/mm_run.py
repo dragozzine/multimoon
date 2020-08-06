@@ -37,7 +37,7 @@ def initializer():
     from multiprocessing import Pool, Manager
     import warnings
     import shutil
-    import json
+    import commentjson as json
     from csv import writer
 
     
@@ -299,8 +299,10 @@ if __name__ == '__main__':
     
         state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
 
-        # Now running the clustering algorithm!
-        sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
+        # Now running the clustering algorithm! (if desired)
+        if runprops.get("use_clustering"):
+	        sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
+        sampler.reset()
 
     # Now do the full run with essgoal and initial n steps
     

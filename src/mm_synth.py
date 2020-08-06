@@ -26,7 +26,7 @@ import pandas as pd
 import sys
 import h5py
 import random
-import json
+import commentjson as json
 import os
 import shutil
 #import matplotlib

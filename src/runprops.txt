@@ -1,34 +1,50 @@
 {
+    # Initialization properties
     "first_run": true,
     "date": "today",
     "time": "now",
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
     "mm_initguess_which" : "get_init_guess_from_dist",
-    "numobjects" : 2,
     "RunGoal" : "user puts their goal for this run here",
-    "objectname" : "HH_test",
+
+    # Run properties/parameters
+    "objectname" : "HHN_test",
+    "numobjects" : 3,
+    "dynamicstoincludeflags" : "000",
+    "includesun" : 0,
     "nwalkers" : 50,
     "nsteps" : 1000,
     "nthinning" : 1,
     "nburnin" : 1000,
     "essgoal" : 10,
     "maxiter" : 1000,
-    "updatebestfitfile":true,
-    "is_mcmc":false,
-    "spinny_tolerance": 1e-10,
     "maxreset" : 10000,
-    "verbose" : false,
-    "get_resid":false,
-    "dynamicstoincludeflags" : "00",
-    "includesun" : 0,
-    "startfromfile" : false,
+    "spinny_tolerance": 1e-10,
     "numprocesses": 1,
+
+    # Input data files
+    "init_filename":"../data/HHN_test/HHN_test_init_guess.csv",
+    "priors_filename": "../data/HHN_test/HHN_test_priors_df.csv",
+    "obsdata_file": "../data/HHN_test/HHN_test_obs_df.csv",
+
+    # Additional options
+    "verbose" : false,			# Enables print statements within the code
+    "updatebestfitfile":true,		# Writes to a file when new best fit is found
+    "is_mcmc":false,			# ??
+    "get_resid":false,			# ??
+    "startfromfile" : false,		# ??
+    "use_clustering" : true,		# Implements a clustering/pruning algorithm
+
+    # Object names
     "names_dict" :
     {
         "name_1": "Haumea",
-        "name_2": "Hiiaka"
+        "name_2": "Hiiaka",
+        "name_3": "Namaka"
     },
+
+    # Which parameters to have floating
     "float_dict" : 
     { 
         "mass_1": 1,
@@ -38,10 +54,15 @@
         "aop_2": 1,
         "inc_2": 1,
         "lan_2": 1,
-        "mea_2": 1
-    },
-    "init_filename":"../data/HH_test/HH_test_init_guess.csv",
-    "priors_filename": "../data/HH_test/HH_test_priors_df.csv",
-    "obsdata_file": "../data/HH_test/HH_test_obs_df.csv"
+        "mea_2": 1,
+        "mea_2": 1,
+        "mass_3": 1,
+        "sma_3": 1,
+        "ecc_3": 1,
+        "aop_3": 1,
+        "inc_3": 1,
+        "lan_3": 1,
+        "mea_3": 1
+    }
 }
 
