@@ -11,17 +11,17 @@
     # Run properties/parameters
     "objectname" : "HHN_test",
     "numobjects" : 3,
-    "dynamicstoincludeflags" : "000",
-    "includesun" : 0,
-    "nwalkers" : 50,
-    "nsteps" : 1000,
-    "nthinning" : 1,
-    "nburnin" : 1000,
-    "essgoal" : 10,
-    "maxiter" : 1000,
-    "maxreset" : 10000,
-    "spinny_tolerance": 1e-10,
-    "numprocesses": 1,
+    "dynamicstoincludeflags" : "000",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
+    "includesun" : 0,			# 0 = no sun. 1 = sun.
+    "nwalkers" : 50,			# number of walkers in emcee ensemble
+    "nburnin" : 1000,			# length of burn in
+    "nsteps" : 1000,			# number of initial steps for sampling
+    "essgoal" : 10,			# effective sample size desired
+    "maxiter" : 1000,			# maximum number of steps to take within the final sampling
+    "nthinning" : 1,			# thinning fraction
+    "maxreset" : 10000,			# maximum number of resets when checking parameters set
+    "spinny_tolerance": 1e-10,		# tolerance of spinny
+    "numprocesses": 1,			# number of cores to use
 
     # Input data files
     "init_filename":"../data/HHN_test/HHN_test_init_guess.csv",
@@ -34,7 +34,8 @@
     "is_mcmc":false,			# ??
     "get_resid":false,			# ??
     "startfromfile" : false,		# ??
-    "use_clustering" : true,		# Implements a clustering/pruning algorithm
+    "use_clustering" : true,		# Implements a clustering/pruning algorithm after (first) burin
+    "clustering_burnin" : 1000,		# Number of steps to burn in after clustering
 
     # Object names
     "names_dict" :

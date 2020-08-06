@@ -15,9 +15,8 @@ import commentjson as json
 import emcee
 
 def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset, const = 10, lag = 10, max_prune_frac = 0.75):
-	verbose = True
 	nwalkers = runprops.get("nwalkers")
-	reburnin = runprops.get("nburnin")
+	reburnin = runprops.get("clustering_burnin")
 
 	# Getting important values from the chain
 	avllhood = np.mean(sampler.get_log_prob()[-lag:,:], axis = 0)
