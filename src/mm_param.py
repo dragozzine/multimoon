@@ -48,6 +48,10 @@ def from_param_df_to_fit_array(dataframe, runprops):
                 float_df[name] = dataframe[col]
                 float_names.append(name)
             num = num+1
+            
+            if 'ecc' in name:
+                #Reaplce all ecc with e*cos(omega) and all omega with e*sin(omega)
+            
         float_arr = float_df.to_numpy()
     
     for col in fit_scale.columns:

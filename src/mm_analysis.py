@@ -24,6 +24,7 @@ import numpy as np
 import pandas as pd
 import emcee
 import sys
+import mm_likelihood
 
 
 #chain = (nwalkers, nlink, ndim)
