@@ -49,10 +49,14 @@ def from_param_df_to_fit_array(dataframe, runprops):
                 float_names.append(name)
             num = num+1
             
-            if 'ecc' in name:
-                #Reaplce all ecc with e*cos(omega) and all omega with e*sin(omega)
-            
         float_arr = float_df.to_numpy()
+        
+        if fix_float_dict.get('ecc_2') == 1 and fix_float_dict.get('aop_2') == 1:
+            ecc = float_df['ecc_2']
+            aop = float_df['aop_2']
+            
+            float_df['ecc_2'] = ecc*np.cos(aop)
+            float_df['aop_2'] = ecc*np.sin(aop)
     
     for col in fit_scale.columns:
         fit_scale.rename(columns={col: col[0]}, inplace=True)
@@ -84,6 +88,10 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
         param_df = float_df
     else:
     #Recombine the float and fixed dataframes
+        undo_ecc_aop = False
+        if 'ecc_2' in float_names and 'aop_2' in float_names:
+            undo_ecc_aop = True
+    
         for i in total_df_names:
             name = i[0]
             if name in fixed_df:
@@ -99,10 +107,17 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
         for col in names_df.columns:
             param_df[col] = names_df[col][0]
     
+      
         #Now unfit all of the variables by multipliyng each column by its fit variable.
         #print(param_df)
         for col in fit_scale.columns:
             param_df[col[0]] = param_df[col[0]]*fit_scale[col][0]
             
     param_df = param_df.iloc[[0]]
+    
+    if undo_ecc_aop:
+        param_df['aop_2'] = np.arctan(np.array(param_df['aop_2'])/np.array(param_df['ecc_2']))
+        param_df['ecc_2'] = param_df['ecc_2']/np.sin(np.array(param_df['aop_2']))
+        
+    
     return param_df
