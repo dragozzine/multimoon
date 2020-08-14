@@ -51,12 +51,14 @@ def from_param_df_to_fit_array(dataframe, runprops):
             
         float_arr = float_df.to_numpy()
         
-        if fix_float_dict.get('ecc_2') == 1 and fix_float_dict.get('aop_2') == 1:
-            ecc = float_df['ecc_2']
-            aop = float_df['aop_2']
+        for i in range(runprops.get('numobjects')-1):
             
-            float_df['ecc_2'] = ecc*np.cos(aop)
-            float_df['aop_2'] = ecc*np.sin(aop)
+            if fix_float_dict.get('ecc_'+str(i+2)) == 1 and fix_float_dict.get('aop_'+str(i+2)) == 1:
+                ecc = float_df['ecc_'+str(i+2)]
+                aop = float_df['aop_'+str(i+2)]
+            
+                float_df['ecc_'+str(i+2)] = ecc*np.cos(aop)
+                float_df['aop_'+str(i+2)] = ecc*np.sin(aop)
     
     for col in fit_scale.columns:
         fit_scale.rename(columns={col: col[0]}, inplace=True)
@@ -75,7 +77,7 @@ Inputs:
 Outputs:
 1) Dataframe in parameter format
 """
-def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_names, fit_scale, names_dict):
+def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_names, fit_scale, names_dict, runprops):
     
     #First, turn the float_array back into  dataframe with the column names given
     Index = range(len(fixed_df.index))
@@ -89,8 +91,11 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
     else:
     #Recombine the float and fixed dataframes
         undo_ecc_aop = False
-        if 'ecc_2' in float_names and 'aop_2' in float_names:
-            undo_ecc_aop = True
+        undo_ecc_aop = np.zeros(runprops.get('numobjects')-1)
+        undo_ecc_aop[:] = False
+        for i in range(runprops.get('numobjects')-1):
+            if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
+                undo_ecc_aop[i] = True
     
         for i in total_df_names:
             name = i[0]
@@ -115,9 +120,10 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
             
     param_df = param_df.iloc[[0]]
     
-    if undo_ecc_aop:
-        param_df['aop_2'] = np.arctan(np.array(param_df['aop_2'])/np.array(param_df['ecc_2']))
-        param_df['ecc_2'] = param_df['ecc_2']/np.sin(np.array(param_df['aop_2']))
+    for i in range(runprops.get('numobjects')-1):
+        if undo_ecc_aop[i]:
+            param_df['aop_'+str(i+2)] = np.arctan(np.array(param_df['aop_'+str(i+2)])/np.array(param_df['ecc_'+str(i+2)]))
+            param_df['ecc_'+str(i+2)] = param_df['ecc_'+str(i+2)]/np.sin(np.array(param_df['aop_'+str(i+2)]))
         
     
     return param_df

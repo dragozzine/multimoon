@@ -238,7 +238,7 @@ if __name__ == '__main__':
         while (llhood == -np.Inf):
             p = random.random()
             p0[i,:] = (p*p0[random.randrange(nwalkers),:] + (1-p)*p0[random.randrange(nwalkers),:])
-            llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods)
+            llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, runprops)
             reset += 1
             #print(llhood)
             if reset > maxreset:

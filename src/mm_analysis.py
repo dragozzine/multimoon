@@ -30,6 +30,14 @@ import mm_likelihood
 #chain = (nwalkers, nlink, ndim)
 def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos):
 			# Here parameters is whatever file/object will have the run params
+	undo_ecc_aop = np.zeros(runprops.get('numobjects')-1)
+	undo_ecc_aop[:] = False
+	ecc_aop_index = np.zeros(runprops.get('numobjects')*2)
+	for i in range(runprops.get('numobjects')-1):
+		if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
+			undo_ecc_aop[i] = True
+			ecc_aop_index[2*i] = [float_names.index('ecc_'+str(i+2))]
+			ecc_aop_index[2*i+1] = [float_names.index('aop_'+str(i+2))]
 	flatchain = sampler.get_chain(flat = True)
 	fit = []
 
@@ -46,10 +54,16 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	#First fit the flatchain with the fit parameters    
 	fchain = np.zeros((numgens*numwalkers,numparams))    
 	for i in range(numgens*numwalkers):
-		row = np.zeros(numparams)
+		row = np.zeros(numparams)        
 		for j in range(numparams):
 			val = flatchain[i][j]*fit[j]
 			row[j] = val
+		for i in range(runprops.get('numobjects')-1):           
+			if undo_ecc_aop[i]:    
+				aop_new = row[ecc_aop_index[i*2+1]]
+				ecc_new = row[ecc_aop_index[i*2]]
+				row[ecc_aop_index[i*2+1]] = np.arctan(aop_new/ecc_new)*180/np.pi
+				row[ecc_aop_index[i*2]] = ecc_new/np.sin(aop_new)
 		fchain[i] = row
 
 	flatchain = np.array(fchain)
@@ -63,6 +77,12 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			for k in range(numparams):
 				val = chain[i][j][k]*fit[k]
 				cchain[i][j][k] = val
+			for i in range(runprops.get('numobjects')-1):
+				if undo_ecc_aop[i]:    
+					aop_new = cchain[i][j][ecc_aop_index[i*2+1]]
+					ecc_new = cchain[i][j][ecc_aop_index[i*2]]
+					cchain[i][j][ecc_aop_index[i*2+1]] = np.arctan(aop_new/ecc_new)*180/np.pi
+					cchain[i][j][ecc_aop_index[i*2]] = ecc_new/np.sin(aop_new)
 
 	cchain = np.array(cchain)
 
