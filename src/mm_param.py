@@ -49,11 +49,11 @@ def from_param_df_to_fit_array(dataframe, runprops):
                 float_names.append(name)
             num = num+1
             
-            if 'ecc' in name:
-                #Reaplce all ecc with e*cos(omega) and all omega with e*sin(omega)
-            
+        if fix_float_dict.get('ecc_2') == 1 and fix_float_dict.get('aop_2') == 1:
+            float_df['ecc_2'] = float_df['ecc_2']*np.cos(float_df['aop_2'])
+            float_df['aop_2'] = float_df['ecc_2']*np.sin(float_df['aop_2'])
         float_arr = float_df.to_numpy()
-    
+
     for col in fit_scale.columns:
         fit_scale.rename(columns={col: col[0]}, inplace=True)
     

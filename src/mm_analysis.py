@@ -144,6 +144,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	ind = np.argmin(llhoods)
 	paramdf = flatchain[ind,:]
 
+	print(paramdf)
 	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
