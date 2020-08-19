@@ -238,7 +238,7 @@ if __name__ == '__main__':
         while (llhood == -np.Inf):
             p = random.random()
             p0[i,:] = (p*p0[random.randrange(nwalkers),:] + (1-p)*p0[random.randrange(nwalkers),:])
-            llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, runprops)
+            llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods)
             reset += 1
             #print(llhood)
             if reset > maxreset:
@@ -300,8 +300,9 @@ if __name__ == '__main__':
         state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
 
         # Now running the clustering algorithm! (if desired)
-        if runprops.get("use_clustering"):
+        if runprops.get("use_clustering") and runprops.get("burnin") != 0:
 	        sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
+        
         sampler.reset()
 
     # Now do the full run with essgoal and initial n steps

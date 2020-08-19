@@ -36,8 +36,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	for i in range(runprops.get('numobjects')-1):
 		if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
 			undo_ecc_aop[i] = True
-			ecc_aop_index[2*i] = [float_names.index('ecc_'+str(i+2))]
-			ecc_aop_index[2*i+1] = [float_names.index('aop_'+str(i+2))]
+			ecc_aop_index[2*i] = float_names.index('ecc_'+str(i+2))
+			ecc_aop_index[2*i+1] = float_names.index('aop_'+str(i+2))
 	flatchain = sampler.get_chain(flat = True)
 	fit = []
 
@@ -51,6 +51,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	numwalkers = chain.shape[1]
 	numgens = chain.shape[0]
 
+	#print(flatchain)
 	#First fit the flatchain with the fit parameters    
 	fchain = np.zeros((numgens*numwalkers,numparams))    
 	for i in range(numgens*numwalkers):
@@ -58,15 +59,19 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		for j in range(numparams):
 			val = flatchain[i][j]*fit[j]
 			row[j] = val
-		for i in range(runprops.get('numobjects')-1):           
-			if undo_ecc_aop[i]:    
-				aop_new = row[ecc_aop_index[i*2+1]]
-				ecc_new = row[ecc_aop_index[i*2]]
-				row[ecc_aop_index[i*2+1]] = np.arctan(aop_new/ecc_new)*180/np.pi
-				row[ecc_aop_index[i*2]] = ecc_new/np.sin(aop_new)
-		fchain[i] = row
+		for b in range(runprops.get('numobjects')-1):           
+			if undo_ecc_aop[b]:
+				#print(ecc_aop_index[i*2+1])
+				aop_new = row[int(ecc_aop_index[b*2+1])]
+				ecc_new = row[int(ecc_aop_index[b*2])]
+				#print(np.arctan(aop_new/ecc_new))
+				row[int(ecc_aop_index[b*2+1])] = np.arctan(aop_new/ecc_new)*180/np.pi
+				row[int(ecc_aop_index[b*2])] = ecc_new/np.sin(aop_new)
+		#print(fchain[i], row)
+		fchain[i] = np.array(row)
 
 	flatchain = np.array(fchain)
+	#print(flatchain)
 
 
 	#Now fit the chain 
@@ -77,12 +82,12 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			for k in range(numparams):
 				val = chain[i][j][k]*fit[k]
 				cchain[i][j][k] = val
-			for i in range(runprops.get('numobjects')-1):
-				if undo_ecc_aop[i]:    
-					aop_new = cchain[i][j][ecc_aop_index[i*2+1]]
-					ecc_new = cchain[i][j][ecc_aop_index[i*2]]
-					cchain[i][j][ecc_aop_index[i*2+1]] = np.arctan(aop_new/ecc_new)*180/np.pi
-					cchain[i][j][ecc_aop_index[i*2]] = ecc_new/np.sin(aop_new)
+			for b in range(runprops.get('numobjects')-1):
+				if undo_ecc_aop[b]:    
+					aop_new = cchain[i][j][int(ecc_aop_index[b*2+1])]
+					ecc_new = cchain[i][j][int(ecc_aop_index[b*2])]
+					cchain[i][j][int(ecc_aop_index[b*2+1])] = np.arctan(aop_new/ecc_new)*180/np.pi
+					cchain[i][j][int(ecc_aop_index[b*2])] = ecc_new/np.sin(aop_new)
 
 	cchain = np.array(cchain)
 
@@ -164,7 +169,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	ind = np.argmin(llhoods)
 	paramdf = flatchain[ind,:]
 
-	print(paramdf)
+	#print(paramdf)
 	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']

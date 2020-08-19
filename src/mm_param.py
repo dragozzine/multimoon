@@ -60,6 +60,14 @@ def from_param_df_to_fit_array(dataframe, runprops):
                 float_df['ecc_'+str(i+2)] = ecc*np.cos(aop)
                 float_df['aop_'+str(i+2)] = ecc*np.sin(aop)
     
+            if fix_float_dict.get('inc_'+str(i+2)) == 1 and fix_float_dict.get('lan_'+str(i+2)) == 1:
+                inc = float_df['inc_'+str(i+2)]
+                lan = float_df['lan_'+str(i+2)]
+            
+                float_df['inc_'+str(i+2)] = np.tan(inc/2)*np.sin(lan)
+                float_df['lan_'+str(i+2)] = np.tan(inc/2)*np.cos(lan)
+    
+    
     for col in fit_scale.columns:
         fit_scale.rename(columns={col: col[0]}, inplace=True)
     
@@ -90,13 +98,19 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
         param_df = float_df
     else:
     #Recombine the float and fixed dataframes
-        undo_ecc_aop = False
         undo_ecc_aop = np.zeros(runprops.get('numobjects')-1)
         undo_ecc_aop[:] = False
+        undo_inc_lan = np.zeros(runprops.get('numobjects')-1)
+        undo_inc_lan[:] = False
+        
         for i in range(runprops.get('numobjects')-1):
             if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
                 undo_ecc_aop[i] = True
-    
+            
+            if 'inc_'+str(i+2) in float_names and 'lan_'+str(i+2) in float_names:
+                undo_inc_lan[i] = True
+                
+                
         for i in total_df_names:
             name = i[0]
             if name in fixed_df:
@@ -119,15 +133,21 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
             param_df[col[0]] = param_df[col[0]]*fit_scale[col][0]
             
     param_df = param_df.iloc[[0]]
-<<<<<<< HEAD
-    return param_df
-=======
     
     for i in range(runprops.get('numobjects')-1):
         if undo_ecc_aop[i]:
             param_df['aop_'+str(i+2)] = np.arctan(np.array(param_df['aop_'+str(i+2)])/np.array(param_df['ecc_'+str(i+2)]))
             param_df['ecc_'+str(i+2)] = param_df['ecc_'+str(i+2)]/np.sin(np.array(param_df['aop_'+str(i+2)]))
-        
-    
+            
+        if undo_inc_lan[i]:
+            
+            sinlan = param_df['inc_'+str(i+2)]
+            coslan = param_df['lan_'+str(i+2)]
+            
+            inc = np.arctan(np.array(sinlan)/np.array(coslan))
+            param_df['inc_'+str(i+2)] = inc
+            
+            param_df['lan_'+str(i+2)] = np.arcsin(np.array(sinlan)/np.tan(inc/2))
+                              
+           
     return param_df
->>>>>>> 1845b40f6ecf08909fc883b60a1e50d4ff606175
