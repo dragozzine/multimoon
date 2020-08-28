@@ -36,6 +36,23 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 		if i[0] in float_names:
 			val = fit_scale.loc[0, i]
 			fit.append(val)
+        
+	undo_ecc_aop = np.zeros(runprops.get('numobjects')-1)
+	undo_ecc_aop[:] = False
+	undo_inc_lan = np.zeros(runprops.get('numobjects')-1)
+	undo_inc_lan[:] = False
+	undo_lambda = np.zeros(runprops.get('numobjects')-1)
+	undo_lambda[:] = False    
+    
+	for i in range(runprops.get('numobjects')-1):
+		if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
+			undo_ecc_aop[i] = [float_names.index('ecc_'+str(2+i)),float_names.index('aop_'+str(2+i))]
+            
+		if 'inc_'+str(i+2) in float_names and 'lan_'+str(i+2) in float_names:
+			undo_inc_lan[i] = [float_names.index('inc_'+str(2+i)),float_names.index('lan_'+str(2+i))]
+                
+		if 'mass_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
+			undo_lambda[i] = [float_names.index('mass_'+str(2+i)),float_names.index('aop_'+str(2+i))]
             
 	chain = sampler.get_chain(flat = False)            
 	numparams = chain.shape[2]
@@ -49,10 +66,33 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 		for j in range(numparams):
 			val = flatchain[i][j]*fit[j]
 			row[j] = val
+		for j in range(runprops.get('numobjects')-1):
+			if undo_ecc_aop[j] != False:
+				a = undo_ecc_aop[0]
+				b = undo_ecc_aop[1]
+                
+				aop = np.arctan(a/b)
+				ecc = a/np.sin(aop)
+                
+				row[undo_ecc_aop[i][0]] = ecc
+				row[undo_ecc_aop[i][1]] = aop
+                
+			if undo_ecc_aop[j] != False:
+				a = undo_inc_lan[0]
+				b = undo_inc_lan[1]
+                
+				lan = np.arctan(np.array(a)/np.array(b))
+				inc = np.arctan(np.array(a)/np.sin(np.array(lan)))*2
+                
+				row[undo_inc_lan[i][0]] = inc
+				row[undo_inc_lan[i][1]] = lan
+                
+			if undo_lambda[i] != False:
+				row[undo_lambda[i][0]] = row[undo_lambda[i][0]]-row[undo_lambda[i][1]]
+                
 		fchain[i] = row
 
 	flatchain = np.array(fchain)
-
 
 	#Now fit the chain 
 	cchain = np.zeros((numgens,numwalkers, numparams))    
