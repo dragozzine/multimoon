@@ -100,7 +100,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 
 	# Make corner plot
 	#plt.rc('text', usetex=True)
-	fig = corner.corner(flatchain, bins = 40, show_titles = True, 
+	fig = corner.corner(flatchain, labels = names, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".4e")
 	fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
@@ -168,7 +168,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	llhoods = sampler.get_log_prob(flat = True)
 	ind = np.argmin(llhoods)
 	paramdf = flatchain[ind,:]
-
+'''
 	#print(paramdf)
 	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
 
@@ -242,7 +242,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 
 	plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/best_astrometry.png")
 	plt.close()
-
+'''
 
 
 def auto_window(taus, c):
