@@ -20,8 +20,9 @@ import os, glob
 folder = max(glob.glob(os.path.join('../runs/', '*/')), key=os.path.getmtime)
 filename = folder+'profile.prof'
 pr.dump_stats(filename)
+print('profile.prof dumped to ', filename)
 
-pr.dump_stats('profile.prof')
+#pr.dump_stats('profile1.prof')
 
 s1 = io.StringIO()
 ps1 = pstats.Stats(pr, stream=s1).sort_stats('cumtime')

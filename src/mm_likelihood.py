@@ -46,7 +46,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     name_dict = runprops.get("names_dict")
     
     
-    params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict)
+    params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict, runprops)
 
     #print(params)
     
@@ -68,9 +68,14 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
         best_llhoods['best_llhood'] = llhood
         best_llhoods['best_params'] = params.to_dict()
         the_file = runprops.get('runs_folder') + '/best_likelihoods.csv'
+
+        reduced_chi_sq = llhood/(-0.5)/best_llhoods.get('deg_freedom')
+
         with open(the_file, 'a+', newline='') as write_obj:
-            csv_writer = writer(write_obj, delimiter = '\t')
+            csv_writer = writer(write_obj, delimiter = ',')
             thelist = params.head(1).values.tolist()[0]
+            thelist.insert(0, lp)
+            thelist.insert(0, reduced_chi_sq)
             thelist.insert(0, llhood)
             for i in range(runprops.get('numobjects')):
                 thelist.pop()
@@ -123,7 +128,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     obsdf = obsdf.sort_values(by=['time'])
     #time_arr = np.sort(obsdf['time'].values.flatten())
     time_arr = obsdf['time'].values.flatten()# gets an array of observation times from the obs dataframe
-    
+
     # Sorts them into ascending order
     import logging 
     try:
@@ -206,7 +211,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     if gensynth:
         if verbose:
             print("Returning the Model_DeltaLong and Lat dataframes for use in synthetic astrometry.")
-        return Model_DeltaLong, Model_DeltaLat
+        return Model_DeltaLong, Model_DeltaLat, obsdf
 
     # Now we have model delta Long and delta Lat for each object and each time 
     rows = obsdf.shape[0]

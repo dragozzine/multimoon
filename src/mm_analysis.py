@@ -24,11 +24,36 @@ import numpy as np
 import pandas as pd
 import emcee
 import sys
+import mm_likelihood
 
 
 #chain = (nwalkers, nlink, ndim)
-def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops):
+def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos):
 			# Here parameters is whatever file/object will have the run params
+	undo_ecc_aop = np.zeros(runprops.get('numobjects')-1)
+	undo_ecc_aop[:] = False
+	ecc_aop_index = np.zeros(runprops.get('numobjects')*2)
+	undo_inc_lan = np.zeros(runprops.get('numobjects')-1)
+	undo_inc_lan[:] = False
+	inc_lan_index = np.zeros(runprops.get('numobjects')*2)
+	undo_lambda = np.zeros(runprops.get('numobjects')-1)
+	undo_lambda[:] = False
+	lambda_index = np.zeros(runprops.get('numobjects')*2)
+    
+	for i in range(runprops.get('numobjects')-1):
+		if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
+			undo_ecc_aop[i] = True
+			ecc_aop_index[2*i] = float_names.index('ecc_'+str(i+2))
+			ecc_aop_index[2*i+1] = float_names.index('aop_'+str(i+2))
+		if 'inc_'+str(i+2) in float_names and 'lan_'+str(i+2) in float_names:
+			undo_inc_lan[i] = True
+			inc_lan_index[2*i] = float_names.index('inc_'+str(i+2))
+			inc_lan_index[2*i+1] = float_names.index('lan_'+str(i+2))
+		if 'mass_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
+			undo_lambda[i] = True
+			lambda_index[2*i] = float_names.index('mass_'+str(i+2))
+			lambda_index[2*i+1] = float_names.index('aop_'+str(i+2))
+            
 	flatchain = sampler.get_chain(flat = True)
 	fit = []
 
@@ -36,63 +61,48 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 		if i[0] in float_names:
 			val = fit_scale.loc[0, i]
 			fit.append(val)
-        
-	undo_ecc_aop = np.zeros(runprops.get('numobjects')-1)
-	undo_ecc_aop[:] = False
-	undo_inc_lan = np.zeros(runprops.get('numobjects')-1)
-	undo_inc_lan[:] = False
-	undo_lambda = np.zeros(runprops.get('numobjects')-1)
-	undo_lambda[:] = False    
-    
-	for i in range(runprops.get('numobjects')-1):
-		if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
-			undo_ecc_aop[i] = [float_names.index('ecc_'+str(2+i)),float_names.index('aop_'+str(2+i))]
-            
-		if 'inc_'+str(i+2) in float_names and 'lan_'+str(i+2) in float_names:
-			undo_inc_lan[i] = [float_names.index('inc_'+str(2+i)),float_names.index('lan_'+str(2+i))]
-                
-		if 'mass_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
-			undo_lambda[i] = [float_names.index('mass_'+str(2+i)),float_names.index('aop_'+str(2+i))]
-            
+                  
 	chain = sampler.get_chain(flat = False)            
 	numparams = chain.shape[2]
 	numwalkers = chain.shape[1]
 	numgens = chain.shape[0]
 
+	#print(flatchain)
 	#First fit the flatchain with the fit parameters    
 	fchain = np.zeros((numgens*numwalkers,numparams))    
 	for i in range(numgens*numwalkers):
-		row = np.zeros(numparams)
+		row = np.zeros(numparams)        
 		for j in range(numparams):
 			val = flatchain[i][j]*fit[j]
 			row[j] = val
-		for j in range(runprops.get('numobjects')-1):
-			if undo_ecc_aop[j] != False:
-				a = undo_ecc_aop[0]
-				b = undo_ecc_aop[1]
+
+		for b in range(runprops.get('numobjects')-1):           
+			if undo_ecc_aop[b]:
+				aop_new = row[int(ecc_aop_index[b*2+1])]
+				ecc_new = row[int(ecc_aop_index[b*2])]
                 
-				aop = np.arctan(a/b)
-				ecc = a/np.sin(aop)
+				row[int(ecc_aop_index[b*2+1])] = np.arctan(aop_new/ecc_new)*180/np.pi
+				row[int(ecc_aop_index[b*2])] = ecc_new/np.sin(aop_new)
                 
-				row[undo_ecc_aop[i][0]] = ecc
-				row[undo_ecc_aop[i][1]] = aop
+			if undo_inc_lan[b]:
+				inc_new = row[int(inc_lan_index[b*2+1])]
+				lan_new = row[int(inc_lan_index[b*2])]
+
+				lan = np.arctan(np.array(inc_new)/np.array(lan_new))
+				row[int(inc_lan_index[b*2+1])] = lan
+				row[int(inc_lan_index[b*2])] = np.arctan(np.array(inc_new)/np.sin(np.array(lan)))*2
                 
-			if undo_ecc_aop[j] != False:
-				a = undo_inc_lan[0]
-				b = undo_inc_lan[1]
+			if undo_lambda[b]:
+				mass_new = row[int(lambda_index[b*2])]
+				aop = row[int(lambda_index[b*2+1])]
                 
-				lan = np.arctan(np.array(a)/np.array(b))
-				inc = np.arctan(np.array(a)/np.sin(np.array(lan)))*2
+				row[int(lambda_index[b*2])] = mass_new-aop
                 
-				row[undo_inc_lan[i][0]] = inc
-				row[undo_inc_lan[i][1]] = lan
-                
-			if undo_lambda[i] != False:
-				row[undo_lambda[i][0]] = row[undo_lambda[i][0]]-row[undo_lambda[i][1]]
-                
-		fchain[i] = row
+		#print(fchain[i], row)
+		fchain[i] = np.array(row)
 
 	flatchain = np.array(fchain)
+	#print(flatchain)
 
 	#Now fit the chain 
 	cchain = np.zeros((numgens,numwalkers, numparams))    
@@ -102,6 +112,12 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 			for k in range(numparams):
 				val = chain[i][j][k]*fit[k]
 				cchain[i][j][k] = val
+			for b in range(runprops.get('numobjects')-1):
+				if undo_ecc_aop[b]:    
+					aop_new = cchain[i][j][int(ecc_aop_index[b*2+1])]
+					ecc_new = cchain[i][j][int(ecc_aop_index[b*2])]
+					cchain[i][j][int(ecc_aop_index[b*2+1])] = np.arctan(aop_new/ecc_new)*180/np.pi
+					cchain[i][j][int(ecc_aop_index[b*2])] = ecc_new/np.sin(aop_new)
 
 	cchain = np.array(cchain)
 
@@ -113,7 +129,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 
 
 	# Make corner plot
-	fig = corner.corner(flatchain, bins = 40, labels = names, show_titles = True, 
+	#plt.rc('text', usetex=True)
+	fig = corner.corner(flatchain, labels = names, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".4e")
 	fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
@@ -122,7 +139,9 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 	fname = "../runs/"+objname+"_"+runprops.get("date")+"/corner.pdf"       
 	fig.savefig(fname, format = 'pdf')
 	plt.close("all")
+	#plt.rc('text', usetex=False)
 	
+
 	# Now make the walker plots
 	for i in range(numparams):
 		plt.figure()
@@ -175,21 +194,85 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops)
 		plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/likelihood_" + names[i] + ".png")
 		plt.close("all")
 
+	# Residual plots
+	llhoods = sampler.get_log_prob(flat = True)
+	ind = np.argmin(llhoods)
+	paramdf = flatchain[ind,:]
+'''
+	#print(paramdf)
+	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
+
+	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
+	objectnames = []
+	for i in name_dict.values():
+		objectnames.append(i)
+
+	plt.figure()
+	plt.Circle((0, 0), 1.0, color='black', fill=False)
+	for i in range(1, nobjects):
+		plt.scatter(residuals[2*(i-1)][:], residuals[2*(i-1)+1][:], c = colorcycle[i], label = objectnames[i], edgecolors = None)
+	plt.xlabel("Delta Longitude")
+	plt.ylabel("Delta Latitude")
+	plt.axis("equal")
+	plt.legend()
+	plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/best_residuals.png")
+
 	# Astrometry plots
-"""	time_arr = obsdf['time'].values.flatten()
-	tmin = tim_arr.min()
-	tmax = tim_arr.max()
+	time_arr = obsdf['time'].values.flatten()
+	tmin = time_arr.min()
+	tmax = time_arr.max()
 	fakeobsdf = obsdf.loc[[1,2],:]
 	times = np.arange(tmin,tmax, 0.25)
 	for i in range(len(times)):
 		if i == 0 or i == 1:
 			fakeobsdf.iloc[i,0] = times[i]
 			# change row number?
-		fakeobsdf = fakeobsdf.append(fakedata.iloc[-1,:])
+		fakeobsdf = fakeobsdf.append(fakeobsdf.iloc[-1,:])
 		fakeobsdf.iloc[-1,0] = times[i]
-	geo_obj_pos = mm_make_geo_pos(objname, times)
-	Model_DeltaLong, Model_DeltaLat = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
-"""
+	geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos("Haumea", times)
+
+	llhoods = sampler.get_log_prob(flat = True)
+	ind = np.argmin(llhoods)
+	paramdf = flatchain[ind,:]
+
+	Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
+
+	modelx = np.empty((nobjects-1, obsdf.shape[0]))
+	modely = np.empty((nobjects-1, obsdf.shape[0]))
+
+	x = np.empty((nobjects-1, obsdf.shape[0]))
+	xe = np.empty((nobjects-1, obsdf.shape[0]))
+	y = np.empty((nobjects-1, obsdf.shape[0]))
+	ye = np.empty((nobjects-1, obsdf.shape[0]))
+
+	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
+
+	name_dict = runprops.get("names_dict")
+	objectnames = []
+	for i in name_dict.values():
+		objectnames.append(i)
+
+	fig = plt.figure()
+	for i in range(1,nobjects):
+		modelx[i-1,:] = Model_DeltaLong[i-1]
+		modely[i-1,:] = Model_DeltaLat[i-1]
+
+		x[i-1,:] = obsdf["DeltaLat_" + objectnames[i]].values
+		xe[i-1,:] = obsdf["DeltaLat_" + objectnames[i] + "_err"].values
+		y[i-1,:] = obsdf["DeltaLong_" + objectnames[i]].values
+		ye[i-1,:] = obsdf["DeltaLong_" + objectnames[i] + "_err"].values
+
+		plt.plot(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = objectnames[i])
+		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko")
+
+	plt.axis('equal')
+	plt.xlabel("Delta Latitude")
+	plt.ylabel("Delta Longitude")
+	plt.legend()
+
+	plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/best_astrometry.png")
+	plt.close()
+'''
 
 
 def auto_window(taus, c):

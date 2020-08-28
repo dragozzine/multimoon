@@ -1,4 +1,4 @@
-import json
+import commentjson as json
 import pandas as pd
 import sys
 import os
