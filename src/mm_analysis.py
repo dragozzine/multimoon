@@ -75,30 +75,30 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		for j in range(numparams):
 			val = flatchain[i][j]*fit[j]
 			row[j] = val
+		#print('ecc_')
+		if runprops.get('transform'):
+			for b in range(runprops.get('numobjects')-1):           
+				if undo_ecc_aop[b]:
+					aop_new = row[int(ecc_aop_index[b*2+1])]
+					ecc_new = row[int(ecc_aop_index[b*2])]
+					aop = np.arctan2(ecc_new,aop_new)*180/np.pi
+					row[int(ecc_aop_index[b*2+1])] = aop
+					row[int(ecc_aop_index[b*2])] = ecc_new/np.sin(aop*np.pi/180)
+                               
+				if undo_inc_lan[b]:
+					inc_new = row[int(inc_lan_index[b*2])]
+					lan_new = row[int(inc_lan_index[b*2+1])]
 
-		for b in range(runprops.get('numobjects')-1):           
-			if undo_ecc_aop[b]:
-				aop_new = row[int(ecc_aop_index[b*2+1])]
-				ecc_new = row[int(ecc_aop_index[b*2])]
+					lan = np.arctan2(inc_new,lan_new)*180/np.pi
+					row[int(inc_lan_index[b*2+1])] = lan
+					row[int(inc_lan_index[b*2])] = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
                 
-				row[int(ecc_aop_index[b*2+1])] = np.arctan(aop_new/ecc_new)*180/np.pi
-				row[int(ecc_aop_index[b*2])] = ecc_new/np.sin(aop_new)
+				if undo_lambda[b]:
+					mass_new = row[int(lambda_index[b*2])]
+					aop = row[int(lambda_index[b*2+1])]
                 
-			if undo_inc_lan[b]:
-				inc_new = row[int(inc_lan_index[b*2+1])]
-				lan_new = row[int(inc_lan_index[b*2])]
-
-				lan = np.arctan(np.array(inc_new)/np.array(lan_new))
-				row[int(inc_lan_index[b*2+1])] = lan
-				row[int(inc_lan_index[b*2])] = np.arctan(np.array(inc_new)/np.sin(np.array(lan)))*2
-                
-			if undo_lambda[b]:
-				mass_new = row[int(lambda_index[b*2])]
-				aop = row[int(lambda_index[b*2+1])]
-                
-				row[int(lambda_index[b*2])] = mass_new-aop
-                
-		#print(fchain[i], row)
+					row[int(lambda_index[b*2])] = mass_new-aop
+		#'''
 		fchain[i] = np.array(row)
 
 	flatchain = np.array(fchain)
@@ -112,13 +112,24 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			for k in range(numparams):
 				val = chain[i][j][k]*fit[k]
 				cchain[i][j][k] = val
-			for b in range(runprops.get('numobjects')-1):
-				if undo_ecc_aop[b]:    
-					aop_new = cchain[i][j][int(ecc_aop_index[b*2+1])]
-					ecc_new = cchain[i][j][int(ecc_aop_index[b*2])]
-					cchain[i][j][int(ecc_aop_index[b*2+1])] = np.arctan(aop_new/ecc_new)*180/np.pi
-					cchain[i][j][int(ecc_aop_index[b*2])] = ecc_new/np.sin(aop_new)
-
+			if runprops.get('transform'):
+				for b in range(runprops.get('numobjects')-1):
+					if undo_ecc_aop[b]:    
+						aop_new = cchain[i][j][int(ecc_aop_index[b*2+1])]
+						ecc_new = cchain[i][j][int(ecc_aop_index[b*2])]
+						aop = np.arctan2(ecc_new,aop_new)*180/np.pi
+						cchain[i][j][int(ecc_aop_index[b*2+1])] = aop
+						cchain[i][j][int(ecc_aop_index[b*2])] = ecc_new/np.sin(aop/180*np.pi)
+					if undo_inc_lan[b]:    
+						inc_new = cchain[i][j][int(inc_lan_index[b*2])]
+						lan_new = cchain[i][j][int(inc_lan_index[b*2+1])]
+						lan = np.arctan2(inc_new,lan_new)*180/np.pi
+						cchain[i][j][int(inc_lan_index[b*2+1])] = lan
+						cchain[i][j][int(inc_lan_index[b*2])] = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
+					if undo_lambda[b]:
+						mass_new = cchain[i][j][int(lambda_index[b*2])]
+						aop = cchain[i][j][int(lambda_index[b*2+1])]
+						cchain[i][j][int(lambda_index[b*2])] = mass_new-aop
 	cchain = np.array(cchain)
 
 	oldchain = chain

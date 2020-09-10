@@ -181,6 +181,7 @@ if __name__ == '__main__':
     # Convert the guesses into fitting units and place in numpy array
     p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit_array(guesses,runprops)
     
+    
     ndim = len(p0[0])
     #we still do not have a constraints or fit scale defined
     
@@ -235,7 +236,7 @@ if __name__ == '__main__':
     for i in range(nwalkers):  
         llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods)
         reset = 0
-        print(llhood)
+        #print(llhood)
         while (llhood == -np.Inf):
             p = random.random()
             p0[i,:] = (p*p0[random.randrange(nwalkers),:] + (1-p)*p0[random.randrange(nwalkers),:])

@@ -29,7 +29,7 @@ def mm_priors(priors, parameters, runprops):
     #This loop is to make sure all of the column values are floats, because pandas sometimes turns the values to strings when read from file
     for i in columnList:
         priors[i].astype(float)
-   
+
     count = 0
     allProbs = []
     numNaNs = 0
@@ -98,5 +98,5 @@ def mm_priors(priors, parameters, runprops):
         print('AllProbs:' ,allProbs)
     for x in allProbs:
         totalLogProb = totalLogProb + np.log(x)
-        
+  
     return totalLogProb

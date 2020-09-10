@@ -19,6 +19,8 @@ def from_param_df_to_fit_array(dataframe, runprops):
 
     total_df_names = dataframe.columns
     
+    #print(dataframe[['ecc_2']], dataframe[['aop_2']])
+
     for i in range(runprops.get('numobjects')):
         if runprops.get('lockspinanglesflag') and runprops.get('dynamicstoincludeflags')[i+1] != 0:
             dataframe['spaop_'+str(i+1)] = dataframe['aop_'+str(i+1)]
@@ -33,28 +35,30 @@ def from_param_df_to_fit_array(dataframe, runprops):
             if fix_float_dict.get('splan_'+str(i+1)) == 1:
                 print('Since you have chosen to lock the spin angles, please change the splan_'+str(i+1)+' variable in the float_dict to be fixed.')
                 sys.exit()
+                #'''
+    #print(fix_float_dict)
+    if runprops.get('transform'):
+        for i in range(runprops.get('numobjects')-1):
+            
+                #print('ecc_'+str(i+2),'aop_'+str(i+2))
+                #print(fix_float_dict.get('ecc_'+str(i+2)),fix_float_dict.get('aop_'+str(i+2))) 
+                if fix_float_dict.get('mass_'+str(i+2)) == 1 and fix_float_dict.get('aop_'+str(i+2)) == 1:
+                    dataframe[['mass_'+str(i+2)]] = np.array(dataframe[['mass_'+str(i+2)]])+np.array(dataframe[['aop_'+str(i+2)]])
+            
+                if fix_float_dict.get('ecc_'+str(i+2)) == 1 and fix_float_dict.get('aop_'+str(i+2)) == 1:
+                    ecc = np.array(dataframe[['ecc_'+str(i+2)]])
+                    aop = np.array(dataframe[['aop_'+str(i+2)]])*np.pi/180
+            
+                    dataframe[['ecc_'+str(i+2)]] = np.array(ecc)*np.sin(aop)
+                    dataframe[['aop_'+str(i+2)]] = np.array(ecc)*np.cos(aop)
+               
+                if fix_float_dict.get('inc_'+str(i+2)) == 1 and fix_float_dict.get('lan_'+str(i+2)) == 1:
+                    inc = np.array(dataframe[['inc_'+str(i+2)]])*np.pi/180
+                    lan = np.array(dataframe[['lan_'+str(i+2)]])*np.pi/180
+            
+                    dataframe[['inc_'+str(i+2)]] = np.tan(inc/2)*np.sin(lan)
+                    dataframe[['lan_'+str(i+2)]] = np.tan(inc/2)*np.cos(lan)
     
-    for i in range(runprops.get('numobjects')-1):
-            
-            if fix_float_dict.get('mass_'+str(i+2)) == 1 and fix_float_dict.get('aop_'+str(i+2)) == 1:
-                
-                #print(dataframe[['mass_'+str(i+2)]])
-                dataframe[['mass_'+str(i+2)]] = np.array(dataframe[['mass_'+str(i+2)]])+np.array(dataframe[['aop_'+str(i+2)]])
-            
-            if fix_float_dict.get('ecc_'+str(i+2)) == 1 and fix_float_dict.get('aop_'+str(i+2)) == 1:
-                ecc = dataframe[['ecc_'+str(i+2)]]
-                aop = dataframe[['aop_'+str(i+2)]]
-            
-                dataframe[['ecc_'+str(i+2)]] = np.array(ecc)*np.cos(np.array(aop))
-                dataframe[['aop_'+str(i+2)]] = np.array(ecc)*np.sin(np.array(aop))
-                                
-    
-            if fix_float_dict.get('inc_'+str(i+2)) == 1 and fix_float_dict.get('lan_'+str(i+2)) == 1:
-                inc = np.array(dataframe[['inc_'+str(i+2)]])
-                lan = np.array(dataframe[['lan_'+str(i+2)]])
-            
-                dataframe[['inc_'+str(i+2)]] = np.tan(inc/2)*np.sin(lan)
-                dataframe[['lan_'+str(i+2)]] = np.tan(inc/2)*np.cos(lan)
     
     num = 0
     fit_scale = dataframe.iloc[0]
@@ -88,7 +92,6 @@ def from_param_df_to_fit_array(dataframe, runprops):
             num = num+1
             
         float_arr = float_df.to_numpy()
-        
 
     for col in fit_scale.columns:
         fit_scale.rename(columns={col: col[0]}, inplace=True)
@@ -114,7 +117,6 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
     float_df = pd.DataFrame(data = [float_array],index = Index, columns = float_names)
     
     param_df = pd.DataFrame()
-    
     
     if len(fixed_df) == 0:
         param_df = float_df
@@ -161,34 +163,37 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
             
     param_df = param_df.iloc[[0]]
     
-    for i in range(runprops.get('numobjects')-1):
-        if undo_ecc_aop[i]:
-            a = np.array(param_df['aop_'+str(i+2)])
-            b = np.array(param_df['ecc_'+str(i+2)])
+    if runprops.get('transform'):    
+        for i in range(runprops.get('numobjects')-1):
+            if undo_ecc_aop[i]:
+                a = np.array(param_df['ecc_'+str(i+2)])
+                b = np.array(param_df['aop_'+str(i+2)])
+                
+                aop = np.arctan2(a,b)*180/np.pi
+                if aop < 0:
+                    aop = aop+360
+                param_df['aop_'+str(i+2)] = aop
+                param_df['ecc_'+str(i+2)] = a/np.sin(aop*np.pi/180)
             
-            #print('a ', a)
-            #print('b ', b)
+            if undo_inc_lan[i]:
             
-            aop = np.arctan(a/b)
-            param_df['aop_'+str(i+2)] = aop
-            param_df['ecc_'+str(i+2)] = a/np.sin(aop)
-            #print('ecc ', np.array(param_df['ecc_'+str(i+2)]), a/np.sin(aop))
-            #print('aop ', aop)
-                  
-            
-        if undo_inc_lan[i]:
-            
-            a = param_df['inc_'+str(i+2)]
-            b = param_df['lan_'+str(i+2)]
-            
-            lan = np.arctan(np.array(a)/np.array(b))
-            param_df['lan_'+str(i+2)] = lan
-            
-            param_df['inc_'+str(i+2)] = np.arctan(np.array(a)/np.sin(np.array(lan)))*2
-            
-        if undo_lambda[i]:
-            param_df['mass_'+str(i+2)] = param_df['mass_'+str(i+2)]-param_df['aop_'+str(i+2)]
-            
-                              
-           
+                a = np.array(param_df['inc_'+str(i+2)])
+                b = np.array(param_df['lan_'+str(i+2)])
+                
+                lan = np.arctan2(a,b)*180/np.pi
+                if lan < 0:
+                    lan = lan +360
+                    
+                param_df['lan_'+str(i+2)] = lan
+                
+                c = np.sin(lan*np.pi/180)
+                
+                inc = np.arctan2(a,c)*2*180/np.pi
+                if inc < 0:
+                    inc = inc+360
+                param_df['inc_'+str(i+2)] = inc
+                
+            if undo_lambda[i]:
+                param_df['mass_'+str(i+2)] = param_df['mass_'+str(i+2)]-param_df['aop_'+str(i+2)]
+    
     return param_df
