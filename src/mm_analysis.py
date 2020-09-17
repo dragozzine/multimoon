@@ -32,13 +32,16 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			# Here parameters is whatever file/object will have the run params
 	undo_ecc_aop = np.zeros(runprops.get('numobjects')-1)
 	undo_ecc_aop[:] = False
-	ecc_aop_index = np.zeros(runprops.get('numobjects')*2)
+	ecc_aop_index = np.zeros((runprops.get('numobjects')-1)*2)
 	undo_inc_lan = np.zeros(runprops.get('numobjects')-1)
 	undo_inc_lan[:] = False
-	inc_lan_index = np.zeros(runprops.get('numobjects')*2)
+	inc_lan_index = np.zeros((runprops.get('numobjects')-1)*2)
 	undo_lambda = np.zeros(runprops.get('numobjects')-1)
 	undo_lambda[:] = False
-	lambda_index = np.zeros(runprops.get('numobjects')*2)
+	lambda_index = np.zeros((runprops.get('numobjects')-1)*2)
+	undo_pomega = np.zeros(runprops.get('numobjects')-1)
+	undo_pomega[:] = False
+	pomega_index = np.zeros((runprops.get('numobjects')-1)*2)    
     
 	for i in range(runprops.get('numobjects')-1):
 		if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
@@ -49,10 +52,14 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			undo_inc_lan[i] = True
 			inc_lan_index[2*i] = float_names.index('inc_'+str(i+2))
 			inc_lan_index[2*i+1] = float_names.index('lan_'+str(i+2))
-		if 'mass_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
+		if 'mea_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
 			undo_lambda[i] = True
-			lambda_index[2*i] = float_names.index('mass_'+str(i+2))
+			lambda_index[2*i] = float_names.index('mea_'+str(i+2))
 			lambda_index[2*i+1] = float_names.index('aop_'+str(i+2))
+		if 'aop_'+str(i+2) in float_names and 'lan_'+str(i+2) in float_names:
+			undo_pomega[i] = True
+			pomega_index[2*i] = float_names.index('aop_'+str(i+2))
+			pomega_index[2*i+1] = float_names.index('lan_'+str(i+2))            
             
 	flatchain = sampler.get_chain(flat = True)
 	fit = []
@@ -67,7 +74,12 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	numwalkers = chain.shape[1]
 	numgens = chain.shape[0]
 
-	#print(flatchain)
+	print(ecc_aop_index)
+	print(pomega_index) 
+	print(inc_lan_index)
+	print(lambda_index) 
+	print(undo_lambda)
+	print(float_names) 
 	#First fit the flatchain with the fit parameters    
 	fchain = np.zeros((numgens*numwalkers,numparams))    
 	for i in range(numgens*numwalkers):
@@ -75,34 +87,57 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		for j in range(numparams):
 			val = flatchain[i][j]*fit[j]
 			row[j] = val
-		#print('ecc_')
+		#print(row)
 		if runprops.get('transform'):
 			for b in range(runprops.get('numobjects')-1):           
 				if undo_ecc_aop[b]:
 					aop_new = row[int(ecc_aop_index[b*2+1])]
 					ecc_new = row[int(ecc_aop_index[b*2])]
-					aop = np.arctan2(ecc_new,aop_new)*180/np.pi
-					row[int(ecc_aop_index[b*2+1])] = aop
-					row[int(ecc_aop_index[b*2])] = ecc_new/np.sin(aop*np.pi/180)
+					pomega = np.arctan2(ecc_new,aop_new)*180/np.pi
+					if pomega < 0:
+						pomega = pomega+360
+					row[int(ecc_aop_index[b*2+1])] = pomega
+					row[int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega*np.pi/180)
                                
 				if undo_inc_lan[b]:
 					inc_new = row[int(inc_lan_index[b*2])]
 					lan_new = row[int(inc_lan_index[b*2+1])]
 
 					lan = np.arctan2(inc_new,lan_new)*180/np.pi
+					if lan < 0:
+						lan = lan + 360
+                        
 					row[int(inc_lan_index[b*2+1])] = lan
-					row[int(inc_lan_index[b*2])] = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
+					inc = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
+					if inc < 0:
+						inc = inc+360
+					row[int(inc_lan_index[b*2])] = inc
                 
 				if undo_lambda[b]:
-					mass_new = row[int(lambda_index[b*2])]
-					aop = row[int(lambda_index[b*2+1])]
+					mea_new = row[int(lambda_index[b*2])]
+					pomega = row[int(lambda_index[b*2+1])]
                 
-					row[int(lambda_index[b*2])] = mass_new-aop
+					mea = mea_new-pomega
+					if mea < 0:
+						mea = mea +360
+					elif mea > 360:
+						mea = mea -360
+					row[int(lambda_index[b*2])] = mea
+                    
+				if undo_pomega[b]:
+					lan = row[int(pomega_index[b*2+1])]
+					pomega = row[int(pomega_index[b*2])]
+					aop = pomega-lan
+					if aop < 0:
+						aop = aop +360
+					elif mea > 360:
+						aop = aop -360
+					row[int(pomega_index[b*2])] = aop
 		#'''
 		fchain[i] = np.array(row)
 
 	flatchain = np.array(fchain)
-	#print(flatchain)
+	print(flatchain)
 
 	#Now fit the chain 
 	cchain = np.zeros((numgens,numwalkers, numparams))    
@@ -117,19 +152,41 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 					if undo_ecc_aop[b]:    
 						aop_new = cchain[i][j][int(ecc_aop_index[b*2+1])]
 						ecc_new = cchain[i][j][int(ecc_aop_index[b*2])]
-						aop = np.arctan2(ecc_new,aop_new)*180/np.pi
-						cchain[i][j][int(ecc_aop_index[b*2+1])] = aop
-						cchain[i][j][int(ecc_aop_index[b*2])] = ecc_new/np.sin(aop/180*np.pi)
+						pomega = np.arctan2(ecc_new,aop_new)*180/np.pi
+						if pomega < 0:
+							pomega = pomega+360
+						cchain[i][j][int(ecc_aop_index[b*2+1])] = pomega
+						cchain[i][j][int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega/180*np.pi)
 					if undo_inc_lan[b]:    
 						inc_new = cchain[i][j][int(inc_lan_index[b*2])]
 						lan_new = cchain[i][j][int(inc_lan_index[b*2+1])]
 						lan = np.arctan2(inc_new,lan_new)*180/np.pi
+						if lan < 0:
+							lan = lan+360
 						cchain[i][j][int(inc_lan_index[b*2+1])] = lan
-						cchain[i][j][int(inc_lan_index[b*2])] = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
+						inc = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
+						if inc < 0:
+							inc = inc+360
+						cchain[i][j][int(inc_lan_index[b*2])] = inc
 					if undo_lambda[b]:
-						mass_new = cchain[i][j][int(lambda_index[b*2])]
-						aop = cchain[i][j][int(lambda_index[b*2+1])]
-						cchain[i][j][int(lambda_index[b*2])] = mass_new-aop
+						mea_new = cchain[i][j][int(lambda_index[b*2])]
+						pomega = cchain[i][j][int(lambda_index[b*2+1])]
+						mea = mea_new-pomega
+						if mea < 0:
+							mea = mea +360
+						if mea > 360:
+							mea = mea - 360
+						cchain[i][j][int(lambda_index[b*2])] = mea
+					if undo_pomega[b]:
+						lan = cchain[i][j][int(pomega_index[b*2+1])]
+						pomega = cchain[i][j][int(pomega_index[b*2])]
+						aop = pomega-lan
+						if aop < 0:
+							aop = aop +360
+						if aop > 360:
+							aop = aop - 360                        
+						cchain[i][j][int(lambda_index[b*2])] = pomega-lan                        
+                        
 	cchain = np.array(cchain)
 
 	oldchain = chain

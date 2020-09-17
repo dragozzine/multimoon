@@ -36,29 +36,32 @@ def from_param_df_to_fit_array(dataframe, runprops):
                 print('Since you have chosen to lock the spin angles, please change the splan_'+str(i+1)+' variable in the float_dict to be fixed.')
                 sys.exit()
                 #'''
-    #print(fix_float_dict)
+    #print(dataframe[['inc_2']])
+    #print(dataframe[['mea_2']])
     if runprops.get('transform'):
         for i in range(runprops.get('numobjects')-1):
+            pomega = np.array(dataframe[['aop_'+str(i+2)]])+np.array(dataframe[['lan_'+str(i+2)]])
+            Lambda = pomega + np.array(dataframe[['mea_'+str(i+2)]])
             
-                #print('ecc_'+str(i+2),'aop_'+str(i+2))
-                #print(fix_float_dict.get('ecc_'+str(i+2)),fix_float_dict.get('aop_'+str(i+2))) 
-                if fix_float_dict.get('mass_'+str(i+2)) == 1 and fix_float_dict.get('aop_'+str(i+2)) == 1:
-                    dataframe[['mass_'+str(i+2)]] = np.array(dataframe[['mass_'+str(i+2)]])+np.array(dataframe[['aop_'+str(i+2)]])
+            if fix_float_dict.get('lan_'+str(i+2)) == 1 and fix_float_dict.get('aop_'+str(i+2)) == 1:
+                dataframe[['aop_'+str(i+2)]] = pomega
             
-                if fix_float_dict.get('ecc_'+str(i+2)) == 1 and fix_float_dict.get('aop_'+str(i+2)) == 1:
-                    ecc = np.array(dataframe[['ecc_'+str(i+2)]])
-                    aop = np.array(dataframe[['aop_'+str(i+2)]])*np.pi/180
+            if fix_float_dict.get('mea_'+str(i+2)) == 1 and fix_float_dict.get('aop_'+str(i+2)) == 1:                   
+                dataframe[['mea_'+str(i+2)]] = Lambda
+                        
+            if fix_float_dict.get('ecc_'+str(i+2)) == 1 and fix_float_dict.get('aop_'+str(i+2)) == 1:
+                ecc = np.array(dataframe[['ecc_'+str(i+2)]])
+                pomega_rad = np.array(dataframe[['aop_'+str(i+2)]])*np.pi/180
             
-                    dataframe[['ecc_'+str(i+2)]] = np.array(ecc)*np.sin(aop)
-                    dataframe[['aop_'+str(i+2)]] = np.array(ecc)*np.cos(aop)
+                dataframe[['ecc_'+str(i+2)]] = np.array(ecc)*np.sin(pomega_rad)
+                dataframe[['aop_'+str(i+2)]] = np.array(ecc)*np.cos(pomega_rad)
                
-                if fix_float_dict.get('inc_'+str(i+2)) == 1 and fix_float_dict.get('lan_'+str(i+2)) == 1:
-                    inc = np.array(dataframe[['inc_'+str(i+2)]])*np.pi/180
-                    lan = np.array(dataframe[['lan_'+str(i+2)]])*np.pi/180
-            
-                    dataframe[['inc_'+str(i+2)]] = np.tan(inc/2)*np.sin(lan)
-                    dataframe[['lan_'+str(i+2)]] = np.tan(inc/2)*np.cos(lan)
-    
+            if fix_float_dict.get('inc_'+str(i+2)) == 1 and fix_float_dict.get('lan_'+str(i+2)) == 1:
+                inc = np.array(dataframe[['inc_'+str(i+2)]])*np.pi/180
+                lan = np.array(dataframe[['lan_'+str(i+2)]])*np.pi/180
+                
+                dataframe[['inc_'+str(i+2)]] = np.tan(inc/2)*np.sin(lan)
+                dataframe[['lan_'+str(i+2)]] = np.tan(inc/2)*np.cos(lan)
     
     num = 0
     fit_scale = dataframe.iloc[0]
@@ -128,6 +131,8 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
         undo_inc_lan[:] = False
         undo_lambda = np.zeros(runprops.get('numobjects')-1)
         undo_lambda[:] = False
+        undo_pomega = np.zeros(runprops.get('numobjects')-1)
+        undo_pomega[:] = False
         
         for i in range(runprops.get('numobjects')-1):
             if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
@@ -136,8 +141,11 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
             if 'inc_'+str(i+2) in float_names and 'lan_'+str(i+2) in float_names:
                 undo_inc_lan[i] = True
                 
-            if 'mass_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
+            if 'mea_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
                 undo_lambda[i] = True
+                
+            if 'lan_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
+                undo_pomega[i] = True
                 
                 
         for i in total_df_names:
@@ -169,11 +177,11 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 a = np.array(param_df['ecc_'+str(i+2)])
                 b = np.array(param_df['aop_'+str(i+2)])
                 
-                aop = np.arctan2(a,b)*180/np.pi
-                if aop < 0:
-                    aop = aop+360
-                param_df['aop_'+str(i+2)] = aop
-                param_df['ecc_'+str(i+2)] = a/np.sin(aop*np.pi/180)
+                pomega = np.arctan2(a,b)*180/np.pi
+                if pomega < 0:
+                    pomega = pomega+360
+                param_df['aop_'+str(i+2)] = pomega
+                param_df['ecc_'+str(i+2)] = a/np.sin(pomega*np.pi/180)
             
             if undo_inc_lan[i]:
             
@@ -182,18 +190,40 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 
                 lan = np.arctan2(a,b)*180/np.pi
                 if lan < 0:
-                    lan = lan +360
-                    
-                param_df['lan_'+str(i+2)] = lan
+                    lan = lan+360
                 
                 c = np.sin(lan*np.pi/180)
                 
                 inc = np.arctan2(a,c)*2*180/np.pi
+                
+                #print('inc ', inc)
+                #print('lan ', lan)
                 if inc < 0:
                     inc = inc+360
+                    
                 param_df['inc_'+str(i+2)] = inc
+                param_df['lan_'+str(i+2)] = lan
+                
+                #print(param_df['inc_'+str(i+2)])
+                #print(param_df['lan_'+str(i+2)])
+                      
                 
             if undo_lambda[i]:
-                param_df['mass_'+str(i+2)] = param_df['mass_'+str(i+2)]-param_df['aop_'+str(i+2)]
-    
+                mea = np.array(param_df['mea_'+str(i+2)])-np.array(param_df['aop_'+str(i+2)])
+                if mea < 0:
+                    mea = mea + 360
+                elif mea > 360:
+                    mea = mea - 360
+                param_df['mea_'+str(i+2)] = mea
+                #print(param_df['mea_'+str(i+2)])
+            
+            if undo_pomega[i]:
+                aop  = np.array(param_df['aop_'+str(i+2)])-np.array(param_df['lan_'+str(i+2)])
+                if aop < 0:
+                    aop = aop + 360
+                elif aop > 360:
+                    aop = aop - 360
+                param_df['aop_'+str(i+2)] = aop
+                
+    #print(param_df['mass_1'])
     return param_df

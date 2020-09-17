@@ -484,6 +484,7 @@ def run():
     # Convert the guesses into fitting units and place in numpy array
     p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit_array(guesses,runprops)
     
+    
     ndim = len(p0[0])
     #we still do not have a constraints or fit scale defined
     
@@ -538,13 +539,13 @@ def run():
     for i in range(nwalkers):  
         llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods)
         reset = 0
+        #print(llhood)
         while (llhood == -np.Inf):
             p = random.random()
             p0[i,:] = (p*p0[random.randrange(nwalkers),:] + (1-p)*p0[random.randrange(nwalkers),:])
-            #print(p0)
             llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods)
             reset += 1
-            #print(llhood)
+            print(llhood)
             if reset > maxreset:
                 print("ERROR: Maximum number of resets has been reached, aborting run.")
                 sys.exit() 
@@ -604,8 +605,9 @@ def run():
         state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
 
         # Now running the clustering algorithm! (if desired)
-        if runprops.get("use_clustering") and runprops.get("burnin") != 0:
-	        sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
+        print(runprops.get("nburnin"))
+        if runprops.get("use_clustering") and runprops.get("nburnin") != 0:
+            sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
         
         sampler.reset()
 
@@ -649,4 +651,3 @@ def run():
         #print(params)
         new_init = "../data/"+runprops.get("objectname")+"/"+runprops.get("objectname")+"_init_guess_from_llhood.csv"
         params.to_csv(new_init, sep = ',')
-        
