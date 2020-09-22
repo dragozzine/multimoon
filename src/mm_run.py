@@ -242,7 +242,7 @@ if __name__ == '__main__':
             p0[i,:] = (p*p0[random.randrange(nwalkers),:] + (1-p)*p0[random.randrange(nwalkers),:])
             llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods)
             reset += 1
-            print(llhood)
+            #print(llhood)
             if reset > maxreset:
                 print("ERROR: Maximum number of resets has been reached, aborting run.")
                 sys.exit() 
