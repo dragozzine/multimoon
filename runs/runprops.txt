@@ -16,15 +16,15 @@
     "numobjects" : 3,
     "dynamicstoincludeflags" : "000",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
-    "nwalkers" : 80,			# number of walkers in emcee ensemble
-    "nburnin" : 40,			# length of burn in
-    "nsteps" : 100,			# number of initial steps for sampling
+    "nwalkers" : 200,			# number of walkers in emcee ensemble
+    "nburnin" : 1000,			# length of burn in
+    "nsteps" : 1000,			# number of initial steps for sampling
     "essgoal" : 10,			# effective sample size desired
     "maxiter" : 10,			# maximum number of steps to take within the final sampling
     "nthinning" : 1,			# thinning fraction
-    "maxreset" : 10,			# maximum number of resets when checking parameters set
+    "maxreset" : 1000,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
-    "numprocesses": 5,			# number of cores to use
+    "numprocesses": 20,			# number of cores to use
     "epoch_SJD":  2454615.0,
 
     # Input data files
@@ -35,7 +35,7 @@
     # Additional options
     "verbose" : false,			# Enables print statements within the code
     "updatebestfitfile":true,		# Writes to a file when new best fit is found
-    "use_clustering" : true,		# Implements a clustering/pruning algorithm after (first) burnin
+    "use_clustering" : false,		# Implements a clustering/pruning algorithm after (first) burnin
     "clustering_burnin" : 40,		# Number of steps to burn in after clustering
     
     #These values are sed by the code to run and should not be changed.

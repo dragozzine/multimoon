@@ -21,7 +21,7 @@ def generate_vector(paramsdf, t_arr, runprops):
     T = len(t_arr)                 # number of observation times
 
     # Edit made by BP on 07/08/20: Please tell me if this breaks something!
-    t_arr = t_arr - t_arr[0]
+    #t_arr = t_arr - t_arr[0]
 
     j2s = []
     for col in sys_df.columns:
