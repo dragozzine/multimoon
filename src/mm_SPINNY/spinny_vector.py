@@ -133,11 +133,10 @@ def build_spinny_multimoon(sys_df, runprops):
         if "c22r2_"+str(n) in sys_df.columns:
             c22r2_n = sys_df["c22r2_"+str(n)].iloc[0]
         else:
-            c22r2_n = 0.0    
+            c22r2_n = 0.0
                 
         # set physical properties array
         phys_arr[i] = np.array([mass_n, ax_n, j2r2_n, c22r2_n])
-
         
         if "sma_"+str(n) in sys_df.columns:
             sma_n = sys_df["sma_"+str(n)].iloc[0]
@@ -204,8 +203,8 @@ def build_spinny_multimoon(sys_df, runprops):
             sp_rate_n = sys_df["sprate_"+str(n)].iloc[0]
         else:
             # the default is equal to the orbital period, calculated from semi-major axis, sum of masses of body and primary 
-            sp_rate_n = np.sqrt(orb_arr[i,0]**3.0/(G*(phys_arr[i,0]+phys_arr[1,0])) ) 
-           
+            sp_rate_n = 2*np.pi/np.sqrt(orb_arr[i,0]**3.0/(G*(phys_arr[i,0]+phys_arr[1,0])) ) 
+
         # set spin properties array
         spin_arr[i] = np.array([sp_prc_n, sp_obl_n, sp_lon_n, sp_rate_n])
 

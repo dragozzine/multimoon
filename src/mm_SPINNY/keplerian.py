@@ -35,7 +35,7 @@ def kepler_2body(sys_df, t_arr, runprops):
     M2 = sys_df["mea_2"]*(np.pi/180.0)
     p2 = a2*(1-e2) # perifocal distance
     
-    T0 = t_arr[0] # epoch (seconds past J2000)
+    T0 = 0 # epoch (seconds past J2000)
     
     orb2 = [p2,e2,i2,O2,w2,M2,T0,mu]
     
