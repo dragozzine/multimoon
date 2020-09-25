@@ -29,21 +29,27 @@ if runprops.get("first_run") == True:
     runprops["date"] = date
     runprops['first_run'] = False
     
-    newpath = "../runs/"+runprops.get("objectname")+"_"+date
+    objname = runprops.get("objectname")
+    newpath = "../results/"+objname+"/"+objname+"_"+date
     if not os.path.exists(newpath):
         os.makedirs(newpath)
     
-    runprops['runs_folder'] = newpath
+    runprops['results_folder'] = newpath
     import shutil
-    shutil.copy(filename, '../runs/'+newpath+'/runprops.txt')
+    shutil.copy(filename, '../results/'+newpath+'/runprops.txt')
+    shutil.copy(filename, '../runs/'+objname+'/runprops.txt')
     
-    init = runprops.get('init_filename')
-    priors = runprops.get('priors_filename')
-    obs = runprops.get('obsdata_file')
+    init = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_init_guess.csv'
+    priors = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_priors_df.csv'
+    obs = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_obs_df.csv'
     
-    shutil.copy(obs, '../runs/'+newpath+'/'+runprops.get("objectname")+'_obs_df.csv')
-    shutil.copy(priors, '../runs/'+newpath+'/'+runprops.get("objectname")+'_priors_df.csv')
-    shutil.copy(init, '../runs/'+newpath+'/'+runprops.get("objectname")+'_init_guess.csv')
+    runprops['init_filename'] = init
+    runprops['obsdata_file'] = obs
+    runprops['priors_filename'] = priors    
+    
+    shutil.copy(obs, newpath+'/'+runprops.get("objectname")+'_obs_df.csv')
+    shutil.copy(priors, newpath+'/'+runprops.get("objectname")+'_priors_df.csv')
+    shutil.copy(init, newpath+'/'+runprops.get("objectname")+'_init_guess.csv')
     
     #runprops["init_filename"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_init_guess.csv"
     #runprops["priors_filename"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_priors_df.csv"

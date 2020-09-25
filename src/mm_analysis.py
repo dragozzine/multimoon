@@ -73,13 +73,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	numparams = chain.shape[2]
 	numwalkers = chain.shape[1]
 	numgens = chain.shape[0]
-
-	print(ecc_aop_index)
-	print(pomega_index) 
-	print(inc_lan_index)
-	print(lambda_index) 
-	print(undo_lambda)
-	print(float_names) 
+ 
 	#First fit the flatchain with the fit parameters    
 	fchain = np.zeros((numgens*numwalkers,numparams))    
 	for i in range(numgens*numwalkers):
@@ -137,7 +131,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		fchain[i] = np.array(row)
 
 	flatchain = np.array(fchain)
-	print(flatchain)
+
 
 	#Now fit the chain 
 	cchain = np.zeros((numgens,numwalkers, numparams))    
@@ -204,7 +198,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
 	for ax in fig.get_axes():
 		ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
-	fname = "../runs/"+objname+"_"+runprops.get("date")+"/corner.pdf"       
+	fname = runprops.get("results_folder")+"/corner.pdf"       
 	fig.savefig(fname, format = 'pdf')
 	plt.close("all")
 	#plt.rc('text', usetex=False)
@@ -217,7 +211,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			plt.plot(np.reshape(chain[0:numgens,j,i], numgens))
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
-		plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/walker_"+names[i]+".png")
+		plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
 		plt.close()
 
 	# Likelihood plots
@@ -242,7 +236,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		sigsdf['mean'].iloc[i] = mean
 	#if runprops.get('verbose'):
 	print(sigsdf)
-	filename = runprops.get('runs_folder') + '/sigsdf.csv'    
+	filename = runprops.get('results_folder') + '/sigsdf.csv'    
 	sigsdf.to_csv(filename)
     
     
@@ -259,7 +253,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		plt.subplot(224)
 		plt.hist(llhoods.flatten(), bins = 40, orientation = "horizontal", 
 			 histtype = "step", color = "black")
-		plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/likelihood_" + names[i] + ".png")
+		plt.savefig(runprops.get("results_folder")+"/likelihood_" + names[i] + ".png")
 		plt.close("all")
 
 	# Residual plots
