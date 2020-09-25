@@ -127,7 +127,6 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
         # but we take s.arr0 in order to get orbital parameters which might not make any sense in a primaricentric frame
         #t_adj = t_arr[t] - epoch
         s.evolve(t_arr[t]) #### <---- The actual integration
-        
         body_arr[t] = np.concatenate([s.get_state(n,0) for n in range(0,N)]) # taken with respect to the primary
         
         inertial_arr[t] = s.arr0

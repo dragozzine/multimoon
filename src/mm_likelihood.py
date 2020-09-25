@@ -129,8 +129,12 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     #time_arr = np.sort(obsdf['time'].values.flatten())
     time_arr = obsdf['time'].values.flatten()# gets an array of observation times from the obs dataframe
 
+    # Setting times relative to the epoch
+    epoch = runprops.get("epoch_SJD")
+    time_arr = time_arr - epoch
+
     # Sorts them into ascending order
-    import logging 
+    import logging
     try:
         time_arr_sec = time_arr*86400
         vec_df = generate_vector(paramdf, time_arr_sec, runprops)
@@ -142,9 +146,9 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     names=[0 for i in range(numObj)]
     for i in range(0,numObj):
         names[i] = names_dict.get("name_"+str(i+1))
-        
-        
-    # vec_df is a dataframe with len(time_arr) rows and 
+
+
+    # vec_df is a dataframe with len(time_arr) rows and
     # columns are state parameters x nobjects
     # Example: vecdf["X_Pos_"+paramsdf["name_2"]] gets the x position of object 2
     # ecliptic (J2000) coordinates
