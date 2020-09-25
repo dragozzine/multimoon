@@ -14,7 +14,7 @@ import random
 import commentjson as json
 import emcee
 
-def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset, const = 10, lag = 10, max_prune_frac = 0.75):
+def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset, const = 50, lag = 10, max_prune_frac = 0.9):
 	nwalkers = runprops.get("nwalkers")
 	reburnin = runprops.get("clustering_burnin")
 	verbose = runprops.get("verbose")
@@ -50,8 +50,8 @@ def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_sca
 			reject[(i+1):] = 1
 			break
 	freject = reject.sum()/nwalkers
-	if verbose:
-		print(freject)
+#	if verbose:
+	print(freject)
 
 	# Pruning walkers based on the clusters found, 
 	# replacing them with random linear combinations of walkers within the cluster
@@ -78,6 +78,5 @@ def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_sca
 			print(sampler.acceptance_fraction)
 		return sampler, state
 	else:
-		if verbose:
-			print("Cluster not big enough, clustering not performed")
+		print("Cluster not big enough, clustering not performed")
 		return sampler, state
