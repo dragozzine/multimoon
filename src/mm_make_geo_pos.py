@@ -20,7 +20,7 @@ def mm_make_geo_pos(objname, times):
     geocentricFile = pd.DataFrame({'geocentricTime':ephKBO['datetime_jd'],'x':vecKBO['x']*149597870.7,'y':vecKBO['y']*149597870.7 ,'z':vecKBO['z']*149597870.7})
     outFile = pd.DataFrame({'kboTIME':kboTime,'x':vecKBO['x']*149597870.7 ,'y':vecKBO['y']*149597870.7 ,'z':vecKBO['z']*149597870.7 })
     
-    filename1 = "../data/" + objname + "/geocentric_" + objname + "_position.csv"
+    filename1 = "../runs/"+objname+"/"+runprops.get('run_file')+"/geocentric_" + objname + "_position.csv"
     geocentricFile.to_csv(filename1)
     #fileName2 = "geocentric_" + objectName +'_position.csv'
     #outFile.to_csv(fileName2)

@@ -39,6 +39,15 @@ def from_param_df_to_fit_array(dataframe, runprops):
     #print(dataframe[['inc_2']])
     #print(dataframe[['mea_2']])
     if runprops.get('transform'):
+        if runprops.get('numobjects') > 3:
+            print('Warning: Only masses 1-3 will be used in the transformations for now. Future work can be done later to increase this')
+        if fix_float_dict.get('mass_1') == 1 and fix_float_dict.get('mass_2') == 1:
+            if fix_float_dict.get('mass_3') == 1:
+                dataframe[['mass_2']] = np.array(dataframe[['mass_1']])+np.array(dataframe[['mass_2']])
+                dataframe[['mass_3']] = np.array(dataframe[['mass_3']])+np.array(dataframe[['mass_2']])
+            else:
+                dataframe[['mass_2']] = np.array(dataframe[['mass_1']])+np.array(dataframe[['mass_2']])
+        
         for i in range(runprops.get('numobjects')-1):
             pomega = np.array(dataframe[['aop_'+str(i+2)]])+np.array(dataframe[['lan_'+str(i+2)]])
             Lambda = pomega + np.array(dataframe[['mea_'+str(i+2)]])
@@ -133,6 +142,8 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
         undo_lambda[:] = False
         undo_pomega = np.zeros(runprops.get('numobjects')-1)
         undo_pomega[:] = False
+        undo_masses = np.zeros(runprops.get('numobjects')-1)
+        undo_masses[:] = False
         
         for i in range(runprops.get('numobjects')-1):
             if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
@@ -147,7 +158,13 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
             if 'lan_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
                 undo_pomega[i] = True
                 
-                
+         
+        if 'mass_1' in float_names and 'mass_2' in float_names:
+            if 'mass_3' in float_names:
+                undo_masses[1] = True
+            else:
+                undo_masses[0] = True
+        
         for i in total_df_names:
             name = i[0]
             if name in fixed_df:
@@ -171,7 +188,20 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
             
     param_df = param_df.iloc[[0]]
     
-    if runprops.get('transform'):    
+    if runprops.get('transform'):
+        
+        if undo_masses[1]:
+            mass_3 = np.array(param_df['mass_3'])
+            mass_2 = np.array(param_df['mass_2'])
+            mass_1 = np.array(param_df['mass_1'])
+            param_df['mass_3'] = mass_3-mass_2
+            param_df['mass_2'] = mass_2-mass_1
+            
+        if undo_masses[0]:
+            mass_2 = np.array(param_df['mass_2'])
+            mass_1 = np.array(param_df['mass_1'])
+            param_df['mass_2'] = mass_2-mass_1
+        
         for i in range(runprops.get('numobjects')-1):
             if undo_ecc_aop[i]:
                 a = np.array(param_df['ecc_'+str(i+2)])

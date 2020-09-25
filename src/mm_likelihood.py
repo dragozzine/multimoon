@@ -67,7 +67,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
             print("Previous best_llhoods, new llhood: ", best_llhoods.get('best_llhood'), llhood)
         best_llhoods['best_llhood'] = llhood
         best_llhoods['best_params'] = params.to_dict()
-        the_file = runprops.get('runs_folder') + '/best_likelihoods.csv'
+        the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
 
         reduced_chi_sq = llhood/(-0.5)/best_llhoods.get('deg_freedom')
 
