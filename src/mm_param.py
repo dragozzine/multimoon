@@ -229,7 +229,8 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 #print('inc ', inc)
                 #print('lan ', lan)
                 if inc < 0:
-                    inc = inc+360
+                    inc = -1*inc
+                    inc = inc+180
                     
                 param_df['inc_'+str(i+2)] = inc
                 param_df['lan_'+str(i+2)] = lan

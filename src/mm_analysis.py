@@ -42,7 +42,10 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	lambda_index = np.zeros((runprops.get('numobjects')-1)*2)
 	undo_pomega = np.zeros(runprops.get('numobjects')-1)
 	undo_pomega[:] = False
-	pomega_index = np.zeros((runprops.get('numobjects')-1)*2)    
+	pomega_index = np.zeros((runprops.get('numobjects')-1)*2)
+	undo_masses = np.zeros(2)    
+	undo_masses[:] = False
+	masses_index = np.zeros(runprops.get('numobjects'))
     
 	for i in range(runprops.get('numobjects')-1):
 		if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
@@ -60,7 +63,18 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		if 'aop_'+str(i+2) in float_names and 'lan_'+str(i+2) in float_names:
 			undo_pomega[i] = True
 			pomega_index[2*i] = float_names.index('aop_'+str(i+2))
-			pomega_index[2*i+1] = float_names.index('lan_'+str(i+2))            
+			pomega_index[2*i+1] = float_names.index('lan_'+str(i+2))
+	if 'mass_1' in float_names and 'mass_2' in float_names:
+		if 'mass_3' in float_names:        
+			undo_masses[1] = True
+			masses_index[0] = float_names.index('mass_1')
+			masses_index[1] = float_names.index('mass_2')
+			masses_index[2] = float_names.index('mass_3')
+		else:        
+			undo_masses[0] = True
+			masses_index[0] = float_names.index('mass_1')
+			masses_index[1] = float_names.index('mass_2')
+
             
 	flatchain = sampler.get_chain(flat = True)
 	fit = []
@@ -105,7 +119,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 					row[int(inc_lan_index[b*2+1])] = lan
 					inc = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
 					if inc < 0:
-						inc = inc+360
+						inc = inc*-1
+						inc = inc+180
 					row[int(inc_lan_index[b*2])] = inc
                 
 				if undo_lambda[b]:
@@ -128,6 +143,17 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 					elif mea > 360:
 						aop = aop -360
 					row[int(pomega_index[b*2])] = aop
+                    
+			if undo_masses[0]:
+				mass_1 = row[int(masses_index[0])]
+				mass_2 = row[int(masses_index[1])]
+				row[int(masses_index[1])] = mass_2-mass_1
+			elif undo_masses[1]:
+				mass_1 = row[int(masses_index[0])]
+				mass_2 = row[int(masses_index[1])]
+				mass_3 = row[int(masses_index[2])]
+				row[int(masses_index[2])] = mass_3-mass_2 
+				row[int(masses_index[1])] = mass_2-mass_1 
 		fchain[i] = np.array(row)
 
 	flatchain = np.array(fchain)
@@ -160,7 +186,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 						cchain[i][j][int(inc_lan_index[b*2+1])] = lan
 						inc = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
 						if inc < 0:
-							inc = inc+360
+							inc = inc*-1
+							inc = inc+180
 						cchain[i][j][int(inc_lan_index[b*2])] = inc
 					if undo_lambda[b]:
 						mea_new = cchain[i][j][int(lambda_index[b*2])]
@@ -179,7 +206,17 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 							aop = aop +360
 						if aop > 360:
 							aop = aop - 360                        
-						cchain[i][j][int(lambda_index[b*2])] = pomega-lan                        
+						cchain[i][j][int(lambda_index[b*2])] = pomega-lan  
+				if undo_masses[0]:
+					mass_1 = cchain[i][j][int(masses_index[0])]
+					mass_2 = cchain[i][j][int(masses_index[1])]
+					cchain[i][j][int(masses_index[1])] = mass_2-mass_1
+				elif undo_masses[1]:
+					mass_1 = cchain[i][j][int(masses_index[0])]
+					mass_2 = cchain[i][j][int(masses_index[1])]
+					mass_3 = cchain[i][j][int(masses_index[2])]
+					cchain[i][j][int(masses_index[2])] = mass_3-mass_2 
+					cchain[i][j][int(masses_index[1])] = mass_2-mass_1 
                         
 	cchain = np.array(cchain)
 
