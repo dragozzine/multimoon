@@ -6,25 +6,25 @@
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
     "mm_initguess_which" : "get_init_guess_from_dist",
-    "RunGoal" : "To test running without transformations",
+    "RunGoal" : "To test running with transformations",
     "lockspinanglesflag": false,
-    "transform": true,
+    "transform": false,
 
     # Run properties/parameters
     "objectname" : "Haumea",
     "run_file": "HST_2009_dyn_0",
     "numobjects" : 3,
-    "dynamicstoincludeflags" : "100",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
+    "dynamicstoincludeflags" : "000",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
-    "nwalkers" : 200,			# number of walkers in emcee ensemble
-    "nburnin" : 5000,			# length of burn in
-    "nsteps" : 10000,			# number of initial steps for sampling
+    "nwalkers" : 50,			# number of walkers in emcee ensemble
+    "nburnin" : 5,			# length of burn in
+    "nsteps" : 1,			# number of initial steps for sampling
     "essgoal" : 10,			# effective sample size desired
-    "maxiter" : 10,			# maximum number of steps to take within the final sampling
+    "maxiter" : 1,			# maximum number of steps to take within the final sampling
     "nthinning" : 1,			# thinning fraction
     "maxreset" : 1000,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
-    "numprocesses": 30,			# number of cores to use
+    "numprocesses": 2,			# number of cores to use
     "epoch_SJD":  2454615.0,
 
     # Input data files
@@ -35,7 +35,7 @@
     # Additional options
     "verbose" : false,			# Enables print statements within the code
     "updatebestfitfile":true,		# Writes to a file when new best fit is found
-    "use_clustering" : true,		# Implements a clustering/pruning algorithm after (first) burnin
+    "use_clustering" : false,		# Implements a clustering/pruning algorithm after (first) burnin
     "clustering_burnin" : 5000,		# Number of steps to burn in after clustering
     "clustering_maxfrac" : 0.8,    
 
@@ -71,12 +71,12 @@
         "inc_3": 1,
         "lan_3": 1,
         "mea_3": 1,
-        "j2r2_1":1,
-        "spinc_1":1,
-        "sprate_1":0,
-        "spaop_1":0,
-        "splan_1":1,
-        "c22r2_1":0
+        "j2r2_1": 0,
+        "spinc_1": 0,
+        "sprate_1": 0,
+        "spaop_1": 0,
+        "splan_1": 0,
+        "c22r2_1": 0
     }
 }
 
