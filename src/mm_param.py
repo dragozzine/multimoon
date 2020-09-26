@@ -127,7 +127,6 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
     #First, turn the float_array back into  dataframe with the column names given
     Index = range(len(fixed_df.index))
     float_df = pd.DataFrame(data = [float_array],index = Index, columns = float_names)
-    
     param_df = pd.DataFrame()
     
     if len(fixed_df) == 0:

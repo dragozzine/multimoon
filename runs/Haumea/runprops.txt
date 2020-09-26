@@ -9,6 +9,7 @@
     "RunGoal" : "To test running with transformations",
     "lockspinanglesflag": false,
     "transform": false,
+    "com_offset": true,
 
     # Run properties/parameters
     "objectname" : "Haumea",
@@ -76,7 +77,9 @@
         "sprate_1": 0,
         "spaop_1": 0,
         "splan_1": 0,
-        "c22r2_1": 0
+        "c22r2_1": 0,
+        "lat_offset" : 1,
+        "long_offset" : 1
     }
 }
 

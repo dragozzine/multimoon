@@ -209,6 +209,11 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         # model delta long and delta lat
         # Put into model dataframe? 
 
+    # Putting in COM-COL offset
+    if runprops.get("com_offset"):
+        Model_DeltaLong = Model_DeltaLong + paramdf["long_offset"].iloc[0]
+        Model_DeltaLat = Model_DeltaLat + paramdf["lat_offset"].iloc[0]
+
 
     # Outputting the Model_DeltaLong and Lat if gensynth flag is included in function call
     # This was done by BP. PLEASE let me know if this breaks things
