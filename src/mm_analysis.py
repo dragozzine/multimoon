@@ -25,6 +25,7 @@ import pandas as pd
 import emcee
 import sys
 import mm_likelihood
+from astropy.time import Time
 
 
 #chain = (nwalkers, nlink, ndim)
@@ -127,11 +128,10 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 					elif mea > 360:
 						aop = aop -360
 					row[int(pomega_index[b*2])] = aop
-		#'''
 		fchain[i] = np.array(row)
 
 	flatchain = np.array(fchain)
-
+	#print(flatchain)
 
 	#Now fit the chain 
 	cchain = np.zeros((numgens,numwalkers, numparams))    
@@ -257,50 +257,75 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		plt.close("all")
 
 	# Residual plots
+	nobjects = runprops.get('numobjects')
 	llhoods = sampler.get_log_prob(flat = True)
-	ind = np.argmin(llhoods)
-	paramdf = flatchain[ind,:]
-'''
+	ind = np.argmax(llhoods)
+	params = flatchain[ind,:].flatten()
+
+	paraminput = []
+	for i in params:
+		paraminput.append(i)
+
+	paramnames = names
+	name_dict = runprops.get("names_dict")
+
+	objectnames = []
+	for i in name_dict.values():
+		paraminput.append(i)
+		objectnames.append(i)
+	for i in name_dict.keys():
+		paramnames.append(i)
+
+	paramdf = pd.DataFrame(paraminput).transpose()
+	paramdf.columns = paramnames
+
+
 	#print(paramdf)
 	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
-	objectnames = []
-	for i in name_dict.values():
-		objectnames.append(i)
+
+	xvals = np.linspace(-1.0,1.0,num=1000)
+	circle = np.sqrt(1 - xvals**2)
 
 	plt.figure()
-	plt.Circle((0, 0), 1.0, color='black', fill=False)
+	plt.plot(xvals, circle, color = "black")
+	plt.plot(xvals,-circle, color = "black")
 	for i in range(1, nobjects):
 		plt.scatter(residuals[2*(i-1)][:], residuals[2*(i-1)+1][:], c = colorcycle[i], label = objectnames[i], edgecolors = None)
 	plt.xlabel("Delta Longitude")
 	plt.ylabel("Delta Latitude")
 	plt.axis("equal")
 	plt.legend()
-	plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/best_residuals.png")
+	plt.savefig(runprops.get("results_folder")+"/best_residuals.png")
 
 	# Astrometry plots
 	time_arr = obsdf['time'].values.flatten()
 	tmin = time_arr.min()
 	tmax = time_arr.max()
-	fakeobsdf = obsdf.loc[[1,2],:]
-	times = np.arange(tmin,tmax, 0.25)
+
+	converttimes = [tmin,tmax]
+	t = Time(converttimes, format = 'jd')
+
+	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
+	geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos("Haumea", timesdic, True)
+
+	times = geo_obj_pos.values[:,0].flatten()
+
+	fakeobsdf = obsdf.loc[[0,1],:]
 	for i in range(len(times)):
 		if i == 0 or i == 1:
 			fakeobsdf.iloc[i,0] = times[i]
 			# change row number?
 		fakeobsdf = fakeobsdf.append(fakeobsdf.iloc[-1,:])
-		fakeobsdf.iloc[-1,0] = times[i]
-	geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos("Haumea", times)
+		fakeobsdf['time'].iloc[-1] = times[i]
+	#fakeobsdf = fakeobsdf.drop(labels = [0,1], axis = 0)
+	fakeobsdf = fakeobsdf.iloc[2:]
 
-	llhoods = sampler.get_log_prob(flat = True)
-	ind = np.argmin(llhoods)
-	paramdf = flatchain[ind,:]
+	Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
 
-	Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
-
-	modelx = np.empty((nobjects-1, obsdf.shape[0]))
-	modely = np.empty((nobjects-1, obsdf.shape[0]))
+	modelx = np.empty((nobjects-1, fakeobsdf.shape[0]))
+	modely = np.empty((nobjects-1, fakeobsdf.shape[0]))
 
 	x = np.empty((nobjects-1, obsdf.shape[0]))
 	xe = np.empty((nobjects-1, obsdf.shape[0]))
@@ -308,6 +333,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	ye = np.empty((nobjects-1, obsdf.shape[0]))
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
+	markercycle = ["x","+"]
 
 	name_dict = runprops.get("names_dict")
 	objectnames = []
@@ -316,25 +342,28 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 
 	fig = plt.figure()
 	for i in range(1,nobjects):
-		modelx[i-1,:] = Model_DeltaLong[i-1]
-		modely[i-1,:] = Model_DeltaLat[i-1]
+		modelx[i-1,:] = Model_DeltaLat[i-1]
+		modely[i-1,:] = Model_DeltaLong[i-1]
 
 		x[i-1,:] = obsdf["DeltaLat_" + objectnames[i]].values
 		xe[i-1,:] = obsdf["DeltaLat_" + objectnames[i] + "_err"].values
 		y[i-1,:] = obsdf["DeltaLong_" + objectnames[i]].values
 		ye[i-1,:] = obsdf["DeltaLong_" + objectnames[i] + "_err"].values
 
-		plt.plot(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = objectnames[i])
-		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko")
+		plt.plot(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = objectnames[i], linewidth = 0.5, alpha = 0.5)
+		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko", marker = markercycle[i-1])
+
+	print(modelx)
+	print(modely)
 
 	plt.axis('equal')
 	plt.xlabel("Delta Latitude")
 	plt.ylabel("Delta Longitude")
 	plt.legend()
 
-	plt.savefig("../runs/"+objname+"_"+runprops.get("date")+"/best_astrometry.png")
+	plt.savefig(runprops.get("results_folder")+"/best_astrometry.png")
 	plt.close()
-'''
+
 
 
 def auto_window(taus, c):

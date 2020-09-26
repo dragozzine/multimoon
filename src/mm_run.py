@@ -67,8 +67,9 @@ if __name__ == '__main__':
 
     runprops = mm_runprops.runprops
     runprops['best_llhood'] = -np.inf
-    if runs_file != '':
-        runprops['runs_file'] = runs_file
+    runs_file = runprops['run_file']
+#    if runs_file != '':
+#        runprops['runs_file'] = runs_file
 
     verbose = runprops.get("verbose")
     nwalkers = runprops.get("nwalkers")
@@ -94,6 +95,7 @@ if __name__ == '__main__':
     dynamicstoincludeflags = runprops.get("dynamicstoincludeflags")
     includesun = runprops.get("includesun")
     paramnames = list(sum(list(guesses), ()))
+    print(paramnames)
 # Check to make sure that numobjects equals length of dynamics flag
     if len(dynamicstoincludeflags) != runprops.get("numobjects"):
         print("ERROR: Number of objects given in runprops.txt does not match the length of dynamicstoincludeflags")
@@ -189,7 +191,6 @@ if __name__ == '__main__':
  
     # Convert the guesses into fitting units and place in numpy array
     p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit_array(guesses,runprops)
-    
     
     ndim = len(p0[0])
     #we still do not have a constraints or fit scale defined

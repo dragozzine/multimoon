@@ -39,7 +39,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     
     #print('float_params read in from p0: \n',float_params)
     objname = runprops.get("objectname")
-    priorFilename = "../data/" +objname + "/" + objname + "_priors_df.csv"
+    priorFilename = runprops['priors_filename']
     priors = pd.read_csv(priorFilename, sep='\t',index_col=0)
     priors = priors.transpose()
     

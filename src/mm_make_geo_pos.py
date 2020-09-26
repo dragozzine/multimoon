@@ -4,7 +4,7 @@ import pandas as pd
 from astropy.time import Time
 import time
 
-def mm_make_geo_pos(objname, times):
+def mm_make_geo_pos(objname, times, synthetic = False):
     """This function takes a name of a solar system body(a KBO), and creates a csv file of the body's ephemerides"""
     starttime = time.time()
     
@@ -19,7 +19,10 @@ def mm_make_geo_pos(objname, times):
     #taking care to convert the AU distances to kilometers
     geocentricFile = pd.DataFrame({'geocentricTime':ephKBO['datetime_jd'],'x':vecKBO['x']*149597870.7,'y':vecKBO['y']*149597870.7 ,'z':vecKBO['z']*149597870.7})
     outFile = pd.DataFrame({'kboTIME':kboTime,'x':vecKBO['x']*149597870.7 ,'y':vecKBO['y']*149597870.7 ,'z':vecKBO['z']*149597870.7 })
-    
+
+    if synthetic:
+        return outFile
+
     filename1 = "../runs/"+objname+"/"+runprops.get('run_file')+"/geocentric_" + objname + "_position.csv"
     geocentricFile.to_csv(filename1)
     #fileName2 = "geocentric_" + objectName +'_position.csv'

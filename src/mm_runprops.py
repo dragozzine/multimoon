@@ -42,6 +42,8 @@ if runprops.get("first_run") == True:
     init = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_init_guess.csv'
     priors = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_priors_df.csv'
     obs = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_obs_df.csv'
+
+    print(init,priors,obs)
     
     runprops['init_filename'] = init
     runprops['obsdata_file'] = obs
