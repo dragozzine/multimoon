@@ -119,8 +119,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 					row[int(inc_lan_index[b*2+1])] = lan
 					inc = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
 					if inc < 0:
-						inc = inc*-1
-						inc = inc+180
+						inc = inc%180
 					row[int(inc_lan_index[b*2])] = inc
                 
 				if undo_lambda[b]:
