@@ -369,10 +369,10 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			# change row number?
 		fakeobsdf = fakeobsdf.append(fakeobsdf.iloc[-1,:])
 		fakeobsdf['time'].iloc[-1] = times[i]
-	#fakeobsdf = fakeobsdf.drop(labels = [0,1], axis = 0)
 	fakeobsdf = fakeobsdf.iloc[2:]
 
-	Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
+	#Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
+	DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
 
 	modelx = np.empty((nobjects-1, fakeobsdf.shape[0]))
 	modely = np.empty((nobjects-1, fakeobsdf.shape[0]))
@@ -383,7 +383,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	ye = np.empty((nobjects-1, obsdf.shape[0]))
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
-	markercycle = ["x","+"]
+	#markercycle = ["x","+"]
 
 	name_dict = runprops.get("names_dict")
 	objectnames = []
@@ -392,8 +392,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 
 	fig = plt.figure()
 	for i in range(1,nobjects):
-		modelx[i-1,:] = Model_DeltaLat[i-1]
-		modely[i-1,:] = Model_DeltaLong[i-1]
+		modelx[i-1,:] = DeltaLat_Model[i-1]
+		modely[i-1,:] = DeltaLong_Model[i-1]
 
 		x[i-1,:] = obsdf["DeltaLat_" + objectnames[i]].values
 		xe[i-1,:] = obsdf["DeltaLat_" + objectnames[i] + "_err"].values
@@ -401,10 +401,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		ye[i-1,:] = obsdf["DeltaLong_" + objectnames[i] + "_err"].values
 
 		plt.plot(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = objectnames[i], linewidth = 0.5, alpha = 0.5)
-		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko", marker = markercycle[i-1])
-
-	print(modelx)
-	print(modely)
+		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko", ms = 2)
 
 	plt.axis('equal')
 	plt.xlabel("Delta Latitude")
@@ -414,7 +411,25 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	plt.savefig(runprops.get("results_folder")+"/best_astrometry.pdf", format = "pdf")
 	plt.close()
 
+	obspdf = PdfPages(runprops.get('results_folder')+"/observations.pdf")	
 
+	modelpos = [modelx,modely]
+	objpos = [x,y]
+	objposerr = [xe,ye]
+	labels = ["dLat", "dLong"]
+
+	for i in range(1,nobjects):
+		for j in range(2):
+			plt.figure()
+			plt.errorbar(time_arr, objpos[j][i-1,:], yerr = objposerr[j][i-1,:], fmt = "ko", ms = 2)
+			plt.plot(times, modelpos[j][i-1,:], colorcycle[i], linewidth = 0.75, alpha = 0.75, label = objectnames[i])
+			plt.xlabel("Time (SJD)")
+			plt.ylabel(labels[j])
+			plt.legend()
+			obspdf.savefig()
+
+	obspdf.close()
+	plt.close("all")
 
 def auto_window(taus, c):
 	m = np.arange(len(taus)) < c * taus
