@@ -29,8 +29,8 @@ import random
 import commentjson as json
 import os
 import shutil
-#import matplotlib
-#matplotlib.use('Agg')
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
@@ -38,12 +38,13 @@ import mm_priors as prior
 import mm_likelihood
 import mm_param
 import mm_runprops
+import mm_make_geo_pos
 
 sys.path.insert(1, 'mm_SPINNY/')
 from mm_SPINNY.spinny_vector import generate_vector
 import mm_relast
 
-plt.switch_backend("MacOSX")
+#plt.switch_backend("MacOSX")
 
 # maybe have a runprops type thing to hold the inputs?
 # it then saves a copy of this to the directory where the test case is stored
@@ -58,12 +59,11 @@ plt.switch_backend("MacOSX")
 
 runprops = mm_runprops.runprops
 
-
 verbose = runprops.get("verbose")
 nobjects = runprops.get("numobjects")
+objname = runprops.get('objectname')
 
 # Setting the observations data file and geo position data file
-runprops["obsdata_file"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_obs_df_Keck_and_HST_2009.csv"
 obsdata = runprops.get('obsdata_file')
 
 obsdf = 0
@@ -76,16 +76,8 @@ else:
 	print("ERROR: No observational data file exists. Aborting run.")
 	sys.exit()
 
-
-objname = runprops.get('objectname')
-if os.path.exists("../data/" + objname + "/geocentric_" + objname + "_position.csv"):
-	if verbose:
-		print("Object geocentric position file geocentric_" + objname + "_position.csv will be used")
-else:
-	if verbose:
-		print("No object geocentric position file exists. Aborting Run.")
-	sys.exit()
-geo_obj_pos = pd.read_csv("../data/" + objname + "/geocentric_" + objname + "_position_KeckHST.csv")
+times = obsdf['time'].tolist()
+geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, times, True)
 
 # Package the parameters wanted into a guesses-like df
 params = []
@@ -94,9 +86,9 @@ objectnames = []
 
 params_dict = runprops.get("params_dict")
 name_dict = runprops.get("names_dict")
-
 for i in params_dict.values():
 	params.append(i)
+	print(i)
 for i in params_dict.keys():
 	paramnames.append(i)
 for i in name_dict.values():
@@ -106,6 +98,9 @@ for i in name_dict.keys():
 	paramnames.append(i)
 paramdf = pd.DataFrame(params).transpose()
 paramdf.columns = paramnames
+
+#getData = ReadJson("../runs/runprops.txt")
+#runprops = getData.outProps()
 
 # Outputting model astrometry based on the params df
 Model_DeltaLong, Model_DeltaLat, obsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
@@ -156,8 +151,7 @@ for i in range(1,nobjects):
 plt.axis('equal')
 
 # Saving things now
-savename = runprops.get("testcase_name")
-savedir = "../testcases/" + savename + "/"
+savedir = "../runs/" + runprops.get("run_dir") + "/" + runprops.get("run_file") + "/"
 
 try:
 	os.mkdir(savedir)
@@ -169,15 +163,10 @@ except FileExistsError:
 	os.remove(savedir + "astrometry.png")
 	os.remove(savedir + "obsdf.csv")
 plt.savefig(savedir + "astrometry.png")
-obsdf.to_csv(savedir + "obsdf.csv")
+obsdf.to_csv(savedir + "testcases_obs_df.csv")
 shutil.copy("runprops_gensynth.txt", savedir)
 
 
 # Need to think about excluding data points where the secondary/tertiary/etc is aligned with the 
 # primary. In theory the fitter will have no problem fitting to this data, but it really isn't 
 # realistic...
-
-# Once the model dfs are output, then all that needs to be done is to output it as a data file.
-
-# I think the best way to do all of this is to use a REAL observations file to get the date/time
-# of observations and the error bars, and then replace the data points with synthetic ones.

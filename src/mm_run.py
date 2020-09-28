@@ -89,6 +89,7 @@ if __name__ == '__main__':
 # Getting relevant checking flags from runprops
     dynamicstoincludeflags = runprops.get("dynamicstoincludeflags")
     includesun = runprops.get("includesun")
+    com_offset = runprops.get("com_offset")
     paramnames = list(sum(list(guesses), ()))
 # Check to make sure that numobjects equals length of dynamics flag
     if len(dynamicstoincludeflags) != runprops.get("numobjects"):
@@ -180,12 +181,22 @@ if __name__ == '__main__':
         ("mea_0" in paramnames)):
             print("ERROR: includesun flag does not match inputs.")
             sys.exit()
-        
+
+    # Now checking the com_offset flag
+    if com_offset:
+        if not (("lat_offset" in paramnames) and ("long_offset" in paramnames)):
+            print("ERROR: com_offset flag does not match inputs.")
+            sys.exit()
+    if not com_offset:
+        if (("lat_offset" in paramnames) or ("long_offset" in paramnames)):
+            print("ERROR: com_offset flag does not match inputs.")
+            sys.exit()
+
     #ndim is equal to the number of dimension, should this be equal to the number of columns of the init_guess array?
  
     # Convert the guesses into fitting units and place in numpy array
     p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit_array(guesses,runprops)
-    
+
     ndim = len(p0[0])
     #we still do not have a constraints or fit scale defined
     

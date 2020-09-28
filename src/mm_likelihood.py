@@ -39,7 +39,9 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     
     #print('float_params read in from p0: \n',float_params)
     objname = runprops.get("objectname")
+
     priorFilename = runprops.get('priors_filename')
+
     priors = pd.read_csv(priorFilename, sep='\t',index_col=0)
     priors = priors.transpose()
     
@@ -207,6 +209,11 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         # Here is where you would correct for photocenter shifts
         # model delta long and delta lat
         # Put into model dataframe? 
+
+    # Putting in COM-COL offset
+    if runprops.get("com_offset"):
+        Model_DeltaLong = Model_DeltaLong + paramdf["long_offset"].iloc[0]
+        Model_DeltaLat = Model_DeltaLat + paramdf["lat_offset"].iloc[0]
 
 
     # Outputting the Model_DeltaLong and Lat if gensynth flag is included in function call

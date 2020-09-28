@@ -102,4 +102,6 @@ def mm_priors(priors, parameters, runprops):
         print('AllProbs:' ,allProbs)
     for x in allProbs:
         totalLogProb = totalLogProb + np.log(x)
+  
     return totalLogProb
+
