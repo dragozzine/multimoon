@@ -104,7 +104,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 					ecc_new = row[int(ecc_aop_index[b*2])]
 					pomega = np.arctan2(ecc_new,aop_new)*180/np.pi
 					if pomega < 0:
-						pomega = pomega+360
+						pomega = pomega%360
 					row[int(ecc_aop_index[b*2+1])] = pomega
 					row[int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega*np.pi/180)
                                
@@ -114,7 +114,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 
 					lan = np.arctan2(inc_new,lan_new)*180/np.pi
 					if lan < 0:
-						lan = lan + 360
+						lan = lan%360
                         
 					row[int(inc_lan_index[b*2+1])] = lan
 					inc = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
@@ -128,9 +128,9 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
                 
 					mea = mea_new-pomega
 					if mea < 0:
-						mea = mea +360
+						mea = mea%360
 					elif mea > 360:
-						mea = mea -360
+						mea = mea%360
 					row[int(lambda_index[b*2])] = mea
                     
 				if undo_pomega[b]:
@@ -138,9 +138,9 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 					pomega = row[int(pomega_index[b*2])]
 					aop = pomega-lan
 					if aop < 0:
-						aop = aop +360
+						aop = aop%360
 					elif mea > 360:
-						aop = aop -360
+						aop = aop%360
 					row[int(pomega_index[b*2])] = aop
                     
 			if undo_masses[0]:
@@ -173,7 +173,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 						ecc_new = cchain[i][j][int(ecc_aop_index[b*2])]
 						pomega = np.arctan2(ecc_new,aop_new)*180/np.pi
 						if pomega < 0:
-							pomega = pomega+360
+							pomega = pomega%360
 						cchain[i][j][int(ecc_aop_index[b*2+1])] = pomega
 						cchain[i][j][int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega/180*np.pi)
 					if undo_inc_lan[b]:    
@@ -181,30 +181,29 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 						lan_new = cchain[i][j][int(inc_lan_index[b*2+1])]
 						lan = np.arctan2(inc_new,lan_new)*180/np.pi
 						if lan < 0:
-							lan = lan+360
+							lan = lan%360
 						cchain[i][j][int(inc_lan_index[b*2+1])] = lan
 						inc = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
 						if inc < 0:
-							inc = inc*-1
-							inc = inc+180
+							inc = inc%180
 						cchain[i][j][int(inc_lan_index[b*2])] = inc
 					if undo_lambda[b]:
 						mea_new = cchain[i][j][int(lambda_index[b*2])]
 						pomega = cchain[i][j][int(lambda_index[b*2+1])]
 						mea = mea_new-pomega
 						if mea < 0:
-							mea = mea +360
+							mea = mea%360
 						if mea > 360:
-							mea = mea - 360
+							mea = mea%360
 						cchain[i][j][int(lambda_index[b*2])] = mea
 					if undo_pomega[b]:
 						lan = cchain[i][j][int(pomega_index[b*2+1])]
 						pomega = cchain[i][j][int(pomega_index[b*2])]
 						aop = pomega-lan
 						if aop < 0:
-							aop = aop +360
+							aop = aop%360
 						if aop > 360:
-							aop = aop - 360                        
+							aop = aop%360                        
 						cchain[i][j][int(pomega_index[b*2])] = pomega-lan  
 				if undo_masses[0]:
 					mass_1 = cchain[i][j][int(masses_index[0])]

@@ -207,7 +207,7 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 
                 pomega = np.arctan2(a,b)*180/np.pi
                 if pomega < 0:
-                    pomega = pomega+360
+                    pomega = pomega%360
                 param_df['aop_'+str(i+2)] = pomega
                 param_df['ecc_'+str(i+2)] = a/np.sin(pomega*np.pi/180)
             
@@ -218,7 +218,7 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 
                 lan = np.arctan2(a,b)*180/np.pi
                 if lan < 0:
-                    lan = lan+360
+                    lan = lan%360
                 
                 c = np.sin(lan*np.pi/180)
                 
@@ -239,18 +239,19 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
             if undo_lambda[i]:
                 mea = np.array(param_df['mea_'+str(i+2)])-np.array(param_df['aop_'+str(i+2)])
                 if mea < 0:
-                    mea = mea + 360
+                    mea = mea%360
                 elif mea > 360:
-                    mea = mea - 360
+                    mea = mea%360
                 param_df['mea_'+str(i+2)] = mea
                 #print(param_df['mea_'+str(i+2)])
             
             if undo_pomega[i]:
                 aop  = np.array(param_df['aop_'+str(i+2)])-np.array(param_df['lan_'+str(i+2)])
                 if aop < 0:
-                    aop = aop + 360
+                    aop = aop%360
                 elif aop > 360:
-                    aop = aop - 360
+                    aop = aop%360
                 param_df['aop_'+str(i+2)] = aop
                 
     return param_df
+
