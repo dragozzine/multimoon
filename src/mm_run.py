@@ -15,15 +15,13 @@ Outputs:
 """
 def initializer():
     import os
+    import mm_runprops
     os.environ["OMP_NUM_THREADS"] = "1"
     cwd = os.getcwd()
-    print(cwd)
     runs_file = ''
     if 'runs' in cwd:
         runs_file = os.path.basename(os.path.normpath(cwd))
         os.chdir('../../../src')
-    cwd = os.getcwd()
-    print(cwd)
     import sys
     import numpy as np
     import pandas as pd
@@ -31,7 +29,6 @@ def initializer():
     import random
     import h5py
     from tqdm import tqdm
-    import mm_runprops
     import mm_init_guess
     import mm_likelihood
     import mm_make_geo_pos
@@ -41,7 +38,9 @@ def initializer():
     import mm_param
     import mm_clustering
     import mm_analysis
-    from multiprocessing import Pool, Manager
+    #from multiprocessing import Pool, Manager
+    from schwimmbad import MultiPool as Pool
+    from multiprocessing import Manager
     import warnings
     import shutil
     import commentjson as json
@@ -67,9 +66,6 @@ if __name__ == '__main__':
 
     runprops = mm_runprops.runprops
     runprops['best_llhood'] = -np.inf
-    runs_file = runprops['run_file']
-#    if runs_file != '':
-#        runprops['runs_file'] = runs_file
 
     verbose = runprops.get("verbose")
     nwalkers = runprops.get("nwalkers")
@@ -90,7 +86,6 @@ if __name__ == '__main__':
 
     guesses = mm_init_guess.mm_init_guess(runprops)	# maybe more args
 # ouptut from init_guess is a dataframe with all the desired parameters to be fit
-
 # Getting relevant checking flags from runprops
     dynamicstoincludeflags = runprops.get("dynamicstoincludeflags")
     includesun = runprops.get("includesun")
@@ -251,7 +246,6 @@ if __name__ == '__main__':
     # Go through initial guesses and check that all walkers have finite posterior probability
     reset = 0
     maxreset = runprops.get("maxreset")
-    
     print('Testing to see if initial params are valid')
     for i in tqdm(range(nwalkers)):  
         llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods)
@@ -262,7 +256,6 @@ if __name__ == '__main__':
             p0[i,:] = (p*p0[random.randrange(nwalkers),:] + (1-p)*p0[random.randrange(nwalkers),:])
             llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods)
             reset += 1
-            #print(llhood)
             if reset > maxreset:
                 print("ERROR: Maximum number of resets has been reached, aborting run.")
                 sys.exit() 
@@ -322,8 +315,8 @@ if __name__ == '__main__':
         state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
 
         # Now running the clustering algorithm! (if desired)
-        if runprops.get("use_clustering") and runprops.get("burnin") != 0:
-	        sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
+        if runprops.get("use_clustering") and nburnin != 0:
+            sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
         
         sampler.reset()
 

@@ -35,13 +35,15 @@ def mm_priors(priors, parameters, runprops):
     numNaNs = 0
     #This loop runs through every column in the priors dataframe, and evaluates the probability density
     #function of the specified type.
-    
+
     for i in columnList:
         count += 1
         theInt = int(priors[i][0])
+
         #Uniform Distribution Shape
         if theInt == 0:
             #print(params[i])
+
             if params[i][0] < priors[i][2] and params[i][0] > priors[i][1]:
                 allProbs.append(1)
             elif np.isnan(params[i][0]):
@@ -102,3 +104,4 @@ def mm_priors(priors, parameters, runprops):
         totalLogProb = totalLogProb + np.log(x)
   
     return totalLogProb
+

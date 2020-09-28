@@ -10,17 +10,30 @@ class ReadJson(object):
         self.data = json.load(open(filename))
     def outProps(self):
         return self.data
-
+runs_file = ''
+cwd = ''
 filename = ""
 if len(sys.argv) > 1:
     filename = sys.argv[1]
 elif sys.argv[0] == "mm_synth.py":
     filename = "runprops_gensynth.txt"
 else:
-    filename = "../runs/runprops.txt"
+    cwd = os.getcwd()
+    if 'src' in cwd:
+        filename = "../runs/runprops.txt"
+    elif 'runs' in cwd:
+        filename = "runprops.txt"
+        
+    else:
+        print('You are not starting from a proper directory, You should run mm_run.py from either a runs directory or from src.')
+        sys.exit()
     
 getData = ReadJson(filename)
 runprops = getData.outProps()
+if 'runs' in cwd:
+    runs_file = os.path.basename(os.path.normpath(cwd))
+    os.chdir('../../../src')
+    runprops['runs_file'] = runs_file
 
 if runprops.get("first_run") == True:
     x = datetime.datetime.now()

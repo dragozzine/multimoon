@@ -205,7 +205,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 							aop = aop +360
 						if aop > 360:
 							aop = aop - 360                        
-						cchain[i][j][int(lambda_index[b*2])] = pomega-lan  
+						cchain[i][j][int(pomega_index[b*2])] = pomega-lan  
 				if undo_masses[0]:
 					mass_1 = cchain[i][j][int(masses_index[0])]
 					mass_2 = cchain[i][j][int(masses_index[1])]
