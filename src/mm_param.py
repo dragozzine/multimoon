@@ -195,9 +195,8 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
             mass_2 = np.array(param_df['mass_2'])
             mass_1 = np.array(param_df['mass_1'])
             param_df['mass_3'] = mass_3-mass_2
-            param_df['mass_2'] = mass_2-mass_1
-            
-        if undo_masses[0]:
+            param_df['mass_2'] = mass_2-mass_1   
+        elif undo_masses[0]:
             mass_2 = np.array(param_df['mass_2'])
             mass_1 = np.array(param_df['mass_1'])
             param_df['mass_2'] = mass_2-mass_1
@@ -229,16 +228,15 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 #print('inc ', inc)
                 #print('lan ', lan)
                 if inc < 0:
-                    inc = -1*inc
-                    inc = inc+180
+                    #inc = -1*inc
+                    inc = inc+360
                     
                 param_df['inc_'+str(i+2)] = inc
                 param_df['lan_'+str(i+2)] = lan
                 
                 #print(param_df['inc_'+str(i+2)])
                 #print(param_df['lan_'+str(i+2)])
-                      
-                
+                           
             if undo_lambda[i]:
                 mea = np.array(param_df['mea_'+str(i+2)])-np.array(param_df['aop_'+str(i+2)])
                 if mea < 0:
@@ -256,5 +254,4 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                     aop = aop - 360
                 param_df['aop_'+str(i+2)] = aop
                 
-    #print(param_df['mass_1'])
     return param_df
