@@ -240,16 +240,25 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	
 
 	# Now make the walker plots
+	from matplotlib.backends.backend_pdf import PdfPages
+
+	walkerpdf = PdfPages(runprops.get('results_folder')+"/walkers.pdf")
+
 	for i in range(numparams):
 		plt.figure()
 		for j in range(numwalkers):
 			plt.plot(np.reshape(chain[0:numgens,j,i], numgens))
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
-		plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
-		plt.close()
+		#plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
+		walkerpdf.attach_note(names[i])
+		walkerpdf.savefig()
+		#plt.close()
 
-	# Likelihood plots
+	walkerpdf.close()
+	plt.close("all")
+
+	# Figuring out the distributions of parameters
 	llhoods = sampler.get_log_prob(flat = True)
 	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean'], index = names)
 	for i in range(len(flatchain[0])):        
@@ -274,7 +283,9 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	filename = runprops.get('results_folder') + '/sigsdf.csv'    
 	sigsdf.to_csv(filename)
     
-    
+	# Likelihood plots    
+	likelihoodspdf = PdfPages(runprops.get('results_folder')+"/likelihoods.pdf")
+
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
@@ -288,8 +299,12 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		plt.subplot(224)
 		plt.hist(llhoods.flatten(), bins = 40, orientation = "horizontal", 
 			 histtype = "step", color = "black")
-		plt.savefig(runprops.get("results_folder")+"/likelihood_" + names[i] + ".png")
-		plt.close("all")
+		likelihoodspdf.attach_note(names[i])
+		likelihoodspdf.savefig()
+		#plt.savefig(runprops.get("results_folder")+"/likelihood_" + names[i] + ".png")
+
+	likelihoodspdf.close()
+	plt.close("all")
 
 	# Residual plots
 	nobjects = runprops.get('numobjects')
@@ -332,7 +347,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	plt.ylabel("Delta Latitude")
 	plt.axis("equal")
 	plt.legend()
-	plt.savefig(runprops.get("results_folder")+"/best_residuals.png")
+	plt.savefig(runprops.get("results_folder")+"/best_residuals.pdf", format = "pdf")
 
 	# Astrometry plots
 	time_arr = obsdf['time'].values.flatten()
@@ -396,7 +411,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	plt.ylabel("Delta Longitude")
 	plt.legend()
 
-	plt.savefig(runprops.get("results_folder")+"/best_astrometry.png")
+	plt.savefig(runprops.get("results_folder")+"/best_astrometry.pdf", format = "pdf")
 	plt.close()
 
 
