@@ -104,7 +104,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 					ecc_new = row[int(ecc_aop_index[b*2])]
 					pomega = np.arctan2(ecc_new,aop_new)*180/np.pi
 					if pomega < 0:
-						pomega = pomega+360
+						pomega = pomega%360
 					row[int(ecc_aop_index[b*2+1])] = pomega
 					row[int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega*np.pi/180)
                                
@@ -114,7 +114,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 
 					lan = np.arctan2(inc_new,lan_new)*180/np.pi
 					if lan < 0:
-						lan = lan + 360
+						lan = lan%360
                         
 					row[int(inc_lan_index[b*2+1])] = lan
 					inc = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
@@ -128,9 +128,9 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
                 
 					mea = mea_new-pomega
 					if mea < 0:
-						mea = mea +360
+						mea = mea%360
 					elif mea > 360:
-						mea = mea -360
+						mea = mea%360
 					row[int(lambda_index[b*2])] = mea
                     
 				if undo_pomega[b]:
@@ -138,9 +138,9 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 					pomega = row[int(pomega_index[b*2])]
 					aop = pomega-lan
 					if aop < 0:
-						aop = aop +360
+						aop = aop%360
 					elif mea > 360:
-						aop = aop -360
+						aop = aop%360
 					row[int(pomega_index[b*2])] = aop
                     
 			if undo_masses[0]:
@@ -173,7 +173,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 						ecc_new = cchain[i][j][int(ecc_aop_index[b*2])]
 						pomega = np.arctan2(ecc_new,aop_new)*180/np.pi
 						if pomega < 0:
-							pomega = pomega+360
+							pomega = pomega%360
 						cchain[i][j][int(ecc_aop_index[b*2+1])] = pomega
 						cchain[i][j][int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega/180*np.pi)
 					if undo_inc_lan[b]:    
@@ -181,7 +181,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 						lan_new = cchain[i][j][int(inc_lan_index[b*2+1])]
 						lan = np.arctan2(inc_new,lan_new)*180/np.pi
 						if lan < 0:
-							lan = lan+360
+							lan = lan%360
 						cchain[i][j][int(inc_lan_index[b*2+1])] = lan
 						inc = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
 						if inc < 0:
@@ -192,18 +192,18 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 						pomega = cchain[i][j][int(lambda_index[b*2+1])]
 						mea = mea_new-pomega
 						if mea < 0:
-							mea = mea +360
+							mea = mea%360
 						if mea > 360:
-							mea = mea - 360
+							mea = mea%360
 						cchain[i][j][int(lambda_index[b*2])] = mea
 					if undo_pomega[b]:
 						lan = cchain[i][j][int(pomega_index[b*2+1])]
 						pomega = cchain[i][j][int(pomega_index[b*2])]
 						aop = pomega-lan
 						if aop < 0:
-							aop = aop +360
+							aop = aop%360
 						if aop > 360:
-							aop = aop - 360                        
+							aop = aop%360                        
 						cchain[i][j][int(pomega_index[b*2])] = pomega-lan  
 				if undo_masses[0]:
 					mass_1 = cchain[i][j][int(masses_index[0])]
@@ -240,16 +240,25 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	
 
 	# Now make the walker plots
+	from matplotlib.backends.backend_pdf import PdfPages
+
+	walkerpdf = PdfPages(runprops.get('results_folder')+"/walkers.pdf")
+
 	for i in range(numparams):
 		plt.figure()
 		for j in range(numwalkers):
 			plt.plot(np.reshape(chain[0:numgens,j,i], numgens))
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
-		plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
-		plt.close()
+		#plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
+		walkerpdf.attach_note(names[i])
+		walkerpdf.savefig()
+		#plt.close()
 
-	# Likelihood plots
+	walkerpdf.close()
+	plt.close("all")
+
+	# Figuring out the distributions of parameters
 	llhoods = sampler.get_log_prob(flat = True)
 	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean'], index = names)
 	for i in range(len(flatchain[0])):        
@@ -274,7 +283,9 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	filename = runprops.get('results_folder') + '/sigsdf.csv'    
 	sigsdf.to_csv(filename)
     
-    
+	# Likelihood plots    
+	likelihoodspdf = PdfPages(runprops.get('results_folder')+"/likelihoods.pdf")
+
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
@@ -288,8 +299,12 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		plt.subplot(224)
 		plt.hist(llhoods.flatten(), bins = 40, orientation = "horizontal", 
 			 histtype = "step", color = "black")
-		plt.savefig(runprops.get("results_folder")+"/likelihood_" + names[i] + ".png")
-		plt.close("all")
+		likelihoodspdf.attach_note(names[i])
+		likelihoodspdf.savefig()
+		#plt.savefig(runprops.get("results_folder")+"/likelihood_" + names[i] + ".png")
+
+	likelihoodspdf.close()
+	plt.close("all")
 
 	# Residual plots
 	nobjects = runprops.get('numobjects')
@@ -332,7 +347,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	plt.ylabel("Delta Latitude")
 	plt.axis("equal")
 	plt.legend()
-	plt.savefig(runprops.get("results_folder")+"/best_residuals.png")
+	plt.savefig(runprops.get("results_folder")+"/best_residuals.pdf", format = "pdf")
 
 	# Astrometry plots
 	time_arr = obsdf['time'].values.flatten()
@@ -354,10 +369,10 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			# change row number?
 		fakeobsdf = fakeobsdf.append(fakeobsdf.iloc[-1,:])
 		fakeobsdf['time'].iloc[-1] = times[i]
-	#fakeobsdf = fakeobsdf.drop(labels = [0,1], axis = 0)
 	fakeobsdf = fakeobsdf.iloc[2:]
 
-	Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
+	#Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
+	DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
 
 	modelx = np.empty((nobjects-1, fakeobsdf.shape[0]))
 	modely = np.empty((nobjects-1, fakeobsdf.shape[0]))
@@ -368,7 +383,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	ye = np.empty((nobjects-1, obsdf.shape[0]))
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
-	markercycle = ["x","+"]
+	#markercycle = ["x","+"]
 
 	name_dict = runprops.get("names_dict")
 	objectnames = []
@@ -377,8 +392,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 
 	fig = plt.figure()
 	for i in range(1,nobjects):
-		modelx[i-1,:] = Model_DeltaLat[i-1]
-		modely[i-1,:] = Model_DeltaLong[i-1]
+		modelx[i-1,:] = DeltaLat_Model[i-1]
+		modely[i-1,:] = DeltaLong_Model[i-1]
 
 		x[i-1,:] = obsdf["DeltaLat_" + objectnames[i]].values
 		xe[i-1,:] = obsdf["DeltaLat_" + objectnames[i] + "_err"].values
@@ -386,20 +401,35 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		ye[i-1,:] = obsdf["DeltaLong_" + objectnames[i] + "_err"].values
 
 		plt.plot(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = objectnames[i], linewidth = 0.5, alpha = 0.5)
-		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko", marker = markercycle[i-1])
-
-	print(modelx)
-	print(modely)
+		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko", ms = 2)
 
 	plt.axis('equal')
 	plt.xlabel("Delta Latitude")
 	plt.ylabel("Delta Longitude")
 	plt.legend()
 
-	plt.savefig(runprops.get("results_folder")+"/best_astrometry.png")
+	plt.savefig(runprops.get("results_folder")+"/best_astrometry.pdf", format = "pdf")
 	plt.close()
 
+	obspdf = PdfPages(runprops.get('results_folder')+"/observations.pdf")	
 
+	modelpos = [modelx,modely]
+	objpos = [x,y]
+	objposerr = [xe,ye]
+	labels = ["dLat", "dLong"]
+
+	for i in range(1,nobjects):
+		for j in range(2):
+			plt.figure()
+			plt.errorbar(time_arr, objpos[j][i-1,:], yerr = objposerr[j][i-1,:], fmt = "ko", ms = 2)
+			plt.plot(times, modelpos[j][i-1,:], colorcycle[i], linewidth = 0.75, alpha = 0.75, label = objectnames[i])
+			plt.xlabel("Time (SJD)")
+			plt.ylabel(labels[j])
+			plt.legend()
+			obspdf.savefig()
+
+	obspdf.close()
+	plt.close("all")
 
 def auto_window(taus, c):
 	m = np.arange(len(taus)) < c * taus
