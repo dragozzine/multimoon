@@ -159,7 +159,7 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 
          
         if 'mass_1' in float_names and 'mass_2' in float_names:
-            if 'mass_3' in float_names:
+            if 'mass_3' in float_names and runprops.get('numobjects') > 2:
                 undo_masses[1] = True
             else:
                 undo_masses[0] = True
@@ -189,7 +189,7 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
     
     if runprops.get('transform'):
         
-        if undo_masses[1]:
+        if runprops.get('numobjects') > 2 and undo_masses[1]:
             mass_3 = np.array(param_df['mass_3'])
             mass_2 = np.array(param_df['mass_2'])
             mass_1 = np.array(param_df['mass_1'])

@@ -65,7 +65,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			pomega_index[2*i] = float_names.index('aop_'+str(i+2))
 			pomega_index[2*i+1] = float_names.index('lan_'+str(i+2))
 	if 'mass_1' in float_names and 'mass_2' in float_names:
-		if 'mass_3' in float_names:        
+		if 'mass_3' in float_names and runprops.get('numobjects') > 2:        
 			undo_masses[1] = True
 			masses_index[0] = float_names.index('mass_1')
 			masses_index[1] = float_names.index('mass_2')
@@ -185,8 +185,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 						cchain[i][j][int(inc_lan_index[b*2+1])] = lan
 						inc = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
 						if inc < 0:
-							inc = inc*-1
-							inc = inc+180
+							inc = inc%180
 						cchain[i][j][int(inc_lan_index[b*2])] = inc
 					if undo_lambda[b]:
 						mea_new = cchain[i][j][int(lambda_index[b*2])]
