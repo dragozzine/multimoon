@@ -10,20 +10,21 @@
     "lockspinanglesflag": false,
     "transform": true,
     "epoch_SJD": 2454615.00,
+    "com_offset": false,
 
     # Run properties/parameters
     "objectname" : "Haumea",
     "run_file": "HST_2009_dyn_0",
-    "numobjects" : 3,
-    "dynamicstoincludeflags" : "000",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
+    "numobjects" : 2,
+    "dynamicstoincludeflags" : "00",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
-    "nwalkers" : 200,			# number of walkers in emcee ensemble
-    "nburnin" : 100,			# length of burn in
-    "nsteps" : 800,			# number of initial steps for sampling
+    "nwalkers" : 40,			# number of walkers in emcee ensemble
+    "nburnin" : 10,			# length of burn in
+    "nsteps" : 80,			# number of initial steps for sampling
     "essgoal" : 10,			# effective sample size desired
     "maxiter" : 10,			# maximum number of steps to take within the final sampling
     "nthinning" : 1,			# thinning fraction
-    "maxreset" : 100,			# maximum number of resets when checking parameters set
+    "maxreset" : 80,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-12,		# tolerance of spinny
     "numprocesses": 10,			# number of cores to use
 

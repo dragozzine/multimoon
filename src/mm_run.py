@@ -40,6 +40,7 @@ def initializer():
     import mm_analysis
     #from multiprocessing import Pool, Manager
     from schwimmbad import MultiPool as Pool
+    #from mpipool import Pool
     from multiprocessing import Manager
     import warnings
     import shutil
