@@ -5,13 +5,14 @@
     "MultiMoon commit hash": "autogenerate",
     "numobjects" : 3,
     "run_dir" : "testcases",
-    "run_file": "100",
+    "run_file": "000_offset",
     "objectname": "Haumea",
     "spinny_tolerance": 1e-10,
     "verbose" : false,
-    "dynamicstoincludeflags" : "100",
+    "dynamicstoincludeflags" : "000",
     "includesun" : 0,
     "epoch_SJD":  2454615.0,
+    "com_offset" : true,
 
     "obsdata_file": "../runs/Haumea/100/Haumea_obs_df.csv",
 
@@ -38,9 +39,8 @@
         "inc_3": 113.013,
         "lan_3": 205.016,
         "mea_3": 178.5,
-        "j2r2_1": 100000.0,
-        "spinc_1": 126.356,
-        "splan_1": 206.766
+        "lat_offset": 0.05,
+        "long_offset": 0.05
     },
     "float_dict" :
     {
@@ -59,9 +59,8 @@
         "inc_3": 1,
         "lan_3": 1,
         "mea_3": 1,
-        "j2r2_1": 1,
-        "spinc_1": 1,
-        "splan_1": 1
+        "lat_offset": 1,
+        "long_offset": 1
     }
 
 }

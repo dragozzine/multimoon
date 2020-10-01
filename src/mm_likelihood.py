@@ -215,7 +215,6 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         Model_DeltaLong = Model_DeltaLong + paramdf["long_offset"].iloc[0]
         Model_DeltaLat = Model_DeltaLat + paramdf["lat_offset"].iloc[0]
 
-
     # Outputting the Model_DeltaLong and Lat if gensynth flag is included in function call
     # This was done by BP. PLEASE let me know if this breaks things
     if gensynth:

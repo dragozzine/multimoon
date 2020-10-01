@@ -160,8 +160,8 @@ try:
 except FileExistsError:
 	if verbose:
 		print("directory already exists. Removing obsdf and .png files")
-	os.remove(savedir + "astrometry.png")
-	os.remove(savedir + "obsdf.csv")
+#	os.remove(savedir + "astrometry.png")
+#	os.remove(savedir + "obsdf.csv")
 plt.savefig(savedir + "astrometry.png")
 obsdf.to_csv(savedir + "testcases_obs_df.csv")
 shutil.copy("runprops_gensynth.txt", savedir)
