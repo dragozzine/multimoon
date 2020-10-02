@@ -23,7 +23,7 @@
     "essgoal" : 10,			# effective sample size desired
     "maxiter" : 10,			# maximum number of steps to take within the final sampling
     "nthinning" : 1,			# thinning fraction
-    "maxreset" : 100,			# maximum number of resets when checking parameters set
+    "maxreset" : 10,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
     "numprocesses": 100,		# number of cores to use
 
