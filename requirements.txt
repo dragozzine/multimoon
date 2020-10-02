@@ -89,4 +89,4 @@ wcwidth==0.2.5
 webencodings==0.5.1
 widgetsnbextension==3.5.1
 yarl==1.5.1
-schwimmbad-0.3.1
+schwimmbad==0.3.1

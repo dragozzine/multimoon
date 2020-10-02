@@ -26,7 +26,14 @@ import emcee
 import sys
 import mm_likelihood
 from astropy.time import Time
+import commentjson as json
 
+class ReadJson(object):
+    def __init__(self, filename):
+        print('Read the runprops.txt file')
+        self.data = json.load(open(filename))
+    def outProps(self):
+        return self.data
 
 #chain = (nwalkers, nlink, ndim)
 def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos):
@@ -227,9 +234,24 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 
 	# Make corner plot
 	#plt.rc('text', usetex=True)
-	fig = corner.corner(flatchain, labels = names, bins = 40, show_titles = True, 
-			    plot_datapoints = False, color = "blue", fill_contours = True,
-			    title_fmt = ".4e")
+	fig = 0
+	if runprops.get("objectname") == "testcases":
+		getData = ReadJson("../runs/"+objname+"/"+runprops.get('run_file')+"/runprops_gensynth.txt")
+		synthrunprops = getData.outProps()
+		truths = []
+
+		params_dict = synthrunprops.get("params_dict")
+
+		for k in params_dict.values():
+			truths.append(k)
+
+		fig = corner.corner(flatchain, labels = names, bins = 40, show_titles = True, 
+				    plot_datapoints = False, color = "blue", fill_contours = True,
+				    title_fmt = ".4e", truths = truths)
+	else:
+		fig = corner.corner(flatchain, labels = names, bins = 40, show_titles = True, 
+				    plot_datapoints = False, color = "blue", fill_contours = True,
+				    title_fmt = ".4e")
 	fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
 	for ax in fig.get_axes():
 		ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
@@ -247,7 +269,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	for i in range(numparams):
 		plt.figure()
 		for j in range(numwalkers):
-			plt.plot(np.reshape(chain[0:numgens,j,i], numgens))
+			plt.plot(np.reshape(chain[0:numgens,j,i], numgens), rasterized=True)
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
 		#plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
@@ -293,7 +315,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		plt.subplot(223)
 		plt.scatter(flatchain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
-			    cmap = "nipy_spectral", edgecolors = "none")
+			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True)
 		plt.xlabel(names[i])
 		plt.ylabel("Log(L)")
 		plt.subplot(224)
