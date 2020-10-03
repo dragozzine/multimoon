@@ -8,7 +8,7 @@
     "mm_initguess_which" : "get_init_guess_from_dist",
     "RunGoal" : "To test running without transformations",
     "lockspinanglesflag": false,
-    "transform": false,
+    "transform": true,
     "epoch_SJD": 2453880.00,
 
     # Run properties/parameters
@@ -17,15 +17,15 @@
     "numobjects" : 2,
     "dynamicstoincludeflags" : "00",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
-    "nwalkers" : 400,			# number of walkers in emcee ensemble
+    "nwalkers" : 100,			# number of walkers in emcee ensemble
     "nburnin" : 1000,			# length of burn in
     "nsteps" : 1000,			# number of initial steps for sampling
     "essgoal" : 10,			# effective sample size desired
     "maxiter" : 10,			# maximum number of steps to take within the final sampling
     "nthinning" : 1,			# thinning fraction
-    "maxreset" : 100,			# maximum number of resets when checking parameters set
+    "maxreset" : 10,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
-    "numprocesses": 20,			# number of cores to use
+    "numprocesses": 100,		# number of cores to use
 
     # Input data files
     "init_filename":"../runs/Haumea/HST_2009/Haumea_init_guess_dyn_0.csv",
@@ -55,7 +55,7 @@
     "float_dict" : 
     { 
         "mass_1": 1,
-        "mass_2": 1,
+        "mass_2": 0,
         "sma_2": 1,
         "ecc_2": 1,
         "aop_2": 1,
