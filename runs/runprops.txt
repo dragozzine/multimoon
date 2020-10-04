@@ -25,7 +25,7 @@
     "nthinning" : 1,			# thinning fraction
     "maxreset" : 10000,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
-    "numprocesses": 24,			# number of cores to use
+    "numprocesses": 30,			# number of cores to use
     "epoch_SJD":  2453979.0,		# epoch to fit to
 
     # Input data files
