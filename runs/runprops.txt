@@ -17,7 +17,7 @@
     "numobjects" : 2,
     "dynamicstoincludeflags" : "10",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
-    "nwalkers" : 1000,			# number of walkers in emcee ensemble
+    "nwalkers" : 500,			# number of walkers in emcee ensemble
     "nburnin" : 5000,			# length of burn in
     "nsteps" : 5000,			# number of initial steps for sampling
     "essgoal" : 10,			# effective sample size desired
@@ -25,7 +25,7 @@
     "nthinning" : 1,			# thinning fraction
     "maxreset" : 10000,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
-    "numprocesses": 24,			# number of cores to use
+    "numprocesses": 30,			# number of cores to use
     "epoch_SJD":  2453979.0,		# epoch to fit to
 
     # Input data files
