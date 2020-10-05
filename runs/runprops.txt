@@ -6,14 +6,14 @@
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
     "mm_initguess_which" : "get_init_guess_from_dist",
-    "RunGoal" : "Fit Eris",
+    "RunGoal" : "Fit Eris-like unseen moon",
     "lockspinanglesflag": false,
     "transform": true,
     "com_offset": true,
 
     # Run properties/parameters
-    "objectname" : "Eris",
-    "run_file": "10_offset",
+    "objectname" : "testcases",
+    "run_file": "00_unseen",
     "numobjects" : 2,
     "dynamicstoincludeflags" : "10",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
@@ -25,7 +25,7 @@
     "nthinning" : 1,			# thinning fraction
     "maxreset" : 10000,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
-    "numprocesses": 30,			# number of cores to use
+    "numprocesses": 1,			# number of cores to use
     "epoch_SJD":  2453979.0,		# epoch to fit to
 
     # Input data files

@@ -77,7 +77,7 @@ else:
 	sys.exit()
 
 times = obsdf['time'].tolist()
-geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, times, True)
+geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, times, runprops, True)
 
 # Package the parameters wanted into a guesses-like df
 params = []
