@@ -235,23 +235,23 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	# Make corner plot
 	#plt.rc('text', usetex=True)
 	fig = 0
-	if runprops.get("objectname") == "testcases":
-		getData = ReadJson("../runs/"+objname+"/"+runprops.get('run_file')+"/runprops_gensynth.txt")
-		synthrunprops = getData.outProps()
-		truths = []
-
-		params_dict = synthrunprops.get("params_dict")
-
-		for k in params_dict.values():
-			truths.append(k)
-
-		fig = corner.corner(flatchain, labels = names, bins = 40, show_titles = True, 
-				    plot_datapoints = False, color = "blue", fill_contours = True,
-				    title_fmt = ".4e", truths = truths)
-	else:
-		fig = corner.corner(flatchain, labels = names, bins = 40, show_titles = True, 
-				    plot_datapoints = False, color = "blue", fill_contours = True,
-				    title_fmt = ".4e")
+	#if runprops.get("objectname") == "testcases" and runprops.get("unseenmoon"):
+	#	getData = ReadJson("../runs/"+objname+"/"+runprops.get('run_file')+"/runprops_gensynth.txt")
+	#	synthrunprops = getData.outProps()
+	#	truths = []
+	#
+	#	params_dict = synthrunprops.get("params_dict")
+	#
+	#	for k in params_dict.values():
+	#		truths.append(k)
+	#
+	#	fig = corner.corner(flatchain, labels = names, bins = 40, show_titles = True, 
+	#			    plot_datapoints = False, color = "blue", fill_contours = True,
+	#			    title_fmt = ".4e", truths = truths)
+	#else:
+	fig = corner.corner(flatchain, labels = names, bins = 40, show_titles = True, 
+			    plot_datapoints = False, color = "blue", fill_contours = True,
+			    title_fmt = ".4e")
 	fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
 	for ax in fig.get_axes():
 		ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
@@ -348,11 +348,14 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	for i in name_dict.keys():
 		paramnames.append(i)
 
+	print(paraminput)
+	print(paramnames)
+
 	paramdf = pd.DataFrame(paraminput).transpose()
 	paramdf.columns = paramnames
 
 
-	#print(paramdf)
+	print(paramdf)
 	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
@@ -380,7 +383,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	t = Time(converttimes, format = 'jd')
 
 	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
-	geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos("Haumea", timesdic, runprops, True)
+	geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
 
 	times = geo_obj_pos.values[:,0].flatten()
 

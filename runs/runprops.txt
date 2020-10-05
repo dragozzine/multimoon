@@ -6,18 +6,18 @@
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
     "mm_initguess_which" : "get_init_guess_from_dist",
-    "RunGoal" : "Fit Eris",
+    "RunGoal" : "Fit Eris-like unseen moon",
     "lockspinanglesflag": false,
     "transform": true,
-    "com_offset": false,
+    "com_offset": true,
 
     # Run properties/parameters
-    "objectname" : "Eris",
-    "run_file": "00",
+    "objectname" : "testcases",
+    "run_file": "00_unseen",
     "numobjects" : 2,
-    "dynamicstoincludeflags" : "00",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
+    "dynamicstoincludeflags" : "10",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
-    "nwalkers" : 200,			# number of walkers in emcee ensemble
+    "nwalkers" : 500,			# number of walkers in emcee ensemble
     "nburnin" : 5000,			# length of burn in
     "nsteps" : 5000,			# number of initial steps for sampling
     "essgoal" : 10,			# effective sample size desired
@@ -25,7 +25,7 @@
     "nthinning" : 1,			# thinning fraction
     "maxreset" : 10000,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
-    "numprocesses": 24,			# number of cores to use
+    "numprocesses": 1,			# number of cores to use
     "epoch_SJD":  2453979.0,		# epoch to fit to
 
     # Input data files
@@ -71,14 +71,14 @@
         "inc_3": 0,
         "lan_3": 0,
         "mea_3": 0,
-        "j2r2_1": 0,
-        "spinc_1": 0,
+        "j2r2_1": 1,
+        "spinc_1": 1,
         "sprate_1": 0,
         "spaop_1": 0,
-        "splan_1": 0,
+        "splan_1": 1,
         "c22r2_1": 0,
-        "lat_offset" : 0,
-        "long_offset" : 0
+        "lat_offset" : 1,
+        "long_offset" : 1
     }
 }
 
