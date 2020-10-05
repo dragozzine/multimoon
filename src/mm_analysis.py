@@ -356,6 +356,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 
 
 	print(paramdf)
+#Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
 	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
