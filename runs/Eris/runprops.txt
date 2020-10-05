@@ -9,11 +9,11 @@
     "RunGoal" : "Fit Eris",
     "lockspinanglesflag": false,
     "transform": true,
-    "com_offset": false,
+    "com_offset": true,
 
     # Run properties/parameters
     "objectname" : "Eris",
-    "run_file": "10",
+    "run_file": "10_offset",
     "numobjects" : 2,
     "dynamicstoincludeflags" : "10",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
@@ -77,8 +77,8 @@
         "spaop_1": 0,
         "splan_1": 1,
         "c22r2_1": 0,
-        "lat_offset" : 0,
-        "long_offset" : 0
+        "lat_offset" : 1,
+        "long_offset" : 1
     }
 }
 
