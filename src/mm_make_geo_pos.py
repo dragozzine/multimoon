@@ -4,7 +4,7 @@ import pandas as pd
 from astropy.time import Time
 import time
 
-def mm_make_geo_pos(objname, times, synthetic = False):
+def mm_make_geo_pos(objname, times, runprops, synthetic = False):
     """This function takes a name of a solar system body(a KBO), and creates a csv file of the body's ephemerides"""
     starttime = time.time()
     

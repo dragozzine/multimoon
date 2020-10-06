@@ -50,13 +50,13 @@ if runprops.get("first_run") == True:
     runprops['results_folder'] = newpath
     import shutil
     shutil.copy(filename, '../results/'+newpath+'/runprops.txt')
-    shutil.copy(filename, '../runs/'+objname+'/runprops.txt')
+    #shutil.copy(filename, '../runs/'+objname+'/runprops.txt')
     
     init = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_init_guess.csv'
     priors = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_priors_df.csv'
     obs = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_obs_df.csv'
 
-    print(init,priors,obs)
+    #print(init,priors,obs)
     
     runprops['init_filename'] = init
     runprops['obsdata_file'] = obs

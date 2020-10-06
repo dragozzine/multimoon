@@ -13,6 +13,7 @@
     "includesun" : 0,
     "epoch_SJD":  2453979.0,
     "com_offset" : false,
+    "unseenmoon": false,
 
     "obsdata_file": "../runs/Eris/00/Eris_obs_df_2moon.csv",
 

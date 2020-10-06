@@ -260,6 +260,11 @@ if __name__ == '__main__':
             if reset > maxreset:
                 print("ERROR: Maximum number of resets has been reached, aborting run.")
                 sys.exit() 
+
+    #import mm_optimize
+    #p0 = mm_optimize.mm_optimize(nwalkers, p0, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods)
+    #sys.exit()
+
     runprops["is_mcmc"] = True
 
     # We now have an initial guess for each walker that is not really bad.
