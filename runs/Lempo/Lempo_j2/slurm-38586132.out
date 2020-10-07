@@ -1,0 +1,7 @@
+
+Inactive Modules:
+  1) defaultenv     2) lmod
+
+Read the runprops.txt file
+../runs/Lempo/Lempo_original/Lempo_init_guess.csv ../runs/Lempo/Lempo_original/Lempo_priors_df.csv ../runs/Lempo/Lempo_original/Lempo_obs_df.csv
+ERROR: dynamics to include flags does not match the input parameters for object 1
