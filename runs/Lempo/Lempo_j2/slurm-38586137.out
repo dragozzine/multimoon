@@ -1,0 +1,37 @@
+
+Inactive Modules:
+  1) defaultenv     2) lmod
+
+Read the runprops.txt file
+../runs/Lempo/Lempo_j2/Lempo_init_guess.csv ../runs/Lempo/Lempo_j2/Lempo_priors_df.csv ../runs/Lempo/Lempo_j2/Lempo_obs_df.csv
+  0%|          | 0/100 [00:00<?, ?it/s]ERROR:root:
+Traceback (most recent call last):
+  File "/zhome/djspenc/multimoon/src/mm_likelihood.py", line 141, in mm_chisquare
+    vec_df = generate_vector(paramdf, time_arr_sec, runprops)
+  File "/zhome/djspenc/multimoon/src/mm_SPINNY/spinny_vector.py", line 52, in generate_vector
+    spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol, runprops)
+  File "mm_SPINNY/spinny_nosun.py", line 427, in evolve_spinny_ns
+    s_df = spinny_integrate_ns(spinny, names, phys_arr,t_arr, runprops)
+  File "mm_SPINNY/spinny_nosun.py", line 155, in spinny_integrate_ns
+    r_n = R.from_quat(quat_arr[n,t]) # convert quaternion to rotation
+  File "/apps/python/3.8.2/gcc-9.2.0/lib/python3.8/site-packages/scipy/spatial/transform/rotation.py", line 479, in from_quat
+    return cls(quat, normalize=True)
+  File "/apps/python/3.8.2/gcc-9.2.0/lib/python3.8/site-packages/scipy/spatial/transform/rotation.py", line 385, in __init__
+    norms = scipy.linalg.norm(quat, axis=1)
+  File "/apps/python/3.8.2/gcc-9.2.0/lib/python3.8/site-packages/scipy/linalg/misc.py", line 142, in norm
+    a = np.asarray_chkfinite(a)
+  File "/apps/python/3.8.2/gcc-9.2.0/lib/python3.8/site-packages/numpy/lib/function_base.py", line 498, in asarray_chkfinite
+    raise ValueError(
+ValueError: array must not contain infs or NaNs
+  0%|          | 0/100 [00:00<?, ?it/s]
+Testing to see if initial params are valid
+There was an error thrown within spinny:
+
+Traceback (most recent call last):
+  File "../../../src/mm_run.py", line 252, in <module>
+    llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods)
+  File "/zhome/djspenc/multimoon/src/mm_likelihood.py", line 63, in log_probability
+    log_likeli, residuals = log_likelihood(params, obsdf, runprops, geo_obj_pos)
+  File "/zhome/djspenc/multimoon/src/mm_likelihood.py", line 22, in log_likelihood
+    lh,residuals = mm_chisquare(params,obsdf, runprops, geo_obj_pos)
+TypeError: cannot unpack non-iterable float object

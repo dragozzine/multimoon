@@ -1,0 +1,37 @@
+
+Inactive Modules:
+  1) defaultenv     2) lmod
+
+Read the runprops.txt file
+../runs/Lempo/Lempo_j2/Lempo_init_guess.csv ../runs/Lempo/Lempo_j2/Lempo_priors_df.csv ../runs/Lempo/Lempo_j2/Lempo_obs_df.csv
+Traceback (most recent call last):
+  File "/apps/python/3.8.2/gcc-9.2.0/lib/python3.8/site-packages/pandas/core/indexes/base.py", line 2646, in get_loc
+    return self._engine.get_loc(key)
+  File "pandas/_libs/index.pyx", line 111, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 138, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 1619, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 1627, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'aop_1'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "../../../src/mm_run.py", line 199, in <module>
+    p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit_array(guesses,runprops)
+  File "/zhome/djspenc/multimoon/src/mm_param.py", line 26, in from_param_df_to_fit_array
+    dataframe['spaop_'+str(i+1)] = dataframe['aop_'+str(i+1)]
+  File "/apps/python/3.8.2/gcc-9.2.0/lib/python3.8/site-packages/pandas/core/frame.py", line 2800, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/apps/python/3.8.2/gcc-9.2.0/lib/python3.8/site-packages/pandas/core/indexes/multi.py", line 2662, in get_loc
+    loc = self._get_level_indexer(key, level=0)
+  File "/apps/python/3.8.2/gcc-9.2.0/lib/python3.8/site-packages/pandas/core/indexes/multi.py", line 2929, in _get_level_indexer
+    code = self._get_loc_single_level_index(level_index, key)
+  File "/apps/python/3.8.2/gcc-9.2.0/lib/python3.8/site-packages/pandas/core/indexes/multi.py", line 2598, in _get_loc_single_level_index
+    return level_index.get_loc(key)
+  File "/apps/python/3.8.2/gcc-9.2.0/lib/python3.8/site-packages/pandas/core/indexes/base.py", line 2648, in get_loc
+    return self._engine.get_loc(self._maybe_cast_indexer(key))
+  File "pandas/_libs/index.pyx", line 111, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 138, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 1619, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 1627, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'aop_1'

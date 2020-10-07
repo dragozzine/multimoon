@@ -38,8 +38,8 @@ def initializer():
     import mm_param
     import mm_clustering
     import mm_analysis
-    #from multiprocessing import Pool, Manager
-    from schwimmbad import MultiPool as Pool
+    from multiprocessing import Pool
+    #from schwimmbad import MultiPool as Pool
     #from mpipool import Pool
     from multiprocessing import Manager
     import warnings
