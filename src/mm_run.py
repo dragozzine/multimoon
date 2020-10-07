@@ -53,7 +53,7 @@ warnings.filterwarnings("ignore", message="divide by zero encountered")
 warnings.filterwarnings("ignore", message="Gimbal lock detected")
 
 if __name__ == '__main__':
-    sys, np, pd, emcee, random, h5py, mm_runprops, mm_init_guess, mm_likelihood, mm_make_geo_pos, mm_priors, mm_relast, mm_autorun, mm_param, mm_clustering, os, mm_analysis, Pool, warnings, shutil, json, writer, Manager, tqdm = initializer()
+    sys, np, pd, emcee, random, h5py, mm_runprops, mm_init_guess, mm_likelihood, mm_make_geo_pos, mm_priors, mm_relast, mm_autorun, mm_param, mm_clustering, os, mm_analysis, warnings, shutil, json, writer, Manager, tqdm = initializer()
     
     manager = Manager()
     best_llhoods = manager.dict()
