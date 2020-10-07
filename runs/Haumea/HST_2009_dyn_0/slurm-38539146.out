@@ -1,0 +1,12 @@
+
+Inactive Modules:
+  1) defaultenv
+
+Traceback (most recent call last):
+  File "../../../src/mm_run.py", line 60, in <module>
+    sys, np, pd, emcee, random, h5py, mm_runprops, mm_init_guess, mm_likelihood, mm_make_geo_pos, mm_priors, mm_relast, mm_autorun, mm_param, mm_clustering, os, mm_analysis, Pool, warnings, shutil, json, writer, Manager, tqdm = initializer()
+  File "../../../src/mm_run.py", line 18, in initializer
+    import mm_runprops
+  File "/zhome/djspenc/multimoon/src/mm_runprops.py", line 1, in <module>
+    import commentjson as json
+ModuleNotFoundError: No module named 'commentjson'
