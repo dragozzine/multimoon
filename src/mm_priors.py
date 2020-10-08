@@ -35,69 +35,70 @@ def mm_priors(priors, parameters, runprops):
     numNaNs = 0
     #This loop runs through every column in the priors dataframe, and evaluates the probability density
     #function of the specified type.
-
+    
     for i in columnList:
         count += 1
         theInt = int(priors[i][0])
 
-        #Uniform Distribution Shape
-        if theInt == 0:
-            #print(params[i])
-
-            if params[i][0] < priors[i][2] and params[i][0] > priors[i][1]:
-                allProbs.append(1)
-            elif np.isnan(params[i][0]):
-                numNaNs += 1
-            else:
-                allProbs.append(0)
-        
-        #Log-Uniform Distribution Shape
-        elif theInt == 1:
-            if params[i][0] < priors[i][4] and params[i][0] > priors[i][3]:
-                allProbs.append(1)
-            elif np.isnan(params[i][0]):
-                numNaNs += 1
-            else:
-                allProbs.append(0)
+        for j in range(runprops.get('numobjects')):
+            #Uniform Distribution Shape
+            if theInt == 0:
+                #print(params[i])
+    
+                if '_'+str(j+1) in i and params[i][0] < priors[i][2] and params[i][0] > priors[i][1]:
+                    allProbs.append(1)
+                elif '_'+str(j+1) in i and np.isnan(params[i][0]):
+                    numNaNs += 1
+                elif '_'+str(j+1) in i:
+                    allProbs.append(0)
             
-        # Normal Distribution Shape
-        elif theInt == 2:
-            if not np.isnan(params[i][0]):
-                allProbs.append(np.exp(-1/2*((params[i][0]-priors[i][6])/priors[i][5])**2))
-            
-        #Log Normal Distribution Shape
-        elif theInt == 3:
-            if not np.isnan(params[i][0]):
-                allProbs.append(np.exp(-1/2*(((np.log(params[i][0])-priors[i][8])**2)/(priors[i][7])**2))/params[i][0])
-        else:
-            a = 1 #print('N/A input for column: ', i, ' in priors dataframe.') 
-        
-        #Make sure the values in the params df are real.
-        if 'mass' in i:
-            if i in params and params[i][0] < 0:
-                #print(i, " is outside of the realistic value with a value of ", params[i][0])
-                return -np.inf
-        elif 'ecc' in i:
-            if i in params and params[i][0] < 0:
-                #print(i, " is outside of the realistic value with a value of ", params[i][0])
-                return -np.inf
-            elif i in params and params[i][0] > 1:
-                #print(i, " is outside of the realistic value with a value of ", params[i][0])
-                return -np.inf
-        elif 'sma' in i:
-            if i in params and params[i][0] < 0:
-                #print(i, " is outside of the realistic value with a value of ", params[i][0])
-                return -np.inf
-        elif 'j2r2' in i:
-            if i in params and params[i][0] < 0:
-                #print(i, " is outside of the realistic value with a value of ", params[i][0])
-                return -np.inf      
-        elif 'c22r2' in i:
-            if i in params and params[i][0] < 0:
-                #print(i, " is outside of the realistic value with a value of ", params[i][0])
-                return -np.inf      
+            #Log-Uniform Distribution Shape
+            elif theInt == 1:
+                if '_'+str(j+1) in i and params[i][0] < priors[i][4] and params[i][0] > priors[i][3]:
+                    allProbs.append(1)
+                elif '_'+str(j+1) in i and np.isnan(params[i][0]):
+                    numNaNs += 1
+                elif '_'+str(j+1) in i:
+                    allProbs.append(0)
                 
-        #Here, add the Prior Probability Density function for this element to the total
+            # Normal Distribution Shape
+            elif theInt == 2:
+                if '_'+str(j+1) in i and not np.isnan(params[i][0]):
+                    allProbs.append(np.exp(-1/2*((params[i][0]-priors[i][6])/priors[i][5])**2))
+                
+            #Log Normal Distribution Shape
+            elif theInt == 3:
+                if '_'+str(j+1) in i and not np.isnan(params[i][0]):
+                    allProbs.append(np.exp(-1/2*(((np.log(params[i][0])-priors[i][8])**2)/(priors[i][7])**2))/params[i][0])
+            else:
+                a = 1 #print('N/A input for column: ', i, ' in priors dataframe.') 
+            
+            #Make sure the values in the params df are real.
+            if 'mass' in i:
+                if i in params and params[i][0] < 0:
+                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    return -np.inf
+            elif 'ecc' in i:
+                if i in params and params[i][0] < 0:
+                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    return -np.inf
+                elif i in params and params[i][0] > 1:
+                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    return -np.inf
+            elif 'sma' in i:
+                if i in params and params[i][0] < 0:
+                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    return -np.inf
+            elif 'j2r2' in i:
+                if i in params and params[i][0] < 0:
+                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    return -np.inf      
+            elif 'c22r2' in i:
+                if i in params and params[i][0] < 0:
+                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    return -np.inf      
+                    
+            #Here, add the Prior Probability Density function for this element to the total
     if runprops.get('verbose'):
         print('AllProbs:' ,allProbs)
     for x in allProbs:

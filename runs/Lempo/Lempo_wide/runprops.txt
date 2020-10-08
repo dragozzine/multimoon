@@ -18,8 +18,8 @@
     "dynamicstoincludeflags" : "00",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
     "nwalkers" : 200,			# number of walkers in emcee ensemble
-    "nburnin" : 1000,			# length of burn in
-    "nsteps" : 1000,			# number of initial steps for sampling
+    "nburnin" : 200,			# length of burn in
+    "nsteps" : 400,			# number of initial steps for sampling
     "essgoal" : 10,			# effective sample size desired
     "maxiter" : 10,			# maximum number of steps to take within the final sampling
     "nthinning" : 1,			# thinning fraction
