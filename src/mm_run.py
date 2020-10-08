@@ -63,9 +63,9 @@ if __name__ == '__main__':
     
     pool = Pool()
     
-    if not pool.is_master():
-        pool.wait()
-        sys.exit(0)
+    #if not pool.is_master():
+    #    pool.wait()
+    #    sys.exit(0)
         
     manager = Manager()
     best_llhoods = manager.dict()
@@ -308,9 +308,9 @@ if __name__ == '__main__':
     with Pool(runprops.get("numprocesses")) as pool:
     #with Pool() as pool:
         
-        if not pool.is_master():
-            pool.wait()
-            sys.exit(0)
+#        if not pool.is_master():
+#            pool.wait()
+#            sys.exit(0)
     
         sampler = emcee.EnsembleSampler(nwalkers, ndim, 
         mm_likelihood.log_probability, backend=backend, pool = pool,

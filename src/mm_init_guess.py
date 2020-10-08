@@ -38,13 +38,22 @@ def mm_init_guess(runprops):
     name_dict = {0:"Junk"}
     n = 0
     dist_arr = []
+    
+    cut_df = pd.DataFrame()
+    
+    for i in range(runprops.get('numobjects')):
+        for col in start_guess_df.columns:
+            if '_'+str(i+1) in col:
+                cut_df[col] = start_guess_df[col]
+        
 
-    for col in start_guess_df.columns:
+    for col in cut_df.columns:
         name_dict[n] = col
-        infos = start_guess_df[col].to_numpy()
+        infos = cut_df[col].to_numpy()
         mean1, stdev1 = infos[0],infos[1]
         #print(col)
         #print(fix_float.get(col))
+        
         if n == 0:
             if fix_float.get(col) == 0:
                 dist_arr = mean1*np.ones(nwalkers)
