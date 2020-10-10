@@ -61,11 +61,11 @@ warnings.filterwarnings("ignore", message="Gimbal lock detected")
 if __name__ == '__main__':
     sys, np, pd, emcee, random, h5py, mm_runprops, mm_init_guess, mm_likelihood, mm_make_geo_pos, mm_priors, mm_relast, mm_autorun, mm_param, mm_clustering, os, mm_analysis, warnings, shutil, json, writer, Manager, tqdm, Pool = initializer()
     
-    pool = Pool()
+#    pool = Pool()
     
-    if not pool.is_master():
-        pool.wait()
-        sys.exit(0)
+#    if not pool.is_master():
+#        pool.wait()
+#        sys.exit(0)
         
     manager = Manager()
     best_llhoods = manager.dict()
@@ -308,9 +308,9 @@ if __name__ == '__main__':
     with Pool(runprops.get("numprocesses")) as pool:
     #with Pool() as pool:
         
-        if not pool.is_master():
-            pool.wait()
-            sys.exit(0)
+        #if not pool.is_master():
+        #    pool.wait()
+        #    sys.exit(0)
     
         sampler = emcee.EnsembleSampler(nwalkers, ndim, 
         mm_likelihood.log_probability, backend=backend, pool = pool,
