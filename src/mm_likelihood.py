@@ -137,6 +137,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     # Sorts them into ascending order
     import logging
     try:
+        #print(paramdf)
         time_arr_sec = time_arr*86400
         vec_df = generate_vector(paramdf, time_arr_sec, runprops)
     except:
