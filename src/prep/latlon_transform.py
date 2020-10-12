@@ -51,21 +51,19 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
     
     
     #Pull all data from csv file
-    #RA_Prim = np.array(paramsDF['RA-Primary'])
-    #DEC_Prim = np.array(paramsDF['DEC-Primary'])
-    RA_Prim = np.array(primary.ephemerides()['RA'][:])
-    DEC_Prim = np.array(primary.ephemerides()['DEC'][:])
+    RA_Prim = np.array(paramsDF['RA-Primary'])
+    DEC_Prim = np.array(paramsDF['DEC-Primary'])
+    #RA_Prim = np.array(primary.ephemerides()['RA'][:])
+    #DEC_Prim = np.array(primary.ephemerides()['DEC'][:])
+    print(RA_Prim, DEC_Prim)
     
     for i in range(len(objectNames)-1):
     
         deltaRA_1 = np.array(paramsDF['Delta-RA_'+objectNames[i+1]]).astype(np.float)
         deltaDEC_1 = np.array(paramsDF['Delta-DEC_'+objectNames[i+1]]).astype(np.float)
-    #deltaRA_Hiisi = np.array(paramsDF['Delta-RA_Hiisi'])
-    #deltaDEC_Hiisi = np.array(paramsDF['Delta-DEC_Hiisi'])
     
         RA_1_err = np.array(paramsDF['Delta-RA_'+objectNames[i+1]+'-err']).astype(np.float)
         DEC_1_err = np.array(paramsDF['Delta-DEC_'+objectNames[i+1]+'-err']).astype(np.float)
-
 
         RA_1 = RA_Prim+deltaRA_1/3600/np.cos(DEC_Prim*u.degree)
         DEC_1 = DEC_Prim + deltaDEC_1/3600
@@ -75,11 +73,11 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
         
         #Here we create the randomnly distributed ra and dec errors
         for k in range(len(RA_1)):
-            plt.figure(k)
+            #plt.figure(k)
             for j in range(sample_num):
-                ra_err[k][j] = np.random.normal(RA_1[k]*3600, RA_1_err[k])/3600
-                dec_err[k][j] = np.random.normal(DEC_1[k]*3600, DEC_1_err[k])/3600
-            plt.scatter(ra_err[k],dec_err[k],s=10)
+                #How do we define the change?
+                ra_err[k][j] = np.random.normal(RA_1[k], RA_1_err[k]/3600/np.cos(DEC_1[k]*u.degree))
+                dec_err[k][j] = np.random.normal(DEC_1[k], DEC_1_err[k]/3600)
         
     #Essentially we define where the object is in our RA/DEC coordinate system. ICRS is the system our coordinates are in.
         dist = primary.vectors()['range']
@@ -94,14 +92,13 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
     
         Lat_1 = firstEcl.lat.degree
         Long_1 = firstEcl.lon.degree
-        
-           
+                
         Lat_err = np.zeros(len(ra_err))
         Long_err = np.zeros(len(dec_err))
         
         #transform all of the randomnly distributed errors
         for j in range(len(ra_err)):
-            plt.figure(len(ra_err)+j)
+            #plt.figure(len(ra_err)+j)
             Lat_err_arr = np.zeros(len(ra_err[0]))
             Long_err_arr = np.zeros(len(dec_err[0]))
             for k in range(len(ra_err[0])):
@@ -109,17 +106,17 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
                 transformed_coord = coord_sky.transform_to(HeliocentricMeanEcliptic(equinox='J2000'))
                 Lat_err_arr[k] = transformed_coord.lat.degree
                 Long_err_arr[k] = transformed_coord.lon.degree
-            plt.scatter(Lat_err_arr,Long_err_arr)
+            #plt.scatter(Lat_err_arr,Long_err_arr)
             #Get the mean of each observed latitude and longitude
-            Lat_err[j] = np.sum(Lat_err_arr)/len(Lat_err_arr)
-            Long_err[j] = np.sum(Long_err_arr)/len(Long_err_arr)
+            Lat_err[j] = np.mean(Lat_err_arr)
+            Long_err[j] = np.mean(Long_err_arr)
                 
     
         DeltaLat_1 = (Lat_1-Lat_Prim)*3600
         DeltaLong_1 = (Long_1-Long_Prim)*np.cos(Lat_Prim*u.degree)*3600
     
         Lat_1_err_arc = (Lat_err-Lat_1)*3600
-        Long_1_err_arc = (Long_err-Long_1)*3600
+        Long_1_err_arc = (Long_err-Long_1)*3600*np.cos(Lat_1*u.degree)
     
     
         if i == 0:

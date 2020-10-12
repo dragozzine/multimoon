@@ -3,6 +3,7 @@ import pandas as pd
 import sys
 import os
 import datetime
+import shutil
 
 class ReadJson(object):
     def __init__(self, filename):
@@ -48,8 +49,11 @@ if runprops.get("first_run") == True:
         os.makedirs(newpath)
     
     runprops['results_folder'] = newpath
-    import shutil
-    shutil.copy(filename, '../results/'+newpath+'/runprops.txt')
+    
+    if 'runs' in 'runs_file': 
+        shutil.copy(runprops.get('runs_file')+'/runprops.txt', newpath+'/runprops.txt')
+    else:
+        shutil.copy(filename, newpath+'/runprops.txt')
     #shutil.copy(filename, '../runs/'+objname+'/runprops.txt')
     
     init = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_init_guess.csv'

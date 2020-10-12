@@ -99,6 +99,14 @@ def mm_priors(priors, parameters, runprops):
                     return -np.inf      
                     
             #Here, add the Prior Probability Density function for this element to the total
+
+    # Making sure that c22 < 0.5*j2
+    dynamicstoincludeflags = runprops.get("dynamicstoincludeflags")
+    for i in range(runprops.get("numobjects")):
+        if dynamicstoincludeflags[i] == "2":
+            if (params["j2r2_" + str(i+1)].values[0]*0.5 < params["c22r2_" + str(i+1)].values[0]):
+                return -np.inf
+
     if runprops.get('verbose'):
         print('AllProbs:' ,allProbs)
     for x in allProbs:
