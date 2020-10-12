@@ -51,7 +51,7 @@ if runprops.get("first_run") == True:
     runprops['results_folder'] = newpath
     
     if 'runs' in 'runs_file': 
-        shutil.copy('../results/'+objname+'/'+runprops.get('runs_file')+'/runprops.txt', newpath+'/runprops.txt')
+        shutil.copy('../runs/'+objname+'/'+runprops.get('runs_file')+'/runprops.txt', newpath+'/runprops.txt')
     else:
         shutil.copy(filename, newpath+'/runprops.txt')
     #shutil.copy(filename, '../runs/'+objname+'/runprops.txt')
