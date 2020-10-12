@@ -47,7 +47,6 @@ def initializer():
     #from multiprocessing import Pool, Manager
     from schwimmbad import MultiPool as Pool
     #from mpipool import Pool
-    from multiprocessing import Manager
     
     return sys, np, pd, emcee, random, h5py, mm_runprops, mm_init_guess, mm_likelihood, mm_make_geo_pos, mm_priors, mm_relast, mm_autorun, mm_param, mm_clustering, os, mm_analysis, warnings, shutil, json, writer, Manager, tqdm, Pool
 

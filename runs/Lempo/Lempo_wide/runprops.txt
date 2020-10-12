@@ -25,7 +25,7 @@
     "nthinning" : 1,			# thinning fraction
     "maxreset" : 10,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-8,		# tolerance of spinny
-    "numprocesses": 5,			# number of cores to use
+    "numprocesses": 20,			# number of cores to use
 
     # Input data files
     "init_filename":"../runs/Haumea/HST_2009/Haumea_init_guess_dyn_0.csv",
