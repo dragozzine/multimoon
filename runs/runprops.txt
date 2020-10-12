@@ -6,39 +6,40 @@
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
     "mm_initguess_which" : "get_init_guess_from_dist",
-    "RunGoal" : "To test running without transformations",
+    "RunGoal" : "Fit Haumea!",
     "lockspinanglesflag": false,
     "transform": true,
-    "com_offset": false,
-    "epoch_SJD": 2453880.00,
+    "com_offset": true,
 
     # Run properties/parameters
-    "objectname" : "Lempo",
-    "run_file": "Lempo_wide",
-    "numobjects" : 2,
-    "dynamicstoincludeflags" : "00",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
+    "objectname" : "Haumea",
+    "run_file": "200_offset",
+    "numobjects" : 3,
+    "dynamicstoincludeflags" : "100",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
-    "nwalkers" : 200,			# number of walkers in emcee ensemble
-    "nburnin" : 100,			# length of burn in
-    "nsteps" : 100,			# number of initial steps for sampling
+    "nwalkers" : 500,			# number of walkers in emcee ensemble
+    "nburnin" : 15000,			# length of burn in
+    "nsteps" : 5000,			# number of initial steps for sampling
     "essgoal" : 10,			# effective sample size desired
-    "maxiter" : 10,			# maximum number of steps to take within the final sampling
+    "maxiter" : 1,			# maximum number of steps to take within the final sampling
     "nthinning" : 1,			# thinning fraction
-    "maxreset" : 10,			# maximum number of resets when checking parameters set
+    "maxreset" : 10000,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
-    "numprocesses": 1,			# number of cores to use
+    "numprocesses": 30,			# number of cores to use
+    "epoch_SJD":  2454615.0,		# epoch to fit to
 
     # Input data files
-    "init_filename":"../runs/Haumea/HST_2009/Haumea_init_guess_dyn_0.csv",
-    "priors_filename": "../Haumea_priors_df.csv",
-    "obsdata_file": "Haumea_obs_df.csv",
+    "init_filename":"../data/Haumea/Haumea_init_guess_dyn_1.csv",
+    "priors_filename": "../data/Haumea/Haumea_priors_df.csv",
+    "obsdata_file": "../data/Haumea/Haumea_obs_df_HST_original.csv",
 
     # Additional options
     "verbose" : false,			# Enables print statements within the code
-    "updatebestfitfile":true,		# Writes to a file when new best fit is found
-    "use_clustering" : true,		# Implements a clustering/pruning algorithm after (first) burnin
-    "clustering_burnin" : 100,		# Number of steps to burn in after clustering
-    
+    "updatebestfitfile" : true,		# Writes to a file when new best fit is found
+    "use_clustering" : false,		# Implements a clustering/pruning algorithm after (first) burnin
+    "clustering_burnin" : 5000,		# Number of steps to burn in after clustering
+    "clustering_maxfrac" : 0.8,    
+
     #These values are sed by the code to run and should not be changed.
     "is_mcmc":false,			# ??
     "get_resid":false,			# ??
@@ -47,9 +48,9 @@
     # Object names
     "names_dict" :
     {
-        "name_1": "Lempo",
-        "name_2": "Hiisi",
-        "name_3": "Paha"
+        "name_1": "Haumea",
+        "name_2": "Hiiaka",
+        "name_3": "Namaka"
     },
 
     # Which parameters to have floating
@@ -64,18 +65,21 @@
         "lan_2": 1,
         "mea_2": 1,
         "mea_2": 1,
-        "mass_3": 0,
-        "sma_3": 0,
-        "ecc_3": 0,
-        "aop_3": 0,
-        "inc_3": 0,
-        "lan_3": 0,
-        "mea_3": 0,
-        "j2r2_1":0,
-        "spinc_1":0,
-        "sprate_1":0,
-        "spaop_1":0,
-        "splan_1":0,
-        "c22r2_1":0
+        "mass_3": 1,
+        "sma_3": 1,
+        "ecc_3": 1,
+        "aop_3": 1,
+        "inc_3": 1,
+        "lan_3": 1,
+        "mea_3": 1,
+        "j2r2_1": 1,
+        "spinc_1": 1,
+        "sprate_1": 0,
+        "spaop_1": 0,
+        "splan_1": 1,
+        "c22r2_1": 0,
+        "lat_offset" : 1,
+        "long_offset" : 1
     }
 }
+
