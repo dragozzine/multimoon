@@ -51,21 +51,19 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
     
     
     #Pull all data from csv file
-    #RA_Prim = np.array(paramsDF['RA-Primary'])
-    #DEC_Prim = np.array(paramsDF['DEC-Primary'])
-    RA_Prim = np.array(primary.ephemerides()['RA'][:])
-    DEC_Prim = np.array(primary.ephemerides()['DEC'][:])
+    RA_Prim = np.array(paramsDF['RA-Primary'])
+    DEC_Prim = np.array(paramsDF['DEC-Primary'])
+    #RA_Prim = np.array(primary.ephemerides()['RA'][:])
+    #DEC_Prim = np.array(primary.ephemerides()['DEC'][:])
+    print(RA_Prim, DEC_Prim)
     
     for i in range(len(objectNames)-1):
     
         deltaRA_1 = np.array(paramsDF['Delta-RA_'+objectNames[i+1]]).astype(np.float)
         deltaDEC_1 = np.array(paramsDF['Delta-DEC_'+objectNames[i+1]]).astype(np.float)
-    #deltaRA_Hiisi = np.array(paramsDF['Delta-RA_Hiisi'])
-    #deltaDEC_Hiisi = np.array(paramsDF['Delta-DEC_Hiisi'])
     
         RA_1_err = np.array(paramsDF['Delta-RA_'+objectNames[i+1]+'-err']).astype(np.float)
         DEC_1_err = np.array(paramsDF['Delta-DEC_'+objectNames[i+1]+'-err']).astype(np.float)
-
 
         RA_1 = RA_Prim+deltaRA_1/3600/np.cos(DEC_Prim*u.degree)
         DEC_1 = DEC_Prim + deltaDEC_1/3600
@@ -75,7 +73,7 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
         
         #Here we create the randomnly distributed ra and dec errors
         for k in range(len(RA_1)):
-            plt.figure(k)
+            #plt.figure(k)
             for j in range(sample_num):
                 ra_err[k][j] = np.random.normal(RA_1[k]*3600, RA_1_err[k])/3600
                 dec_err[k][j] = np.random.normal(DEC_1[k]*3600, DEC_1_err[k])/3600
@@ -94,8 +92,7 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
     
         Lat_1 = firstEcl.lat.degree
         Long_1 = firstEcl.lon.degree
-        
-           
+                
         Lat_err = np.zeros(len(ra_err))
         Long_err = np.zeros(len(dec_err))
         
