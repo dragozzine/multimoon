@@ -244,7 +244,7 @@ if __name__ == '__main__':
         if verbose:
             print("No object geocentric position file exists. Creating new file.")
         times = obsdf['time'].tolist()
-        mm_make_geo_pos.mm_make_geo_pos(objname, times)	# This is basically a function based on DS's makeHorFile
+        mm_make_geo_pos.mm_make_geo_pos(objname, times, runprops)
         if verbose:
             print("geocentric_" + objname + "_position.csv has been created")
     

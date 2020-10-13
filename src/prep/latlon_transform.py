@@ -79,7 +79,7 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
             for j in range(sample_num):
                 ra_err[k][j] = np.random.normal(RA_1[k]*3600, RA_1_err[k])/3600
                 dec_err[k][j] = np.random.normal(DEC_1[k]*3600, DEC_1_err[k])/3600
-            plt.scatter(ra_err[k],dec_err[k],s=10)
+            #plt.scatter(ra_err[k],dec_err[k],s=10)
         
     #Essentially we define where the object is in our RA/DEC coordinate system. ICRS is the system our coordinates are in.
         dist = primary.vectors()['range']
@@ -101,7 +101,7 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
         
         #transform all of the randomnly distributed errors
         for j in range(len(ra_err)):
-            plt.figure(len(ra_err)+j)
+            #plt.figure(len(ra_err)+j)
             Lat_err_arr = np.zeros(len(ra_err[0]))
             Long_err_arr = np.zeros(len(dec_err[0]))
             for k in range(len(ra_err[0])):
@@ -109,17 +109,16 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
                 transformed_coord = coord_sky.transform_to(HeliocentricMeanEcliptic(equinox='J2000'))
                 Lat_err_arr[k] = transformed_coord.lat.degree
                 Long_err_arr[k] = transformed_coord.lon.degree
-            plt.scatter(Lat_err_arr,Long_err_arr)
-            #Get the mean of each observed latitude and longitude
-            Lat_err[j] = np.sum(Lat_err_arr)/len(Lat_err_arr)
-            Long_err[j] = np.sum(Long_err_arr)/len(Long_err_arr)
+            #plt.scatter(Lat_err_arr,Long_err_arr)
+            Lat_err[j] = np.std(Lat_err_arr)
+            Long_err[j] = np.std(Long_err_arr)
                 
     
         DeltaLat_1 = (Lat_1-Lat_Prim)*3600
         DeltaLong_1 = (Long_1-Long_Prim)*np.cos(Lat_Prim*u.degree)*3600
     
-        Lat_1_err_arc = (Lat_err-Lat_1)*3600
-        Long_1_err_arc = (Long_err-Long_1)*3600
+        Lat_1_err_arc = (Lat_err)*3600
+        Long_1_err_arc = (Long_err)*3600
     
     
         if i == 0:
