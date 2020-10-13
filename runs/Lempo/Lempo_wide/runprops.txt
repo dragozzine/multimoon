@@ -17,9 +17,9 @@
     "numobjects" : 2,
     "dynamicstoincludeflags" : "00",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
-    "nwalkers" : 200,			# number of walkers in emcee ensemble
-    "nburnin" : 200,			# length of burn in
-    "nsteps" : 400,			# number of initial steps for sampling
+    "nwalkers" : 20,			# number of walkers in emcee ensemble
+    "nburnin" : 10,			# length of burn in
+    "nsteps" : 20,			# number of initial steps for sampling
     "essgoal" : 10,			# effective sample size desired
     "maxiter" : 10,			# maximum number of steps to take within the final sampling
     "nthinning" : 1,			# thinning fraction
@@ -36,7 +36,7 @@
     "verbose" : false,			# Enables print statements within the code
     "updatebestfitfile":true,		# Writes to a file when new best fit is found
     "use_clustering" : true,		# Implements a clustering/pruning algorithm after (first) burnin
-    "clustering_burnin" : 1000,		# Number of steps to burn in after clustering
+    "clustering_burnin" : 10,		# Number of steps to burn in after clustering
     
     #These values are sed by the code to run and should not be changed.
     "is_mcmc":false,			# ??
@@ -57,12 +57,12 @@
         "mass_1": 1,
         "mass_2": 1,
         "sma_2": 1,
-        "ecc_2": 1,
-        "aop_2": 1,
-        "inc_2": 1,
-        "lan_2": 1,
-        "mea_2": 1,
-        "mea_2": 1,
+        "ecc_2": 0,
+        "aop_2": 0,
+        "inc_2": 0,
+        "lan_2": 0,
+        "mea_2": 0,
+        "mea_2": 0,
         "mass_3": 0,
         "sma_3": 0,
         "ecc_3": 0,
