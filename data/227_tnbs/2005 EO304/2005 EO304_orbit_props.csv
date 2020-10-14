@@ -1,0 +1,2 @@
+name,designation,period,period_err,a,a_err,e,e_err,i,i_err,long_epoch,long_epoch_err,lan,lan_err,pomega,pomega_err,mass_tot,mass_tot_err,diam_1,diam_2,epoch_jd
+525462,2005 EO304,3541,3,69700,200,0.216,0.001,24.2,0.2,289.3,0.3,326.8,0.2,104,1,2.14,0.02,152,78,2453400.0

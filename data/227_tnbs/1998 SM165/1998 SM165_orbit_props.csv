@@ -1,0 +1,2 @@
+name,designation,period,period_err,a,a_err,e,e_err,i,i_err,long_epoch,long_epoch_err,lan,lan_err,pomega,pomega_err,mass_tot,mass_tot_err,diam_1,diam_2,epoch_jd
+26308,1998 SM165,130.154,0.003,11374,8,0.4732,0.0006,81.59,0.05,280.5,0.1,47.11,0.08,115.0,0.1,6.88,0.02,268,81,2452700.0

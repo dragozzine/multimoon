@@ -1,0 +1,2 @@
+name,designation,period,period_err,a,a_err,e,e_err,i,i_err,long_epoch,long_epoch_err,lan,lan_err,pomega,pomega_err,mass_tot,mass_tot_err,diam_1,diam_2,epoch_jd
+,1999 OJ4,84.115,0.005,3310,20,0.368,0.004,53.6,0.7,37.5,0.9,276,1,330.2,0.6,0.405,0.006,75,72,2454000.0

@@ -1,0 +1,2 @@
+name,designation,period,period_err,a,a_err,e,e_err,i,i_err,long_epoch,long_epoch_err,lan,lan_err,pomega,pomega_err,mass_tot,mass_tot_err,diam_1,diam_2,epoch_jd
+55637,2002 UX25,8.3095,0.0001,4750,40,0.18,0.02,63.1,0.3,142.0,0.3,206.1,0.3,213,1,123,3,665,210,2454000.0

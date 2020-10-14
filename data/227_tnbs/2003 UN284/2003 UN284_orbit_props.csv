@@ -1,0 +1,2 @@
+name,designation,period,period_err,a,a_err,e,e_err,i,i_err,long_epoch,long_epoch_err,lan,lan_err,pomega,pomega_err,mass_tot,mass_tot_err,diam_1,diam_2,epoch_jd
+,2003 UN284,3070,10,54000,1000,0.38,0.02,33.2,0.4,198.6,0.8,51.9,0.8,267,2,1.30,0.09,124,83,2452963.8
