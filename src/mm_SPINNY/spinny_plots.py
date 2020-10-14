@@ -1,7 +1,7 @@
 import numpy as np
 import time
 from time import ctime
-from quaternion import *
+from mm_SPINNY.quaternion import *
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt

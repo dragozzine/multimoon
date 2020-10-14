@@ -1,7 +1,9 @@
-from spinny_generate import *
-from spinny_nosun import *
-from keplerian import *
-from spinny_plots import *
+import sys
+sys.path.insert(1,"mm_SPINNY")
+from mm_SPINNY.spinny_generate import *
+from mm_SPINNY.spinny_nosun import *
+from mm_SPINNY.keplerian import *
+from mm_SPINNY.spinny_plots import *
 import numpy as np
 import time
 from time import ctime

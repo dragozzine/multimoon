@@ -16,6 +16,7 @@ Outputs:
 def from_param_df_to_fit_array(dataframe, runprops):
     
     fix_float_dict = runprops.get("float_dict")
+    numobj = runprops.get('numobjects')
 
     total_df_names = dataframe.columns
     
@@ -108,7 +109,7 @@ def from_param_df_to_fit_array(dataframe, runprops):
 
     for col in fit_scale.columns:
         fit_scale.rename(columns={col: col[0]}, inplace=True)
-    
+    #print(float_arr, float_names, fixed_df, total_df_names, fit_scale)
     return float_arr, float_names, fixed_df, total_df_names, fit_scale
     
 """
@@ -253,6 +254,7 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 elif aop > 360:
                     aop = aop%360
                 param_df['aop_'+str(i+2)] = aop
-                
+      
+    #print(param_df)
     return param_df
 

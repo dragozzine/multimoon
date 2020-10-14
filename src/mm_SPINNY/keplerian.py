@@ -1,7 +1,7 @@
 import numpy as np
 import spiceypy as spice
 import pandas as pd
-from spinny_generate import * 
+from mm_SPINNY.spinny_generate import * 
 from time import ctime
 import time
 import matplotlib

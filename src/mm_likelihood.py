@@ -8,6 +8,7 @@ from mm_SPINNY.spinny_vector import generate_vector
 import random
 import mm_relast
 from csv import writer
+import os
 
 """
 Inputs:
@@ -41,6 +42,8 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     objname = runprops.get("objectname")
 
     priorFilename = runprops.get('priors_filename')
+    
+    print(os.getcwd())
 
     priors = pd.read_csv(priorFilename, sep='\t',index_col=0)
     priors = priors.transpose()
@@ -62,28 +65,43 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     #print(geo_obj_pos)
     log_likeli, residuals = log_likelihood(params, obsdf, runprops, geo_obj_pos)
     llhood = lp + log_likeli
+        
 
     if llhood > best_llhoods.get("best_llhood") and runprops.get("is_mcmc") and runprops.get("updatebestfitfile") :
         if runprops.get('verbose'):
             print("Previous best_llhoods, new llhood: ", best_llhoods.get('best_llhood'), llhood)
         best_llhoods['best_llhood'] = llhood
         best_llhoods['best_params'] = params.to_dict()
+        
         the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
+        
+        best_csv = pd.read_csv(the_file, index_col=None)
+        
+        if len(best_csv.index) < 1:
+            curr_best = -np.inf
+        else:
+            curr_best = best_csv.iloc[-1,0]
+            print('Curr_best:', curr_best)
+            
+        
+        num_rows = len(best_csv.index)+1
+        if llhood > curr_best:
 
-        reduced_chi_sq = llhood/(-0.5)/best_llhoods.get('deg_freedom')
+            reduced_chi_sq = llhood/(-0.5)/best_llhoods.get('deg_freedom')
 
-        with open(the_file, 'a+', newline='') as write_obj:
-            csv_writer = writer(write_obj, delimiter = ',')
-            thelist = params.head(1).values.tolist()[0]
-            thelist.insert(0, lp)
-            thelist.insert(0, reduced_chi_sq)
-            thelist.insert(0, llhood)
-            for i in range(runprops.get('numobjects')):
-                thelist.pop()
-            for i in range(runprops.get("numobjects")-1):
-                thelist.append(residuals[2*(i-1)])
-                thelist.append(residuals[2*(i-1)+1])
-            csv_writer.writerow(thelist)
+            with open(the_file, 'a+', newline='') as write_obj:
+                csv_writer = writer(write_obj, delimiter = ',')
+                thelist = params.head(1).values.tolist()[0]
+                thelist.insert(0, lp)
+                thelist.insert(0, reduced_chi_sq)
+                thelist.insert(0, llhood)
+                thelist.insert(0, '')
+                for i in range(runprops.get('numobjects')):
+                    thelist.pop()
+                for i in range(runprops.get("numobjects")-1):
+                    thelist.append(residuals[2*(i-1)])
+                    thelist.append(residuals[2*(i-1)+1])
+                csv_writer.writerow(thelist)
 
     return llhood
 

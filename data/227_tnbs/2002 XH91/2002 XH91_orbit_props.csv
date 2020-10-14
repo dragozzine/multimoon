@@ -1,0 +1,2 @@
+name,designation,period,period_err,a,a_err,e,e_err,i,i_err,long_epoch,long_epoch_err,lan,lan_err,pomega,pomega_err,mass_tot,mass_tot_err,diam_1,diam_2,epoch_jd
+524531,2002 XH91,371.1,0.2,22400,400,0.71,0.02,29,2,274,3,278,2,70,1,6.5,0.4,298,185,2457000.0
