@@ -42,8 +42,7 @@ def initializer():
     import shutil
     import commentjson as json
     from multiprocessing import Manager
-    from csv import writer
-    
+    from csv import writer    
     #from multiprocessing import Pool, Manager
     #from schwimmbad import MPIPool
     #from mpipool import Pool
@@ -63,7 +62,7 @@ if __name__ == '__main__':
     #if 'runs' in cwd:
     #    runs_file = os.path.basename(os.path.normpath(cwd))
     #    os.chdir('../../../src')       
-
+    import mpi4py
     from schwimmbad import MPIPool
     with MPIPool() as pool:
     
