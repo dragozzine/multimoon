@@ -64,6 +64,7 @@ if __name__ == '__main__':
     #    runs_file = os.path.basename(os.path.normpath(cwd))
     #    os.chdir('../../../src')       
 
+    sys, np, pd, emcee, random, h5py, mm_runprops, mm_init_guess, mm_likelihood, mm_make_geo_pos, mm_priors, mm_relast, mm_autorun, mm_param, mm_clustering, os, mm_analysis, warnings, shutil, json, writer, Manager, tqdm = initializer()
     from schwimmbad import MPIPool
     with MPIPool() as pool:
     
@@ -71,7 +72,7 @@ if __name__ == '__main__':
             pool.wait()
             sys.exit(0)
             
-        sys, np, pd, emcee, random, h5py, mm_runprops, mm_init_guess, mm_likelihood, mm_make_geo_pos, mm_priors, mm_relast, mm_autorun, mm_param, mm_clustering, os, mm_analysis, warnings, shutil, json, writer, Manager, tqdm = initializer()
+        #sys, np, pd, emcee, random, h5py, mm_runprops, mm_init_guess, mm_likelihood, mm_make_geo_pos, mm_priors, mm_relast, mm_autorun, mm_param, mm_clustering, os, mm_analysis, warnings, shutil, json, writer, Manager, tqdm = initializer()
         #manager = Manager()
         #best_llhoods = manager.dict()
         print(os.getcwd())
@@ -363,7 +364,7 @@ if __name__ == '__main__':
         # Begin analysis!
         print('Beginning mm_analysis plots')
         
-        mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos)
+        mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names)
         runpath = runprops.get("results_folder")+"/runprops.txt"
         
         with open(runpath, 'w') as file:
