@@ -6,19 +6,19 @@
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
     "mm_initguess_which" : "get_init_guess_from_dist",
-    "RunGoal" : "Fit Haumea!",
+    "RunGoal" : "Test Gonggong",
     "lockspinanglesflag": false,
     "transform": true,
-    "com_offset": true,
+    "com_offset": false,
 
     # Run properties/parameters
-    "objectname" : "Haumea",
-    "run_file": "200_offset",
-    "numobjects" : 3,
-    "dynamicstoincludeflags" : "100",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
+    "objectname" : "Gonggong",
+    "run_file": "10_prograde",
+    "numobjects" : 2,
+    "dynamicstoincludeflags" : "10",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
     "nwalkers" : 500,			# number of walkers in emcee ensemble
-    "nburnin" : 15000,			# length of burn in
+    "nburnin" : 5000,			# length of burn in
     "nsteps" : 5000,			# number of initial steps for sampling
     "essgoal" : 10,			# effective sample size desired
     "maxiter" : 1,			# maximum number of steps to take within the final sampling
@@ -26,7 +26,7 @@
     "maxreset" : 10000,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
     "numprocesses": 30,			# number of cores to use
-    "epoch_SJD":  2454615.0,		# epoch to fit to
+    "epoch_SJD":  2457000.0,		# epoch to fit to
 
     # Input data files
     "init_filename":"../data/Haumea/Haumea_init_guess_dyn_1.csv",
@@ -36,7 +36,7 @@
     # Additional options
     "verbose" : false,			# Enables print statements within the code
     "updatebestfitfile" : true,		# Writes to a file when new best fit is found
-    "use_clustering" : false,		# Implements a clustering/pruning algorithm after (first) burnin
+    "use_clustering" : true,		# Implements a clustering/pruning algorithm after (first) burnin
     "clustering_burnin" : 5000,		# Number of steps to burn in after clustering
     "clustering_maxfrac" : 0.8,    
 
@@ -48,9 +48,8 @@
     # Object names
     "names_dict" :
     {
-        "name_1": "Haumea",
-        "name_2": "Hiiaka",
-        "name_3": "Namaka"
+        "name_1": "Gonggong",
+        "name_2": "Xiangliu"
     },
 
     # Which parameters to have floating
@@ -65,21 +64,21 @@
         "lan_2": 1,
         "mea_2": 1,
         "mea_2": 1,
-        "mass_3": 1,
-        "sma_3": 1,
-        "ecc_3": 1,
-        "aop_3": 1,
-        "inc_3": 1,
-        "lan_3": 1,
-        "mea_3": 1,
+        "mass_3": 0,
+        "sma_3": 0,
+        "ecc_3": 0,
+        "aop_3": 0,
+        "inc_3": 0,
+        "lan_3": 0,
+        "mea_3": 0,
         "j2r2_1": 1,
         "spinc_1": 1,
         "sprate_1": 0,
         "spaop_1": 0,
         "splan_1": 1,
         "c22r2_1": 0,
-        "lat_offset" : 1,
-        "long_offset" : 1
+        "lat_offset" : 0,
+        "long_offset" : 0
     }
 }
 
