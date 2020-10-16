@@ -25,7 +25,7 @@
     "nthinning" : 1,			# thinning fraction
     "maxreset" : 10,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
-    "numprocesses": 20,			# number of cores to use
+    "numprocesses": 100,			# number of cores to use
 
     # Input data files
     "init_filename":"../runs/Haumea/HST_2009/Haumea_init_guess_dyn_0.csv",
@@ -37,6 +37,7 @@
     "updatebestfitfile":true,		# Writes to a file when new best fit is found
     "use_clustering" : true,		# Implements a clustering/pruning algorithm after (first) burnin
     "clustering_burnin" : 10,		# Number of steps to burn in after clustering
+
     
     #These values are sed by the code to run and should not be changed.
     "is_mcmc":false,			# ??
@@ -57,12 +58,12 @@
         "mass_1": 1,
         "mass_2": 1,
         "sma_2": 1,
-        "ecc_2": 0,
-        "aop_2": 0,
-        "inc_2": 0,
-        "lan_2": 0,
-        "mea_2": 0,
-        "mea_2": 0,
+        "ecc_2": 1,
+        "aop_2": 1,
+        "inc_2": 1,
+        "lan_2": 1,
+        "mea_2": 1,
+        "mea_2": 1,
         "mass_3": 0,
         "sma_3": 0,
         "ecc_3": 0,
