@@ -304,8 +304,8 @@ if __name__ == '__main__':
             
             
         
-    with Pool(runprops.get("numprocesses")) as pool:
-    #with Pool() as pool:
+    #with Pool(runprops.get("numprocesses")) as pool:
+    with Pool() as pool:
         
 #        if not pool.is_master():
 #            pool.wait()

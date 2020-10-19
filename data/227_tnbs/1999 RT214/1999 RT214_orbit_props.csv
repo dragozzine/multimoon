@@ -1,0 +1,2 @@
+name,designation,period,period_err,a,a_err,e,e_err,i,i_err,long_epoch,long_epoch_err,lan,lan_err,pomega,pomega_err,mass_tot,mass_tot_err,diam_1,diam_2,epoch_jd
+,1999 RT214,126.50,0.05,3400,70,0.30,0.03,38,1,126,2,40,2,157,2,0.19,0.01,100,69,2457000.0

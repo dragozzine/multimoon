@@ -1,0 +1,2 @@
+name,designation,period,period_err,a,a_err,e,e_err,i,i_err,long_epoch,long_epoch_err,lan,lan_err,pomega,pomega_err,mass_tot,mass_tot_err,diam_1,diam_2,epoch_jd
+Orcus and Vanth (90482),2004 DW,9.53915,0.00002,9000,9,0.0009,0.0005,105.0,0.2,188.5,0.4,53.5,0.3,330,50,635,2,917,276,2454000.0

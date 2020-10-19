@@ -1,0 +1,2 @@
+name,designation,period,period_err,a,a_err,e,e_err,i,i_err,long_epoch,long_epoch_err,lan,lan_err,pomega,pomega_err,mass_tot,mass_tot_err,diam_1,diam_2,epoch_jd
+,2001 QW322,6590,10,103500,300,0.458,0.002,135.0,0.2,243.5,0.5,217.4,0.2,79.0,0.3,2.03,0.02,128,126,2452000.0

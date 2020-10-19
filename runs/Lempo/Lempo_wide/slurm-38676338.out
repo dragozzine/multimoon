@@ -1,0 +1,17 @@
+
+Inactive Modules:
+  1) defaultenv     2) lmod
+
+Read the runprops.txt file
+Traceback (most recent call last):
+  File "../../../src/mm_run.py", line 61, in <module>
+    sys, np, pd, emcee, random, h5py, mm_runprops, mm_init_guess, mm_likelihood, mm_make_geo_pos, mm_priors, mm_relast, mm_autorun, mm_param, mm_clustering, os, mm_analysis, warnings, shutil, json, writer, Manager, tqdm, Pool = initializer()
+  File "../../../src/mm_run.py", line 18, in initializer
+    import mm_runprops
+  File "/zhome/djspenc/multimoon/src/mm_runprops.py", line 54, in <module>
+    shutil.copy('../results/'+objname+'/'+runprops.get('runs_file')+'/runprops.txt', newpath+'/runprops.txt')
+  File "/apps/python/3.8.2/gcc-9.2.0/lib/python3.8/shutil.py", line 415, in copy
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+  File "/apps/python/3.8.2/gcc-9.2.0/lib/python3.8/shutil.py", line 261, in copyfile
+    with open(src, 'rb') as fsrc, open(dst, 'wb') as fdst:
+FileNotFoundError: [Errno 2] No such file or directory: '../results/Lempo/Lempo_wide/runprops.txt'

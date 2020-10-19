@@ -1,0 +1,2 @@
+name,designation,period,period_err,a,a_err,e,e_err,i,i_err,long_epoch,long_epoch_err,lan,lan_err,pomega,pomega_err,mass_tot,mass_tot_err,diam_1,diam_2,epoch_jd
+,1998 WW31,587.3,0.2,22620,40,0.819,0.002,41.4,0.4,30.8,0.3,94.6,0.7,348.5,0.6,2.66,0.01,148,123,2452300.5
