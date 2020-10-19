@@ -27,6 +27,7 @@
     "spinny_tolerance": 1e-10,		# tolerance of spinny
     "numprocesses": 30,			# number of cores to use
     "epoch_SJD":  2457000.0,		# epoch to fit to
+    "min_periapse": 300.0,		# minimum initial periapse distance
 
     # Input data files
     "init_filename":"../data/Haumea/Haumea_init_guess_dyn_1.csv",
