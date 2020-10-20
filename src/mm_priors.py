@@ -107,6 +107,12 @@ def mm_priors(priors, parameters, runprops):
             if (params["j2r2_" + str(i+1)].values[0]*0.5 < params["c22r2_" + str(i+1)].values[0]):
                 return -np.inf
 
+    # Making sure min periapse is obeyed
+    min_periapse = runprops.get("min_periapse")
+    for i in range(1,runprops.get("numobjects")):
+        if (params["sma_" + str(i+1)].values[0]*params["ecc_" + str(i+1)].values[0] < min_periapse):
+            return -np.inf
+
     if runprops.get('verbose'):
         print('AllProbs:' ,allProbs)
     for x in allProbs:
