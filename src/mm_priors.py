@@ -25,6 +25,19 @@ def mm_priors(priors, parameters, runprops):
     params = parameters
     columnList = list(priors)
     totalLogProb = 0
+
+    # Remove any rows of priors that arent in params
+    columnList = list(params)
+    if "name_1" in columnList:
+        columnList.remove("name_1")
+    if "name_2" in columnList:
+        columnList.remove("name_2")
+    if "name_3" in columnList:
+        columnList.remove("name_3")
+    if "name_4" in columnList:
+        columnList.remove("name_4")
+    if "name_5" in columnList:
+        columnList.remove("name_5")
     
     #This loop is to make sure all of the column values are floats, because pandas sometimes turns the values to strings when read from file
     for i in columnList:
