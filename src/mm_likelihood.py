@@ -8,7 +8,7 @@ from mm_SPINNY.spinny_vector import generate_vector
 import random
 import mm_relast
 from csv import writer
-from func_timeout import func_timeout, FunctionTimedOut
+#from func_timeout import func_timeout, FunctionTimedOut
 
 """
 Inputs:
@@ -136,7 +136,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     time_arr = time_arr - epoch
 
     # Sorts them into ascending order
-    import logging
+#    import logging
     try:
         #print(paramdf)
         time_arr_sec = time_arr*86400
@@ -145,9 +145,11 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     #except FunctionTimedOut:
     #    print('Spinny took longer than 5 seconds to run 1 walker-step:\n')
     #    return np.inf
-    except Exception as e:
-        logging.exception('')
-        return np.inf
+#    except Exception as e:
+#        logging.exception('')
+#        return np.inf
+    except:
+        print('There was an error thrown within spinny:\n')
     names_dict = runprops.get("names_dict")
     names=[0 for i in range(numObj)]
     for i in range(0,numObj):
