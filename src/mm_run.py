@@ -117,11 +117,10 @@ if __name__ == '__main__':
                     sys.exit()
             elif dynamicstoincludeflags[i] == "1":
                 if not (("mass_" + str(i+1) in paramnames) and ("j2r2_" + str(i+1) in paramnames) and
-                ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames)):
+                ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames) and ("sprate_" + str(i+1) in paramnames)):
                     print("ERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                     sys.exit()
-                if (("sprate_" + str(i+1) in paramnames) or
-            ("c22r2_" + str(i+1) in paramnames) or ("spaop_" + str(i+1) in paramnames)):
+                if (("c22r2_" + str(i+1) in paramnames) or ("spaop_" + str(i+1) in paramnames)):
                     print("ERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                     sys.exit()
             elif dynamicstoincludeflags[i] == "2":
@@ -152,11 +151,10 @@ if __name__ == '__main__':
                 ("ecc_" + str(i+1) in paramnames) and ("inc_" + str(i+1) in paramnames) and
                 ("aop_" + str(i+1) in paramnames) and ("lan_" + str(i+1) in paramnames) and
                 ("mea_" + str(i+1) in paramnames) and ("j2r2_" + str(i+1) in paramnames) and
-                        ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames)):
+                ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames) and ("sprate_" + str(i+1) in paramnames)):
                     print("ERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                     sys.exit()
-                if (("sprate_" + str(i+1) in paramnames) or
-            ("c22r2_" + str(i+1) in paramnames) or ("spaop_" + str(i+1) in paramnames)):
+                if (("c22r2_" + str(i+1) in paramnames) or ("spaop_" + str(i+1) in paramnames)):
                     print("ERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                     sys.exit()
             elif dynamicstoincludeflags[i] == "2":
@@ -263,6 +261,7 @@ if __name__ == '__main__':
             p0[i,:] = (p*p0[random.randrange(nwalkers),:] + (1-p)*p0[random.randrange(nwalkers),:])
             llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods)
             reset += 1
+            #print(reset)
             if reset > maxreset:
                 print("ERROR: Maximum number of resets has been reached, aborting run.")
                 sys.exit() 

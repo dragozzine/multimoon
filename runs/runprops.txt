@@ -6,28 +6,33 @@
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
     "mm_initguess_which" : "get_init_guess_from_dist",
-    "RunGoal" : "Test Haumea with Hiiaka j2",
+    "RunGoal" : "Fit Eris",
     "lockspinanglesflag": false,
     "transform": true,
     "com_offset": true,
 
     # Run properties/parameters
-    "objectname" : "Haumea",
-    "run_file": "110_offset",
-    "numobjects" : 3,
-    "dynamicstoincludeflags" : "110",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
+    "objectname" : "Eris",
+    "run_file": "10_offset",
+    "numobjects" : 2,
+    "dynamicstoincludeflags" : "10",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
     "nwalkers" : 500,			# number of walkers in emcee ensemble
-    "nburnin" : 5000,			# length of burn in
+    "nburnin" : 10000,			# length of burn in
     "nsteps" : 5000,			# number of initial steps for sampling
     "essgoal" : 10,			# effective sample size desired
     "maxiter" : 1,			# maximum number of steps to take within the final sampling
     "nthinning" : 1,			# thinning fraction
     "maxreset" : 10000,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
-    "numprocesses": 30,			# number of cores to use
-    "epoch_SJD":  2454615.0,		# epoch to fit to
+    "numprocesses": 25,			# number of cores to use
+    "epoch_SJD":  2453979.0,		# epoch to fit to
     "min_periapse": 300.0,		# minimum initial periapse distance
+
+    # Input data files
+    "init_filename":"../data/Haumea/Haumea_init_guess_dyn_1.csv",
+    "priors_filename": "../data/Haumea/Haumea_priors_df.csv",
+    "obsdata_file": "../data/Haumea/Haumea_obs_df_HST_original.csv",
 
     # Additional options
     "verbose" : false,			# Enables print statements within the code
@@ -44,9 +49,8 @@
     # Object names
     "names_dict" :
     {
-        "name_1": "Haumea",
-        "name_2": "Hiiaka",
-        "name_3": "Namaka"
+        "name_1": "Eris",
+        "name_2": "Dysnomia"
     },
 
     # Which parameters to have floating
@@ -61,27 +65,22 @@
         "lan_2": 1,
         "mea_2": 1,
         "mea_2": 1,
-        "mass_3": 1,
-        "sma_3": 1,
-        "ecc_3": 1,
-        "aop_3": 1,
-        "inc_3": 1,
-        "lan_3": 1,
-        "mea_3": 1,
+        "mass_3": 0,
+        "sma_3": 0,
+        "ecc_3": 0,
+        "aop_3": 0,
+        "inc_3": 0,
+        "lan_3": 0,
+        "mea_3": 0,
         "j2r2_1": 1,
         "spinc_1": 1,
-        "sprate_1": 0,
+        "sprate_1": 1,
         "spaop_1": 0,
         "splan_1": 1,
         "c22r2_1": 0,
-        "j2r2_2": 1,
-        "spinc_2": 1,
-        "sprate_2": 0,
-        "spaop_2": 0,
-        "splan_2": 1,
-        "c22r2_2": 0,
-        "lat_offset" : 0,
-        "long_offset" : 0
+        "lat_offset" : 1,
+        "long_offset" : 1
     }
 }
+
 
