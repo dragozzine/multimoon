@@ -1,12 +1,12 @@
 ,mean,stddev
 epoch,2454200.0,
 period_1,56.449,0.004
-sma_2,4990,20
+sma_2,4990.0,20.0
 ecc_2,0.489,0.004
 inc_2,127.7,0.6
-long_epoch_2,145,1
+long_epoch_2,145.0,1.0
 lan_2,109.2,0.8
 pomega_2,151.7,0.9
-mass_tot,3.09,0.03
-diam_1,148,
-diam_2,143,
+mass_tot,3.09e+18,3e+16
+diam_1,148.0,
+diam_2,143.0,
