@@ -346,6 +346,10 @@ if __name__ == '__main__':
      
         # Convert the guesses into fitting units and place in numpy array
         p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit_array(guesses,runprops)
+        
+        fixed_df.to_csv(runprops.get('results_folder')+'/fixed_df.csv')
+        runprops['float_names'] = float_names
+        runprops['total_df_names'] = total_df_names
     
         ndim = len(p0[0])
 

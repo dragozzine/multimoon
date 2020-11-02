@@ -35,11 +35,11 @@ runprops['chain_file'] = None
 if 'runs' in cwd:
     runs_file = os.path.basename(os.path.normpath(cwd))
     os.chdir('../../../src')
-    runprops['runs_file'] = runs_file
+    runprops['runs_file'] = '../runs/'+objname+'/'+runs_file
 elif 'results' in cwd:
     runs_file = os.path.basename(os.path.normpath(cwd))
     os.chdir('../../../src')
-    runprops['runs_file'] = runs_file
+    runprops['runs_file'] = '../results/'+objname+'/'+runs_file
     runprops['chain_file'] = runprops['runs_file']+'/chain.h5'
 
 if runprops.get("first_run") == True:
@@ -56,15 +56,17 @@ if runprops.get("first_run") == True:
     
     runprops['results_folder'] = newpath
     
-    if ('runs' in runprops.get('run_file')): 
-        shutil.copy('../runs/'+objname+'/'+runprops.get('run_file')+'/runprops.txt', newpath+'/runprops.txt')
+    if ('runs' in runprops.get('runs_file')): 
+        shutil.copy(runprops.get('runs_file')+'/runprops.txt', newpath+'/runprops.txt')
+    elif ('results' in runprops.get('runs_file')): 
+        shutil.copy(runprops.get('runs_file')+'/runprops.txt', newpath+'/runprops.txt')
     else:
         shutil.copy(filename, newpath+'/runprops.txt')
     #shutil.copy(filename, '../runs/'+objname+'/runprops.txt')
     
-    init = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_init_guess.csv'
-    priors = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_priors_df.csv'
-    obs = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_obs_df.csv'
+    init = runprops.get('runs_file')+'/'+objname+'_init_guess.csv'
+    priors = runprops.get('runs_file')+'/'+objname+'_priors_df.csv'
+    obs = runprops.get('runs_file')+'/'+objname+'_obs_df.csv'
 
     #print(init,priors,obs)
     
