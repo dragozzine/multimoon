@@ -360,6 +360,8 @@ if __name__ == '__main__':
     with open(runpath, 'w') as file:
         file.write(json.dumps(runprops, indent = 4))
         
+    fit_scale.to_csv(runprops.get("results_folder")+"/fit_scale.csv")
+        
     if runprops.get('build_init_from_llhood'):
         csvfile = runprops.get("resuts_folder")+"/best_likelihoods.csv"
         likelihoods = pd.read_csv(csvfile, sep = '\t', header = 0)
