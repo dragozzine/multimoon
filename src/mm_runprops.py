@@ -31,10 +31,16 @@ else:
     
 getData = ReadJson(filename)
 runprops = getData.outProps()
+runprops['chain_file'] = None
 if 'runs' in cwd:
     runs_file = os.path.basename(os.path.normpath(cwd))
     os.chdir('../../../src')
     runprops['runs_file'] = runs_file
+elif 'results' in cwd:
+    runs_file = os.path.basename(os.path.normpath(cwd))
+    os.chdir('../../../src')
+    runprops['runs_file'] = runs_file
+    runprops['chain_file'] = runprops['runs_file']+'/chain.h5'
 
 if runprops.get("first_run") == True:
     x = datetime.datetime.now()
