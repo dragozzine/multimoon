@@ -67,10 +67,16 @@ def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_sca
 					c2 = random.randrange(i)
 				params[i,:] = (p*params[c1,:] + (1-p)*params[c2,:])
 		sampler.reset()
-		sampler = emcee.EnsembleSampler(nwalkers, ndim, mm_likelihood.log_probability, 
-						backend=backend, pool = pool,
-						args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods),
-						moves = moveset)
+		if runprops.get("chain_file") != None:
+			sampler = emcee.EnsembleSampler(None, ndim, mm_likelihood.log_probability, 
+							backend=backend, pool = pool,
+							args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods),
+							moves = moveset)
+		else:
+			sampler = emcee.EnsembleSampler(nwalkers, ndim, mm_likelihood.log_probability, 
+							backend=backend, pool = pool,
+							args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods),
+							moves = moveset)
 		state = sampler.run_mcmc(params, reburnin, progress = True, store = True)
 		if verbose:
 			avllhood = np.mean(sampler.get_log_prob()[-lag:,:], axis = 0)

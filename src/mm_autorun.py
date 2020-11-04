@@ -49,7 +49,10 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0
 	if verbose:
 		print("Running MultiMoon for ", initsteps, " steps")
 	if runprops.get('nburnin') == 0:
-		state = sampler.run_mcmc(p0, initsteps, progress = True)
+		if runprops.get("chain_file") != None:
+			state = sampler.run_mcmc(None, initsteps, progress = True)
+		else:    
+			state = sampler.run_mcmc(p0, initsteps, progress = True)
 	else:
 		state = sampler.run_mcmc(state, initsteps, progress = True)
 

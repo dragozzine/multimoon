@@ -162,11 +162,11 @@ if __name__ == '__main__':
 #            pool.wait()
 #            sys.exit(0)
     
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, 
-        mm_likelihood.log_probability, backend=backend, pool = pool,
+            sampler = emcee.EnsembleSampler(nwalkers, ndim, 
+            mm_likelihood.log_probability, backend=backend, pool = pool,
             args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods),
             moves = moveset)
-        print('sampler created')
+            print('sampler created')
 
     #Starting the burnin
     # BP TODO: autoburnin??
@@ -177,60 +177,61 @@ if __name__ == '__main__':
     # I think i want to still create an autoburnin but I really would like to look at a completed
     # run to see what the burn in looks like... It should be a few autocorrelation times
     
-        nburnin = runprops.get("nburnin")
-        if verbose:
-            print("Starting the burn in")
+            nburnin = runprops.get("nburnin")
+            if verbose:
+                print("Starting the burn in")
     
-        state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
+            state = sampler.run_mcmc(None, nburnin, progress = True, store = True)
 
         # Now running the clustering algorithm! (if desired)
-        if runprops.get("use_clustering") and nburnin != 0:
-            sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
+            if runprops.get("use_clustering") and nburnin != 0:
+                sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
         
-        sampler.reset()
+            sampler.reset()
 
     # Now do the full run with essgoal and initial n steps
     
-        nsteps = runprops.get("nsteps")
-        essgoal = runprops.get("essgoal")
-        maxiter = runprops.get("maxiter")
-        initsteps = runprops.get("nsteps")
+            nsteps = runprops.get("nsteps")
+            essgoal = runprops.get("essgoal")
+            maxiter = runprops.get("maxiter")
+            initsteps = runprops.get("nsteps")
         
-        sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0, runprops)
+            sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0, runprops)
         
-    print("effective sample size = ", ess)
-    chain = sampler.get_chain(thin = runprops.get("nthinning"))
-    flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
+        print("effective sample size = ", ess)
+        chain = sampler.get_chain(thin = runprops.get("nthinning"))
+        flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
         
     # Begin analysis!
-    print('Beginning mm_analysis plots')
+        print('Beginning mm_analysis plots')
+        runpath = runprops.get("results_folder")+"/runprops.txt"
+        print(runprops)
+        with open(runpath, 'w') as file:
+            file.write(json.dumps(runprops, indent = 4))
     
-    mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos)
-    runpath = runprops.get("results_folder")+"/runprops.txt"
-    
-    with open(runpath, 'w') as file:
-        file.write(json.dumps(runprops, indent = 4))
+        mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos)
         
-    fit_scale.to_csv(runprops.get("results_folder")+"/fit_scale.csv")
-        
-    if runprops.get('build_init_from_llhood'):
-        csvfile = runprops.get("resuts_folder")+"/best_likelihoods.csv"
-        likelihoods = pd.read_csv(csvfile, sep = '\t', header = 0)
-        
-        
-        params = likelihoods.iloc[[-1]].transpose()
-        params = params.drop(['Likelihood'], axis=0)
-        for i in range(runprops.get('numobjects')-1):
-            params = params.drop(['Residuals_Lat_Obj_'+str(i+1),'Residuals_Lon_Obj_'+str(i+1)], axis =0)
+            
+        fit_scale.to_csv(runprops.get("results_folder")+"/fit_scale.csv")
+            
+        if runprops.get('build_init_from_llhood'):
+            csvfile = runprops.get("resuts_folder")+"/best_likelihoods.csv"
+            likelihoods = pd.read_csv(csvfile, sep = '\t', header = 0)
+            
+            
+            params = likelihoods.iloc[[-1]].transpose()
+            params = params.drop(['Likelihood'], axis=0)
+            for i in range(runprops.get('numobjects')-1):
+                params = params.drop(['Residuals_Lat_Obj_'+str(i+1),'Residuals_Lon_Obj_'+str(i+1)], axis =0)
 
-        init_guess = pd.read_csv(runprops.get('init_filename'))
-        stddev  = init_guess['stddev'].tolist()
+            init_guess = pd.read_csv(runprops.get('init_filename'))
+            stddev  = init_guess['stddev'].tolist()
 
-        params['stddev'] = stddev
-        params.columns = ['mean', 'stddev']
+            params['stddev'] = stddev
+            params.columns = ['mean', 'stddev']
         #print(params)
-        new_init = "../data/"+runprops.get("objectname")+"/"+runprops.get("objectname")+"_init_guess_from_llhood.csv"
-        params.to_csv(new_init, sep = ',')
+            new_init = "../data/"+runprops.get("objectname")+"/"+runprops.get("objectname")+"_init_guess_from_llhood.csv"
+            params.to_csv(new_init, sep = ',')
 
 #===================================================================================================================================
     else:
@@ -448,18 +449,18 @@ if __name__ == '__main__':
                 
             
         
-        #with Pool(runprops.get("numprocesses")) as pool:
-        with Pool() as pool:
+        with Pool(runprops.get("numprocesses")) as pool:
+        #with Pool() as pool:
         
 #        if not pool.is_master():
 #            pool.wait()
 #            sys.exit(0)
     
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, 
-        mm_likelihood.log_probability, backend=backend, pool = pool,
+            sampler = emcee.EnsembleSampler(nwalkers, ndim, 
+            mm_likelihood.log_probability, backend=backend, pool = pool,
             args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods),
             moves = moveset)
-        print('sampler created')
+            print('sampler created')
 
     #Starting the burnin
     # BP TODO: autoburnin??
@@ -470,62 +471,62 @@ if __name__ == '__main__':
     # I think i want to still create an autoburnin but I really would like to look at a completed
     # run to see what the burn in looks like... It should be a few autocorrelation times
     
-        nburnin = runprops.get("nburnin")
-        if verbose:
-            print("Starting the burn in")
+            nburnin = runprops.get("nburnin")
+            if verbose:
+                print("Starting the burn in")
+        
+            state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
     
-        state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
-
-        # Now running the clustering algorithm! (if desired)
-        if runprops.get("use_clustering") and nburnin != 0:
-            sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
-        
-        sampler.reset()
-
-    # Now do the full run with essgoal and initial n steps
+            # Now running the clustering algorithm! (if desired)
+            if runprops.get("use_clustering") and nburnin != 0:
+                sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
+            
+            sampler.reset()
     
-        nsteps = runprops.get("nsteps")
-        essgoal = runprops.get("essgoal")
-        maxiter = runprops.get("maxiter")
-        initsteps = runprops.get("nsteps")
+        # Now do the full run with essgoal and initial n steps
         
-        sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0, runprops)
+            nsteps = runprops.get("nsteps")
+            essgoal = runprops.get("essgoal")
+            maxiter = runprops.get("maxiter")
+            initsteps = runprops.get("nsteps")
+            
+            sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0, runprops)
+            
+        print("effective sample size = ", ess)
+        chain = sampler.get_chain(thin = runprops.get("nthinning"))
+        flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
+            
+        # Begin analysis!
+        print('Beginning mm_analysis plots')
         
-    print("effective sample size = ", ess)
-    chain = sampler.get_chain(thin = runprops.get("nthinning"))
-    flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
+        mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names)
+        runpath = runprops.get("results_folder")+"/runprops.txt"
         
-    # Begin analysis!
-    print('Beginning mm_analysis plots')
+        with open(runpath, 'w') as file:
+            file.write(json.dumps(runprops, indent = 4))
+            
+        fit_scale.to_csv(runprops.get("results_folder")+"/fit_scale.csv")
+            
+        if runprops.get('build_init_from_llhood'):
+            csvfile = runprops.get("resuts_folder")+"/best_likelihoods.csv"
+            likelihoods = pd.read_csv(csvfile, sep = '\t', header = 0)
+            
+            
+            params = likelihoods.iloc[[-1]].transpose()
+            params = params.drop(['Likelihood'], axis=0)
+            for i in range(runprops.get('numobjects')-1):
+                params = params.drop(['Residuals_Lat_Obj_'+str(i+1),'Residuals_Lon_Obj_'+str(i+1)], axis =0)
     
-    mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos)
-    runpath = runprops.get("results_folder")+"/runprops.txt"
+            init_guess = pd.read_csv(runprops.get('init_filename'))
+            stddev  = init_guess['stddev'].tolist()
     
-    with open(runpath, 'w') as file:
-        file.write(json.dumps(runprops, indent = 4))
-        
-    fit_scale.to_csv(runprops.get("results_folder")+"/fit_scale.csv")
-        
-    if runprops.get('build_init_from_llhood'):
-        csvfile = runprops.get("resuts_folder")+"/best_likelihoods.csv"
-        likelihoods = pd.read_csv(csvfile, sep = '\t', header = 0)
-        
-        
-        params = likelihoods.iloc[[-1]].transpose()
-        params = params.drop(['Likelihood'], axis=0)
-        for i in range(runprops.get('numobjects')-1):
-            params = params.drop(['Residuals_Lat_Obj_'+str(i+1),'Residuals_Lon_Obj_'+str(i+1)], axis =0)
-
-        init_guess = pd.read_csv(runprops.get('init_filename'))
-        stddev  = init_guess['stddev'].tolist()
-
-        params['stddev'] = stddev
-        params.columns = ['mean', 'stddev']
-        #print(params)
-        new_init = "../data/"+runprops.get("objectname")+"/"+runprops.get("objectname")+"_init_guess_from_llhood.csv"
-        params.to_csv(new_init, sep = ',')
-        
-
+            params['stddev'] = stddev
+            params.columns = ['mean', 'stddev']
+            #print(params)
+            new_init = "../data/"+runprops.get("objectname")+"/"+runprops.get("objectname")+"_init_guess_from_llhood.csv"
+            params.to_csv(new_init, sep = ',')
+            
+    
     # make other diagnostic plots
     # TODO: orbit astrometry plots
     # TODO: residual plots

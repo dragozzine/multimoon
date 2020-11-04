@@ -27,6 +27,7 @@ import sys
 import mm_likelihood
 from astropy.time import Time
 import commentjson as json
+import mm_param
 
 class ReadJson(object):
     def __init__(self, filename):
@@ -36,7 +37,7 @@ class ReadJson(object):
         return self.data
 
 #chain = (nwalkers, nlink, ndim)
-def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos):
+def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names):
 			# Here parameters is whatever file/object will have the run params
 	undo_ecc_aop = np.zeros(runprops.get('numobjects')-1)
 	undo_ecc_aop[:] = False
@@ -342,17 +343,19 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	name_dict = runprops.get("names_dict")
 
 	objectnames = []
-	for i in name_dict.values():
-		paraminput.append(i)
-		objectnames.append(i)
-	for i in name_dict.keys():
-		paramnames.append(i)
+	for values,keys in name_dict.items():
+		for j in range(runprops.get('numobjects')):
+			if str(j+1) in keys: 
+				paraminput.append(values)
+				paramnames.append(keys)
 
 	print(paraminput)
 	print(paramnames)
+	names_dict = runprops.get("names_dict")    
+	paramdf = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
 
-	paramdf = pd.DataFrame(paraminput).transpose()
-	paramdf.columns = paramnames
+	#paramdf = pd.DataFrame(paraminput).transpose()
+	#paramdf.columns = paramnames
 
 
 	print(paramdf)

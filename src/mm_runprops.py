@@ -24,14 +24,17 @@ else:
         filename = "../runs/runprops.txt"
     elif 'runs' in cwd:
         filename = "runprops.txt"
+    elif 'results' in cwd:
+        filename = "runprops.txt"
         
     else:
-        print('You are not starting from a proper directory, You should run mm_run.py from either a runs directory or from src.')
+        print('You are not starting from a proper directory, You should run mm_run.py from either a runs directory or a results directory.')
         sys.exit()
     
 getData = ReadJson(filename)
 runprops = getData.outProps()
 runprops['chain_file'] = None
+objname = runprops.get("objectname")
 if 'runs' in cwd:
     runs_file = os.path.basename(os.path.normpath(cwd))
     os.chdir('../../../src')
@@ -49,7 +52,7 @@ if runprops.get("first_run") == True:
     runprops["date"] = date
     runprops['first_run'] = False
     
-    objname = runprops.get("objectname")
+
     newpath = "../results/"+objname+"/"+objname+"_"+date
     if not os.path.exists(newpath):
         os.makedirs(newpath)
