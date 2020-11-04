@@ -44,7 +44,9 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
 
     priorFilename = runprops.get('priors_filename')
     
-    #print(os.getcwd())
+    print(os.getcwd())
+    if('runs' in os.getcwd()):
+        os.chdir('../../../src')
 
     priors = pd.read_csv(priorFilename, sep='\t',index_col=0)
     priors = priors.transpose()
