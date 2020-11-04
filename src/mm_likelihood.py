@@ -9,6 +9,7 @@ import random
 import mm_relast
 from csv import writer
 import os
+from func_timeout import func_timeout, FunctionTimedOut
 
 """
 Inputs:
@@ -43,26 +44,20 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
 
     priorFilename = runprops.get('priors_filename')
     
-    print(os.getcwd())
+    #print(os.getcwd())
 
     priors = pd.read_csv(priorFilename, sep='\t',index_col=0)
     priors = priors.transpose()
     
-    name_dict = runprops.get("names_dict")
     
-    
-    params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict, runprops)
-
-    #print(params)
+    params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, runprops)
     
     lp = prior.mm_priors(priors,params,runprops)
     if runprops.get('verbose'):
         print('LogPriors: ',lp)
     if not np.isfinite(lp):
         return -np.inf
-    #print(params)
-    #print(obsdf)
-    #print(geo_obj_pos)
+
     log_likeli, residuals = log_likelihood(params, obsdf, runprops, geo_obj_pos)
     llhood = lp + log_likeli
         
@@ -80,9 +75,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
         if len(best_csv.index) < 1:
             curr_best = -np.inf
         else:
-            curr_best = best_csv.iloc[-1,0]
-            print('Curr_best:', curr_best)
-            
+            curr_best = best_csv.iloc[-1,0]            
         
         num_rows = len(best_csv.index)+1
         if llhood > curr_best:
@@ -95,7 +88,6 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
                 thelist.insert(0, lp)
                 thelist.insert(0, reduced_chi_sq)
                 thelist.insert(0, llhood)
-                thelist.insert(0, '')
                 for i in range(runprops.get('numobjects')):
                     thelist.pop()
                 for i in range(runprops.get("numobjects")-1):
@@ -158,11 +150,14 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     try:
         #print(paramdf)
         time_arr_sec = time_arr*86400
-        vec_df = generate_vector(paramdf, time_arr_sec, runprops)
-    except:
+        vec_df = func_timeout(5,generate_vector,args=(paramdf, time_arr_sec, runprops))
+    #except FunctionTimedOut:
+    #    print('Took spinny longer than 5 seconds:\n')
+    #    return np.inf
+    except Exception as e:
         print('There was an error thrown within spinny:\n')
-        logging.exception('')
         return np.inf
+    
     names_dict = runprops.get("names_dict")
     names=[0 for i in range(numObj)]
     for i in range(0,numObj):

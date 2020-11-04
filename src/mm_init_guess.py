@@ -53,8 +53,7 @@ def mm_init_guess(runprops):
         infos = cut_df[col].to_numpy()
         #infos = start_guess_df[col].to_numpy()
         mean1, stdev1 = infos[0],infos[1]
-        #print(col)
-        #print(fix_float.get(col))
+
         
         if n == 0:
             if fix_float.get(col) == 0:

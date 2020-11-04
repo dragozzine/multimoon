@@ -124,9 +124,11 @@ Inputs:
 Outputs:
 1) Dataframe in parameter format
 """
-def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_names, fit_scale, names_dict, runprops):
+def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_names, fit_scale, runprops):
     
     #First, turn the float_array back into  dataframe with the column names given
+    names_dict = runprops.get('names_dict')
+    
     Index = range(len(fixed_df.index))
     float_df = pd.DataFrame(data = [float_array],index = Index, columns = float_names)
     param_df = pd.DataFrame()
@@ -179,11 +181,13 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
         names_df = names_df.transpose()
         
         for col in names_df.columns:
-            param_df[col] = names_df[col][0]
+            for i in range(runprops.get('numobjects')):
+                if str(int(i+1)) in col:
+                    param_df[col] = names_df[col][0]
     
       
         #Now unfit all of the variables by multipliyng each column by its fit variable.
-        #print(param_df)
+
         for col in fit_scale.columns:
             param_df[col[0]] = param_df[col[0]]*fit_scale[col][0]
             
@@ -226,17 +230,12 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 
                 inc = np.arctan2(a,c)*2*180/np.pi
                 
-                #print('inc ', inc)
-                #print('lan ', lan)
                 if inc < 0:
                     inc = inc%180
 
                     
                 param_df['inc_'+str(i+2)] = inc
                 param_df['lan_'+str(i+2)] = lan
-                
-                #print(param_df['inc_'+str(i+2)])
-                #print(param_df['lan_'+str(i+2)])
                            
             if undo_lambda[i]:
                 mea = np.array(param_df['mea_'+str(i+2)])-np.array(param_df['aop_'+str(i+2)])
@@ -245,7 +244,6 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 elif mea > 360:
                     mea = mea%360
                 param_df['mea_'+str(i+2)] = mea
-                #print(param_df['mea_'+str(i+2)])
             
             if undo_pomega[i]:
                 aop  = np.array(param_df['aop_'+str(i+2)])-np.array(param_df['lan_'+str(i+2)])
@@ -255,6 +253,6 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                     aop = aop%360
                 param_df['aop_'+str(i+2)] = aop
       
-    #print(param_df)
+
     return param_df
 
