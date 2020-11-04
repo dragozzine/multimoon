@@ -154,6 +154,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     # Sorts them into ascending order
     import logging
+    print(os.getcwd())
     try:
         #print(paramdf)
         time_arr_sec = time_arr*86400

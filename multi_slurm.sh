@@ -13,11 +13,18 @@
 export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE
 
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
-module load python/3.8
-module load mpi
-module load mpi/mpich-x86_64
 
-srun -n 20 python ../../../src/mm_run.py
+#module load miniconda3/4.6
+#source activate mmenv
+module load python/3.7
+module load gcc/8
+
+#module load llvm/7
+module load openmpi/3.1 
+module load python-mpi4py/3.0
+#export LD_LIBRARY_PATH=/apps/gcc/8.3.0/lib64
+
+mpiexec -n 20 python ../../../src/mm_run.py
 
 # python3 ../../../src/mm_run.py
 
