@@ -62,12 +62,12 @@ if __name__ == '__main__':
     #if 'runs' in cwd:
     #    runs_file = os.path.basename(os.path.normpath(cwd))
     #    os.chdir('../../../src')       
-<<<<<<< HEAD
+
 
     sys, np, pd, emcee, random, h5py, mm_runprops, mm_init_guess, mm_likelihood, mm_make_geo_pos, mm_priors, mm_relast, mm_autorun, mm_param, mm_clustering, os, mm_analysis, warnings, shutil, json, writer, Manager, tqdm = initializer()
-=======
-    import mpi4py
->>>>>>> 690c5715d52367a3e6e0f27302b72b1e51cb0303
+
+    #import mpi4py
+
     from schwimmbad import MPIPool
     with MPIPool() as pool:
     
