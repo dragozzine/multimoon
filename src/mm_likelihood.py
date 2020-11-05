@@ -9,7 +9,7 @@ import random
 import mm_relast
 from csv import writer
 import os
-from func_timeout import func_timeout, FunctionTimedOut
+#from func_timeout import func_timeout, FunctionTimedOut
 
 """
 Inputs:
@@ -20,8 +20,8 @@ Outputs:
 def log_likelihood(params, obsdf, runprops, geo_obj_pos):
     # assuming Gaussian independent observations log-likelihood = -1/2 * chisquare
     
-   # print(params, obsdf, geo_obj_pos)
-    lh,residuals = mm_chisquare(params,obsdf, runprops, geo_obj_pos)
+    #print(params, obsdf, geo_obj_pos)
+    lh, residuals = mm_chisquare(params, obsdf, runprops, geo_obj_pos)
     lh = lh*-0.5
     #print('lh ',lh)
 
@@ -44,7 +44,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
 
     priorFilename = runprops.get('priors_filename')
     
-    print(os.getcwd())
+    #print(os.getcwd())
     if('runs' in os.getcwd()):
         os.chdir('../../../src')
 
@@ -59,7 +59,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
         print('LogPriors: ',lp)
     if not np.isfinite(lp):
         return -np.inf
-
+    #print(params, obsdf, runprops, geo_obj_pos)
     log_likeli, residuals = log_likelihood(params, obsdf, runprops, geo_obj_pos)
     llhood = lp + log_likeli
         
@@ -148,11 +148,11 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     # Sorts them into ascending order
     import logging
-    print(os.getcwd())
+    #print(os.getcwd())
     try:
         #print(paramdf)
         time_arr_sec = time_arr*86400
-        vec_df = func_timeout(5,generate_vector,args=(paramdf, time_arr_sec, runprops))
+        vec_df = generate_vector(paramdf, time_arr_sec, runprops)
     #except FunctionTimedOut:
     #    print('Took spinny longer than 5 seconds:\n')
     #    return np.inf
