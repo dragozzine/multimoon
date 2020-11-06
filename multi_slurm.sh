@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #SBATCH --time=72:00:00   # walltime
-#SBATCH --ntasks=20   # number of processor cores (i.e. tasks)
-#SBATCH --nodes=2   # number of nodes
+#SBATCH --ntasks=100   # number of processor cores (i.e. tasks)
+#SBATCH --nodes=4   # number of nodes
 #SBATCH --mem-per-cpu=512M   # memory per CPU core
 #SBATCH --mail-user=dallinspencer@gmail.com   # email address
 #SBATCH --mail-type=END
@@ -24,7 +24,7 @@ module load openmpi/3.1
 module load python-mpi4py/3.0
 export LD_LIBRARY_PATH=/apps/gcc/8.3.0/lib64
 
-mpiexec -n 20 python ../../../src/mm_run.py
+mpiexec -n 100 python ../../../src/mm_run.py
 
 # python3 ../../../src/mm_run.py
 
