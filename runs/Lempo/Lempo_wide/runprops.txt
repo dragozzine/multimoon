@@ -25,8 +25,12 @@
     "nthinning" : 1,			# thinning fraction
     "maxreset" : 10,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
-    "numprocesses": 10,			# number of cores to use
-    "min_periapse": 100,
+    "numprocesses": 2,			# number of cores to use
+    "min_periapse": #Set the inimum periapse of each satellite so as to avoid hanging (in km)
+    {
+        "sat_1": 300,
+        "sat_2": 1000
+    },
 
     # Input data files
     "init_filename":"../runs/Haumea/HST_2009/Haumea_init_guess_dyn_0.csv",
