@@ -37,7 +37,12 @@
     "updatebestfitfile":true,		# Writes to a file when new best fit is found
     "use_clustering" : true,		# Implements a clustering/pruning algorithm after (first) burnin
     "clustering_burnin" : 5000,		# Number of steps to burn in after clustering
-    "min_periapse": 300,
+    "min_periapse": #Set the minimum periapse of each satellite so as to avoid hanging (in km)
+    {
+        "sat_1": 300,
+        "sat_2": 1000
+    },
+
     
     #These values are sed by the code to run and should not be changed.
     "is_mcmc":false,			# ??

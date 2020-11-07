@@ -109,7 +109,7 @@ def mm_priors(priors, parameters, runprops):
     # Making sure min periapse is obeyed
     min_periapse = runprops.get("min_periapse")
     for i in range(1,runprops.get("numobjects")):
-        if (params["sma_" + str(i+1)].values[0]*params["ecc_" + str(i+1)].values[0] < min_periapse):
+        if (params["sma_" + str(i+1)].values[0]*params["ecc_" + str(i+1)].values[0] < min_periapse.get('sat_'+str(i)):
             return -np.inf
 
     if runprops.get('verbose'):
