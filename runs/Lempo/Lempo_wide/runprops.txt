@@ -26,12 +26,9 @@
     "maxreset" : 10,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
     "numprocesses": 2,			# number of cores to use
-    "min_periapse": #Set the inimum periapse of each satellite so as to avoid hanging (in km)
-    {
-        "sat_1": 300,
-        "sat_2": 1000
-    },
-
+    "min_periapse": 300,		#Set the minimum periapse of each satellite so as to avoid hanging (in km)
+    
+    
     # Input data files
     "init_filename":"../runs/Haumea/HST_2009/Haumea_init_guess_dyn_0.csv",
     "priors_filename": "../Haumea_priors_df.csv",
