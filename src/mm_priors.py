@@ -25,6 +25,19 @@ def mm_priors(priors, parameters, runprops):
     params = parameters
     columnList = list(priors)
     totalLogProb = 0
+
+    # Remove any rows of priors that arent in params
+    columnList = list(params)
+    if "name_1" in columnList:
+        columnList.remove("name_1")
+    if "name_2" in columnList:
+        columnList.remove("name_2")
+    if "name_3" in columnList:
+        columnList.remove("name_3")
+    if "name_4" in columnList:
+        columnList.remove("name_4")
+    if "name_5" in columnList:
+        columnList.remove("name_5")
     
     #This loop is to make sure all of the column values are floats, because pandas sometimes turns the values to strings when read from file
     for i in columnList:
@@ -106,10 +119,13 @@ def mm_priors(priors, parameters, runprops):
         if dynamicstoincludeflags[i] == "2":
             if (params["j2r2_" + str(i+1)].values[0]*0.5 < params["c22r2_" + str(i+1)].values[0]):
                 return -np.inf
+
     # Making sure min periapse is obeyed
     min_periapse = runprops.get("min_periapse")
     for i in range(1,runprops.get("numobjects")):
-        if (params["sma_" + str(i+1)].values[0]*params["ecc_" + str(i+1)].values[0] < min_periapse.get('sat_'+str(i)):
+        if i == 1 and (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0]) < min_periapse):
+            return -np.inf
+        elif i != 1 and (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0])-params["sma_" + str(i)].values[0]*(1+params["ecc_" + str(i)].values[0]) < min_periapse):
             return -np.inf
 
     if runprops.get('verbose'):
@@ -118,4 +134,5 @@ def mm_priors(priors, parameters, runprops):
         totalLogProb = totalLogProb + np.log(x)
   
     return totalLogProb
+
 
