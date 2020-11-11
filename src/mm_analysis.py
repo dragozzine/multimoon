@@ -330,22 +330,28 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	plt.close("all")
 
 	# Residual plots
+	flatchain = sampler.get_chain(flat = True)
 	nobjects = runprops.get('numobjects')
 	llhoods = sampler.get_log_prob(flat = True)
 	ind = np.argmax(llhoods)
 	params = flatchain[ind,:].flatten()
-
+    
 	paraminput = []
+
 	for i in params:
 		paraminput.append(i)
+        
 
 	paramnames = names
 	name_dict = runprops.get("names_dict")
 
 	objectnames = []
+	for i in range(runprops.get('numobjects')):
+		objectnames.append(name_dict.get('name_'+str(i)))
+    
 	for values,keys in name_dict.items():
 		for j in range(runprops.get('numobjects')):
-			if str(j+1) in keys: 
+			if str(j+1) in keys or 'offset' in keys: 
 				paraminput.append(values)
 				paramnames.append(keys)
 
@@ -361,6 +367,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	print(paramdf)
 #Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
 	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
+	print(chisquare_total, residuals)
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
 

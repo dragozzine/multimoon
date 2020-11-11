@@ -43,7 +43,6 @@ elif 'results' in cwd:
     runs_file = os.path.basename(os.path.normpath(cwd))
     os.chdir('../../../src')
     runprops['runs_file'] = '../results/'+objname+'/'+runs_file
-    runprops['chain_file'] = runprops['runs_file']+'/chain.h5'
 
 if runprops.get("first_run") == True:
     x = datetime.datetime.now()
@@ -63,6 +62,8 @@ if runprops.get("first_run") == True:
         shutil.copy(runprops.get('runs_file')+'/runprops.txt', newpath+'/runprops.txt')
     elif ('results' in runprops.get('runs_file')): 
         shutil.copy(runprops.get('runs_file')+'/runprops.txt', newpath+'/runprops.txt')
+        shutil.copy(runprops.get('runs_file')+'/chain.h5', newpath+'/chain.h5')
+        runprops['chain_file'] = newpath+'/chain.h5'
     else:
         shutil.copy(filename, newpath+'/runprops.txt')
     #shutil.copy(filename, '../runs/'+objname+'/runprops.txt')

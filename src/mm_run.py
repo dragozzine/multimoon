@@ -59,12 +59,6 @@ warnings.filterwarnings("ignore", message="Gimbal lock detected")
 
 if __name__ == '__main__':
     sys, np, pd, emcee, random, h5py, mm_runprops, mm_init_guess, mm_likelihood, mm_make_geo_pos, mm_priors, mm_relast, mm_autorun, mm_param, mm_clustering, os, mm_analysis, warnings, shutil, json, writer, Manager, tqdm, Pool = initializer()
-    
-    #pool = Pool()
-    
-    #if not pool.is_master():
-    #    pool.wait()
-    #    sys.exit(0)
         
     manager = Manager()
     best_llhoods = manager.dict()
@@ -95,7 +89,8 @@ if __name__ == '__main__':
     if runprops['chain_file'] != None:
         
         #Get all of the data needed to run likelihood function
-        backend = emcee.backends.HDFBackend(runprops.get('chain_file'))
+        
+        
         nwalkers = runprops.get('nwalkers')
         float_names = runprops.get('float_names')
         ndim = len(float_names)
@@ -143,6 +138,16 @@ if __name__ == '__main__':
         # Reads in th geocentric_object data file
         geo_obj_pos = pd.read_csv(geofile)
         
+
+        backend = emcee.backends.HDFBackend(runprops.get('chain_file'))
+        
+        moveset = [(emcee.moves.DEMove(), 0.8), (emcee.moves.DESnookerMove(), 0.2),]
+        moveset = [(emcee.moves.StretchMove(), 1.0),]
+        
+        the_names = []
+        for i in total_df_names:
+            the_names.append(i[0])
+        
         if runprops.get('updatebestfitfile'):
             the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
             with open(the_file, 'a+', newline='') as write_obj:
@@ -156,11 +161,10 @@ if __name__ == '__main__':
                 csv_writer.writerow(the_names)
                 
         with Pool(runprops.get("numprocesses")) as pool:
-        #with Pool() as pool:
-        
-#        if not pool.is_master():
-#            pool.wait()
-#            sys.exit(0)
+            print(os.getcwd())
+            print(runprops.get('chain_file'))
+            print(emcee.backends.HDFBackend(runprops.get('chain_file')).get_last_sample())
+
     
             sampler = emcee.EnsembleSampler(nwalkers, ndim, 
             mm_likelihood.log_probability, backend=backend, pool = pool,
@@ -195,6 +199,8 @@ if __name__ == '__main__':
             essgoal = runprops.get("essgoal")
             maxiter = runprops.get("maxiter")
             initsteps = runprops.get("nsteps")
+            
+            p0=None
         
             sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0, runprops)
         
@@ -349,6 +355,7 @@ if __name__ == '__main__':
         p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit_array(guesses,runprops)
         
         fixed_df.to_csv(runprops.get('results_folder')+'/fixed_df.csv')
+        fit_scale.to_csv(runprops.get('results_folder')+'/fit_scale.csv')
         runprops['float_names'] = float_names
         runprops['total_df_names'] = total_df_names
     
@@ -499,11 +506,15 @@ if __name__ == '__main__':
         # Begin analysis!
         print('Beginning mm_analysis plots')
         
-        mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names)
         runpath = runprops.get("results_folder")+"/runprops.txt"
-        
+        runprops['total_df_names'] = runprops.get('total_df_names').to_numpy().tolist()
+        del runprops['best_llhood']
+        print(runprops)
         with open(runpath, 'w') as file:
             file.write(json.dumps(runprops, indent = 4))
+        
+        mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names)
+
             
         fit_scale.to_csv(runprops.get("results_folder")+"/fit_scale.csv")
             
