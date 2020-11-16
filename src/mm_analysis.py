@@ -394,7 +394,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	t = Time(converttimes, format = 'jd')
 
 	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
-	geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
+	#geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
 
 	times = geo_obj_pos.values[:,0].flatten()
 
