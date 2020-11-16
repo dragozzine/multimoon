@@ -8,6 +8,7 @@ from mm_SPINNY.spinny_vector import generate_vector
 import random
 import mm_relast
 from csv import writer
+import os
 #from func_timeout import func_timeout, FunctionTimedOut
 
 """
@@ -42,6 +43,11 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     objname = runprops.get("objectname")
 
     priorFilename = runprops.get('priors_filename')
+
+    
+    if 'runs' in os.getcwd() or 'results' in os.getcwd():
+        os.chdir('../../../src')
+
 
     priors = pd.read_csv(priorFilename, sep='\t',index_col=0)
     priors = priors.transpose()
