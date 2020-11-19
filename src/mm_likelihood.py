@@ -74,12 +74,18 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     #I did the math with some intense testing, and found this will only slow down
     #a 1000 step system by 1 minute, which typically takes 2 hours, so there is not much slow down.
     
-    best_csv = pd.read_csv(the_file, index_col=None)        
+    if llhood > best_llhoods.get("best_llhood") and runprops.get("is_mcmc") and runprops.get("updatebestfitfile") :
+        if runprops.get('verbose'):
+            print("Previous best_llhoods, new llhood: ", best_llhoods.get('best_llhood'), llhood)
+        best_llhoods['best_llhood'] = llhood
+        best_llhoods['best_params'] = params.to_dict()
+        best_csv = pd.read_csv(the_file, index_col=None)        
+        
         if len(best_csv.index) < 1:
             curr_best = -np.inf
         else:
             curr_best = best_csv.iloc[-1,0]
-            print('Curr_best:', curr_best)
+            #print('Curr_best:', curr_best)
             
         num_rows = len(best_csv.index)+1
         if llhood > curr_best:
