@@ -25,7 +25,7 @@
     "nthinning" : 1,			# thinning fraction
     "maxreset" : 10,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
-    "numprocesses": 2,			# number of cores to use
+    "numprocesses": 20,			# number of cores to use
     "min_periapse": 300,		#Set the minimum periapse of each satellite so as to avoid hanging (in km)
     
     
