@@ -1,5 +1,5 @@
-from spinny import Spinny_System, Physical_Properties
-from quaternion import *
+from mm_SPINNY.spinny import Spinny_System, Physical_Properties
+from mm_SPINNY.quaternion import *
 import spiceypy as spice
 import numpy as np
 import time
