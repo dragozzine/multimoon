@@ -88,7 +88,10 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	fit = []
 
 	for i in fit_scale.columns:
-		if i[0] in float_names:
+		name = i
+		if type(name) != str:
+			name = name[0]
+		if name in float_names:
 			val = fit_scale.loc[0, i]
 			fit.append(val)
                   
@@ -97,11 +100,14 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	numwalkers = chain.shape[1]
 	numgens = chain.shape[0]
  
-	#First fit the flatchain with the fit parameters    
+	#First fit the flatchain with the fit parameters  
+	#print(numwalkers, numgens, numparams)
+	#print(flatchain, len(flatchain),len(flatchain[0]), fit)
 	fchain = np.zeros((numgens*numwalkers,numparams))    
 	for i in range(numgens*numwalkers):
 		row = np.zeros(numparams)        
 		for j in range(numparams):
+			#print(i, ',', j)
 			val = flatchain[i][j]*fit[j]
 			row[j] = val
 		#print(row)

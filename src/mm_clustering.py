@@ -68,7 +68,7 @@ def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_sca
 				params[i,:] = (p*params[c1,:] + (1-p)*params[c2,:])
 		sampler.reset()
 		if runprops.get("chain_file") != None:
-			sampler = emcee.EnsembleSampler(None, ndim, mm_likelihood.log_probability, 
+			sampler = emcee.EnsembleSampler(nwalkers, ndim, mm_likelihood.log_probability, 
 							backend=backend, pool = pool,
 							args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods),
 							moves = moveset)

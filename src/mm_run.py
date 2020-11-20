@@ -86,6 +86,7 @@ if __name__ == '__main__':
 # LATER TODO: starting -> initial guess function is specificed by user
 #====================================================================================================================  
     #If we are starting from a previous run...
+    #print(runprops.get('chain_file'))
     if runprops['chain_file'] != None:
         
         #Get all of the data needed to run likelihood function
@@ -96,7 +97,7 @@ if __name__ == '__main__':
         ndim = len(float_names)
         fixed_df = pd.read_csv(runprops.get('runs_file')+'/fixed_df.csv')
         total_df_names = runprops.get('total_df_names')
-        fit_scale = pd.read_csv(runprops.get('runs_file')+'/fit_scale.csv')
+        fit_scale = pd.read_csv(runprops.get('runs_file')+'/fit_scale.csv', index_col=0)
         obsdata = runprops.get('obsdata_file')
         obsdf = 0
         if os.path.exists(obsdata):
@@ -148,6 +149,7 @@ if __name__ == '__main__':
         for i in total_df_names:
             the_names.append(i[0])
         
+        #print(runprops.get('results_folder'))
         if runprops.get('updatebestfitfile'):
             the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
             with open(the_file, 'a+', newline='') as write_obj:
@@ -161,11 +163,10 @@ if __name__ == '__main__':
                 csv_writer.writerow(the_names)
                 
         with Pool(runprops.get("numprocesses")) as pool:
-            print(os.getcwd())
-            print(runprops.get('chain_file'))
-            print(emcee.backends.HDFBackend(runprops.get('chain_file')).get_last_sample())
-
-    
+            #print(os.getcwd())
+            #print(runprops.get('chain_file'))
+            #print(emcee.backends.HDFBackend(runprops.get('chain_file')).get_last_sample())
+            
             sampler = emcee.EnsembleSampler(nwalkers, ndim, 
             mm_likelihood.log_probability, backend=backend, pool = pool,
             args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods),
@@ -211,14 +212,15 @@ if __name__ == '__main__':
     # Begin analysis!
         print('Beginning mm_analysis plots')
         runpath = runprops.get("results_folder")+"/runprops.txt"
-        print(runprops)
+        del runprops['best_llhood']
         with open(runpath, 'w') as file:
             file.write(json.dumps(runprops, indent = 4))
     
-        mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos)
+        mm_analysis.plots(sampler, total_df_names, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names)
         
             
         fit_scale.to_csv(runprops.get("results_folder")+"/fit_scale.csv")
+        fixed_df.to_csv(runprops.get('results_folder')+'/fixed_df.csv')
             
         if runprops.get('build_init_from_llhood'):
             csvfile = runprops.get("resuts_folder")+"/best_likelihoods.csv"
@@ -242,6 +244,7 @@ if __name__ == '__main__':
 #===================================================================================================================================
     else:
         guesses = mm_init_guess.mm_init_guess(runprops)	# maybe more args
+        
     # ouptut from init_guess is a dataframe with all the desired parameters to be fit
     # Getting relevant checking flags from runprops
         dynamicstoincludeflags = runprops.get("dynamicstoincludeflags")

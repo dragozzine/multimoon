@@ -44,6 +44,7 @@ elif 'results' in cwd:
     os.chdir('../../../src')
     runprops['runs_file'] = '../results/'+objname+'/'+runs_file
 
+runprops['first_run'] = True
 if runprops.get("first_run") == True:
     x = datetime.datetime.now()
 
@@ -57,6 +58,9 @@ if runprops.get("first_run") == True:
         os.makedirs(newpath)
     
     runprops['results_folder'] = newpath
+    
+    #print('runs file: ', runprops.get('runs_file'))
+    #print('results file: ', runprops.get('results_folder'))
     
     if ('runs' in runprops.get('runs_file')): 
         shutil.copy(runprops.get('runs_file')+'/runprops.txt', newpath+'/runprops.txt')

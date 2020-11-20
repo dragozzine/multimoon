@@ -88,6 +88,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
             #print('Curr_best:', curr_best)
             
         num_rows = len(best_csv.index)+1
+        #print(llhood, curr_best)
         if llhood > curr_best:
             reduced_chi_sq = llhood/(-0.5)/best_llhoods.get('deg_freedom')
 
