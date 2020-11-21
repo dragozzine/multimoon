@@ -163,6 +163,15 @@ if __name__ == '__main__':
             #print(os.getcwd())
             #print(runprops.get('chain_file'))
             #print(emcee.backends.HDFBackend(runprops.get('chain_file')).get_last_sample())
+            fit_scale.to_csv(runprops.get("results_folder")+"/fit_scale.csv")
+            fixed_df.to_csv(runprops.get('results_folder')+'/fixed_df.csv')
+            runpath = runprops.get("results_folder")+"/runprops.txt"
+
+            new_props = runprops.copy()
+            del new_props['best_llhood']
+            
+            with open(runpath, 'w') as file:
+                file.write(json.dumps(new_props, indent = 4))
                 
             sampler = emcee.EnsembleSampler(nwalkers, ndim, 
             mm_likelihood.log_probability, backend=backend, pool = pool,
@@ -217,9 +226,6 @@ if __name__ == '__main__':
     
             mm_analysis.plots(sampler, total_df_names, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names)
         
-            
-            fit_scale.to_csv(runprops.get("results_folder")+"/fit_scale.csv")
-            fixed_df.to_csv(runprops.get('results_folder')+'/fixed_df.csv')
                 
             if runprops.get('build_init_from_llhood'):
                 csvfile = runprops.get("resuts_folder")+"/best_likelihoods.csv"
@@ -363,6 +369,14 @@ if __name__ == '__main__':
             fit_scale.to_csv(runprops.get('results_folder')+'/fit_scale.csv')
             runprops['float_names'] = float_names
             runprops['total_df_names'] = total_df_names
+            
+            runpath = runprops.get("results_folder")+"/runprops.txt"
+            new_props = runprops.copy()
+            new_props['total_df_names'] = runprops.get('total_df_names').to_numpy().tolist()
+            del new_props['best_llhood']
+            
+            with open(runpath, 'w') as file:
+                file.write(json.dumps(new_props, indent = 4))
         
             ndim = len(p0[0])
             #we still do not have a constraints or fit scale defined
@@ -505,17 +519,15 @@ if __name__ == '__main__':
             # Begin analysis!
             print('Beginning mm_analysis plots')
             
-            runpath = runprops.get("results_folder")+"/runprops.txt"
-            runprops['total_df_names'] = runprops.get('total_df_names').to_numpy().tolist()
-            del runprops['best_llhood']
-            print(runprops)
-            with open(runpath, 'w') as file:
-                file.write(json.dumps(runprops, indent = 4))
-            fit_scale.to_csv(runprops.get("results_folder")+"/fit_scale.csv")
             
             mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names)
             
+            runpath = runprops.get("results_folder")+"/runprops.txt"
+            runprops['total_df_names'] = runprops.get('total_df_names').to_numpy().tolist()
+            del runprops['best_llhood']
             
+            with open(runpath, 'w') as file:
+                file.write(json.dumps(runprops, indent = 4))
                 
             if runprops.get('build_init_from_llhood'):
                 csvfile = runprops.get("resuts_folder")+"/best_likelihoods.csv"
