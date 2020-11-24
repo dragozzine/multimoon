@@ -74,10 +74,12 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     #I did the math with some intense testing, and found this will only slow down
     #a 1000 step system by 1 minute, which typically takes 2 hours, so there is not much slow down.
     
+    #print(llhood, best_llhoods.get('best_llhood'))
     if llhood > best_llhoods.get("best_llhood") and runprops.get("is_mcmc") and runprops.get("updatebestfitfile") :
         if runprops.get('verbose'):
             print("Previous best_llhoods, new llhood: ", best_llhoods.get('best_llhood'), llhood)
         best_llhoods['best_llhood'] = llhood
+        #print(best_llhoods.get('best_llhood'))
         best_llhoods['best_params'] = params.to_dict()
         best_csv = pd.read_csv(the_file, index_col=None)        
         
@@ -88,7 +90,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
             #print('Curr_best:', curr_best)
             
         num_rows = len(best_csv.index)+1
-        #print(llhood, curr_best)
+        #print(best_csv)
         if llhood > curr_best:
             reduced_chi_sq = llhood/(-0.5)/best_llhoods.get('deg_freedom')
 
@@ -99,12 +101,14 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
                 thelist.insert(0, reduced_chi_sq)
                 thelist.insert(0, llhood)
                 thelist.insert(0, '')
+                #print(thelist)
                 for i in range(runprops.get('numobjects')):
                     thelist.pop()
                 for i in range(runprops.get("numobjects")-1):
                     thelist.append(residuals[2*(i-1)])
                     thelist.append(residuals[2*(i-1)+1])
                 csv_writer.writerow(thelist)
+                #print(thelist)
 
     return llhood
 

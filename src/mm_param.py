@@ -72,6 +72,13 @@ def from_param_df_to_fit_array(dataframe, runprops):
                 
                 dataframe[['inc_'+str(i+2)]] = np.tan(inc/2)*np.sin(lan)
                 dataframe[['lan_'+str(i+2)]] = np.tan(inc/2)*np.cos(lan)
+                
+            if fix_float_dict.get('spinc_'+str(i+2)) == 1 and fix_float_dict.get('splan_'+str(i+2)) == 1:
+                spinc = np.array(dataframe[['spinc_'+str(i+2)]])*np.pi/180
+                splan = np.array(dataframe[['splan_'+str(i+2)]])*np.pi/180
+                
+                dataframe[['spinc_'+str(i+2)]] = np.tan(spinc/2)*np.sin(splan)
+                dataframe[['splan_'+str(i+2)]] = np.tan(spinc/2)*np.cos(splan)
     
     num = 0
     fit_scale = dataframe.iloc[0]
@@ -144,10 +151,15 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
         undo_pomega[:] = False
         undo_masses = np.zeros(runprops.get('numobjects')-1)
         undo_masses[:] = False
+        undo_spin = np.zeros(runprops.get('numobjects')-1)
+        undo_spin[:] = False
         
         for i in range(runprops.get('numobjects')-1):
             if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
                 undo_ecc_aop[i] = True
+            
+            if 'spinc_'+str(i+2) in float_names and 'splan_'+str(i+2) in float_names:
+                undo_spin[i] = True
             
             if 'inc_'+str(i+2) in float_names and 'lan_'+str(i+2) in float_names:
                 undo_inc_lan[i] = True
@@ -229,17 +241,30 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 
                 inc = np.arctan2(a,c)*2*180/np.pi
                 
-                #print('inc ', inc)
-                #print('lan ', lan)
                 if inc < 0:
                     inc = inc%180
 
-                    
                 param_df['inc_'+str(i+2)] = inc
                 param_df['lan_'+str(i+2)] = lan
                 
-                #print(param_df['inc_'+str(i+2)])
-                #print(param_df['lan_'+str(i+2)])
+            if undo_spin[i]:
+            
+                a = np.array(param_df['spinc_'+str(i+2)])
+                b = np.array(param_df['splan_'+str(i+2)])
+                
+                splan = np.arctan2(a,b)*180/np.pi
+                if splan < 0:
+                    splan = splan%360
+                
+                c = np.sin(splan*np.pi/180)
+                
+                spinc = np.arctan2(a,c)*2*180/np.pi
+                
+                if spinc < 0:
+                    spinc = spinc%180
+                    
+                param_df['spinc_'+str(i+2)] = spinc
+                param_df['splan_'+str(i+2)] = splan
                            
             if undo_lambda[i]:
                 mea = np.array(param_df['mea_'+str(i+2)])-np.array(param_df['aop_'+str(i+2)])

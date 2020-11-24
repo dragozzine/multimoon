@@ -44,6 +44,9 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	ecc_aop_index = np.zeros((runprops.get('numobjects')-1)*2)
 	undo_inc_lan = np.zeros(runprops.get('numobjects')-1)
 	undo_inc_lan[:] = False
+	undo_spin = np.zeros(runprops.get('numobjects')-1)
+	undo_spin[:] = False
+	spin_index = np.zeros((runprops.get('numobjects')-1)*2)
 	inc_lan_index = np.zeros((runprops.get('numobjects')-1)*2)
 	undo_lambda = np.zeros(runprops.get('numobjects')-1)
 	undo_lambda[:] = False
@@ -64,6 +67,10 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			undo_inc_lan[i] = True
 			inc_lan_index[2*i] = float_names.index('inc_'+str(i+2))
 			inc_lan_index[2*i+1] = float_names.index('lan_'+str(i+2))
+		if 'spinc_'+str(i+2) in float_names and 'splan_'+str(i+2) in float_names:
+			undo_spin[i] = True
+			spin_index[2*i] = float_names.index('spinc_'+str(i+2))
+			spin_index[2*i+1] = float_names.index('splan_'+str(i+2))
 		if 'mea_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
 			undo_lambda[i] = True
 			lambda_index[2*i] = float_names.index('mea_'+str(i+2))
@@ -125,16 +132,26 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 				if undo_inc_lan[b]:
 					inc_new = row[int(inc_lan_index[b*2])]
 					lan_new = row[int(inc_lan_index[b*2+1])]
-
 					lan = np.arctan2(inc_new,lan_new)*180/np.pi
 					if lan < 0:
 						lan = lan%360
-                        
 					row[int(inc_lan_index[b*2+1])] = lan
 					inc = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
 					if inc < 0:
 						inc = inc%180
 					row[int(inc_lan_index[b*2])] = inc
+                    
+				if undo_spin[b]:
+					spinc_new = row[int(spin_index[b*2])]
+					splan_new = row[int(spin_index[b*2+1])]
+					splan = np.arctan2(spinc_new,splan_new)*180/np.pi
+					if splan < 0:
+						splan = splan%360
+					row[int(spin_index[b*2+1])] = splan
+					spinc = np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi
+					if spinc < 0:
+						spinc = spinc%180
+					row[int(spin_index[b*2])] = spinc
                 
 				if undo_lambda[b]:
 					mea_new = row[int(lambda_index[b*2])]
@@ -201,6 +218,17 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 						if inc < 0:
 							inc = inc%180
 						cchain[i][j][int(inc_lan_index[b*2])] = inc
+					if undo_spin[b]:    
+						spinc_new = cchain[i][j][int(spin_index[b*2])]
+						splan_new = cchain[i][j][int(spin_index[b*2+1])]
+						splan = np.arctan2(spinc_new,splan_new)*180/np.pi
+						if splan < 0:
+							splan = splan%360
+						cchain[i][j][int(spin_index[b*2+1])] = lan
+						spinc = np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi
+						if spinc < 0:
+							spinc = spinc%180
+						cchain[i][j][int(spin_index[b*2])] = spinc
 					if undo_lambda[b]:
 						mea_new = cchain[i][j][int(lambda_index[b*2])]
 						pomega = cchain[i][j][int(lambda_index[b*2+1])]
@@ -285,6 +313,27 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		#plt.close()
 
 	walkerpdf.close()
+	plt.close("all")
+    
+	fullwalkerpdf = PdfPages(runprops.get('results_folder')+"/walkers_full.pdf")
+	backend = emcee.backends.HDFBackend(runprops.get('results_folder')+'/chain.h5')    
+
+	full_chain = backend.get_chain(flat = False)  
+    
+	for i in range(numparams):
+		plt.figure()
+		for j in range(numwalkers):
+			plt.plot(np.reshape(chain[0:numgens,j,i], numgens), rasterized=True)
+		plt.axvline(x=runprops.get('nburnin'))
+		plt.axvline(x=runprops.get('clustering_burnin'))
+		plt.ylabel(names[i])
+		plt.xlabel("Generation")
+		#plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
+		fullwalkerpdf.attach_note(names[i])
+		fullwalkerpdf.savefig()
+		#plt.close()
+
+	fullwalkerpdf.close()
 	plt.close("all")
 
 	# Figuring out the distributions of parameters

@@ -14,8 +14,8 @@
     # Run properties/parameters
     "objectname" : "Lempo",
     "run_file": "Lempo_original",
-    "numobjects" : 2,
-    "dynamicstoincludeflags" : "00",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
+    "numobjects" : 3,
+    "dynamicstoincludeflags" : "000",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
     "nwalkers" : 480,			# number of walkers in emcee ensemble
     "nburnin" : 10000,			# length of burn in
