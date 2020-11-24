@@ -249,7 +249,7 @@ if __name__ == '__main__':
             
     
 
-#========================================================================
+#=============================================================================================================================
 #If you are not starting from a previous run
         else:
             guesses = mm_init_guess.mm_init_guess(runprops)	# maybe more args
@@ -377,7 +377,8 @@ if __name__ == '__main__':
             
             with open(runpath, 'w') as file:
                 file.write(json.dumps(new_props, indent = 4))
-        
+            new_props['best_llhoods'] = -np.inf
+            runprops['best_llhood'] = -np.inf
             ndim = len(p0[0])
             #we still do not have a constraints or fit scale defined
             
@@ -499,7 +500,7 @@ if __name__ == '__main__':
         
                 # Now running the clustering algorithm! (if desired)
                 if runprops.get("use_clustering") and nburnin != 0:
-                            sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
+                    sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
                 
                 sampler.reset()
         
