@@ -192,7 +192,7 @@ if __name__ == '__main__':
             if runprops.get("use_clustering") and nburnin != 0:
                 sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
         
-            sampler.reset()
+            #sampler.reset()
 
     # Now do the full run with essgoal and initial n steps
     
@@ -491,7 +491,7 @@ if __name__ == '__main__':
             if runprops.get("use_clustering") and nburnin != 0:
                 sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
             
-            sampler.reset()
+            #sampler.reset()
     
         # Now do the full run with essgoal and initial n steps
         
@@ -801,7 +801,7 @@ def run():
         if runprops.get("use_clustering") and runprops.get("nburnin") != 0:
             sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
         
-        sampler.reset()
+        #sampler.reset()
 
     # Now do the full run with essgoal and initial n steps
     

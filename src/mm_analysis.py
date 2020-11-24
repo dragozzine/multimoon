@@ -90,8 +90,11 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			masses_index[0] = float_names.index('mass_1')
 			masses_index[1] = float_names.index('mass_2')
 
-            
-	flatchain = sampler.get_chain(flat = True)
+	burnin = runprops.get('nburnin')
+	clusterburn = runprops.get('clustering_burnin')
+	full_chain = sampler.get_chain(flat = False)
+	flatchain = sampler.get_chain(discard=(burnin+clusterburn),flat = True)
+	print(flatchain.shape, full_chain.shape)    
 	fit = []
 
 	for i in fit_scale.columns:
@@ -102,7 +105,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			val = fit_scale.loc[0, i]
 			fit.append(val)
                   
-	chain = sampler.get_chain(flat = False)            
+	chain = sampler.get_chain(discard=(burnin+clusterburn),flat = False)
+	print(chain.shape)
 	numparams = chain.shape[2]
 	numwalkers = chain.shape[1]
 	numgens = chain.shape[0]
@@ -318,14 +322,14 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	fullwalkerpdf = PdfPages(runprops.get('results_folder')+"/walkers_full.pdf")
 	backend = emcee.backends.HDFBackend(runprops.get('results_folder')+'/chain.h5')    
 
-	full_chain = backend.get_chain(flat = False)  
-    
+#	full_chain = sampler.get_chain(discard=0, flat = False)  
+	fullgens = numgens+burnin+clusterburn    
 	for i in range(numparams):
 		plt.figure()
 		for j in range(numwalkers):
-			plt.plot(np.reshape(chain[0:numgens,j,i], numgens), rasterized=True)
+			plt.plot(np.reshape(full_chain[0:fullgens,j,i], fullgens), rasterized=True)
 		plt.axvline(x=runprops.get('nburnin'))
-		plt.axvline(x=runprops.get('clustering_burnin'))
+		plt.axvline(x=(runprops.get('clustering_burnin')+runprops.get('nburnin')))
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
 		#plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
@@ -337,7 +341,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	plt.close("all")
 
 	# Figuring out the distributions of parameters
-	llhoods = sampler.get_log_prob(flat = True)
+	llhoods = sampler.get_log_prob(discard=(burnin+clusterburn),flat = True)
 	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean'], index = names)
 	for i in range(len(flatchain[0])):        
 		median = np.percentile(flatchain[:,i],50, axis = None)
