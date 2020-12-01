@@ -24,18 +24,27 @@ else:
         filename = "../runs/runprops.txt"
     elif 'runs' in cwd:
         filename = "runprops.txt"
+    elif 'results' in cwd:
+        filename = "runprops.txt"
         
     else:
-        print('You are not starting from a proper directory, You should run mm_run.py from either a runs directory or from src.')
+        print('You are not starting from a proper directory, You should run mm_run.py from either a runs directory or a results directory.')
         sys.exit()
     
 getData = ReadJson(filename)
 runprops = getData.outProps()
+runprops['chain_file'] = None
+objname = runprops.get("objectname")
 if 'runs' in cwd:
     runs_file = os.path.basename(os.path.normpath(cwd))
     os.chdir('../../../src')
-    runprops['runs_file'] = runs_file
+    runprops['runs_file'] = '../runs/'+objname+'/'+runs_file
+elif 'results' in cwd:
+    runs_file = os.path.basename(os.path.normpath(cwd))
+    os.chdir('../../../src')
+    runprops['runs_file'] = '../results/'+objname+'/'+runs_file
 
+runprops['first_run'] = True
 if runprops.get("first_run") == True:
     x = datetime.datetime.now()
 
@@ -43,22 +52,29 @@ if runprops.get("first_run") == True:
     runprops["date"] = date
     runprops['first_run'] = False
     
-    objname = runprops.get("objectname")
+
     newpath = "../results/"+objname+"/"+objname+"_"+date
     if not os.path.exists(newpath):
         os.makedirs(newpath)
     
     runprops['results_folder'] = newpath
     
-    if ('runs' in runprops.get('run_file')): 
-        shutil.copy('../runs/'+objname+'/'+runprops.get('run_file')+'/runprops.txt', newpath+'/runprops.txt')
+    #print('runs file: ', runprops.get('runs_file'))
+    #print('results file: ', runprops.get('results_folder'))
+    
+    if ('runs' in runprops.get('runs_file')): 
+        shutil.copy(runprops.get('runs_file')+'/runprops.txt', newpath+'/runprops.txt')
+    elif ('results' in runprops.get('runs_file')): 
+        shutil.copy(runprops.get('runs_file')+'/runprops.txt', newpath+'/runprops.txt')
+        shutil.copy(runprops.get('runs_file')+'/chain.h5', newpath+'/chain.h5')
+        runprops['chain_file'] = newpath+'/chain.h5'
     else:
         shutil.copy(filename, newpath+'/runprops.txt')
     #shutil.copy(filename, '../runs/'+objname+'/runprops.txt')
     
-    init = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_init_guess.csv'
-    priors = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_priors_df.csv'
-    obs = '../runs/'+objname+'/'+runprops.get('run_file')+'/'+objname+'_obs_df.csv'
+    init = runprops.get('runs_file')+'/'+objname+'_init_guess.csv'
+    priors = runprops.get('runs_file')+'/'+objname+'_priors_df.csv'
+    obs = runprops.get('runs_file')+'/'+objname+'_obs_df.csv'
 
     #print(init,priors,obs)
     

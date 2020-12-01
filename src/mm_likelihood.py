@@ -8,6 +8,7 @@ from mm_SPINNY.spinny_vector import generate_vector
 import random
 import mm_relast
 from csv import writer
+import os
 #from func_timeout import func_timeout, FunctionTimedOut
 
 """
@@ -43,6 +44,11 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
 
     priorFilename = runprops.get('priors_filename')
 
+    
+    if 'runs' in os.getcwd() or 'results' in os.getcwd():
+        os.chdir('../../../src')
+
+
     priors = pd.read_csv(priorFilename, sep='\t',index_col=0)
     priors = priors.transpose()
     
@@ -51,40 +57,58 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     
     params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict, runprops)
 
-    #print(params)
     
     lp = prior.mm_priors(priors,params,runprops)
     if runprops.get('verbose'):
         print('LogPriors: ',lp)
     if not np.isfinite(lp):
         return -np.inf
-    #print(params)
-    #print(obsdf)
-    #print(geo_obj_pos)
+
     log_likeli, residuals = log_likelihood(params, obsdf, runprops, geo_obj_pos)
     llhood = lp + log_likeli
+    
+    the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
 
+    #You will notice this differes from the regular runs way to save data
+    #Since we are using mpi, we need to continually retrieve the best_likelihoods csv
+    #I did the math with some intense testing, and found this will only slow down
+    #a 1000 step system by 1 minute, which typically takes 2 hours, so there is not much slow down.
+    
+    #print(llhood, best_llhoods.get('best_llhood'))
     if llhood > best_llhoods.get("best_llhood") and runprops.get("is_mcmc") and runprops.get("updatebestfitfile") :
         if runprops.get('verbose'):
             print("Previous best_llhoods, new llhood: ", best_llhoods.get('best_llhood'), llhood)
         best_llhoods['best_llhood'] = llhood
+        #print(best_llhoods.get('best_llhood'))
         best_llhoods['best_params'] = params.to_dict()
-        the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
+        best_csv = pd.read_csv(the_file, index_col=None)        
+        
+        if len(best_csv.index) < 1:
+            curr_best = -np.inf
+        else:
+            curr_best = best_csv.iloc[-1,0]
+            #print('Curr_best:', curr_best)
+            
+        num_rows = len(best_csv.index)+1
+        #print(best_csv)
+        if llhood > curr_best:
+            reduced_chi_sq = llhood/(-0.5)/best_llhoods.get('deg_freedom')
 
-        reduced_chi_sq = llhood/(-0.5)/best_llhoods.get('deg_freedom')
-
-        with open(the_file, 'a+', newline='') as write_obj:
-            csv_writer = writer(write_obj, delimiter = ',')
-            thelist = params.head(1).values.tolist()[0]
-            thelist.insert(0, lp)
-            thelist.insert(0, reduced_chi_sq)
-            thelist.insert(0, llhood)
-            for i in range(runprops.get('numobjects')):
-                thelist.pop()
-            for i in range(runprops.get("numobjects")-1):
-                thelist.append(residuals[2*(i-1)])
-                thelist.append(residuals[2*(i-1)+1])
-            csv_writer.writerow(thelist)
+            with open(the_file, 'a+', newline='') as write_obj:
+                csv_writer = writer(write_obj, delimiter = ',')
+                thelist = params.head(1).values.tolist()[0]
+                thelist.insert(0, lp)
+                thelist.insert(0, reduced_chi_sq)
+                thelist.insert(0, llhood)
+                thelist.insert(0, '')
+                #print(thelist)
+                for i in range(runprops.get('numobjects')):
+                    thelist.pop()
+                for i in range(runprops.get("numobjects")-1):
+                    thelist.append(residuals[2*(i-1)])
+                    thelist.append(residuals[2*(i-1)+1])
+                csv_writer.writerow(thelist)
+                #print(thelist)
 
     return llhood
 
@@ -138,7 +162,6 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     # Sorts them into ascending order
 #    import logging
     try:
-        #print(paramdf)
         time_arr_sec = time_arr*86400
         #vec_df = func_timeout(5,generate_vector,args=(paramdf, time_arr_sec, runprops))
         vec_df = generate_vector(paramdf, time_arr_sec, runprops)

@@ -27,6 +27,7 @@ import sys
 import mm_likelihood
 from astropy.time import Time
 import commentjson as json
+import mm_param
 
 class ReadJson(object):
     def __init__(self, filename):
@@ -36,13 +37,16 @@ class ReadJson(object):
         return self.data
 
 #chain = (nwalkers, nlink, ndim)
-def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos):
+def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names):
 			# Here parameters is whatever file/object will have the run params
 	undo_ecc_aop = np.zeros(runprops.get('numobjects')-1)
 	undo_ecc_aop[:] = False
 	ecc_aop_index = np.zeros((runprops.get('numobjects')-1)*2)
 	undo_inc_lan = np.zeros(runprops.get('numobjects')-1)
 	undo_inc_lan[:] = False
+	undo_spin = np.zeros(runprops.get('numobjects')-1)
+	undo_spin[:] = False
+	spin_index = np.zeros((runprops.get('numobjects')-1)*2)
 	inc_lan_index = np.zeros((runprops.get('numobjects')-1)*2)
 	undo_lambda = np.zeros(runprops.get('numobjects')-1)
 	undo_lambda[:] = False
@@ -63,6 +67,10 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			undo_inc_lan[i] = True
 			inc_lan_index[2*i] = float_names.index('inc_'+str(i+2))
 			inc_lan_index[2*i+1] = float_names.index('lan_'+str(i+2))
+		if 'spinc_'+str(i+2) in float_names and 'splan_'+str(i+2) in float_names:
+			undo_spin[i] = True
+			spin_index[2*i] = float_names.index('spinc_'+str(i+2))
+			spin_index[2*i+1] = float_names.index('splan_'+str(i+2))
 		if 'mea_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
 			undo_lambda[i] = True
 			lambda_index[2*i] = float_names.index('mea_'+str(i+2))
@@ -82,25 +90,35 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			masses_index[0] = float_names.index('mass_1')
 			masses_index[1] = float_names.index('mass_2')
 
-            
-	flatchain = sampler.get_chain(flat = True)
+	burnin = runprops.get('nburnin')
+	clusterburn = runprops.get('clustering_burnin')
+	full_chain = sampler.get_chain(flat = False)
+	flatchain = sampler.get_chain(discard=(burnin+clusterburn),flat = True)
+	print(flatchain.shape, full_chain.shape)    
 	fit = []
 
 	for i in fit_scale.columns:
-		if i[0] in float_names:
+		name = i
+		if type(name) != str:
+			name = name[0]
+		if name in float_names:
 			val = fit_scale.loc[0, i]
 			fit.append(val)
                   
-	chain = sampler.get_chain(flat = False)            
+	chain = sampler.get_chain(discard=(burnin+clusterburn),flat = False)
+	print(chain.shape)
 	numparams = chain.shape[2]
 	numwalkers = chain.shape[1]
 	numgens = chain.shape[0]
  
-	#First fit the flatchain with the fit parameters    
+	#First fit the flatchain with the fit parameters  
+	#print(numwalkers, numgens, numparams)
+	#print(flatchain, len(flatchain),len(flatchain[0]), fit)
 	fchain = np.zeros((numgens*numwalkers,numparams))    
 	for i in range(numgens*numwalkers):
 		row = np.zeros(numparams)        
 		for j in range(numparams):
+			#print(i, ',', j)
 			val = flatchain[i][j]*fit[j]
 			row[j] = val
 		#print(row)
@@ -118,16 +136,26 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 				if undo_inc_lan[b]:
 					inc_new = row[int(inc_lan_index[b*2])]
 					lan_new = row[int(inc_lan_index[b*2+1])]
-
 					lan = np.arctan2(inc_new,lan_new)*180/np.pi
 					if lan < 0:
 						lan = lan%360
-                        
 					row[int(inc_lan_index[b*2+1])] = lan
 					inc = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
 					if inc < 0:
 						inc = inc%180
 					row[int(inc_lan_index[b*2])] = inc
+                    
+				if undo_spin[b]:
+					spinc_new = row[int(spin_index[b*2])]
+					splan_new = row[int(spin_index[b*2+1])]
+					splan = np.arctan2(spinc_new,splan_new)*180/np.pi
+					if splan < 0:
+						splan = splan%360
+					row[int(spin_index[b*2+1])] = splan
+					spinc = np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi
+					if spinc < 0:
+						spinc = spinc%180
+					row[int(spin_index[b*2])] = spinc
                 
 				if undo_lambda[b]:
 					mea_new = row[int(lambda_index[b*2])]
@@ -194,6 +222,17 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 						if inc < 0:
 							inc = inc%180
 						cchain[i][j][int(inc_lan_index[b*2])] = inc
+					if undo_spin[b]:    
+						spinc_new = cchain[i][j][int(spin_index[b*2])]
+						splan_new = cchain[i][j][int(spin_index[b*2+1])]
+						splan = np.arctan2(spinc_new,splan_new)*180/np.pi
+						if splan < 0:
+							splan = splan%360
+						cchain[i][j][int(spin_index[b*2+1])] = lan
+						spinc = np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi
+						if spinc < 0:
+							spinc = spinc%180
+						cchain[i][j][int(spin_index[b*2])] = spinc
 					if undo_lambda[b]:
 						mea_new = cchain[i][j][int(lambda_index[b*2])]
 						pomega = cchain[i][j][int(lambda_index[b*2+1])]
@@ -279,9 +318,30 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 
 	walkerpdf.close()
 	plt.close("all")
+    
+	fullwalkerpdf = PdfPages(runprops.get('results_folder')+"/walkers_full.pdf")
+	backend = emcee.backends.HDFBackend(runprops.get('results_folder')+'/chain.h5')    
+
+#	full_chain = sampler.get_chain(discard=0, flat = False)  
+	fullgens = numgens+burnin+clusterburn    
+	for i in range(numparams):
+		plt.figure()
+		for j in range(numwalkers):
+			plt.plot(np.reshape(full_chain[0:fullgens,j,i], fullgens), rasterized=True)
+		plt.axvline(x=runprops.get('nburnin'))
+		plt.axvline(x=(runprops.get('clustering_burnin')+runprops.get('nburnin')))
+		plt.ylabel(names[i])
+		plt.xlabel("Generation")
+		#plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
+		fullwalkerpdf.attach_note(names[i])
+		fullwalkerpdf.savefig()
+		#plt.close()
+
+	fullwalkerpdf.close()
+	plt.close("all")
 
 	# Figuring out the distributions of parameters
-	llhoods = sampler.get_log_prob(flat = True)
+	llhoods = sampler.get_log_prob(discard=(burnin+clusterburn),flat = True)
 	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean'], index = names)
 	for i in range(len(flatchain[0])):        
 		median = np.percentile(flatchain[:,i],50, axis = None)
@@ -329,35 +389,44 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	plt.close("all")
 
 	# Residual plots
+	flatchain = sampler.get_chain(flat = True)
 	nobjects = runprops.get('numobjects')
 	llhoods = sampler.get_log_prob(flat = True)
 	ind = np.argmax(llhoods)
 	params = flatchain[ind,:].flatten()
-
+    
 	paraminput = []
+
 	for i in params:
 		paraminput.append(i)
+        
 
 	paramnames = names
 	name_dict = runprops.get("names_dict")
 
 	objectnames = []
-	for i in name_dict.values():
-		paraminput.append(i)
-		objectnames.append(i)
-	for i in name_dict.keys():
-		paramnames.append(i)
+	for i in range(runprops.get('numobjects')):
+		objectnames.append(name_dict.get('name_'+str(i)))
+    
+	for values,keys in name_dict.items():
+		for j in range(runprops.get('numobjects')):
+			if str(j+1) in keys or 'offset' in keys: 
+				paraminput.append(values)
+				paramnames.append(keys)
 
 	print(paraminput)
 	print(paramnames)
+	names_dict = runprops.get("names_dict")    
+	paramdf = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
 
-	paramdf = pd.DataFrame(paraminput).transpose()
-	paramdf.columns = paramnames
+	#paramdf = pd.DataFrame(paraminput).transpose()
+	#paramdf.columns = paramnames
 
 
 	print(paramdf)
 #Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
 	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
+	print(chisquare_total, residuals)
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
 
@@ -384,7 +453,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	t = Time(converttimes, format = 'jd')
 
 	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
-	geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
+	#geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
+	geo_obj_pos = pd.read_csv('../runs/'+runprops.get('objectname')+'/'+runprops.get('run_file')+'/'+runprops.get('objectname')+'_obs_df_analysis.csv')
 
 	times = geo_obj_pos.values[:,0].flatten()
 

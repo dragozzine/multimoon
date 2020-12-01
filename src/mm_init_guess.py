@@ -43,7 +43,7 @@ def mm_init_guess(runprops):
     
     for i in range(runprops.get('numobjects')):
         for col in start_guess_df.columns:
-            if '_'+str(i+1) in col:
+            if '_'+str(i+1) in col or 'offset' in col:
                 cut_df[col] = start_guess_df[col]
         
 

@@ -49,9 +49,12 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0
 	if verbose:
 		print("Running MultiMoon for ", initsteps, " steps")
 	if runprops.get('nburnin') == 0:
-		state = sampler.run_mcmc(p0, initsteps, progress = True)
+		if runprops.get("chain_file") != None:
+			state = sampler.run_mcmc(None, initsteps, progress = True, store=True)
+		else:    
+			state = sampler.run_mcmc(p0, initsteps, progress = True, store=True)
 	else:
-		state = sampler.run_mcmc(state, initsteps, progress = True)
+		state = sampler.run_mcmc(state, initsteps, progress = True, store=True)
 
 	# Find the integrated autocorrelation time (iat) of the run
 	if verbose:
@@ -72,7 +75,7 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0
 		moresteps = initsteps
 		if 2*initsteps >= maxiter:
 			moresteps = maxiter - initsteps
-		state = sampler.run_mcmc(state, moresteps, progress = True)
+		state = sampler.run_mcmc(state, moresteps, progress = True, store=True)
 		if verbose:
 			print(initsteps, " steps have been completed.")
 			print("Calculating the effective sample size.")
@@ -103,7 +106,7 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0
 	# Making sure maxiter is not reached
 	if int(nadditional + ngens) > maxiter:
 		nadditional = int(maxiter - ngens)
-		state = sampler.run_mcmc(state, nadditional, progress = True)
+		state = sampler.run_mcmc(state, nadditional, progress = True, store=True)
 		iat = autocorrelation(sampler,objname, filename = "_" + str(counter))
 		counter += 1
 		ngens = sampler.get_chain().shape[0]
@@ -111,7 +114,7 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0
 			print("Maximum iterations has been reached, ending automated runs.")
 		return sampler, ngens/iat
 	else:
-		state = sampler.run_mcmc(state, nadditional, progress = True)
+		state = sampler.run_mcmc(state, nadditional, progress = True, store=True)
 		iat = autocorrelation(sampler, objname, filename = "_" + str(counter))
 		counter += 1
 		ngens = sampler.get_chain().shape[0]
