@@ -118,14 +118,12 @@ def mm_priors(priors, parameters, runprops):
     for i in range(runprops.get("numobjects")):
         if dynamicstoincludeflags[i] == "2":
             if (params["j2r2_" + str(i+1)].values[0]*0.5 < params["c22r2_" + str(i+1)].values[0]):
-                print("here")
                 return -np.inf
 
     # Making sure min periapse is obeyed
     min_periapse = runprops.get("min_periapse")
     for i in range(1,runprops.get("numobjects")):
         if (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0]) < min_periapse):
-            print("here2")
             return -np.inf
 
     if runprops.get('verbose'):
