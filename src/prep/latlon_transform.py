@@ -51,10 +51,10 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
     
     
     #Pull all data from csv file
-    RA_Prim = np.array(paramsDF['RA-Primary'])
-    DEC_Prim = np.array(paramsDF['DEC-Primary'])
-    #RA_Prim = np.array(primary.ephemerides()['RA'][:])
-    #DEC_Prim = np.array(primary.ephemerides()['DEC'][:])
+    #RA_Prim = np.array(paramsDF['RA-Primary'])
+    #DEC_Prim = np.array(paramsDF['DEC-Primary'])
+    RA_Prim = np.array(primary.ephemerides()['RA'][:])
+    DEC_Prim = np.array(primary.ephemerides()['DEC'][:])
     print(RA_Prim, DEC_Prim)
     
     for i in range(len(objectNames)-1):

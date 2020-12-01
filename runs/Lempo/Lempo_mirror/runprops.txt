@@ -6,34 +6,37 @@
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
     "mm_initguess_which" : "get_init_guess_from_dist",
-    "RunGoal" : "Fit Lempo mirror orbits",
+    "RunGoal" : "To test running without transformations",
     "lockspinanglesflag": false,
     "transform": true,
-    "com_offset": false,
-    "epoch_SJD": 2457000.0,
+    "epoch_SJD": 2453880.00,
 
     # Run properties/parameters
-    "objectname" : "2007 UK126",
-    "runs_file": "10",
+    "objectname" : "Lempo",
+    "run_file": "Lempo_original",
     "numobjects" : 2,
-    "dynamicstoincludeflags" : "10",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
+    "dynamicstoincludeflags" : "00",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
-    "nwalkers" : 500,			# number of walkers in emcee ensemble
-    "nburnin" : 15000,			# length of burn in
-    "nsteps" : 5000,			# number of initial steps for sampling
+    "nwalkers" : 400,			# number of walkers in emcee ensemble
+    "nburnin" : 2000,			# length of burn in
+    "nsteps" : 2000,			# number of initial steps for sampling
     "essgoal" : 10,			# effective sample size desired
     "maxiter" : 10,			# maximum number of steps to take within the final sampling
     "nthinning" : 1,			# thinning fraction
-    "maxreset" : 10000,			# maximum number of resets when checking parameters set
+    "maxreset" : 100,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
-    "numprocesses": 30,			# number of cores to use
-    "min_periapse": 2000.0,
+    "numprocesses": 20,			# number of cores to use
+
+    # Input data files
+    "init_filename":"../runs/Haumea/HST_2009/Haumea_init_guess_dyn_0.csv",
+    "priors_filename": "../Haumea_priors_df.csv",
+    "obsdata_file": "Haumea_obs_df.csv",
 
     # Additional options
     "verbose" : false,			# Enables print statements within the code
     "updatebestfitfile":true,		# Writes to a file when new best fit is found
     "use_clustering" : true,		# Implements a clustering/pruning algorithm after (first) burnin
-    "clustering_burnin" : 5000,		# Number of steps to burn in after clustering
+    "clustering_burnin" : 2000,		# Number of steps to burn in after clustering
     
     #These values are sed by the code to run and should not be changed.
     "is_mcmc":false,			# ??
@@ -43,8 +46,9 @@
     # Object names
     "names_dict" :
     {
-        "name_1": "Primary",
-        "name_2": "Secondary"
+        "name_1": "Lempo",
+        "name_2": "Hiisi",
+        "name_3": "Paha"
     },
 
     # Which parameters to have floating
@@ -59,9 +63,19 @@
         "lan_2": 1,
         "mea_2": 1,
         "mea_2": 1,
-        "j2r2_1":1,
-        "spinc_1":1,
-        "splan_1":1,
-        "sprate_1":0
+        "mass_3": 0,
+        "sma_3": 0,
+        "ecc_3": 0,
+        "aop_3": 0,
+        "inc_3": 0,
+        "lan_3": 0,
+        "mea_3": 0,
+        "j2r2_1":0,
+        "spinc_1":0,
+        "sprate_1":0,
+        "spaop_1":0,
+        "splan_1":0,
+        "c22r2_1":0
     }
 }
+
