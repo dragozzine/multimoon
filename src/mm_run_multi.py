@@ -122,7 +122,7 @@ if __name__ == '__main__':
             
             # Check to see if geocentric_object_position.csv exists and if not creates it
             objname = runprops.get('objectname')
-            geofile = '../runs/'+objname+'/'+runprops.get('run_file')+'/geocentric_' + objname + '_position.csv'
+            geofile = '../runs/'+objname+'/'+runprops.get('runs_file')+'/geocentric_' + objname + '_position.csv'
             if os.path.exists(geofile):
                 if verbose:
                     print("File " + geofile + " will be used")
@@ -410,7 +410,7 @@ if __name__ == '__main__':
             
             # Check to see if geocentric_object_position.csv exists and if not creates it
             objname = runprops.get('objectname')
-            geofile = '../runs/'+objname+'/'+runprops.get('run_file')+'/geocentric_' + objname + '_position.csv'
+            geofile = '../runs/'+objname+'/'+runprops.get('runs_file')+'/geocentric_' + objname + '_position.csv'
             if os.path.exists(geofile):
                 if verbose:
                     print("File " + geofile + " will be used")

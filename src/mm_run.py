@@ -124,7 +124,7 @@ if __name__ == '__main__':
         
         # Check to see if geocentric_object_position.csv exists and if not creates it
         objname = runprops.get('objectname')
-        geofile = '../runs/'+objname+'/'+runprops.get('run_file')+'/geocentric_' + objname + '_position.csv'
+        geofile = '../runs/'+objname+'/'+runprops.get('runs_file')+'/geocentric_' + objname + '_position.csv'
         if os.path.exists(geofile):
             if verbose:
                 print("File " + geofile + " will be used")
@@ -270,11 +270,11 @@ if __name__ == '__main__':
                         sys.exit()
                 elif dynamicstoincludeflags[i] == "1":
                     if not (("mass_" + str(i+1) in paramnames) and ("j2r2_" + str(i+1) in paramnames) and
-                    ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames)):
+                    ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames) and 
+                    ("sprate_" + str(i+1) in paramnames)):
                         print("ERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                         sys.exit()
-                    if (("sprate_" + str(i+1) in paramnames) or
-                ("c22r2_" + str(i+1) in paramnames) or ("spaop_" + str(i+1) in paramnames)):
+                    if (("c22r2_" + str(i+1) in paramnames) or ("spaop_" + str(i+1) in paramnames)):
                         print("ERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                         sys.exit()
                 elif dynamicstoincludeflags[i] == "2":
@@ -305,11 +305,11 @@ if __name__ == '__main__':
                     ("ecc_" + str(i+1) in paramnames) and ("inc_" + str(i+1) in paramnames) and
                     ("aop_" + str(i+1) in paramnames) and ("lan_" + str(i+1) in paramnames) and
                     ("mea_" + str(i+1) in paramnames) and ("j2r2_" + str(i+1) in paramnames) and
-                            ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames)):
+                    ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames) and
+                    ("sprate_" + str(i+1) in paramnames)):
                         print("ERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                         sys.exit()
-                    if (("sprate_" + str(i+1) in paramnames) or
-                ("c22r2_" + str(i+1) in paramnames) or ("spaop_" + str(i+1) in paramnames)):
+                    if (("c22r2_" + str(i+1) in paramnames) or ("spaop_" + str(i+1) in paramnames)):
                         print("ERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                         sys.exit()
                 elif dynamicstoincludeflags[i] == "2":
@@ -390,7 +390,7 @@ if __name__ == '__main__':
         
         # Check to see if geocentric_object_position.csv exists and if not creates it
         objname = runprops.get('objectname')
-        geofile = '../runs/'+objname+'/'+runprops.get('run_file')+'/geocentric_' + objname + '_position.csv'
+        geofile = '../runs/'+objname+'/'+runprops.get('runs_file')+'/geocentric_' + objname + '_position.csv'
         if os.path.exists(geofile):
             if verbose:
                 print("File " + geofile + " will be used")

@@ -151,7 +151,7 @@ for i in range(1,nobjects):
 plt.axis('equal')
 
 # Saving things now
-savedir = "../runs/" + runprops.get("run_dir") + "/" + runprops.get("run_file") + "/"
+savedir = "../runs/" + runprops.get("run_dir") + "/" + runprops.get("runs_file") + "/"
 
 try:
 	os.mkdir(savedir)
