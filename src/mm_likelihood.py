@@ -100,7 +100,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
                 thelist.insert(0, lp)
                 thelist.insert(0, reduced_chi_sq)
                 thelist.insert(0, llhood)
-                thelist.insert(0, '')
+                #thelist.insert(0, '')
                 #print(thelist)
                 for i in range(runprops.get('numobjects')):
                     thelist.pop()

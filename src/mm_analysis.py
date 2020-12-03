@@ -316,7 +316,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	for i in range(numparams):
 		plt.figure()
 		for j in range(numwalkers):
-			plt.plot(np.reshape(chain[0:numgens,j,i], numgens), rasterized=True)
+			plt.plot(np.reshape(chain[0:numgens,j,i], numgens))
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
 		#plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
@@ -335,7 +335,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	for i in range(numparams):
 		plt.figure()
 		for j in range(numwalkers):
-			plt.plot(np.reshape(full_chain[0:fullgens,j,i], fullgens), rasterized=True)
+			plt.plot(np.reshape(full_chain[0:fullgens,j,i], fullgens))
 		plt.axvline(x=runprops.get('nburnin'))
 		plt.axvline(x=(runprops.get('clustering_burnin')+runprops.get('nburnin')))
 		plt.ylabel(names[i])
@@ -463,7 +463,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 
 	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
 	#geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
-	geo_obj_pos = pd.read_csv('../runs/'+runprops.get('objectname')+'/'+runprops.get('run_file')+'/'+runprops.get('objectname')+'_obs_df_analysis.csv')
+	geo_obj_pos = pd.read_csv('../runs/'+runprops.get('objectname')+'/'+runprops.get('runs_file')+'/'+runprops.get('objectname')+'_obs_df_analysis.csv')
 
 	times = geo_obj_pos.values[:,0].flatten()
 
