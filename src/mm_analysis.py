@@ -192,6 +192,11 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 
 	flatchain = np.array(fchain)
 	#print(flatchain)
+    
+	names = []
+	for i in float_names:
+		names.append(i)
+	transform_names = np.copy(names)        
 
 	#Now fit the chain 
 	cchain = np.zeros((numgens,numwalkers, numparams))    
@@ -203,7 +208,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 				cchain[i][j][k] = val
 			if runprops.get('transform'):
 				for b in range(runprops.get('numobjects')-1):
-					if undo_ecc_aop[b]:    
+					if undo_ecc_aop[b]:
+						np.append(transform_names,['ecc_aop_'+str(b+1)])                        
 						aop_new = cchain[i][j][int(ecc_aop_index[b*2+1])]
 						ecc_new = cchain[i][j][int(ecc_aop_index[b*2])]
 						pomega = np.arctan2(ecc_new,aop_new)*180/np.pi
@@ -212,6 +218,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 						cchain[i][j][int(ecc_aop_index[b*2+1])] = pomega
 						cchain[i][j][int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega/180*np.pi)
 					if undo_inc_lan[b]:    
+						np.append(transform_names,['inc_lan_'+str(b+1)])   
 						inc_new = cchain[i][j][int(inc_lan_index[b*2])]
 						lan_new = cchain[i][j][int(inc_lan_index[b*2+1])]
 						lan = np.arctan2(inc_new,lan_new)*180/np.pi
@@ -222,7 +229,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 						if inc < 0:
 							inc = inc%180
 						cchain[i][j][int(inc_lan_index[b*2])] = inc
-					if undo_spin[b]:    
+					if undo_spin[b]:
+						np.append(transform_names,['splinc+splan_'+str(b+1)])   
 						spinc_new = cchain[i][j][int(spin_index[b*2])]
 						splan_new = cchain[i][j][int(spin_index[b*2+1])]
 						splan = np.arctan2(spinc_new,splan_new)*180/np.pi
@@ -234,6 +242,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 							spinc = spinc%180
 						cchain[i][j][int(spin_index[b*2])] = spinc
 					if undo_lambda[b]:
+						np.append(transform_names,['lambda_'+str(b+1)])   
 						mea_new = cchain[i][j][int(lambda_index[b*2])]
 						pomega = cchain[i][j][int(lambda_index[b*2+1])]
 						mea = mea_new-pomega
@@ -243,6 +252,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 							mea = mea%360
 						cchain[i][j][int(lambda_index[b*2])] = mea
 					if undo_pomega[b]:
+						np.append(transform_names,['pomega_'+str(b+1)])   
 						lan = cchain[i][j][int(pomega_index[b*2+1])]
 						pomega = cchain[i][j][int(pomega_index[b*2])]
 						aop = pomega-lan
@@ -252,10 +262,12 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 							aop = aop%360                        
 						cchain[i][j][int(pomega_index[b*2])] = pomega-lan  
 				if undo_masses[0]:
+					np.append(transform_names,['mass1+mass2'])   
 					mass_1 = cchain[i][j][int(masses_index[0])]
 					mass_2 = cchain[i][j][int(masses_index[1])]
 					cchain[i][j][int(masses_index[1])] = mass_2-mass_1
 				elif undo_masses[1]:
+					np.append(transform_names,['mass1+mass2+mass3'])   
 					mass_1 = cchain[i][j][int(masses_index[0])]
 					mass_2 = cchain[i][j][int(masses_index[1])]
 					mass_3 = cchain[i][j][int(masses_index[2])]
@@ -266,10 +278,6 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 
 	oldchain = chain
 	chain = cchain
-	names = []
-	for i in float_names:
-		names.append(i)
-
 
 	# Make corner plot
 	#plt.rc('text', usetex=True)
@@ -341,8 +349,9 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	plt.close("all")
 
 	# Figuring out the distributions of parameters
+	old_fchain = sampler.get_chain(flat=True)
 	llhoods = sampler.get_log_prob(discard=(burnin+clusterburn),flat = True)
-	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean'], index = names)
+	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean'], index = transform_names)
 	for i in range(len(flatchain[0])):        
 		median = np.percentile(flatchain[:,i],50, axis = None)
 		neg3sig= np.percentile(flatchain[:,i],0.37, axis = None)
@@ -414,8 +423,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 				paraminput.append(values)
 				paramnames.append(keys)
 
-	print(paraminput)
-	print(paramnames)
+	#print(paraminput)
+	#print(paramnames)
 	names_dict = runprops.get("names_dict")    
 	paramdf = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
 
@@ -423,10 +432,10 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	#paramdf.columns = paramnames
 
 
-	print(paramdf)
+	#print(paramdf)
 #Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
 	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
-	print(chisquare_total, residuals)
+	#print(chisquare_total, residuals)
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
 
