@@ -72,15 +72,16 @@ if runprops.get("first_run") == True:
         shutil.copy(filename, newpath+'/runprops.txt')
     #shutil.copy(filename, '../runs/'+objname+'/runprops.txt')
     
-    init = '../runs/'+objname+'/'+runprops.get('runs_file')+'/'+objname+'_init_guess.csv'
-    priors = '../runs/'+objname+'/'+runprops.get('runs_file')+'/'+objname+'_priors_df.csv'
-    obs = '../runs/'+objname+'/'+runprops.get('runs_file')+'/'+objname+'_obs_df.csv'
+    init = runprops.get('runs_file')+'/'+objname+'_init_guess.csv'
+    priors = runprops.get('runs_file')+'/'+objname+'_priors_df.csv'
+    obs = runprops.get('runs_file')+'/'+objname+'_obs_df.csv'
 
     #print(init,priors,obs)
     
     runprops['init_filename'] = init
     runprops['obsdata_file'] = obs
     runprops['priors_filename'] = priors    
+    
     
     shutil.copy(obs, newpath+'/'+runprops.get("objectname")+'_obs_df.csv')
     shutil.copy(priors, newpath+'/'+runprops.get("objectname")+'_priors_df.csv')

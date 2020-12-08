@@ -23,7 +23,7 @@ def mm_make_geo_pos(objname, times, runprops, synthetic = False):
     if synthetic:
         return outFile
 
-    filename1 = "../runs/"+objname+"/"+runprops.get('runs_file')+"/geocentric_" + objname + "_position.csv"
+    filename1 = runprops.get('runs_file')+"/geocentric_" + objname + "_position.csv"
     geocentricFile.to_csv(filename1)
     #fileName2 = "geocentric_" + objectName +'_position.csv'
     #outFile.to_csv(fileName2)

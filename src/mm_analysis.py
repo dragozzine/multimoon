@@ -198,7 +198,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		names.append(i)
 	transform_names = np.copy(names)        
 
-	#Now fit the chain 
+	#Now fit the chain
+	extra_chain = []
 	cchain = np.zeros((numgens,numwalkers, numparams))    
 	for i in range(numgens):
 		for j in range(numwalkers):
@@ -209,18 +210,22 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 			if runprops.get('transform'):
 				for b in range(runprops.get('numobjects')-1):
 					if undo_ecc_aop[b]:
-						np.append(transform_names,['ecc_aop_'+str(b+1)])                        
+						np.append(transform_names,['ecc*sin(pomega)'+str(b+1),'ecc*cos(pomega)'+str(b+1)])
 						aop_new = cchain[i][j][int(ecc_aop_index[b*2+1])]
 						ecc_new = cchain[i][j][int(ecc_aop_index[b*2])]
+						extra_chain.append(ecc_new)
+						extra_chain.append(aop_new)
 						pomega = np.arctan2(ecc_new,aop_new)*180/np.pi
 						if pomega < 0:
 							pomega = pomega%360
 						cchain[i][j][int(ecc_aop_index[b*2+1])] = pomega
 						cchain[i][j][int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega/180*np.pi)
 					if undo_inc_lan[b]:    
-						np.append(transform_names,['inc_lan_'+str(b+1)])   
+						np.append(transform_names,['tan(inc/2)*sin(lan)_'+str(b+1),'tan(inc/2)*cos(lan)_'+str(b+1)])   
 						inc_new = cchain[i][j][int(inc_lan_index[b*2])]
 						lan_new = cchain[i][j][int(inc_lan_index[b*2+1])]
+						extra_chain.append(inc_new)
+						extra_chain.append(lan_new)
 						lan = np.arctan2(inc_new,lan_new)*180/np.pi
 						if lan < 0:
 							lan = lan%360
@@ -230,9 +235,11 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 							inc = inc%180
 						cchain[i][j][int(inc_lan_index[b*2])] = inc
 					if undo_spin[b]:
-						np.append(transform_names,['splinc+splan_'+str(b+1)])   
+						np.append(transform_names,['tan(spinc/2)*sin(splan)_'+str(b+1),'tan(spinc/2)*cos(splan)_'+str(b+1)])   
 						spinc_new = cchain[i][j][int(spin_index[b*2])]
 						splan_new = cchain[i][j][int(spin_index[b*2+1])]
+						extra_chain.append(spinc_new)
+						extra_chain.append(splan_new)
 						splan = np.arctan2(spinc_new,splan_new)*180/np.pi
 						if splan < 0:
 							splan = splan%360
@@ -242,9 +249,10 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 							spinc = spinc%180
 						cchain[i][j][int(spin_index[b*2])] = spinc
 					if undo_lambda[b]:
-						np.append(transform_names,['lambda_'+str(b+1)])   
+						np.append(transform_names,['lambda(pomega+mea)_'+str(b+1)])   
 						mea_new = cchain[i][j][int(lambda_index[b*2])]
 						pomega = cchain[i][j][int(lambda_index[b*2+1])]
+						extra_chain.append(mea_new)
 						mea = mea_new-pomega
 						if mea < 0:
 							mea = mea%360
@@ -255,6 +263,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 						np.append(transform_names,['pomega_'+str(b+1)])   
 						lan = cchain[i][j][int(pomega_index[b*2+1])]
 						pomega = cchain[i][j][int(pomega_index[b*2])]
+						extra_chain.append(pomega)
 						aop = pomega-lan
 						if aop < 0:
 							aop = aop%360
@@ -265,12 +274,14 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 					np.append(transform_names,['mass1+mass2'])   
 					mass_1 = cchain[i][j][int(masses_index[0])]
 					mass_2 = cchain[i][j][int(masses_index[1])]
+					extra_chain.append(mass_2)
 					cchain[i][j][int(masses_index[1])] = mass_2-mass_1
 				elif undo_masses[1]:
 					np.append(transform_names,['mass1+mass2+mass3'])   
 					mass_1 = cchain[i][j][int(masses_index[0])]
 					mass_2 = cchain[i][j][int(masses_index[1])]
 					mass_3 = cchain[i][j][int(masses_index[2])]
+					extra_chain.append(mass_3)
 					cchain[i][j][int(masses_index[2])] = mass_3-mass_2 
 					cchain[i][j][int(masses_index[1])] = mass_2-mass_1 
                         
@@ -352,15 +363,19 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	old_fchain = sampler.get_chain(flat=True)
 	llhoods = sampler.get_log_prob(discard=(burnin+clusterburn),flat = True)
 	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean'], index = transform_names)
-	for i in range(len(flatchain[0])):        
-		median = np.percentile(flatchain[:,i],50, axis = None)
-		neg3sig= np.percentile(flatchain[:,i],0.37, axis = None)
-		neg2sig = np.percentile(flatchain[:,i],2.275, axis = None)
-		neg1sig = np.percentile(flatchain[:,i],15.866, axis = None)
-		pos1sig = np.percentile(flatchain[:,i],84.134, axis = None)
-		pos2sig = np.percentile(flatchain[:,i],97.724, axis = None)
-		pos3sig = np.percentile(flatchain[:,i],99.63, axis = None)
-		mean = np.mean(flatchain[:,i])
+	j = 0
+	for i in range(len(flatchain[0])):
+		num = flatchain[:,i]
+#		if i>len(names):
+# 			
+		median = np.percentile(num,50, axis = None)
+		neg3sig= np.percentile(num,0.37, axis = None)
+		neg2sig = np.percentile(num,2.275, axis = None)
+		neg1sig = np.percentile(num,15.866, axis = None)
+		pos1sig = np.percentile(num,84.134, axis = None)
+		pos2sig = np.percentile(num,97.724, axis = None)
+		pos3sig = np.percentile(num,99.63, axis = None)
+		mean = np.mean(num)
 		sigsdf['-3sigma'].iloc[i] = neg3sig-median
 		sigsdf['-2sigma'].iloc[i] = neg2sig-median
 		sigsdf['-1sigma'].iloc[i] = neg1sig-median
@@ -463,7 +478,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 
 	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
 	#geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
-	geo_obj_pos = pd.read_csv('../runs/'+runprops.get('objectname')+'/'+runprops.get('runs_file')+'/'+runprops.get('objectname')+'_obs_df_analysis.csv')
+	geo_obj_pos = pd.read_csv(runprops.get('runs_file')+'/'+runprops.get('objectname')+'_obs_df_analysis.csv')
 
 	times = geo_obj_pos.values[:,0].flatten()
 
