@@ -123,6 +123,8 @@ if __name__ == '__main__':
             # Check to see if geocentric_object_position.csv exists and if not creates it
             objname = runprops.get('objectname')
             geofile = runprops.get('runs_file')+'/geocentric_' + objname + '_position.csv'
+            geo_analysis = runprops.get('runs_file')+'/geocentric_' + objname + '_position_analysis.csv'
+
             if os.path.exists(geofile):
                 if verbose:
                     print("File " + geofile + " will be used")
@@ -136,6 +138,8 @@ if __name__ == '__main__':
             
             # Reads in th geocentric_object data file
             geo_obj_pos = pd.read_csv(geofile)
+            shutil.copy(geofile, runprops.get('results_folder')+'/geo_obj_pos.csv')
+            shutil.copy(geo_analysis, runprops.get('results_folder')+'/geo_obj_pos_analysis.csv')
             
     
             backend = emcee.backends.HDFBackend(runprops.get('chain_file'))
@@ -224,11 +228,16 @@ if __name__ == '__main__':
             with open(runpath, 'w') as file:
                 file.write(json.dumps(runprops, indent = 4))
     
-            mm_analysis.plots(sampler, total_df_names, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names)
+            recent_props = runprops.get("runs_file")+"/most_recent_runprops.txt"
+            with open(recent_props, 'w') as file:
+                file.write(json.dumps(runprops, indent = 4))
+    
+            
+            #mm_analysis.plots(sampler, total_df_names, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names)
         
                 
             if runprops.get('build_init_from_llhood'):
-                csvfile = runprops.get("resuts_folder")+"/best_likelihoods.csv"
+                csvfile = runprops.get("results_folder")+"/best_likelihoods.csv"
                 likelihoods = pd.read_csv(csvfile, sep = '\t', header = 0)
             
             
@@ -410,6 +419,7 @@ if __name__ == '__main__':
             # Check to see if geocentric_object_position.csv exists and if not creates it
             objname = runprops.get('objectname')
             geofile = runprops.get('runs_file')+'/geocentric_' + objname + '_position.csv'
+            geo_analysis = runprops.get('runs_file')+'/geocentric_' + objname + '_position_analysis.csv'
             if os.path.exists(geofile):
                 if verbose:
                     print("File " + geofile + " will be used")
@@ -423,6 +433,8 @@ if __name__ == '__main__':
             
             # Reads in th geocentric_object data file
             geo_obj_pos = pd.read_csv(geofile)
+            shutil.copy(geofile, runprops.get('results_folder')+'/geo_obj_pos.csv')
+            shutil.copy(geo_analysis, runprops.get('results_folder')+'/geo_obj_pos_analysis.csv')
             
             # Go through initial guesses and check that all walkers have finite posterior probability
             reset = 0
@@ -517,10 +529,10 @@ if __name__ == '__main__':
             flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
                 
             # Begin analysis!
-            print('Beginning mm_analysis plots')
+            #print('Beginning mm_analysis plots')
             
             
-            mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names)
+            #mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names)
             
             runpath = runprops.get("results_folder")+"/runprops.txt"
             runprops['total_df_names'] = runprops.get('total_df_names').to_numpy().tolist()
@@ -529,8 +541,13 @@ if __name__ == '__main__':
             with open(runpath, 'w') as file:
                 file.write(json.dumps(runprops, indent = 4))
                 
+            recent_props = runprops.get("runs_file")+"/most_recent_runprops.txt"
+            with open(recent_props, 'w') as file:
+                file.write(json.dumps(runprops, indent = 4))
+        
+                
             if runprops.get('build_init_from_llhood'):
-                csvfile = runprops.get("resuts_folder")+"/best_likelihoods.csv"
+                csvfile = runprops.get("results_folder")+"/best_likelihoods.csv"
                 likelihoods = pd.read_csv(csvfile, sep = '\t', header = 0)
                 
                 

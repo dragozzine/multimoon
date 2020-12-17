@@ -138,7 +138,7 @@ if __name__ == '__main__':
         
         # Reads in th geocentric_object data file
         geo_obj_pos = pd.read_csv(geofile)
-        
+        shutil.copy(geofile, runprops.get('results_folder')+'/geo_obj_pos.csv')
 
         backend = emcee.backends.HDFBackend(runprops.get('chain_file'))
         
@@ -390,7 +390,7 @@ if __name__ == '__main__':
         
         # Check to see if geocentric_object_position.csv exists and if not creates it
         objname = runprops.get('objectname')
-        geofile = '../runs/'+objname+'/'+runprops.get('runs_file')+'/geocentric_' + objname + '_position.csv'
+        geofile = runprops.get('runs_file')+'/geocentric_' + objname + '_position.csv'
         if os.path.exists(geofile):
             if verbose:
                 print("File " + geofile + " will be used")
@@ -404,6 +404,7 @@ if __name__ == '__main__':
         
         # Reads in th geocentric_object data file
         geo_obj_pos = pd.read_csv(geofile)
+        shutil.copy(geofile, runprops.get('results_folder')+'/geo_obj_pos.csv')
         
         # Go through initial guesses and check that all walkers have finite posterior probability
         reset = 0

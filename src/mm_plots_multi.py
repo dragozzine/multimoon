@@ -1,21 +1,3 @@
-#	mm_analysis.py
-#
-#	Runs all of the analysis on the chains from mm_run
-#
-#	Benjamin Proudfoot
-#	05/05/20
-#
-
-# To be honest I don't think that mm_run should make the chain a df. We would convert it to one
-# and then immediately convert it back for the corner plots and walker plots. I don't think 
-# the step is necessary esp with the huge size of the chain.
-
-# WARNING: The indices for all of the work with the chains might be reversed to what I have here
-# I used the same as those in all of my julia codes, and I don't know if the indices are reversed
-# with emcee compared to AffineInvariantMCMC in julia. SO beware. 
-
-
-
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -28,6 +10,7 @@ import mm_likelihood
 from astropy.time import Time
 import commentjson as json
 import mm_param
+import mm_make_geo_pos
 
 class ReadJson(object):
     def __init__(self, filename):
@@ -37,10 +20,10 @@ class ReadJson(object):
         return self.data
 
 #chain = (nwalkers, nlink, ndim)
-def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names):
-	# Here parameters is whatever file/object will have the run params
-	print('Print:',parameters)
-	print('Print:',float_names)
+
+def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names):
+	# Here total_df_names is whatever file/object will have the run params
+	objname = runprops.get("objectname")
 	undo_ecc_aop = np.zeros(runprops.get('numobjects')-1)
 	undo_ecc_aop[:] = False
 	ecc_aop_index = np.zeros((runprops.get('numobjects')-1)*2)
@@ -113,7 +96,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	numwalkers = chain.shape[1]
 	numgens = chain.shape[0]
  
-	#First fit the flatchain with the fit parameters  
+	#First fit the flatchain with the fit total_df_names  
 	#print(numwalkers, numgens, numparams)
 	#print(flatchain, len(flatchain),len(flatchain[0]), fit)
 	fchain = np.zeros((numgens*numwalkers,numparams))    
@@ -315,7 +298,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
 	for ax in fig.get_axes():
 		ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
-	fname = runprops.get("results_folder")+"/corner.pdf"       
+	fname = "corner.pdf"       
 	fig.savefig(fname, format = 'pdf')
 	plt.close("all")
 	#plt.rc('text', usetex=False)
@@ -324,7 +307,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	# Now make the walker plots
 	from matplotlib.backends.backend_pdf import PdfPages
 
-	walkerpdf = PdfPages(runprops.get('results_folder')+"/walkers.pdf")
+	walkerpdf = PdfPages("walkers.pdf")
 
 	for i in range(numparams):
 		plt.figure()
@@ -340,8 +323,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	walkerpdf.close()
 	plt.close("all")
     
-	fullwalkerpdf = PdfPages(runprops.get('results_folder')+"/walkers_full.pdf")
-	backend = emcee.backends.HDFBackend(runprops.get('results_folder')+'/chain.h5')    
+	fullwalkerpdf = PdfPages("walkers_full.pdf")
+	backend = emcee.backends.HDFBackend('chain.h5')    
 
 #	full_chain = sampler.get_chain(discard=0, flat = False)  
 	fullgens = numgens+burnin+clusterburn    
@@ -361,7 +344,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	fullwalkerpdf.close()
 	plt.close("all")
 
-	# Figuring out the distributions of parameters
+	# Figuring out the distributions of total_df_names
 	old_fchain = sampler.get_chain(flat=True)
 	llhoods = sampler.get_log_prob(discard=(burnin+clusterburn),flat = True)
 	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean'], index = transform_names)
@@ -388,11 +371,11 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		sigsdf['mean'].iloc[i] = mean
 	#if runprops.get('verbose'):
 	print(sigsdf)
-	filename = runprops.get('results_folder') + '/sigsdf.csv'    
+	filename = 'sigsdf.csv'    
 	sigsdf.to_csv(filename)
     
 	# Likelihood plots    
-	likelihoodspdf = PdfPages(runprops.get('results_folder')+"/likelihoods.pdf")
+	likelihoodspdf = PdfPages("likelihoods.pdf")
 
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
@@ -468,7 +451,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	plt.ylabel("Delta Latitude")
 	plt.axis("equal")
 	plt.legend()
-	plt.savefig(runprops.get("results_folder")+"/best_residuals.pdf", format = "pdf")
+	plt.savefig("best_residuals.pdf", format = "pdf")
 
 	# Astrometry plots
 	time_arr = obsdf['time'].values.flatten()
@@ -480,7 +463,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 
 	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
 	#geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
-	geo_obj_pos = pd.read_csv(runprops.get('runs_file')+'/'+runprops.get('objectname')+'_obs_df_analysis.csv')
+	geo_obj_pos = pd.read_csv('geo_obj_pos_analysis.csv')
 
 	times = geo_obj_pos.values[:,0].flatten()
 
@@ -530,10 +513,10 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	plt.ylabel("Delta Longitude")
 	plt.legend()
 
-	plt.savefig(runprops.get("results_folder")+"/best_astrometry.pdf", format = "pdf")
+	plt.savefig("best_astrometry.pdf", format = "pdf")
 	plt.close()
 
-	obspdf = PdfPages(runprops.get('results_folder')+"/observations.pdf")	
+	obspdf = PdfPages("observations.pdf")
 
 	modelpos = [modelx,modely]
 	objpos = [x,y]
@@ -601,6 +584,34 @@ def autocorrelation(sampler, objname, filename = "", thin = 1):
 	if ncols > ndims:
 		ncols = ndims
 	return np.mean(sampler.get_autocorr_time(quiet = True))
+
+                
+#Actually build the plots here
+#====================================================================================================
+import glob, os
+getData = ReadJson('most_recent_runprops.txt')
+runprops = getData.outProps()
+objname = runprops.get("objectname")
+
+if not 'results' in os.getcwd():
+	os.chdir('../../../results/'+objname+'/')
+	results = max(glob.glob(os.path.join(os.getcwd(), '*/')), key=os.path.getmtime)
+	os.chdir(results)
+
+backend = emcee.backends.HDFBackend('chain.h5')
+    
+fit_scale = pd.read_csv('fit_scale.csv',index_col=0)
+float_names = runprops.get('float_names')
+obsdf = pd.read_csv(objname+'_obs_df.csv',index_col=0)
+geo_obj_pos = pd.read_csv('geo_obj_pos.csv',index_col=0)
+fixed_df = pd.read_csv('fixed_df.csv',index_col=0)
+total_df_names = runprops.get('total_df_names')
+
+print(runprops)
+
+plots(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)
+
+
 '''   
 	fig, ax = plt.subplots(nrows = nrows, ncols = ncols, sharey=True, 
 			       gridspec_kw={'wspace': 0},
