@@ -506,7 +506,7 @@ if __name__ == '__main__':
                 nburnin = runprops.get("nburnin")
                 if verbose:
                     print("Starting the burn in")
-                state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
+                state = sampler.run_mcmc(p0, nburnin, progress = True, store = True, thin_by = 10)
         
                 # Now running the clustering algorithm! (if desired)
                 if runprops.get("use_clustering") and nburnin != 0:
@@ -775,7 +775,7 @@ def run():
     
     # BP TODO: make an option in runprops to start from the end of another run and just append it
     
-    backend = emcee.backends.HDFBackend(filename)
+    backend = emcee.backends.HDFBackend(filename, thin=10)
     backend.reset(nwalkers, ndim)
     moveset = [(emcee.moves.DEMove(), 0.8), (emcee.moves.DESnookerMove(), 0.2),]
     moveset = [(emcee.moves.StretchMove(), 1.0),]

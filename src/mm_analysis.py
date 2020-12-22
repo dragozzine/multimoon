@@ -39,8 +39,6 @@ class ReadJson(object):
 #chain = (nwalkers, nlink, ndim)
 def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names):
 	# Here parameters is whatever file/object will have the run params
-	print('Print:',parameters)
-	print('Print:',float_names)
 	undo_ecc_aop = np.zeros(runprops.get('numobjects')-1)
 	undo_ecc_aop[:] = False
 	ecc_aop_index = np.zeros((runprops.get('numobjects')-1)*2)

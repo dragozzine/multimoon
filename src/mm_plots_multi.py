@@ -291,7 +291,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	#	fig = corner.corner(flatchain, labels = names, bins = 40, show_titles = True, 
 	#			    plot_datapoints = False, color = "blue", fill_contours = True,
 	#			    title_fmt = ".4e", truths = truths)
-	#else:
+	print(flatchain)
 	fig = corner.corner(flatchain, labels = names, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".4e")
@@ -589,7 +589,11 @@ def autocorrelation(sampler, objname, filename = "", thin = 1):
 #Actually build the plots here
 #====================================================================================================
 import glob, os
-getData = ReadJson('most_recent_runprops.txt')
+
+if 'results' in os.getcwd():
+    getData = ReadJson('runprops.txt')
+else:
+    getData = ReadJson('most_recent_runprops.txt')
 runprops = getData.outProps()
 objname = runprops.get("objectname")
 
@@ -606,8 +610,6 @@ obsdf = pd.read_csv(objname+'_obs_df.csv',index_col=0)
 geo_obj_pos = pd.read_csv('geo_obj_pos.csv',index_col=0)
 fixed_df = pd.read_csv('fixed_df.csv',index_col=0)
 total_df_names = runprops.get('total_df_names')
-
-print(runprops)
 
 plots(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)
 
