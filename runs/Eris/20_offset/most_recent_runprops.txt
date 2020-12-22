@@ -1,6 +1,6 @@
 {
     "first_run": false,
-    "date": "2020-12-19_15.58.47",
+    "date": "2020-12-22_14.43.49",
     "time": "now",
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
@@ -11,11 +11,11 @@
     "com_offset": true,
     "min_periapse": 400,
     "objectname": "Eris",
-    "run_file": "10_offset",
+    "run_file": "20_offset",
     "numobjects": 2,
-    "dynamicstoincludeflags": "10",
+    "dynamicstoincludeflags": "20",
     "includesun": 0,
-    "nwalkers": 80,
+    "nwalkers": 60,
     "nburnin": 10,
     "nsteps": 50,
     "essgoal": 10,
@@ -56,18 +56,18 @@
         "j2r2_1": 1,
         "spinc_1": 1,
         "sprate_1": 0,
-        "spaop_1": 0,
+        "spaop_1": 1,
         "splan_1": 1,
-        "c22r2_1": 0,
+        "c22r2_1": 1,
         "lat_offset": 1,
         "long_offset": 1
     },
     "chain_file": null,
-    "runs_file": "../runs/Eris/10_offset",
-    "results_folder": "../results/Eris/Eris_2020-12-19_15.58.47",
-    "init_filename": "../runs/Eris/10_offset/Eris_init_guess.csv",
-    "obsdata_file": "../runs/Eris/10_offset/Eris_obs_df.csv",
-    "priors_filename": "../runs/Eris/10_offset/Eris_priors_df.csv",
+    "runs_file": "../runs/Eris/20_offset",
+    "results_folder": "../results/Eris/Eris_2020-12-22_14.43.49",
+    "init_filename": "../runs/Eris/20_offset/Eris_init_guess.csv",
+    "obsdata_file": "../runs/Eris/20_offset/Eris_obs_df.csv",
+    "priors_filename": "../runs/Eris/20_offset/Eris_priors_df.csv",
     "float_names": [
         "mass_1",
         "sma_2",
@@ -77,6 +77,8 @@
         "lan_2",
         "mea_2",
         "j2r2_1",
+        "c22r2_1",
+        "spaop_1",
         "spinc_1",
         "splan_1",
         "lat_offset",
@@ -109,6 +111,12 @@
         ],
         [
             "j2r2_1"
+        ],
+        [
+            "c22r2_1"
+        ],
+        [
+            "spaop_1"
         ],
         [
             "spinc_1"
