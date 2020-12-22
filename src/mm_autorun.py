@@ -56,7 +56,7 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0
 			#state = sampler.run_mcmc(p0, initsteps, progress = True, store=True, thin_by = 10)
 			state = sampler.run_mcmc(p0, initsteps, progress = True, store=True)
 	else:
-		state = sampler.run_mcmc(state, initsteps, progress = True, store=True, thin = 10)
+		state = sampler.run_mcmc(state, initsteps, progress = True, store=True)
 
 	# Find the integrated autocorrelation time (iat) of the run
 	if verbose:
