@@ -18,6 +18,7 @@ def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_sca
 	nwalkers = runprops.get("nwalkers")
 	reburnin = runprops.get("clustering_burnin")
 	verbose = runprops.get("verbose")
+	nthinning = runprops.get("nthinning")
 
 	# Getting important values from the chain
 	avllhood = np.mean(sampler.get_log_prob()[-lag:,:], axis = 0)
@@ -77,7 +78,7 @@ def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_sca
 							backend=backend, pool = pool,
 							args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods),
 							moves = moveset)
-		state = sampler.run_mcmc(params, reburnin, progress = True, store = True)
+		state = sampler.run_mcmc(params, nthinning, progress = True, store = True, thin_by=reburnin/nthinning)
 		if verbose:
 			avllhood = np.mean(sampler.get_log_prob()[-lag:,:], axis = 0)
 			print(np.sort(avllhood))
