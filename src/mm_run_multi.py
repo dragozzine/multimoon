@@ -490,6 +490,7 @@ if __name__ == '__main__':
                         the_names.append('Residuals_Lat_Obj_'+str(i+1))
                     csv_writer.writerow(the_names)
             
+            
                 sampler = emcee.EnsembleSampler(nwalkers, ndim, 
                 mm_likelihood.log_probability, backend=backend, pool=pool,
                     args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods),
@@ -506,9 +507,10 @@ if __name__ == '__main__':
             # run to see what the burn in looks like... It should be a few autocorrelation times
             
                 nburnin = runprops.get("nburnin")
+                nthinning = runprops.get("nthinning")
                 if verbose:
                     print("Starting the burn in")
-                state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
+                state = sampler.run_mcmc(p0, nthinning, progress = True, store = True, thin_by=nburnin/nthinning)
         
                 # Now running the clustering algorithm! (if desired)
                 if runprops.get("use_clustering") and nburnin != 0:

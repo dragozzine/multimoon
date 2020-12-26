@@ -24,6 +24,7 @@ class ReadJson(object):
 def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names):
 	# Here total_df_names is whatever file/object will have the run params
 	objname = runprops.get("objectname")
+	nthinning = runprops.get("nthinning")
 	undo_ecc_aop = np.zeros(runprops.get('numobjects')-1)
 	undo_ecc_aop[:] = False
 	ecc_aop_index = np.zeros((runprops.get('numobjects')-1)*2)
@@ -77,8 +78,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	burnin = runprops.get('nburnin')
 	clusterburn = runprops.get('clustering_burnin')
-	full_chain = sampler.get_chain(flat = False)
-	flatchain = sampler.get_chain(discard=(burnin+clusterburn),flat = True)
+	full_chain = sampler.get_chain(flat = False, thin=nthinning)
+	flatchain = sampler.get_chain(discard=(burnin+clusterburn),flat = True, thin=nthinning)
 	print(flatchain.shape, full_chain.shape)    
 	fit = []
 
@@ -90,7 +91,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			val = fit_scale.loc[0, i]
 			fit.append(val)
                   
-	chain = sampler.get_chain(discard=(burnin+clusterburn),flat = False)
+	chain = sampler.get_chain(discard=(burnin+clusterburn),flat = False, thin=nthinning)
 	print(chain.shape)
 	numparams = chain.shape[2]
 	numwalkers = chain.shape[1]
@@ -327,7 +328,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	backend = emcee.backends.HDFBackend('chain.h5')    
 
 #	full_chain = sampler.get_chain(discard=0, flat = False)  
-	fullgens = numgens+burnin+clusterburn    
+	fullgens = int(numgens/nthinning+burnin/nthinning+clusterburn/nthinning)
+	#print(fullgens)
 	for i in range(numparams):
 		plt.figure()
 		for j in range(numwalkers):
@@ -345,8 +347,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.close("all")
 
 	# Figuring out the distributions of total_df_names
-	old_fchain = sampler.get_chain(flat=True)
-	llhoods = sampler.get_log_prob(discard=(burnin+clusterburn),flat = True)
+	old_fchain = sampler.get_chain(flat=True, thin=nthinning)
+	llhoods = sampler.get_log_prob(discard=(burnin+clusterburn),flat = True, thin=nthinning)
 	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean'], index = transform_names)
 	j = 0
 	for i in range(len(flatchain[0])):
@@ -398,9 +400,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.close("all")
 
 	# Residual plots
-	flatchain = sampler.get_chain(flat = True)
+	flatchain = sampler.get_chain(flat = True, thin=nthinning)
 	nobjects = runprops.get('numobjects')
-	llhoods = sampler.get_log_prob(flat = True)
+	llhoods = sampler.get_log_prob(flat = True, thin=nthinning)
 	ind = np.argmax(llhoods)
 	params = flatchain[ind,:].flatten()
     
