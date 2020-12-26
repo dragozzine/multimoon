@@ -138,8 +138,8 @@ if __name__ == '__main__':
             
             # Reads in th geocentric_object data file
             geo_obj_pos = pd.read_csv(geofile)
-            shutil.copy(geofile, runprops.get('results_folder')+'/geo_obj_pos.csv')
-            shutil.copy(geo_analysis, runprops.get('results_folder')+'/geo_obj_pos_analysis.csv')
+            shutil.copy(geofile, runprops.get('results_folder')+'/geocentric_'+runprops.get('objectname')+'_position.csv')
+            shutil.copy(geo_analysis, runprops.get('results_folder')+'/geocentric_'+runprops.get('objectname')+'_position_analysis.csv')
             
     
             backend = emcee.backends.HDFBackend(runprops.get('chain_file'))
@@ -195,8 +195,10 @@ if __name__ == '__main__':
             nburnin = runprops.get("nburnin")
             if verbose:
                 print("Starting the burn in")
-        
-            state = sampler.run_mcmc(None, nburnin, progress = True, store = True)
+            if nburnin != 0:
+                state = sampler.run_mcmc(None, nburnin, progress = True, store = True)
+            else:
+                state = 0
     
             # Now running the clustering algorithm! (if desired)
             if runprops.get("use_clustering") and nburnin != 0:
@@ -216,8 +218,7 @@ if __name__ == '__main__':
             sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0, runprops)
         
             print("effective sample size = ", ess)
-            chain = sampler.get_chain(
-                runprops.get("nthinning"))
+            chain = sampler.get_chain(flat = False, thin = runprops.get("nthinning"))
             flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
         
     # Begin analysis!
@@ -510,7 +511,10 @@ if __name__ == '__main__':
                 nthinning = runprops.get("nthinning")
                 if verbose:
                     print("Starting the burn in")
-                state = sampler.run_mcmc(p0, nthinning, progress = True, store = True, thin_by=nburnin/nthinning)
+                if runprops.get('thin_run'):
+                    state = sampler.run_mcmc(p0, nthinning, progress = True, store = True, thin_by=int(nburnin/nthinning))
+                else:
+                    state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
         
                 # Now running the clustering algorithm! (if desired)
                 if runprops.get("use_clustering") and nburnin != 0:

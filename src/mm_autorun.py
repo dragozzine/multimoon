@@ -51,13 +51,20 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0
 		print("Running MultiMoon for ", initsteps, " steps")
 	if runprops.get('nburnin') == 0:
 		if runprops.get("chain_file") != None:
-			state = sampler.run_mcmc(None, nthinning, progress = True, store=True, thin_by=initsteps/nthinning)
-#			state = sampler.run_mcmc(None, initsteps, progress = True, store=True, thin_by = 10)
-		else:    
-			#state = sampler.run_mcmc(p0, initsteps, progress = True, store=True, thin_by = 10)
-			state = sampler.run_mcmc(p0, nthinning, progress = True, store=True, thin_by=initsteps/nthinning)
+			if runprops.get('thin_run'):
+				state = sampler.run_mcmc(None, nthinning, progress = True, store=True, thin_by=int(initsteps/nthinning))
+			else:
+				state = sampler.run_mcmc(None, initsteps, progress = True, store=True)
+		else:
+			if runprops.get('thin_run'):
+				state = sampler.run_mcmc(p0, nthinning, progress = True, store=True, thin_by=int(initsteps/nthinning))
+			else:
+				state = sampler.run_mcmc(p0, initsteps, progress = True, store=True)
 	else:
-		state = sampler.run_mcmc(state, nthinning, progress = True, store=True, thin_by=initsteps/nthinning)
+		if runprops.get('thin_run'):
+			state = sampler.run_mcmc(state, nthinning, progress = True, store=True, thin_by=int(initsteps/nthinning))
+		else:
+			state = sampler.run_mcmc(state, initsteps, progress = True, store=True)
 
 	# Find the integrated autocorrelation time (iat) of the run
 	if verbose:
@@ -78,8 +85,10 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0
 		moresteps = initsteps
 		if 2*initsteps >= maxiter:
 			moresteps = maxiter - initsteps
-		state = sampler.run_mcmc(state, nthinning, progress = True, store=True, thin_by=moresteps/nthinning)
-#		state = sampler.run_mcmc(state, moresteps, progress = True, store=True, thin_by = 10)
+		if runprops.get('thin_run'):
+			state = sampler.run_mcmc(state, nthinning, progress = True, store=True, thin_by=int(moresteps/nthinning))
+		else:
+			state = sampler.run_mcmc(state, moresteps, progress = True, store=True)
 		if verbose:
 			print(initsteps, " steps have been completed.")
 			print("Calculating the effective sample size.")
@@ -110,7 +119,10 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0
 	# Making sure maxiter is not reached
 	if int(nadditional + ngens) > maxiter:
 		nadditional = int(maxiter - ngens)
-		state = sampler.run_mcmc(state, nthinning, progress = True, store=True, thin_by=nadditional/nthinning)
+		if runprops.get('thin_run'):
+			state = sampler.run_mcmc(state, nthinning, progress = True, store=True, thin_by=int(nadditional/nthinning))
+		else:
+			state = sampler.run_mcmc(state, nadditional, progress = True, store=True)
 		#state = sampler.run_mcmc(state, nadditional, progress = True, store=True)
 		iat = autocorrelation(sampler,objname, filename = "_" + str(counter))
 		counter += 1
@@ -120,7 +132,10 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0
 		return sampler, ngens/iat
 	else:
 		#state = sampler.run_mcmc(state, nadditional, progress = True, store=True)
-		state = sampler.run_mcmc(state, nthinning, progress = True, store=True, thin_by=nadditional/nthinning)
+		if runprops.get('thin_run'):
+			state = sampler.run_mcmc(state, nthinning, progress = True, store=True, thin_by=int(nadditional/nthinning))
+		else:
+			state = sampler.run_mcmc(state, nadditional, progress = True, store=True)
 		iat = autocorrelation(sampler, objname, filename = "_" + str(counter))
 		counter += 1
 		ngens = sampler.get_chain().shape[0]

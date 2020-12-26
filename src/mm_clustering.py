@@ -78,7 +78,10 @@ def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_sca
 							backend=backend, pool = pool,
 							args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods),
 							moves = moveset)
-		state = sampler.run_mcmc(params, nthinning, progress = True, store = True, thin_by=reburnin/nthinning)
+		if runprops.get('thin_run'):
+			state = sampler.run_mcmc(params, nthinning, progress = True, store = True, thin_by=int(reburnin/nthinning))
+		else:
+			state = sampler.run_mcmc(params, reburnin, progress = True, store = True)
 		if verbose:
 			avllhood = np.mean(sampler.get_log_prob()[-lag:,:], axis = 0)
 			print(np.sort(avllhood))
