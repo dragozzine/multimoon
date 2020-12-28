@@ -3,7 +3,7 @@
 #SBATCH --time=72:00:00   # walltime
 #SBATCH --ntasks=480   # number of processor cores (i.e. tasks)
 # #SBATCH --nodes=10   # number of nodes
-#SBATCH --mem-per-cpu=2048M   # memory per CPU core
+#SBATCH --mem-per-cpu=1048M   # memory per CPU core
 #SBATCH --mail-user=dallinspencer@gmail.com   # email address
 #SBATCH --mail-type=END
 #SBATCH --mail-type=FAIL
