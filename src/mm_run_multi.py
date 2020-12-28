@@ -218,8 +218,8 @@ if __name__ == '__main__':
             sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0, runprops)
         
             print("effective sample size = ", ess)
-            chain = sampler.get_chain(flat = False, thin = runprops.get("nthinning"))
-            flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
+            chain = sampler.get_chain(flat = False)
+            flatchain = sampler.get_chain(flat = True)
         
     # Begin analysis!
             print('Beginning mm_analysis plots')
@@ -436,7 +436,7 @@ if __name__ == '__main__':
             # Reads in th geocentric_object data file
             geo_obj_pos = pd.read_csv(geofile)
             shutil.copy(geofile, runprops.get('results_folder')+'/geo_obj_pos.csv')
-            shutil.copy(geo_analysis, runprops.get('results_folder')+'/geo_obj_pos_analysis.csv')
+            shutil.copy(geo_analysis, runprops.get('results_folder')+'/geocentric_'+objname+'_position_analysis.csv')
             
             # Go through initial guesses and check that all walkers have finite posterior probability
             reset = 0
