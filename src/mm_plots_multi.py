@@ -465,7 +465,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
 	#geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
-	geo_obj_pos = pd.read_csv('geo_obj_pos_analysis.csv')
+	geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position_analysis.csv')
 
 	times = geo_obj_pos.values[:,0].flatten()
 
@@ -609,7 +609,7 @@ backend = emcee.backends.HDFBackend('chain.h5')
 fit_scale = pd.read_csv('fit_scale.csv',index_col=0)
 float_names = runprops.get('float_names')
 obsdf = pd.read_csv(objname+'_obs_df.csv',index_col=0)
-geo_obj_pos = pd.read_csv('geo_obj_pos.csv',index_col=0)
+geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position.csv',index_col=0)
 fixed_df = pd.read_csv('fixed_df.csv',index_col=0)
 total_df_names = runprops.get('total_df_names')
 
