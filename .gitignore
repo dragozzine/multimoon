@@ -12,3 +12,5 @@ spinny.cpp
 src/__pycache__/mm_runprops.cpython-37.pyc
 *.sh
 *.out
+*/runprops.txt
+*/most_recent_runprops.txt
