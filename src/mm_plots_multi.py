@@ -78,9 +78,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	burnin = int(runprops.get('nburnin'))
 	clusterburn = int(runprops.get('clustering_burnin'))
-    
-	full_chain = sampler.get_chain(flat = False, thin=100)
-	flatchain = sampler.get_chain(discard=(burnin+clusterburn),flat = True, thin=100)
+	thin_plots = runprops.get('thin_plots')    
+	full_chain = sampler.get_chain(flat = False, thin=thin_plots)
+	flatchain = sampler.get_chain(discard=(burnin+clusterburn),flat = True, thin=thin_plots)
 	print(flatchain.shape, full_chain.shape)    
 	fit = []
 
@@ -92,7 +92,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			val = fit_scale.loc[0, i]
 			fit.append(val)
                   
-	chain = sampler.get_chain(discard=(burnin+clusterburn),flat = False, thin=100)
+	chain = sampler.get_chain(discard=(burnin+clusterburn),flat = False, thin=thin_plots)
 	print(chain.shape)
 	numparams = chain.shape[2]
 	numwalkers = chain.shape[1]
@@ -349,7 +349,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Figuring out the distributions of total_df_names
 	old_fchain = sampler.get_chain(flat=True)
-	llhoods = sampler.get_log_prob(discard=(burnin+clusterburn),flat = True, thin=100)
+	llhoods = sampler.get_log_prob(discard=(burnin+clusterburn),flat = True, thin=thin_plots)
 	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean'], index = transform_names)
 	j = 0
 	for i in range(len(flatchain[0])):
