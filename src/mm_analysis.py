@@ -57,36 +57,44 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 	undo_masses = np.zeros(2)    
 	undo_masses[:] = False
 	masses_index = np.zeros(runprops.get('numobjects'))
-    
+
+	num_transform = 0    
 	for i in range(runprops.get('numobjects')-1):
 		if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
 			undo_ecc_aop[i] = True
+			num_transform += 2
 			ecc_aop_index[2*i] = float_names.index('ecc_'+str(i+2))
 			ecc_aop_index[2*i+1] = float_names.index('aop_'+str(i+2))
 		if 'inc_'+str(i+2) in float_names and 'lan_'+str(i+2) in float_names:
 			undo_inc_lan[i] = True
+			num_transform += 2
 			inc_lan_index[2*i] = float_names.index('inc_'+str(i+2))
 			inc_lan_index[2*i+1] = float_names.index('lan_'+str(i+2))
 		if 'spinc_'+str(i+2) in float_names and 'splan_'+str(i+2) in float_names:
 			undo_spin[i] = True
+			num_transform += 2
 			spin_index[2*i] = float_names.index('spinc_'+str(i+2))
 			spin_index[2*i+1] = float_names.index('splan_'+str(i+2))
 		if 'mea_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
 			undo_lambda[i] = True
+			num_transform += 2
 			lambda_index[2*i] = float_names.index('mea_'+str(i+2))
 			lambda_index[2*i+1] = float_names.index('aop_'+str(i+2))
 		if 'aop_'+str(i+2) in float_names and 'lan_'+str(i+2) in float_names:
 			undo_pomega[i] = True
+			num_transform += 2
 			pomega_index[2*i] = float_names.index('aop_'+str(i+2))
 			pomega_index[2*i+1] = float_names.index('lan_'+str(i+2))
 	if 'mass_1' in float_names and 'mass_2' in float_names:
 		if 'mass_3' in float_names and runprops.get('numobjects') > 2:        
 			undo_masses[1] = True
+			num_transform += 1
 			masses_index[0] = float_names.index('mass_1')
 			masses_index[1] = float_names.index('mass_2')
 			masses_index[2] = float_names.index('mass_3')
 		else:        
 			undo_masses[0] = True
+			num_transform += 1
 			masses_index[0] = float_names.index('mass_1')
 			masses_index[1] = float_names.index('mass_2')
 
@@ -198,8 +206,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		names.append(i)
 	transform_names = np.copy(names)        
 
-	#Now fit the chain
-	extra_chain = []
+	extra_chain = np.zeros((num_transform, numwalkers, numparams))
 	cchain = np.zeros((numgens,numwalkers, numparams))    
 	for i in range(numgens):
 		for j in range(numwalkers):
@@ -384,7 +391,8 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		sigsdf['2sigma'].iloc[i] = pos2sig-median
 		sigsdf['3sigma'].iloc[i] = pos3sig-median
 		sigsdf['mean'].iloc[i] = mean
-	#if runprops.get('verbose'):
+        
+
 	print(sigsdf)
 	filename = runprops.get('results_folder') + '/sigsdf.csv'    
 	sigsdf.to_csv(filename)
