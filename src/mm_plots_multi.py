@@ -78,8 +78,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	burnin = int(runprops.get('nburnin'))
 	clusterburn = int(runprops.get('clustering_burnin'))
-	full_chain = sampler.get_chain(flat = False)
-	flatchain = sampler.get_chain(discard=(burnin+clusterburn),flat = True)
+    
+	full_chain = sampler.get_chain(flat = False, thin=100)
+	flatchain = sampler.get_chain(discard=(burnin+clusterburn),flat = True, thin=100)
 	print(flatchain.shape, full_chain.shape)    
 	fit = []
 
@@ -91,7 +92,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			val = fit_scale.loc[0, i]
 			fit.append(val)
                   
-	chain = sampler.get_chain(discard=(burnin+clusterburn),flat = False)
+	chain = sampler.get_chain(discard=(burnin+clusterburn),flat = False, thin=100)
 	print(chain.shape)
 	numparams = chain.shape[2]
 	numwalkers = chain.shape[1]
@@ -328,7 +329,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	backend = emcee.backends.HDFBackend('chain.h5')    
 
 #	full_chain = sampler.get_chain(discard=0, flat = False)  
-	fullgens = int(numgens+burnin+clusterburn)
+	fullgens = int(numgens/100+burnin/100+clusterburn/100)
 	#print(fullgens)
 	for i in range(numparams):
 		plt.figure()
@@ -348,7 +349,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Figuring out the distributions of total_df_names
 	old_fchain = sampler.get_chain(flat=True)
-	llhoods = sampler.get_log_prob(discard=(burnin+clusterburn),flat = True)
+	llhoods = sampler.get_log_prob(discard=(burnin+clusterburn),flat = True, thin=100)
 	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean'], index = transform_names)
 	j = 0
 	for i in range(len(flatchain[0])):
