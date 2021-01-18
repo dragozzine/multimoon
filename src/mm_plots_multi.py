@@ -80,7 +80,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	clusterburn = int(runprops.get('clustering_burnin'))
 	thin_plots = runprops.get('thin_plots')    
 	full_chain = sampler.get_chain(flat = False, thin=thin_plots)
-	flatchain = sampler.get_chain(discard=(burnin+clusterburn),flat = True, thin=thin_plots)
+	flatchain = sampler.get_chain(discard=int(burnin/thin_plots+clusterburn/thin_plots),flat = True, thin=thin_plots)
 	print(flatchain.shape, full_chain.shape)    
 	fit = []
 
@@ -92,7 +92,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			val = fit_scale.loc[0, i]
 			fit.append(val)
                   
-	chain = sampler.get_chain(discard=(burnin+clusterburn),flat = False, thin=thin_plots)
+	chain = sampler.get_chain(discard=int(burnin/thin_plots+clusterburn/thin_plots),flat = False, thin=thin_plots)
 	print(chain.shape)
 	numparams = chain.shape[2]
 	numwalkers = chain.shape[1]
@@ -329,14 +329,14 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	backend = emcee.backends.HDFBackend('chain.h5')    
 
 #	full_chain = sampler.get_chain(discard=0, flat = False)  
-	fullgens = int(numgens/100+burnin/100+clusterburn/100)
+	fullgens = int(numgens/thin_plots+burnin/thin_plots+clusterburn/thin_plots)
 	#print(fullgens)
 	for i in range(numparams):
 		plt.figure()
 		for j in range(numwalkers):
 			plt.plot(np.reshape(full_chain[0:fullgens,j,i], fullgens))
-		plt.axvline(x=burnin)
-		plt.axvline(x=(clusterburn+burnin))
+		plt.axvline(x=burnin/thin_plots)
+		plt.axvline(x=(clusterburn/thin_plots+burnin/thin_plots))
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
 		#plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
@@ -349,7 +349,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Figuring out the distributions of total_df_names
 	old_fchain = sampler.get_chain(flat=True)
-	llhoods = sampler.get_log_prob(discard=(burnin+clusterburn),flat = True, thin=thin_plots)
+	llhoods = sampler.get_log_prob(discard=int(burnin/thin_plots+clusterburn/thin_plots),flat = True, thin=thin_plots)
 	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean'], index = transform_names)
 	j = 0
 	for i in range(len(flatchain[0])):
