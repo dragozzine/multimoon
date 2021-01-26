@@ -442,6 +442,24 @@ if __name__ == '__main__':
             reset = 0
             maxreset = runprops.get("maxreset")
             print('Testing to see if initial params are valid')
+            
+            the_names = []
+            for i in total_df_names:
+                the_names.append(i[0])
+            
+            if runprops.get('updatebestfitfile'):
+                the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
+                with open(the_file, 'a+', newline='') as write_obj:
+                    csv_writer = writer(write_obj, delimiter = ',')
+                    the_names.insert(0,'Prior')
+                    the_names.insert(0,'Reduced_chi_sq')
+                    the_names.insert(0,'Likelihood')
+                    #the_names.insert(0,'index')
+                    for i in range(runprops.get('numobjects')-1):
+                        the_names.append('Residuals_Lon_Obj_'+str(i+1))
+                        the_names.append('Residuals_Lat_Obj_'+str(i+1))
+                    csv_writer.writerow(the_names)
+            
             for i in tqdm(range(nwalkers)):  
                 llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods)
                 reset = 0
@@ -474,29 +492,14 @@ if __name__ == '__main__':
             moveset = [(emcee.moves.DEMove(), 0.8), (emcee.moves.DESnookerMove(), 0.2),]
             moveset = [(emcee.moves.StretchMove(), 1.0),]
             
-            the_names = []
-            for i in total_df_names:
-                the_names.append(i[0])
-            
-            if runprops.get('updatebestfitfile'):
-                the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
-                with open(the_file, 'a+', newline='') as write_obj:
-                    csv_writer = writer(write_obj, delimiter = ',')
-                    the_names.insert(0,'Prior')
-                    the_names.insert(0,'Reduced_chi_sq')
-                    the_names.insert(0,'Likelihood')
-                    #the_names.insert(0,'index')
-                    for i in range(runprops.get('numobjects')-1):
-                        the_names.append('Residuals_Lon_Obj_'+str(i+1))
-                        the_names.append('Residuals_Lat_Obj_'+str(i+1))
-                    csv_writer.writerow(the_names)
             
             
-                sampler = emcee.EnsembleSampler(nwalkers, ndim, 
-                mm_likelihood.log_probability, backend=backend, pool=pool,
+            
+            sampler = emcee.EnsembleSampler(nwalkers, ndim, 
+            mm_likelihood.log_probability, backend=backend, pool=pool,
                     args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods),
                     moves = moveset)
-                print('sampler created')
+            print('sampler created')
         
             #Starting the burnin
             # BP TODO: autoburnin??
@@ -507,29 +510,29 @@ if __name__ == '__main__':
             # I think i want to still create an autoburnin but I really would like to look at a completed
             # run to see what the burn in looks like... It should be a few autocorrelation times
             
-                nburnin = runprops.get("nburnin")
-                nthinning = runprops.get("nthinning")
-                if verbose:
-                    print("Starting the burn in")
-                if runprops.get('thin_run'):
-                    state = sampler.run_mcmc(p0, nthinning, progress = True, store = True, thin_by=int(nburnin/nthinning))
-                else:
-                    state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
+            nburnin = runprops.get("nburnin")
+            nthinning = runprops.get("nthinning")
+            if verbose:
+                print("Starting the burn in")
+            if runprops.get('thin_run'):
+                state = sampler.run_mcmc(p0, nthinning, progress = True, store = True, thin_by=int(nburnin/nthinning))
+            else:
+                state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
         
                 # Now running the clustering algorithm! (if desired)
-                if runprops.get("use_clustering") and nburnin != 0:
-                    sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
+            if runprops.get("use_clustering") and nburnin != 0:
+                sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
                 
                 #sampler.reset()
         
             # Now do the full run with essgoal and initial n steps
             
-                nsteps = runprops.get("nsteps")
-                essgoal = runprops.get("essgoal")
-                maxiter = runprops.get("maxiter")
-                initsteps = runprops.get("nsteps")
+            nsteps = runprops.get("nsteps")
+            essgoal = runprops.get("essgoal")
+            maxiter = runprops.get("maxiter")
+            initsteps = runprops.get("nsteps")
                 
-                sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0, runprops)
+            sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0, runprops)
                 
             print("effective sample size = ", ess)
             chain = sampler.get_chain(thin = runprops.get("nthinning"))
