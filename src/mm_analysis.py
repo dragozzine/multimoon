@@ -206,7 +206,7 @@ def plots(sampler, parameters, objname, fit_scale, float_names, obsdf, runprops,
 		names.append(i)
 	transform_names = np.copy(names)        
 
-	extra_chain = np.zeros((num_transform, numwalkers, numparams))
+	extra_chain = []
 	cchain = np.zeros((numgens,numwalkers, numparams))    
 	for i in range(numgens):
 		for j in range(numwalkers):

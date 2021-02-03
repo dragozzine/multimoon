@@ -277,6 +277,14 @@ if __name__ == '__main__':
         
         # Now checking each object sequentially
             print(paramnames)
+            
+            j = 0
+            for i in runprops.get("names_dict"):
+                j = j+1
+            
+            if j > runprops.get("numobjects"):
+                print("You have ", j," objects listed in your names_dict, but ",runprops.get("numobjects")," in your runprops. Please make sure they are equal before running again")
+                sys.exit()
             for i in range(runprops.get("numobjects")):
                 if i == 0:
                     if dynamicstoincludeflags[i] == "0":
