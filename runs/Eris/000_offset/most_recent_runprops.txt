@@ -1,6 +1,6 @@
 {
     "first_run": false,
-    "date": "2021-01-26_07.45.01",
+    "date": "2021-01-30_09.43.50",
     "time": "now",
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
@@ -66,27 +66,26 @@
         "long_offset": 1
     },
     "chain_file": null,
-    "runs_file": "../runs/Eris/20_offset",
-    "results_folder": "../results/Eris/Eris_2021-01-26_07.45.01",
-    "init_filename": "../runs/Eris/20_offset/Eris_init_guess.csv",
-    "obsdata_file": "../runs/Eris/20_offset/Eris_obs_df.csv",
-    "priors_filename": "../runs/Eris/20_offset/Eris_priors_df.csv",
+    "runs_file": "../runs/Eris/000_offset",
+    "results_folder": "../results/Eris/Eris_2021-01-30_09.43.50",
+    "init_filename": "../runs/Eris/000_offset/Eris_init_guess.csv",
+    "obsdata_file": "../runs/Eris/000_offset/Eris_obs_df.csv",
+    "priors_filename": "../runs/Eris/000_offset/Eris_priors_df.csv",
     "float_names": [
         "mass_1",
         "mass_2",
-        "mass_3",        
         "sma_2",
         "ecc_2",
         "aop_2",
         "inc_2",
         "lan_2",
         "mea_2",
-        "sma_3",
-        "ecc_3",
-        "aop_3",
-        "inc_3",
-        "lan_3",
-        "mea_3",
+        "spinc_1",
+        "splan_1",
+        "spaop_1",
+        "sprate_1",
+        "j2r2_1",
+        "c22r2_1",
         "lat_offset",
         "long_offset"
     ],
@@ -116,22 +115,22 @@
             "mea_2"
         ],
         [
-            "j2r2_1"
-        ],
-        [
-            "c22r2_1"
-        ],
-        [
-            "spaop_1"
-        ],
-        [
             "spinc_1"
         ],
         [
             "splan_1"
         ],
         [
+            "spaop_1"
+        ],
+        [
             "sprate_1"
+        ],
+        [
+            "j2r2_1"
+        ],
+        [
+            "c22r2_1"
         ],
         [
             "lat_offset"
