@@ -14,7 +14,7 @@
 
     # Run properties/parameters
     "objectname" : "Eris",
-    "run_file": "20_offset",
+    "run_file": "20_inclined",
     "numobjects" : 2,
     "dynamicstoincludeflags" : "20",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
@@ -47,7 +47,7 @@
     "names_dict" :
     {
         "name_1": "Eris",
-        "name_2": "Dysnomia"
+        "name_3": "Dysnomia"
     },
 
     # Which parameters to have floating
