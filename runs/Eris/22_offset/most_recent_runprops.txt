@@ -1,6 +1,6 @@
 {
     "first_run": false,
-    "date": "2020-12-29_08.55.45",
+    "date": "2021-01-18_16.10.41",
     "time": "now",
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
@@ -11,17 +11,18 @@
     "com_offset": true,
     "min_periapse": 400,
     "objectname": "Eris",
-    "run_file": "20_offset",
+    "run_file": "22_offset",
     "numobjects": 2,
-    "dynamicstoincludeflags": "20",
+    "dynamicstoincludeflags": "22",
     "includesun": 0,
     "nwalkers": 960,
-    "nburnin": 8000,
-    "nsteps": 10000,
+    "nburnin": 20000,
+    "nsteps": 40000,
     "essgoal": 10,
     "maxiter": 1,
     "nthinning": 100,
     "thin_run": false,
+    "thin_plots": 100,
     "maxreset": 10000,
     "spinny_tolerance": 1e-10,
     "numprocesses": 30,
@@ -29,7 +30,7 @@
     "verbose": false,
     "updatebestfitfile": true,
     "use_clustering": true,
-    "clustering_burnin": 8000,
+    "clustering_burnin": 20000,
     "clustering_maxfrac": 0.8,
     "is_mcmc": true,
     "get_resid": false,
@@ -47,28 +48,27 @@
         "inc_2": 1,
         "lan_2": 1,
         "mea_2": 1,
-        "mass_3": 0,
-        "sma_3": 0,
-        "ecc_3": 0,
-        "aop_3": 0,
-        "inc_3": 0,
-        "lan_3": 0,
-        "mea_3": 0,
         "j2r2_1": 1,
         "spinc_1": 1,
         "sprate_1": 0,
         "spaop_1": 1,
         "splan_1": 1,
         "c22r2_1": 1,
+        "j2r2_2": 1,
+        "spinc_2": 1,
+        "sprate_2": 0,
+        "spaop_2": 1,
+        "splan_2": 1,
+        "c22r2_2": 1,
         "lat_offset": 1,
         "long_offset": 1
     },
     "chain_file": null,
-    "runs_file": "../runs/Eris/20_offset",
-    "results_folder": "../results/Eris/Eris_2020-12-29_08.55.45",
-    "init_filename": "../runs/Eris/20_offset/Eris_init_guess.csv",
-    "obsdata_file": "../runs/Eris/20_offset/Eris_obs_df.csv",
-    "priors_filename": "../runs/Eris/20_offset/Eris_priors_df.csv",
+    "runs_file": "../runs/Eris/22_offset",
+    "results_folder": "../results/Eris/Eris_2021-01-18_16.10.41",
+    "init_filename": "../runs/Eris/22_offset/Eris_init_guess.csv",
+    "obsdata_file": "../runs/Eris/22_offset/Eris_obs_df.csv",
+    "priors_filename": "../runs/Eris/22_offset/Eris_priors_df.csv",
     "float_names": [
         "mass_1",
         "sma_2",
@@ -82,6 +82,11 @@
         "spaop_1",
         "spinc_1",
         "splan_1",
+        "j2r2_2",
+        "c22r2_2",
+        "spaop_2",
+        "spinc_2",
+        "splan_2",
         "lat_offset",
         "long_offset"
     ],
@@ -127,6 +132,24 @@
         ],
         [
             "sprate_1"
+        ],
+        [
+            "j2r2_2"
+        ],
+        [
+            "c22r2_2"
+        ],
+        [
+            "spaop_2"
+        ],
+        [
+            "spinc_2"
+        ],
+        [
+            "splan_2"
+        ],
+        [
+            "sprate_2"
         ],
         [
             "lat_offset"

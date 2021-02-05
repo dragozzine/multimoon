@@ -19,8 +19,8 @@
     "dynamicstoincludeflags" : "22",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
     "nwalkers" : 960,			# number of walkers in emcee ensemble
-    "nburnin" : 1000,			# length of burn in
-    "nsteps" : 2000,			# number of initial steps for sampling
+    "nburnin" : 40000,			# length of burn in
+    "nsteps" : 80000,			# number of initial steps for sampling
     "essgoal" : 10,			# effective sample size desired
     "maxiter" : 1,			# maximum number of steps to take within the final sampling
     "nthinning" : 100,			# How many steps overall to thin the data down to, should be a multiplier of nburnin, nsteps, and cluster_burnin
@@ -35,7 +35,7 @@
     "verbose" : false,			# Enables print statements within the code
     "updatebestfitfile" : true,		# Writes to a file when new best fit is found
     "use_clustering" : true,		# Implements a clustering/pruning algorithm after (first) burnin
-    "clustering_burnin" : 1000,	# Number of steps to burn in after clustering
+    "clustering_burnin" : 40000,	# Number of steps to burn in after clustering
     "clustering_maxfrac" : 0.8,    
 
     #These values are sed by the code to run and should not be changed.
@@ -54,7 +54,7 @@
     "float_dict" : 
     { 
         "mass_1": 1,
-        "mass_2": 0,
+        "mass_2": 1,
         "sma_2": 1,
         "ecc_2": 1,
         "aop_2": 1,

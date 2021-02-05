@@ -30,7 +30,7 @@
     "verbose": false,
     "updatebestfitfile": true,
     "use_clustering": true,
-    "clustering_burnin": 200,
+    "clustering_burnin": 5000,
     "clustering_maxfrac": 0.8,
     "is_mcmc": true,
     "get_resid": false,
@@ -67,7 +67,11 @@
     },
     "chain_file": null,
     "runs_file": "../runs/Eris/000_offset",
+<<<<<<< HEAD
+    "results_folder": "../results/Eris/Eris_2021-01-30_09.43.50",
+=======
     "results_folder": "../results/Eris/Eris_2021-01-29_13.22.50",
+>>>>>>> 20fb0b7a76fc644ed2bbdcc6b8f1edf5b1be90f3
     "init_filename": "../runs/Eris/000_offset/Eris_init_guess.csv",
     "obsdata_file": "../runs/Eris/000_offset/Eris_obs_df.csv",
     "priors_filename": "../runs/Eris/000_offset/Eris_priors_df.csv",
