@@ -1,6 +1,6 @@
 {
     "first_run": false,
-    "date": "2021-01-29_13.28.50",
+    "date": "2021-02-05_08.38.53",
     "time": "now",
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
@@ -11,7 +11,7 @@
     "com_offset": true,
     "min_periapse": 400,
     "objectname": "Eris",
-    "run_file": "20_offset",
+    "run_file": "20_inclined",
     "numobjects": 2,
     "dynamicstoincludeflags": "20",
     "includesun": 0,
@@ -65,11 +65,11 @@
         "long_offset": 1
     },
     "chain_file": null,
-    "runs_file": "../runs/Eris/20_offset",
-    "results_folder": "../results/Eris/Eris_2021-01-29_13.28.50",
-    "init_filename": "../runs/Eris/20_offset/Eris_init_guess.csv",
-    "obsdata_file": "../runs/Eris/20_offset/Eris_obs_df.csv",
-    "priors_filename": "../runs/Eris/20_offset/Eris_priors_df.csv",
+    "runs_file": "../runs/Eris/20_Hercules_inclined",
+    "results_folder": "../results/Eris/Eris_2021-02-05_08.38.53",
+    "init_filename": "../runs/Eris/20_Hercules_inclined/Eris_init_guess.csv",
+    "obsdata_file": "../runs/Eris/20_Hercules_inclined/Eris_obs_df.csv",
+    "priors_filename": "../runs/Eris/20_Hercules_inclined/Eris_priors_df.csv",
     "float_names": [
         "mass_1",
         "sma_2",

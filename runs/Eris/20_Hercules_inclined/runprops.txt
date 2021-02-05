@@ -47,7 +47,7 @@
     "names_dict" :
     {
         "name_1": "Eris",
-        "name_3": "Dysnomia"
+        "name_2": "Dysnomia"
     },
 
     # Which parameters to have floating
