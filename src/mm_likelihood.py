@@ -87,11 +87,13 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
             curr_best = -np.inf
         else:
             curr_best = best_csv.iloc[-1,0]
-            #print('Curr_best:', curr_best)
+        #    print('Curr_best:', curr_best)
+        #    print('Llhood:', llhood)
             
         num_rows = len(best_csv.index)+1
         #print(best_csv)
         if llhood > curr_best:
+            #print('adding')
             reduced_chi_sq = llhood/(-0.5)/best_llhoods.get('deg_freedom')
 
             with open(the_file, 'a+', newline='') as write_obj:

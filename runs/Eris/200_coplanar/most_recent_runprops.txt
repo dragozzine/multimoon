@@ -1,6 +1,6 @@
 {
     "first_run": false,
-    "date": "2021-01-29_13.28.50",
+    "date": "2021-02-05_08.04.09",
     "time": "now",
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
@@ -11,9 +11,9 @@
     "com_offset": true,
     "min_periapse": 400,
     "objectname": "Eris",
-    "run_file": "20_offset",
-    "numobjects": 2,
-    "dynamicstoincludeflags": "20",
+    "run_file": "200_coplanar",
+    "numobjects": 3,
+    "dynamicstoincludeflags": "200",
     "includesun": 0,
     "nwalkers": 60,
     "nburnin": 200,
@@ -37,7 +37,8 @@
     "startfromfile": false,
     "names_dict": {
         "name_1": "Eris",
-        "name_2": "Dysnomia"
+        "name_2": "Hercules",
+        "name_3": "Dysnomia"
     },
     "float_dict": {
         "mass_1": 1,
@@ -48,13 +49,13 @@
         "inc_2": 1,
         "lan_2": 1,
         "mea_2": 1,
-        "mass_3": 0,
-        "sma_3": 0,
-        "ecc_3": 0,
-        "aop_3": 0,
-        "inc_3": 0,
-        "lan_3": 0,
-        "mea_3": 0,
+        "mass_3": 1,
+        "sma_3": 1,
+        "ecc_3": 1,
+        "aop_3": 1,
+        "inc_3": 1,
+        "lan_3": 1,
+        "mea_3": 1,
         "j2r2_1": 1,
         "spinc_1": 1,
         "sprate_1": 0,
@@ -65,11 +66,11 @@
         "long_offset": 1
     },
     "chain_file": null,
-    "runs_file": "../runs/Eris/20_offset",
-    "results_folder": "../results/Eris/Eris_2021-01-29_13.28.50",
-    "init_filename": "../runs/Eris/20_offset/Eris_init_guess.csv",
-    "obsdata_file": "../runs/Eris/20_offset/Eris_obs_df.csv",
-    "priors_filename": "../runs/Eris/20_offset/Eris_priors_df.csv",
+    "runs_file": "../runs/Eris/200_coplanar",
+    "results_folder": "../results/Eris/Eris_2021-02-05_08.04.09",
+    "init_filename": "../runs/Eris/200_coplanar/Eris_init_guess.csv",
+    "obsdata_file": "../runs/Eris/200_coplanar/Eris_obs_df.csv",
+    "priors_filename": "../runs/Eris/200_coplanar/Eris_priors_df.csv",
     "float_names": [
         "mass_1",
         "sma_2",
@@ -78,6 +79,13 @@
         "inc_2",
         "lan_2",
         "mea_2",
+        "mass_3",
+        "sma_3",
+        "ecc_3",
+        "aop_3",
+        "inc_3",
+        "lan_3",
+        "mea_3",
         "j2r2_1",
         "c22r2_1",
         "spaop_1",
@@ -110,6 +118,27 @@
         ],
         [
             "mea_2"
+        ],
+        [
+            "mass_3"
+        ],
+        [
+            "sma_3"
+        ],
+        [
+            "ecc_3"
+        ],
+        [
+            "aop_3"
+        ],
+        [
+            "inc_3"
+        ],
+        [
+            "lan_3"
+        ],
+        [
+            "mea_3"
         ],
         [
             "j2r2_1"
