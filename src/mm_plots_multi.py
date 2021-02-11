@@ -294,9 +294,14 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	#			    plot_datapoints = False, color = "blue", fill_contours = True,
 	#			    title_fmt = ".4e", truths = truths)
 	print(flatchain)
+
+	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
+	ind = np.argmax(llhoods)
+	params = flatchain[ind,:].flatten()
+
 	fig = corner.corner(flatchain, labels = names, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
-			    title_fmt = ".4e")
+			    title_fmt = ".4e", truths = params)
 	fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
 	for ax in fig.get_axes():
 		ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
@@ -307,6 +312,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	# Making corner plots with derived parameters
 	dnames = names.copy()
 	dfchain = flatchain.copy()
+	dtif = runprops.get("dynamicstoincludeflags")
 
 	# Orbital periods for each satellite
 	for i in range(1,runprops.get('numobjects')):
@@ -335,9 +341,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			dfchain = np.concatenate((dfchain, np.array([spinperiod]).T), axis = 1)
 
 	# Satellite-spin mutual inclination
-	dtif = runprops.get("dynamicstoincludeflags")
-	print(dtif)
-	print(dtif[0])
 	if dtif[0] == "1" or dtif[0] == "2":
 		for i in range(1,runprops.get('numobjects')):
 			spinc1_index = [n for n, l in enumerate(names) if l.startswith('spinc_1')][0]
