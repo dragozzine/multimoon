@@ -293,7 +293,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	#	fig = corner.corner(flatchain, labels = names, bins = 40, show_titles = True, 
 	#			    plot_datapoints = False, color = "blue", fill_contours = True,
 	#			    title_fmt = ".4e", truths = truths)
-	print(flatchain)
+	#print(flatchain)
 
 	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
 	ind = np.argmax(llhoods)
@@ -380,14 +380,29 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	# Creating corner+derived plot
 	fig = corner.corner(dfchain, labels = dnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
-			    title_fmt = ".2e")
+			    title_fmt = ".2e", truths = dfchain[ind,:].flatten())
 	#fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
 	#for ax in fig.get_axes():
 	#	ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
 	fname = "corner+derived.pdf"       
 	fig.savefig(fname, format = 'pdf')
 	plt.close("all")
+
+
+	# Creating corner_fitparams plot
+	fitflatchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
+
+	fig = corner.corner(fitflatchain, bins = 40, show_titles = True, 
+			    plot_datapoints = False, color = "blue", fill_contours = True,
+			    title_fmt = ".2f", truths = fitflatchain[ind,:].flatten())
+	#fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
+	#for ax in fig.get_axes():
+	#	ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
+	fname = "corner_fitparams.pdf"       
+	fig.savefig(fname, format = 'pdf')
+	plt.close("all")
 	
+	del fitflatchain
 
 
 	#plt.rc('text', usetex=False)
@@ -435,12 +450,12 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.close("all")
 
 	# Figuring out the distributions of total_df_names
-	old_fchain = sampler.get_chain(flat=True)
+	#old_fchain = sampler.get_chain(flat=True)
 	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
-	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean'], index = transform_names)
+	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean'], index = dnames)
 	j = 0
-	for i in range(len(flatchain[0])):
-		num = flatchain[:,i]
+	for i in range(len(dfchain[0])):
+		num = dfchain[:,i]
 #		if i>len(names):
 # 			
 		median = np.percentile(num,50, axis = None)
