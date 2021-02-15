@@ -53,7 +53,7 @@ if runprops.get("first_run") == True:
     runprops['first_run'] = False
     
 
-    newpath = "../results/"+objname+"/"+objname+"_"+date
+    newpath = "../results/"+objname+"/"+objname+"_"+date+"_"+runprops.get("run_file")
     if not os.path.exists(newpath):
         os.makedirs(newpath)
     
