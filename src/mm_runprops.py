@@ -18,6 +18,8 @@ if len(sys.argv) > 1:
     filename = sys.argv[1]
 elif sys.argv[0] == "mm_synth.py":
     filename = "runprops_gensynth.txt"
+elif sys.argv[0] == "mm_synth_unseen.py":
+    filename = "runprops_gensynth_unseen.txt"
 else:
     cwd = os.getcwd()
     if 'src' in cwd:
@@ -34,6 +36,7 @@ else:
 getData = ReadJson(filename)
 runprops = getData.outProps()
 runprops['chain_file'] = None
+runprops['first_run'] = True
 objname = runprops.get("objectname")
 if 'runs' in cwd:
     runs_file = os.path.basename(os.path.normpath(cwd))
@@ -44,7 +47,10 @@ elif 'results' in cwd:
     os.chdir('../../../src')
     runprops['runs_file'] = '../results/'+objname+'/'+runs_file
 
-runprops['first_run'] = True
+
+if sys.argv[0] == "mm_synth_unseen.py" or sys.argv[0] == "mm_synth.py":
+    runprops['first_run'] = False
+
 if runprops.get("first_run") == True:
     x = datetime.datetime.now()
 
@@ -81,7 +87,6 @@ if runprops.get("first_run") == True:
     runprops['init_filename'] = init
     runprops['obsdata_file'] = obs
     runprops['priors_filename'] = priors    
-    
     
     shutil.copy(obs, newpath+'/'+runprops.get("objectname")+'_obs_df.csv')
     shutil.copy(priors, newpath+'/'+runprops.get("objectname")+'_priors_df.csv')
