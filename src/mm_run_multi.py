@@ -862,7 +862,7 @@ def run():
     # Begin analysis!
     print('Beginning mm_analysis plots')
     
-    mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos)
+    #mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos)
     runpath = "../runs/"+runprops.get("objectname")+"_"+runprops.get("date")+"/runprops.txt"
     
     with open(runpath, 'w') as file:
