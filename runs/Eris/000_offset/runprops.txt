@@ -38,7 +38,7 @@
     "names_dict": {
         "name_1": "Eris",
         "name_2": "Hercules",
-        "name_2": "Dysnomia"
+        "name_3": "Dysnomia"
     },
     "float_dict": {
         "mass_1": 1,
