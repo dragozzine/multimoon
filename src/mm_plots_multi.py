@@ -481,6 +481,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
     
 	# Likelihood plots    
 	likelihoodspdf = PdfPages("likelihoods.pdf")
+	ylimmin = np.percentile(llhoods.flatten(), 1)
+	ylimmax = llhoods.flatten().max() + 1
 
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
@@ -492,6 +494,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True)
 		plt.xlabel(names[i])
 		plt.ylabel("Log(L)")
+		plt.ylim(ylimmin, ylimmax)
 		plt.subplot(224)
 		plt.hist(llhoods.flatten(), bins = 40, orientation = "horizontal", 
 			 histtype = "step", color = "black")
@@ -544,12 +547,20 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
 
-	xvals = np.linspace(-1.0,1.0,num=1000)
-	circle = np.sqrt(1 - xvals**2)
+	xvals1 = np.linspace(-1.0,1.0,num=1000)
+	xvals2 = np.linspace(-2.0,2.0,num=1000)
+	xvals3 = np.linspace(-3.0,3.0,num=1000)
+	circle1 = np.sqrt(1 - xvals1**2)
+	circle2 = np.sqrt(4 - xvals2**2)
+	circle3 = np.sqrt(9 - xvals3**2)
 
 	plt.figure()
-	plt.plot(xvals, circle, color = "black")
-	plt.plot(xvals,-circle, color = "black")
+	plt.plot(xvals1, circle1, color = "black")
+	plt.plot(xvals1,-circle1, color = "black")
+	plt.plot(xvals2, circle2, color = "black", alpha = 0.5)
+	plt.plot(xvals2,-circle2, color = "black", alpha = 0.5)
+	plt.plot(xvals3, circle3, color = "black", alpha = 0.25)
+	plt.plot(xvals3,-circle3, color = "black", alpha = 0.25)
 	for i in range(1, nobjects):
 		plt.scatter(residuals[2*(i-1)][:], residuals[2*(i-1)+1][:], c = colorcycle[i], label = objectnames[i], edgecolors = None)
 	plt.xlabel("Delta Longitude")
