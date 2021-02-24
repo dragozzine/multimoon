@@ -79,9 +79,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	burnin = int(runprops.get('nburnin'))
 	clusterburn = int(runprops.get('clustering_burnin'))
 	thin_plots = runprops.get('thin_plots')    
-	full_chain = sampler.get_chain(flat = False, thin=thin_plots)
+	full_chain = sampler.get_chain(thin=thin_plots)
 	flatchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
-	print(flatchain.shape, full_chain.shape)    
+	#print(flatchain.shape, full_chain.shape)    
 	fit = []
 
 	for i in fit_scale.columns:
@@ -181,6 +181,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	#print(flatchain)
     
 	names = []
+	#print(float_names)    
 	for i in float_names:
 		names.append(i)
 	transform_names = np.copy(names)        
@@ -316,8 +317,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Orbital periods for each satellite
 	for i in range(1,runprops.get('numobjects')):
-		a_index = [n for n, l in enumerate(names) if l.startswith('sma_'+str(i+1))][0]
-		m_index = [n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))][0]
+		print(names)        
+		a_index = [n for n, l in enumerate(names) if l.startswith('sma_')][0]
+		m_index = [n for n, l in enumerate(names) if l.startswith('mass_')][0]
 		mp_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
 
 		a_arr = flatchain[:,a_index]
@@ -435,8 +437,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	#print(fullgens)
 	for i in range(numparams):
 		plt.figure()
-		for j in range(numwalkers):
-			plt.plot(np.reshape(full_chain[0:fullgens,j,i], fullgens))
+		#for j in range(numwalkers):
+			#plt.plot(np.reshape(full_chain[0:fullgens,j,i], fullgens))
 		plt.axvline(x=burnin/thin_plots)
 		plt.axvline(x=(clusterburn/thin_plots+burnin/thin_plots))
 		plt.ylabel(names[i])
