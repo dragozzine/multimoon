@@ -163,6 +163,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Getting parameter names
 	names = []
+	#print(float_names)    
 	for i in float_names:
 		names.append(i)
 
@@ -234,8 +235,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Orbital periods for each satellite
 	for i in range(1,runprops.get('numobjects')):
-		a_index = [n for n, l in enumerate(names) if l.startswith('sma_'+str(i+1))][0]
-		m_index = [n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))][0]
+		print(names)        
+		a_index = [n for n, l in enumerate(names) if l.startswith('sma_')][0]
+		m_index = [n for n, l in enumerate(names) if l.startswith('mass_')][0]
 		mp_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
 
 		a_arr = flatchain[:,a_index]
