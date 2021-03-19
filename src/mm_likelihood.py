@@ -9,6 +9,7 @@ import random
 import mm_relast
 from csv import writer
 import os
+import time
 #from func_timeout import func_timeout, FunctionTimedOut
 
 """
@@ -163,6 +164,8 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     # Sorts them into ascending order
 #    import logging
+    #print(paramdf)
+    begin = time.time()
     try:
         time_arr_sec = time_arr*86400
         #vec_df = func_timeout(5,generate_vector,args=(paramdf, time_arr_sec, runprops))
@@ -179,7 +182,10 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     names=[0 for i in range(numObj)]
     for i in range(0,numObj):
         names[i] = names_dict.get("name_"+str(i+1))
-
+    end = time.time()
+    #print("Time: ", end-begin, " seconds")
+    if end-begin >= 4:
+        print('A single model generation took longer than 4 seconds')
 
     # vec_df is a dataframe with len(time_arr) rows and
     # columns are state parameters x nobjects
