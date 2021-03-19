@@ -6,57 +6,49 @@
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
     "mm_initguess_which" : "get_init_guess_from_dist",
-    "RunGoal" : "Fit Haumea!",
+    "RunGoal" : "Haumea fits",
     "lockspinanglesflag": false,
     "transform": true,
-    "com_offset": true,
+    "com_offset": false,
+    "epoch_SJD": 2454615.0,
 
     # Run properties/parameters
     "objectname" : "Haumea",
-    "run_file": "100_offset",
+    "runs_file": "100_offset",
     "numobjects" : 3,
     "dynamicstoincludeflags" : "100",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
     "nwalkers" : 500,			# number of walkers in emcee ensemble
-    "nburnin" : 10000,			# length of burn in
+    "nburnin" : 5000,			# length of burn in
     "nsteps" : 5000,			# number of initial steps for sampling
     "essgoal" : 10,			# effective sample size desired
-    "maxiter" : 1,			# maximum number of steps to take within the final sampling
+    "maxiter" : 10,			# maximum number of steps to take within the final sampling
     "nthinning" : 1,			# thinning fraction
     "maxreset" : 10000,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
-    "numprocesses": 30,			# number of cores to use
-    "epoch_SJD":  2454615.0,		# epoch to fit to
-    "min_periapse": 300.0,
-
-    # Input data files
-    "init_filename":"../data/Haumea/Haumea_init_guess_dyn_1.csv",
-    "priors_filename": "../data/Haumea/Haumea_priors_df.csv",
-    "obsdata_file": "../data/Haumea/Haumea_obs_df_HST_original.csv",
+    "numprocesses": 25,			# number of cores to use
+    "min_periapse": 10000.0,
 
     # Additional options
     "verbose" : false,			# Enables print statements within the code
-    "updatebestfitfile" : true,		# Writes to a file when new best fit is found
+    "updatebestfitfile": true,		# Writes to a file when new best fit is found
     "use_clustering" : true,		# Implements a clustering/pruning algorithm after (first) burnin
     "clustering_burnin" : 5000,		# Number of steps to burn in after clustering
-    "clustering_maxfrac" : 0.8,    
-
+    
     #These values are sed by the code to run and should not be changed.
     "is_mcmc":false,			# ??
     "get_resid":false,			# ??
     "startfromfile" : false,		# ??
 
     # Object names
-    "names_dict" :
-    {
+    "names_dict": {
         "name_1": "Haumea",
         "name_2": "Hiiaka",
         "name_3": "Namaka"
     },
 
-    # Which parameters to have floating
-    "float_dict" : 
-    { 
+    # Parameters left floating, 1 = floating, 0 = fixed
+    "float_dict": {
         "mass_1": 1,
         "mass_2": 1,
         "sma_2": 1,
@@ -64,7 +56,6 @@
         "aop_2": 1,
         "inc_2": 1,
         "lan_2": 1,
-        "mea_2": 1,
         "mea_2": 1,
         "mass_3": 1,
         "sma_3": 1,
@@ -76,11 +67,7 @@
         "j2r2_1": 1,
         "spinc_1": 1,
         "sprate_1": 0,
-        "spaop_1": 0,
         "splan_1": 1,
-        "c22r2_1": 0,
-        "lat_offset" : 1,
-        "long_offset" : 1
-    }
-}
-
+        "lat_offset": 1,
+        "long_offset": 1
+    },

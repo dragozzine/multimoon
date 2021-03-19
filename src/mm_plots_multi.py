@@ -79,9 +79,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	burnin = int(runprops.get('nburnin'))
 	clusterburn = int(runprops.get('clustering_burnin'))
 	thin_plots = runprops.get('thin_plots')    
-	full_chain = sampler.get_chain(flat = False, thin=thin_plots)
-	flatchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
-	print(flatchain.shape, full_chain.shape)    
+	chain = sampler.get_chain(flat = False)
 	fit = []
 
 	for i in fit_scale.columns:
@@ -91,220 +89,141 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		if name in float_names:
 			val = fit_scale.loc[0, i]
 			fit.append(val)
-                  
-	chain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
-	print(chain.shape)
-	numparams = chain.shape[2]
-	numwalkers = chain.shape[1]
-	numgens = chain.shape[0]
- 
-	#First fit the flatchain with the fit total_df_names  
-	#print(numwalkers, numgens, numparams)
-	#print(flatchain, len(flatchain),len(flatchain[0]), fit)
-	fchain = np.zeros((numgens*numwalkers,numparams))    
-	for i in range(numgens*numwalkers):
-		row = np.zeros(numparams)        
-		for j in range(numparams):
-			#print(i, ',', j)
-			val = flatchain[i][j]*fit[j]
-			row[j] = val
-		#print(row)
-		if runprops.get('transform'):
-			for b in range(runprops.get('numobjects')-1):           
-				if undo_ecc_aop[b]:
-					aop_new = row[int(ecc_aop_index[b*2+1])]
-					ecc_new = row[int(ecc_aop_index[b*2])]
-					pomega = np.arctan2(ecc_new,aop_new)*180/np.pi
-					if pomega < 0:
-						pomega = pomega%360
-					row[int(ecc_aop_index[b*2+1])] = pomega
-					row[int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega*np.pi/180)
-                               
-				if undo_inc_lan[b]:
-					inc_new = row[int(inc_lan_index[b*2])]
-					lan_new = row[int(inc_lan_index[b*2+1])]
-					lan = np.arctan2(inc_new,lan_new)*180/np.pi
-					if lan < 0:
-						lan = lan%360
-					row[int(inc_lan_index[b*2+1])] = lan
-					inc = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
-					if inc < 0:
-						inc = inc%180
-					row[int(inc_lan_index[b*2])] = inc
-                    
-				if undo_spin[b]:
-					spinc_new = row[int(spin_index[b*2])]
-					splan_new = row[int(spin_index[b*2+1])]
-					splan = np.arctan2(spinc_new,splan_new)*180/np.pi
-					if splan < 0:
-						splan = splan%360
-					row[int(spin_index[b*2+1])] = splan
-					spinc = np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi
-					if spinc < 0:
-						spinc = spinc%180
-					row[int(spin_index[b*2])] = spinc
-                
-				if undo_lambda[b]:
-					mea_new = row[int(lambda_index[b*2])]
-					pomega = row[int(lambda_index[b*2+1])]
-                
-					mea = mea_new-pomega
-					if mea < 0:
-						mea = mea%360
-					elif mea > 360:
-						mea = mea%360
-					row[int(lambda_index[b*2])] = mea
-                    
-				if undo_pomega[b]:
-					lan = row[int(pomega_index[b*2+1])]
-					pomega = row[int(pomega_index[b*2])]
-					aop = pomega-lan
-					if aop < 0:
-						aop = aop%360
-					elif mea > 360:
-						aop = aop%360
-					row[int(pomega_index[b*2])] = aop
-                    
-			if undo_masses[0]:
-				mass_1 = row[int(masses_index[0])]
-				mass_2 = row[int(masses_index[1])]
-				row[int(masses_index[1])] = mass_2-mass_1
-			elif undo_masses[1]:
-				mass_1 = row[int(masses_index[0])]
-				mass_2 = row[int(masses_index[1])]
-				mass_3 = row[int(masses_index[2])]
-				row[int(masses_index[2])] = mass_3-mass_2 
-				row[int(masses_index[1])] = mass_2-mass_1 
-		fchain[i] = np.array(row)
 
-	flatchain = np.array(fchain)
-	#print(flatchain)
-    
+	# Getting final values for the shape of the chain
+	shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
+	numparams = shortchain.shape[2]
+	numwalkers = shortchain.shape[1]
+	numgens = shortchain.shape[0]
+	del shortchain	
+ 
+	# Take chain "fit" values and make them into real values
+	for i in range(numparams):
+		chain[:,:,i] = chain[:,:,i]*fit[i]
+
+	# Now de-transform the chain
+	print("Strating un transformations")
+	if runprops.get("transform"):
+		for b in range(runprops.get('numobjects')-1):
+			if undo_ecc_aop[b]:
+				aop_new = chain[:,:,int(ecc_aop_index[b*2+1])]
+				ecc_new = chain[:,:,int(ecc_aop_index[b*2])]
+				pomega = (np.arctan2(ecc_new,aop_new)*180/np.pi)%360
+				chain[:,:,int(ecc_aop_index[b*2+1])] = pomega
+				chain[:,:,int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega/180*np.pi)
+			if undo_inc_lan[b]:
+				inc_new = chain[:,:,int(inc_lan_index[b*2])]
+				lan_new = chain[:,:,int(inc_lan_index[b*2+1])]
+				lan = (np.arctan2(inc_new,lan_new)*180/np.pi)%360
+				chain[:,:,int(inc_lan_index[b*2+1])] = lan
+				inc = (np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi)%180
+				chain[:,:,int(inc_lan_index[b*2])] = inc
+			if undo_spin[b]:
+				spinc_new = chain[:,:,int(spin_index[b*2])]
+				splan_new = chain[:,:,int(spin_index[b*2+1])]
+				splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
+				chain[:,:,int(spin_index[b*2+1])] = lan
+				spinc = (np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi)%180
+				chain[:,:,int(spin_index[b*2])] = spinc
+			if undo_lambda[b]:
+				mea_new = chain[:,:,int(lambda_index[b*2])]
+				pomega = chain[:,:,int(lambda_index[b*2+1])]
+				mea = (mea_new-pomega)%360
+				chain[:,:,int(lambda_index[b*2])] = mea
+			if undo_pomega[b]:
+				lan = chain[:,:,int(pomega_index[b*2+1])]
+				pomega = chain[:,:,int(pomega_index[b*2])]
+				aop = (pomega-lan)%360
+				chain[:,:,int(pomega_index[b*2])] = aop
+		if undo_masses[0]:
+			mass_1 = chain[:,:,int(masses_index[0])]
+			mass_2 = chain[:,:,int(masses_index[1])]
+			chain[:,:,int(masses_index[1])] = mass_2-mass_1
+		elif undo_masses[1]:
+			mass_1 = chain[:,:,int(masses_index[0])]
+			mass_2 = chain[:,:,int(masses_index[1])]
+			mass_3 = chain[:,:,int(masses_index[2])]
+			chain[:,:,int(masses_index[2])] = (mass_3-mass_2)/(10**18) 
+			chain[:,:,int(masses_index[1])] = (mass_2-mass_1)/(10**18)
+			chain[:,:,int(masses_index[0])] = (mass_1)/(10**18)
+
+
+	print("Un transforming done")
+
+	# Cutting up chain
+	full_chain = np.copy(chain)
+	chain = chain[int(burnin+clusterburn + thin_plots - 1) :: thin_plots]
+	print(chain.shape)
+
+	# Flattening the chain based on method in emcee
+	s = list(chain.shape[1:])
+	s[0] = np.prod(chain.shape[:2])
+	flatchain = chain.reshape(s)
+	print(chain.shape, flatchain.shape)
+
+	# Getting parameter names
 	names = []
+	#print(float_names)    
 	for i in float_names:
 		names.append(i)
-	transform_names = np.copy(names)        
 
-	#Now fit the chain
-	extra_chain = []
-	cchain = np.zeros((numgens,numwalkers, numparams))    
-	for i in range(numgens):
-		for j in range(numwalkers):
-			row = []
-			for k in range(numparams):
-				val = chain[i][j][k]*fit[k]
-				cchain[i][j][k] = val
-			if runprops.get('transform'):
-				for b in range(runprops.get('numobjects')-1):
-					if undo_ecc_aop[b]:
-						np.append(transform_names,['ecc*sin(pomega)'+str(b+1),'ecc*cos(pomega)'+str(b+1)])
-						aop_new = cchain[i][j][int(ecc_aop_index[b*2+1])]
-						ecc_new = cchain[i][j][int(ecc_aop_index[b*2])]
-						extra_chain.append(ecc_new)
-						extra_chain.append(aop_new)
-						pomega = np.arctan2(ecc_new,aop_new)*180/np.pi
-						if pomega < 0:
-							pomega = pomega%360
-						cchain[i][j][int(ecc_aop_index[b*2+1])] = pomega
-						cchain[i][j][int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega/180*np.pi)
-					if undo_inc_lan[b]:    
-						np.append(transform_names,['tan(inc/2)*sin(lan)_'+str(b+1),'tan(inc/2)*cos(lan)_'+str(b+1)])   
-						inc_new = cchain[i][j][int(inc_lan_index[b*2])]
-						lan_new = cchain[i][j][int(inc_lan_index[b*2+1])]
-						extra_chain.append(inc_new)
-						extra_chain.append(lan_new)
-						lan = np.arctan2(inc_new,lan_new)*180/np.pi
-						if lan < 0:
-							lan = lan%360
-						cchain[i][j][int(inc_lan_index[b*2+1])] = lan
-						inc = np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi
-						if inc < 0:
-							inc = inc%180
-						cchain[i][j][int(inc_lan_index[b*2])] = inc
-					if undo_spin[b]:
-						np.append(transform_names,['tan(spinc/2)*sin(splan)_'+str(b+1),'tan(spinc/2)*cos(splan)_'+str(b+1)])   
-						spinc_new = cchain[i][j][int(spin_index[b*2])]
-						splan_new = cchain[i][j][int(spin_index[b*2+1])]
-						extra_chain.append(spinc_new)
-						extra_chain.append(splan_new)
-						splan = np.arctan2(spinc_new,splan_new)*180/np.pi
-						if splan < 0:
-							splan = splan%360
-						cchain[i][j][int(spin_index[b*2+1])] = lan
-						spinc = np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi
-						if spinc < 0:
-							spinc = spinc%180
-						cchain[i][j][int(spin_index[b*2])] = spinc
-					if undo_lambda[b]:
-						np.append(transform_names,['lambda(pomega+mea)_'+str(b+1)])   
-						mea_new = cchain[i][j][int(lambda_index[b*2])]
-						pomega = cchain[i][j][int(lambda_index[b*2+1])]
-						extra_chain.append(mea_new)
-						mea = mea_new-pomega
-						if mea < 0:
-							mea = mea%360
-						if mea > 360:
-							mea = mea%360
-						cchain[i][j][int(lambda_index[b*2])] = mea
-					if undo_pomega[b]:
-						np.append(transform_names,['pomega_'+str(b+1)])   
-						lan = cchain[i][j][int(pomega_index[b*2+1])]
-						pomega = cchain[i][j][int(pomega_index[b*2])]
-						extra_chain.append(pomega)
-						aop = pomega-lan
-						if aop < 0:
-							aop = aop%360
-						if aop > 360:
-							aop = aop%360                        
-						cchain[i][j][int(pomega_index[b*2])] = pomega-lan  
-				if undo_masses[0]:
-					np.append(transform_names,['mass1+mass2'])   
-					mass_1 = cchain[i][j][int(masses_index[0])]
-					mass_2 = cchain[i][j][int(masses_index[1])]
-					extra_chain.append(mass_2)
-					cchain[i][j][int(masses_index[1])] = mass_2-mass_1
-				elif undo_masses[1]:
-					np.append(transform_names,['mass1+mass2+mass3'])   
-					mass_1 = cchain[i][j][int(masses_index[0])]
-					mass_2 = cchain[i][j][int(masses_index[1])]
-					mass_3 = cchain[i][j][int(masses_index[2])]
-					extra_chain.append(mass_3)
-					cchain[i][j][int(masses_index[2])] = mass_3-mass_2 
-					cchain[i][j][int(masses_index[1])] = mass_2-mass_1 
-                        
-	cchain = np.array(cchain)
-
-	oldchain = chain
-	chain = cchain
-
-	# Make corner plot
-	#plt.rc('text', usetex=True)
-	fig = 0
-	#if runprops.get("objectname") == "testcases" and runprops.get("unseenmoon"):
-	#	getData = ReadJson("../runs/"+objname+"/"+runprops.get('run_file')+"/runprops_gensynth.txt")
-	#	synthrunprops = getData.outProps()
-	#	truths = []
-	#
-	#	params_dict = synthrunprops.get("params_dict")
-	#
-	#	for k in params_dict.values():
-	#		truths.append(k)
-	#
-	#	fig = corner.corner(flatchain, labels = names, bins = 40, show_titles = True, 
-	#			    plot_datapoints = False, color = "blue", fill_contours = True,
-	#			    title_fmt = ".4e", truths = truths)
-	#print(flatchain)
-
+	# Getting log likelihood posterior values for use throughout
 	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
 	ind = np.argmax(llhoods)
 	params = flatchain[ind,:].flatten()
 
-	fig = corner.corner(flatchain, labels = names, bins = 40, show_titles = True, 
+	# Making latex labels for values
+	latexnames = names.copy()
+	for i in range(len(latexnames)):
+		if "mass" in latexnames[i]:
+			latexnames[i] = "$"+latexnames[i].replace("mass","m")+"$ ($10^{18}$ kg)"
+			latexnames[i] = fr"{latexnames[i]}"
+		if "sma" in latexnames[i]:
+			latexnames[i] = "$"+latexnames[i].replace("sma","a")+"$ (km)"
+			latexnames[i] = fr"{latexnames[i]}"
+		if "ecc" in latexnames[i]:
+			latexnames[i] = "$"+latexnames[i].replace("ecc","e")+"$"
+			latexnames[i] = fr"{latexnames[i]}"
+		if "aop" in latexnames[i]:
+			latexnames[i] = "$"+latexnames[i].replace("aop","\omega")+"$ ($^{\circ}$)"
+			latexnames[i] = fr"{latexnames[i]}"
+		if "inc" in latexnames[i]:
+			latexnames[i] = "$"+latexnames[i].replace("inc","i")+"$ ($^{\circ}$)"
+			latexnames[i] = fr"{latexnames[i]}"
+		if "lan" in latexnames[i]:
+			latexnames[i] = "$"+latexnames[i].replace("lan","\Omega")+"$ ($^{\circ}$)"
+			latexnames[i] = fr"{latexnames[i]}"
+		if "mea" in latexnames[i]:
+			latexnames[i] = "$"+latexnames[i].replace("mea","M")+"$ ($^{\circ}$)"
+			latexnames[i] = fr"{latexnames[i]}"
+		if "j2r2" in latexnames[i]:
+			latexnames[i] = "$"+latexnames[i].replace("j2r2","J_2R^2")+"$ (km$^2$)"
+			latexnames[i] = fr"{latexnames[i]}"
+		if "spinc" in latexnames[i]:
+			latexnames[i] = "$"+latexnames[i].replace("spinc","i^{spin}")+"$ ($^{\circ}$)"
+			latexnames[i] = fr"{latexnames[i]}"
+		if "splan" in latexnames[i]:
+			latexnames[i] = "$"+latexnames[i].replace("splan","\Omega^{spin}")+"$ ($^{\circ}$)"
+			latexnames[i] = fr"{latexnames[i]}"
+		if "c22r2" in latexnames[i]:
+			latexnames[i] = "$"+latexnames[i].replace("c22r2","C_{22}R^2")+"$ (km$^2$)"
+			latexnames[i] = fr"{latexnames[i]}"
+		if "spaop" in latexnames[i]:
+			latexnames[i] = "$"+latexnames[i].replace("spaop","\omega^{spin}")+"$ ($^{\circ}$)"
+			latexnames[i] = fr"{latexnames[i]}"
+		if "sprate" in latexnames[i]:
+			latexnames[i] = "$"+latexnames[i].replace("sprate","")+"$ (rad s$^{-1}$)"
+			latexnames[i] = fr"{latexnames[i]}"
+
+	# Make corner plot
+	#plt.rc('text', usetex=True)
+	fig = 0
+	fig = corner.corner(flatchain, labels = latexnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
-			    title_fmt = ".4e", truths = params)
-	fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
+			    title_fmt = ".3f", truths = params, label_kwargs=dict(fontsize=20))
+	fig.tight_layout(pad = 1.08, h_pad = -0.4, w_pad = -0.4)
 	for ax in fig.get_axes():
-		ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
+		ax.tick_params(axis = "both", labelsize = 12, pad = 0.0)
 	fname = "corner.pdf"       
 	fig.savefig(fname, format = 'pdf')
 	plt.close("all")
@@ -316,15 +235,16 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Orbital periods for each satellite
 	for i in range(1,runprops.get('numobjects')):
-		a_index = [n for n, l in enumerate(names) if l.startswith('sma_'+str(i+1))][0]
-		m_index = [n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))][0]
+		print(names)        
+		a_index = [n for n, l in enumerate(names) if l.startswith('sma_')][0]
+		m_index = [n for n, l in enumerate(names) if l.startswith('mass_')][0]
 		mp_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
 
 		a_arr = flatchain[:,a_index]
 		m_arr = flatchain[:,m_index]
 		mp_arr = flatchain[:,mp_index]
 
-		period = 2*np.pi*np.sqrt(a_arr**3/(6.674e-20*(m_arr + mp_arr)))/3600.0/24.0
+		period = 2*np.pi*np.sqrt(a_arr**3/(6.674e-20*(m_arr + mp_arr)*10**18))/3600.0/24.0
 
 		dnames = np.append(dnames, ["period_" + str(i+1)])
 		dfchain = np.concatenate((dfchain, np.array([period]).T), axis = 1)
@@ -380,7 +300,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	# Creating corner+derived plot
 	fig = corner.corner(dfchain, labels = dnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
-			    title_fmt = ".2e", truths = dfchain[ind,:].flatten())
+			    title_fmt = ".4f", truths = dfchain[ind,:].flatten())
 	#fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
 	#for ax in fig.get_axes():
 	#	ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
@@ -394,7 +314,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	fig = corner.corner(fitflatchain, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
-			    title_fmt = ".2f", truths = fitflatchain[ind,:].flatten())
+			    title_fmt = ".6f", truths = fitflatchain[ind,:].flatten())
 	#fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
 	#for ax in fig.get_axes():
 	#	ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
@@ -414,7 +334,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	walkerpdf = PdfPages("walkers.pdf")
 
 	for i in range(numparams):
-		plt.figure()
+		plt.figure(dpi = 50)
 		for j in range(numwalkers):
 			plt.plot(np.reshape(chain[0:numgens,j,i], numgens))
 		plt.ylabel(names[i])
@@ -431,14 +351,14 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	backend = emcee.backends.HDFBackend('chain.h5')    
 
 #	full_chain = sampler.get_chain(discard=0, flat = False)  
-	fullgens = int(numgens+burnin/thin_plots+clusterburn/thin_plots)
+	fullgens = full_chain.shape[0]
 	#print(fullgens)
 	for i in range(numparams):
-		plt.figure()
+		plt.figure(dpi = 50)
 		for j in range(numwalkers):
 			plt.plot(np.reshape(full_chain[0:fullgens,j,i], fullgens))
-		plt.axvline(x=burnin/thin_plots)
-		plt.axvline(x=(clusterburn/thin_plots+burnin/thin_plots))
+		plt.axvline(x=burnin)
+		plt.axvline(x=(clusterburn+burnin))
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
 		#plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
@@ -452,7 +372,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	# Figuring out the distributions of total_df_names
 	#old_fchain = sampler.get_chain(flat=True)
 	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
-	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean'], index = dnames)
+	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean', 'best fit'], index = dnames)
 	j = 0
 	for i in range(len(dfchain[0])):
 		num = dfchain[:,i]
@@ -466,6 +386,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		pos2sig = np.percentile(num,97.724, axis = None)
 		pos3sig = np.percentile(num,99.63, axis = None)
 		mean = np.mean(num)
+		bestfit = dfchain[ind,:].flatten()[i]
 		sigsdf['-3sigma'].iloc[i] = neg3sig-median
 		sigsdf['-2sigma'].iloc[i] = neg2sig-median
 		sigsdf['-1sigma'].iloc[i] = neg1sig-median
@@ -474,6 +395,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		sigsdf['2sigma'].iloc[i] = pos2sig-median
 		sigsdf['3sigma'].iloc[i] = pos3sig-median
 		sigsdf['mean'].iloc[i] = mean
+		sigsdf['best fit'].iloc[i] = bestfit
 	#if runprops.get('verbose'):
 	print(sigsdf)
 	filename = 'sigsdf.csv'    
@@ -481,6 +403,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
     
 	# Likelihood plots    
 	likelihoodspdf = PdfPages("likelihoods.pdf")
+	ylimmin = np.percentile(llhoods.flatten(), 1)
+	ylimmax = llhoods.flatten().max() + 1
 
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
@@ -492,9 +416,11 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True)
 		plt.xlabel(names[i])
 		plt.ylabel("Log(L)")
+		plt.ylim(ylimmin, ylimmax)
 		plt.subplot(224)
 		plt.hist(llhoods.flatten(), bins = 40, orientation = "horizontal", 
 			 histtype = "step", color = "black")
+		plt.ylim(ylimmin, ylimmax)
 		likelihoodspdf.attach_note(names[i])
 		likelihoodspdf.savefig()
 		#plt.savefig(runprops.get("results_folder")+"/likelihood_" + names[i] + ".png")
@@ -544,12 +470,20 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
 
-	xvals = np.linspace(-1.0,1.0,num=1000)
-	circle = np.sqrt(1 - xvals**2)
+	xvals1 = np.linspace(-1.0,1.0,num=1000)
+	xvals2 = np.linspace(-2.0,2.0,num=1000)
+	xvals3 = np.linspace(-3.0,3.0,num=1000)
+	circle1 = np.sqrt(1 - xvals1**2)
+	circle2 = np.sqrt(4 - xvals2**2)
+	circle3 = np.sqrt(9 - xvals3**2)
 
 	plt.figure()
-	plt.plot(xvals, circle, color = "black")
-	plt.plot(xvals,-circle, color = "black")
+	plt.plot(xvals1, circle1, color = "black")
+	plt.plot(xvals1,-circle1, color = "black")
+	plt.plot(xvals2, circle2, color = "black", alpha = 0.5)
+	plt.plot(xvals2,-circle2, color = "black", alpha = 0.5)
+	plt.plot(xvals3, circle3, color = "black", alpha = 0.25)
+	plt.plot(xvals3,-circle3, color = "black", alpha = 0.25)
 	for i in range(1, nobjects):
 		plt.scatter(residuals[2*(i-1)][:], residuals[2*(i-1)+1][:], c = colorcycle[i], label = objectnames[i], edgecolors = None)
 	plt.xlabel("Delta Longitude")
@@ -632,7 +566,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		for j in range(2):
 			plt.figure()
 			plt.errorbar(time_arr, objpos[j][i-1,:], yerr = objposerr[j][i-1,:], fmt = "ko", ms = 2)
-			plt.plot(times, modelpos[j][i-1,:], colorcycle[i], linewidth = 0.75, alpha = 0.75, label = objectnames[i])
+			plt.plot(time_arr, modelpos[j][i-1,:], colorcycle[i], linewidth = 0.75, alpha = 0.75, label = objectnames[i])
 			plt.xlabel("Time (SJD)")
 			plt.ylabel(labels[j])
 			plt.legend()

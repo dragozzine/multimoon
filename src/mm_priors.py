@@ -122,10 +122,22 @@ def mm_priors(priors, parameters, runprops):
 
     # Making sure min periapse is obeyed
     min_periapse = runprops.get("min_periapse")
+    hill_sphere = runprops.get("mhill_sphere_reject")
     for i in range(1,runprops.get("numobjects")):
         if i == 1 and (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0]) < min_periapse):
             return -np.inf
         elif i != 1 and (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0])-params["sma_" + str(i)].values[0]*(1+params["ecc_" + str(i)].values[0]) < min_periapse):
+            return -np.inf
+        
+    for i in range(2,runprops.get("numobjects")):
+        mass1 = params["mass_" + str(1)].values[0]
+        mass2 = params["mass_" + str(i)].values[0]
+        mass3 = params["mass_" + str(i+1)].values[0]
+        sma1 = params["sma_" + str(i)].values[0]
+        sma2 = params["sma_" + str(i+1)].values[0]
+        ecc1 = params["ecc_" + str(i)].values[0]
+        ecc2 = params["ecc_" + str(i+1)].values[0]
+        if (sma1-sma2)*(((mass2/mass1+mass3/mass1)/3)**(1/3)*0.5*(sma1+sma2)) < hill_sphere:
             return -np.inf
 
     if runprops.get('verbose'):

@@ -43,7 +43,7 @@ def generate_vector(paramsdf, t_arr, runprops):
         kepler_system = kepler_2body(sys_df,t_arr, runprops)
         s_df = kepler_system[0]
         names = kepler_system[1]
-
+        
     if mass_sum == mass_primary: #checks if only the primary has mass, all other bodies are massless
         kepler_system = kepler_nbody(sys_df,t_arr, runprops)
         s_df = kepler_system[0]
@@ -51,7 +51,9 @@ def generate_vector(paramsdf, t_arr, runprops):
 
     elif not includesun and N >= 2: # runs a SPINNY integration without the sun if not included 
         system = build_spinny_multimoon(sys_df, runprops)
+        #print("spinny_vector line 54")
         spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol, runprops)
+        #print("spinny_vector line 56")
         s_df = spinny[0]
         names = spinny[2]
         
