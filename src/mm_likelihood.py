@@ -165,6 +165,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     # Sorts them into ascending order
 #    import logging
     #print(paramdf)
+
     begin = time.time()
     try:
         time_arr_sec = time_arr*86400
@@ -183,9 +184,10 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     for i in range(0,numObj):
         names[i] = names_dict.get("name_"+str(i+1))
     end = time.time()
-    #print("Time: ", end-begin, " seconds")
-    if end-begin >= 4:
-        print('A single model generation took longer than 4 seconds')
+    #print(end-begin,' seconds')
+    #if end-begin > 2:
+    #    print('A step took ', end-begin,' seconds')
+    #    print(paramdf)
 
     # vec_df is a dataframe with len(time_arr) rows and
     # columns are state parameters x nobjects

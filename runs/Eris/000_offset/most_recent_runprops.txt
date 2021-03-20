@@ -1,6 +1,6 @@
 {
     "first_run": false,
-    "date": "2021-01-29_13.22.50",
+    "date": "2021-03-17_12.28.07",
     "time": "now",
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
@@ -8,22 +8,22 @@
     "RunGoal": "Fit Eris",
     "lockspinanglesflag": false,
     "transform": true,
-    "com_offset": true,
-    "min_periapse": 400,
+    "com_offset": false,
+    "min_periapse": 6000,
     "objectname": "Eris",
-    "run_file": "000_offset",
-    "numobjects": 2,
-    "dynamicstoincludeflags": "20",
+    "run_file": "000_real",
+    "numobjects": 3,
+    "dynamicstoincludeflags": "000",
     "includesun": 0,
-    "nwalkers": 60,
-    "nburnin": 200,
-    "nsteps": 400,
+    "nwalkers": 960,
+    "nburnin": 5000,
+    "nsteps": 10000,
     "essgoal": 10,
     "maxiter": 1,
     "nthinning": 100,
     "thin_run": false,
     "thin_plots": 1,
-    "maxreset": 10000,
+    "maxreset": 20000,
     "spinny_tolerance": 1e-10,
     "numprocesses": 30,
     "epoch_SJD": 2453979.0,
@@ -37,8 +37,8 @@
     "startfromfile": false,
     "names_dict": {
         "name_1": "Eris",
-        "name_2": "Dysnomia",
-        "name_3": "Unseen"
+        "name_2": "Hercules",
+        "name_3": "Dysnomia"
     },
     "float_dict": {
         "mass_1": 1,
@@ -49,29 +49,25 @@
         "inc_2": 1,
         "lan_2": 1,
         "mea_2": 1,
-        "mass_3": 0,
-        "sma_3": 0,
-        "ecc_3": 0,
-        "aop_3": 0,
-        "inc_3": 0,
-        "lan_3": 0,
-        "mea_3": 0,
-        "j2r2_1": 1,
-        "spinc_1": 1,
-        "sprate_1": 1,
-        "spaop_1": 1,
-        "splan_1": 1,
-        "c22r2_1": 1,
-        "lat_offset": 1,
-        "long_offset": 1
+        "mass_3": 1,
+        "sma_3": 1,
+        "ecc_3": 1,
+        "aop_3": 1,
+        "inc_3": 1,
+        "lan_3": 1,
+        "mea_3": 1,
+        "j2r2_1": 0,
+        "spinc_1": 0,
+        "sprate_1": 0,
+        "spaop_1": 0,
+        "splan_1": 0,
+        "c22r2_1": 0,
+        "lat_offset": 0,
+        "long_offset": 0
     },
     "chain_file": null,
     "runs_file": "../runs/Eris/000_offset",
-<<<<<<< HEAD
-    "results_folder": "../results/Eris/Eris_2021-01-30_09.43.50",
-=======
-    "results_folder": "../results/Eris/Eris_2021-01-29_13.22.50",
->>>>>>> 20fb0b7a76fc644ed2bbdcc6b8f1edf5b1be90f3
+    "results_folder": "../results/Eris/Eris_2021-03-17_12.28.07_000_real",
     "init_filename": "../runs/Eris/000_offset/Eris_init_guess.csv",
     "obsdata_file": "../runs/Eris/000_offset/Eris_obs_df.csv",
     "priors_filename": "../runs/Eris/000_offset/Eris_priors_df.csv",
@@ -84,14 +80,13 @@
         "inc_2",
         "lan_2",
         "mea_2",
-        "spinc_1",
-        "splan_1",
-        "spaop_1",
-        "sprate_1",
-        "j2r2_1",
-        "c22r2_1",
-        "lat_offset",
-        "long_offset"
+        "mass_3",
+        "sma_3",
+        "ecc_3",
+        "aop_3",
+        "inc_3",
+        "lan_3",
+        "mea_3"
     ],
     "total_df_names": [
         [
@@ -119,28 +114,25 @@
             "mea_2"
         ],
         [
-            "spinc_1"
+            "mass_3"
         ],
         [
-            "splan_1"
+            "sma_3"
         ],
         [
-            "spaop_1"
+            "ecc_3"
         ],
         [
-            "sprate_1"
+            "aop_3"
         ],
         [
-            "j2r2_1"
+            "inc_3"
         ],
         [
-            "c22r2_1"
+            "lan_3"
         ],
         [
-            "lat_offset"
-        ],
-        [
-            "long_offset"
+            "mea_3"
         ]
     ]
 }
