@@ -137,7 +137,9 @@ def mm_priors(priors, parameters, runprops):
         sma2 = params["sma_" + str(i+1)].values[0]
         ecc1 = params["ecc_" + str(i)].values[0]
         ecc2 = params["ecc_" + str(i+1)].values[0]
-        if (sma1-sma2)*(((mass2/mass1+mass3/mass1)/3)**(1/3)*0.5*(sma1+sma2)) < hill_sphere:
+        mhill = (sma2-sma1)/(((mass2/mass1+mass3/mass1)/3)**(1/3)*0.5*(sma1+sma2))
+        #print(mhill)
+        if mhill < hill_sphere:
             return -np.inf
 
     if runprops.get('verbose'):
