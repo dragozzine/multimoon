@@ -10,6 +10,7 @@
     "transform": true,
     "com_offset": false,
     "min_periapse": 6000,
+    "mhill_sphere_reject": 3.5,
     "objectname": "Eris",
     "run_file": "000_real",
     "numobjects": 3,
