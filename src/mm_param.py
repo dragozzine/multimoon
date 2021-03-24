@@ -19,7 +19,7 @@ def from_param_df_to_fit_array(dataframe, runprops):
 
     total_df_names = dataframe.columns
     
-    #print(dataframe[['ecc_2']], dataframe[['aop_2']])
+    
 
     for i in range(runprops.get('numobjects')):
         if runprops.get('lockspinanglesflag') and runprops.get('dynamicstoincludeflags')[i+1] != 0:
@@ -37,8 +37,7 @@ def from_param_df_to_fit_array(dataframe, runprops):
                 print('Since you have chosen to lock the spin angles, please change the splan_'+str(i+1)+' variable in the float_dict to be fixed.')
                 sys.exit()
                 #'''
-    #print(dataframe[['inc_2']])
-    #print(dataframe[['mea_2']])
+    
     if runprops.get('transform'):
         if runprops.get('numobjects') > 3:
             print('Warning: Only masses 1-3 will be used in the transformations for now. Future work can be done later to increase this')
@@ -84,9 +83,11 @@ def from_param_df_to_fit_array(dataframe, runprops):
     fit_scale = dataframe.iloc[0]
     fit_scale = fit_scale.to_frame().transpose()
     #Scale every column down by the values in the first row.
+    
     for col in dataframe.columns:
-        dataframe[col] = dataframe[col]/fit_scale[col][0]
-        num = num+1
+        if fit_scale[col][0] != 0.0:
+            dataframe[col] = dataframe[col]/fit_scale[col][0]
+            num = num+1
     
     key_list = list(fix_float_dict.keys()) 
     val_list = list(fix_float_dict.values())
@@ -194,7 +195,7 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
     
       
         #Now unfit all of the variables by multipliyng each column by its fit variable.
-        #print(param_df, fit_scale)
+        
         
         for col in fit_scale.columns:
             param_col = col
@@ -203,6 +204,7 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
             param_df[param_col] = param_df[param_col]*fit_scale.get(col)
             
     param_df = param_df.iloc[[0]]
+    
     
     if runprops.get('transform'):
         
@@ -273,7 +275,7 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 elif mea > 360:
                     mea = mea%360
                 param_df['mea_'+str(i+2)] = mea
-                #print(param_df['mea_'+str(i+2)])
+                
             
             if undo_pomega[i]:
                 aop  = np.array(param_df['aop_'+str(i+2)])-np.array(param_df['lan_'+str(i+2)])
