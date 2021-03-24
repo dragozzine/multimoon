@@ -219,7 +219,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
     body_dict = {"Times":t_arr}
     if verbose:
         print("Constructing dataframe...")
-
+    #print("spinny_no_sun line 222")
     for n in range(0,N):   
         body_dict.setdefault('X_Pos_'+name_arr[n] , body_arr[:,(n*6)+0])
         body_dict.setdefault('Y_Pos_'+name_arr[n] , body_arr[:,(n*6)+1])

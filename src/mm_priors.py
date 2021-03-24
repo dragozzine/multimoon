@@ -21,8 +21,7 @@ import time
     OUTPUTS:
           totalLogProb - The total Log of the probability of all the priors against the parameters
 '''
-def mm_priors(priors, parameters, runprops):
-    params = parameters
+def mm_priors(priors, params, runprops):
     columnList = list(priors)
     totalLogProb = 0
 
@@ -56,9 +55,8 @@ def mm_priors(priors, parameters, runprops):
         for j in range(runprops.get('numobjects')):
             #Uniform Distribution Shape
             if theInt == 0:
-                #print(params[i])
-    
-                if '_'+str(j+1) in i and params[i][0] < priors[i][2] and params[i][0] > priors[i][1]:
+                    
+                if '_'+str(j+1) in i and params[i][0] <= priors[i][2] and params[i][0] >= priors[i][1]:
                     allProbs.append(1)
                 elif '_'+str(j+1) in i and np.isnan(params[i][0]):
                     numNaNs += 1
@@ -87,6 +85,7 @@ def mm_priors(priors, parameters, runprops):
                 a = 1 #print('N/A input for column: ', i, ' in priors dataframe.') 
             
             #Make sure the values in the params df are real.
+            
             if 'mass' in i:
                 if i in params and params[i][0] < 0:
                     #print(i, " is outside of the realistic value with a value of ", params[i][0])
@@ -123,12 +122,13 @@ def mm_priors(priors, parameters, runprops):
     # Making sure min periapse is obeyed
     min_periapse = runprops.get("min_periapse")
     hill_sphere = runprops.get("mhill_sphere_reject")
+    #print("min_periapse")
     for i in range(1,runprops.get("numobjects")):
         if i == 1 and (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0]) < min_periapse):
             return -np.inf
         elif i != 1 and (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0])-params["sma_" + str(i)].values[0]*(1+params["ecc_" + str(i)].values[0]) < min_periapse):
             return -np.inf
-        
+    #print("hill")    
     for i in range(2,runprops.get("numobjects")):
         mass1 = params["mass_" + str(1)].values[0]
         mass2 = params["mass_" + str(i)].values[0]
@@ -137,13 +137,19 @@ def mm_priors(priors, parameters, runprops):
         sma2 = params["sma_" + str(i+1)].values[0]
         ecc1 = params["ecc_" + str(i)].values[0]
         ecc2 = params["ecc_" + str(i+1)].values[0]
-        mhill = (sma2-sma1)/(((mass2/mass1+mass3/mass1)/3)**(1/3)*0.5*(sma1+sma2))
-        #print(mhill)
+        mhill = (sma2*(1-ecc2)-sma1*(ecc1+1))/(((mass2/mass1+mass3/mass1)/3)**(1/3)*0.5*(sma1+sma2))
+        #print(mhill, hill_sphere)
         if mhill < hill_sphere:
             return -np.inf
-
+        #if mass2 < mass3:
+        #    if mass2*100 < mass3:
+        #        return -np.inf
+    
+    
+    
     if runprops.get('verbose'):
         print('AllProbs:' ,allProbs)
+    
     for x in allProbs:
         totalLogProb = totalLogProb + np.log(x)
   

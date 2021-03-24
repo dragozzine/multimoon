@@ -57,9 +57,10 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     
     
     params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict, runprops)
-
+    #print(params)
     
     lp = prior.mm_priors(priors,params,runprops)
+    
     if runprops.get('verbose'):
         print('LogPriors: ',lp)
     if not np.isfinite(lp):
@@ -112,7 +113,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
                     thelist.append(residuals[2*(i-1)+1])
                 csv_writer.writerow(thelist)
                 #print(thelist)
-
+    #print(llhood)
     return llhood
 
 
@@ -170,6 +171,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     try:
         time_arr_sec = time_arr*86400
         #vec_df = func_timeout(5,generate_vector,args=(paramdf, time_arr_sec, runprops))
+        #print(paramdf, time_arr_sec, runprops)
         vec_df = generate_vector(paramdf, time_arr_sec, runprops)
     #except FunctionTimedOut:
     #    print('Spinny took longer than 5 seconds to run 1 walker-step:\n')
@@ -200,6 +202,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     
     if (vec_df[name_1][0] != 0.0):
         print("Not primaricentric like I thought!")
+        #print("vec_df[name_1] = ", vec_df)
     
     Model_DeltaLong = np.zeros((numObj-1,len(time_arr)))
     Model_DeltaLat = np.zeros((numObj-1,len(time_arr)))
