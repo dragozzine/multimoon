@@ -78,6 +78,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     
     #print(llhood, best_llhoods.get('best_llhood'))
     if llhood > best_llhoods.get("best_llhood") and runprops.get("is_mcmc") and runprops.get("updatebestfitfile") :
+        #print('is_mcmc')
         if runprops.get('verbose'):
             print("Previous best_llhoods, new llhood: ", best_llhoods.get('best_llhood'), llhood)
         best_llhoods['best_llhood'] = llhood
@@ -89,8 +90,8 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
             curr_best = -np.inf
         else:
             curr_best = best_csv.iloc[-1,0]
-        #    print('Curr_best:', curr_best)
-        #    print('Llhood:', llhood)
+            #print('Curr_best:', curr_best)
+            #print('Llhood:', llhood)
             
         num_rows = len(best_csv.index)+1
         #print(best_csv)

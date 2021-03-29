@@ -176,7 +176,9 @@ if __name__ == '__main__':
             
             with open(runpath, 'w') as file:
                 file.write(json.dumps(new_props, indent = 4))
-                
+            
+            if runprops.get('is_mcmc') == False:
+                runprops['is_mcmc'] = True
             sampler = emcee.EnsembleSampler(nwalkers, ndim, 
             mm_likelihood.log_probability, backend=backend, pool = pool,
             args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods),
