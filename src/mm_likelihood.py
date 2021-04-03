@@ -55,12 +55,15 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     
     name_dict = runprops.get("names_dict")
     
-    
+    #print("floats:", float_params)
+    #print("fixed:", fixed_df)
+    #print("fit_scale:", fit_scale)
     params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict, runprops)
+    
     #print(params)
     
     lp = prior.mm_priors(priors,params,runprops)
-    
+    #print('LP: ', lp)
     if runprops.get('verbose'):
         print('LogPriors: ',lp)
     if not np.isfinite(lp):
@@ -76,7 +79,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     #I did the math with some intense testing, and found this will only slow down
     #a 1000 step system by 1 minute, which typically takes 2 hours, so there is not much slow down.
     
-    #print(llhood, best_llhoods.get('best_llhood'))
+    #print(llhood, best_llhoods.get('best_llhood'), runprops.get("is_mcmc"), runprops.get("updatebestfitfile"))
     if llhood > best_llhoods.get("best_llhood") and runprops.get("is_mcmc") and runprops.get("updatebestfitfile") :
         #print('is_mcmc')
         if runprops.get('verbose'):
@@ -94,7 +97,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
             #print('Llhood:', llhood)
             
         num_rows = len(best_csv.index)+1
-        #print(best_csv)
+        #print(llhood, curr_best)
         if llhood > curr_best:
             #print('adding')
             reduced_chi_sq = llhood/(-0.5)/best_llhoods.get('deg_freedom')
@@ -169,6 +172,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     #print(paramdf)
 
     begin = time.time()
+    #print(paramdf)
     try:
         time_arr_sec = time_arr*86400
         #vec_df = func_timeout(5,generate_vector,args=(paramdf, time_arr_sec, runprops))
