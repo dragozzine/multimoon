@@ -263,6 +263,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	# Satellite-spin mutual inclination
 	if dtif[0] == "1" or dtif[0] == "2":
 		for i in range(1,runprops.get('numobjects')):
+			print(names)            
 			spinc1_index = [n for n, l in enumerate(names) if l.startswith('spinc_1')][0]
 			splan1_index = [n for n, l in enumerate(names) if l.startswith('splan_1')][0]
 			inc_index = [n for n, l in enumerate(names) if l.startswith('inc_'+str(i+1))][0]

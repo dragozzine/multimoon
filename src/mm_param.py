@@ -196,7 +196,7 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
       
         #Now unfit all of the variables by multipliyng each column by its fit variable.
         
-        
+        #print(param_df)
         for col in fit_scale.columns:
             param_col = col
             if type(col) != str:

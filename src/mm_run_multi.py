@@ -42,7 +42,8 @@ def initializer():
     import shutil
     import commentjson as json
     from multiprocessing import Manager
-    from csv import writer    
+    from csv import writer
+    
     #from multiprocessing import Pool, Manager
     #from schwimmbad import MPIPool
     #from mpipool import Pool
@@ -470,22 +471,49 @@ if __name__ == '__main__':
                         the_names.append('Residuals_Lat_Obj_'+str(i+1))
                     csv_writer.writerow(the_names)
             
-            for i in tqdm(range(nwalkers)):  
-                llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods)
-                reset = 0
-                #print(llhood)
-                while (llhood == -np.Inf):
-                    p = random.random()
-                    p0[i,:] = (p*p0[random.randrange(nwalkers),:] + (1-p)*p0[random.randrange(nwalkers),:])
-                    llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods)
-                    reset += 1
-                    if reset > maxreset:
-                        print("ERROR: Maximum number of resets has been reached, aborting run.")
-                        sys.exit() 
-        
-            #import mm_optimize
-                    #p0 = mm_optimize.mm_optimize(nwalkers, p0, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods)
-            #sys.exit()
+            if runprops.get('op_mode'):
+                import mm_optimize
+                runprops["is_mcmc"] = True
+                #print('start optimize 1')
+                p0 = mm_optimize.mm_optimize(nwalkers, p0, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods, pool)
+                #sys.exit()
+                
+            else:
+                '''def loop(i, p0, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods):
+                    llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods)
+                    reset = 0
+                    #print(llhood)
+                    while (llhood == -np.Inf):
+                        p = random.random()
+                        p0[i,:] = (p*p0[random.randrange(nwalkers),:] + (1-p)*p0[random.randrange(nwalkers),:])
+                        llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods)
+                        reset += 1
+                        if reset > maxreset:
+                            print("ERROR: Maximum number of resets has been reached, aborting run.")
+                            sys.exit() 
+                    return p0
+                import functools
+                from datetime import datetime
+                            
+                input_data = functools.partial(loop, p0=p0, float_names=float_names, fixed_df = fixed_df, total_df_names=total_df_names, fit_scale=fit_scale, runprops=runprops, obsdf=obsdf, geo_obj_pos=geo_obj_pos, best_llhoods=best_llhoods)
+                x = tqdm(range(nwalkers))
+                begin = datetime.now()    
+                p0 = pool.map(input_data, x)
+                print(datetime.now()-begin)    
+               ''' 
+                for i in tqdm(range(nwalkers)):  
+                    llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods)
+                    reset = 0
+                    #print(llhood)
+                    while (llhood == -np.Inf):
+                        p = random.random()
+                        p0[i,:] = (p*p0[random.randrange(nwalkers),:] + (1-p)*p0[random.randrange(nwalkers),:])
+                        llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods)
+                        reset += 1
+                        if reset > maxreset:
+                            print("ERROR: Maximum number of resets has been reached, aborting run.")
+                            sys.exit() 
+            
         
             runprops["is_mcmc"] = True
         
