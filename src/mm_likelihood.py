@@ -186,6 +186,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 #        return np.inf
     except:
         print('There was an error thrown within spinny:\n')
+        return -np.inf
     names_dict = runprops.get("names_dict")
     names=[0 for i in range(numObj)]
     for i in range(0,numObj):

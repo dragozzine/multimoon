@@ -14,6 +14,7 @@ class ReadJson(object):
 runs_file = ''
 cwd = ''
 filename = ""
+cwd = os.getcwd()
 if len(sys.argv) > 1:
     filename = sys.argv[1]
 elif sys.argv[0] == "mm_synth.py":
@@ -21,7 +22,7 @@ elif sys.argv[0] == "mm_synth.py":
 elif sys.argv[0] == "mm_synth_unseen.py":
     filename = "runprops_gensynth_unseen.txt"
 else:
-    cwd = os.getcwd()
+    #cwd = os.getcwd()
     if 'src' in cwd:
         filename = "../runs/runprops.txt"
     elif 'runs' in cwd:
@@ -38,10 +39,12 @@ runprops = getData.outProps()
 runprops['chain_file'] = None
 runprops['first_run'] = True
 objname = runprops.get("objectname")
+#print(cwd)
 if 'runs' in cwd:
     runs_file = os.path.basename(os.path.normpath(cwd))
     os.chdir('../../../src')
     runprops['runs_file'] = '../runs/'+objname+'/'+runs_file
+    #print(runprops)
 elif 'results' in cwd:
     runs_file = os.path.basename(os.path.normpath(cwd))
     os.chdir('../../../src')

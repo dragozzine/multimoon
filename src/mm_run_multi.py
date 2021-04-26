@@ -476,31 +476,182 @@ if __name__ == '__main__':
                 runprops["is_mcmc"] = True
                 #print('start optimize 1')
                 p0 = mm_optimize.mm_optimize(nwalkers, p0, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods, pool)
+                import corner
+                import matplotlib.pyplot as plt
+                p0 = np.array(p0)
+                names = []
+                #print(float_names)    
+                for i in float_names:
+                    names.append(i)
+                    
+                undo_ecc_aop = np.zeros(runprops.get('numobjects')-1)
+                undo_ecc_aop[:] = False
+                ecc_aop_index = np.zeros((runprops.get('numobjects')-1)*2)
+                undo_inc_lan = np.zeros(runprops.get('numobjects')-1)
+                undo_inc_lan[:] = False
+                undo_spin = np.zeros(runprops.get('numobjects')-1)
+                undo_spin[:] = False
+                spin_index = np.zeros((runprops.get('numobjects')-1)*2)
+                inc_lan_index = np.zeros((runprops.get('numobjects')-1)*2)
+                undo_lambda = np.zeros(runprops.get('numobjects')-1)
+                undo_lambda[:] = False
+                lambda_index = np.zeros((runprops.get('numobjects')-1)*2)
+                undo_pomega = np.zeros(runprops.get('numobjects')-1)
+                undo_pomega[:] = False
+                pomega_index = np.zeros((runprops.get('numobjects')-1)*2)
+                undo_masses = np.zeros(2)    
+                undo_masses[:] = False
+                masses_index = np.zeros(runprops.get('numobjects'))
+                
+                for i in range(runprops.get('numobjects')-1):
+                    if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
+                        undo_ecc_aop[i] = True
+                        ecc_aop_index[2*i] = float_names.index('ecc_'+str(i+2))
+                        ecc_aop_index[2*i+1] = float_names.index('aop_'+str(i+2))
+                    if 'inc_'+str(i+2) in float_names and 'lan_'+str(i+2) in float_names:
+                        undo_inc_lan[i] = True
+                        inc_lan_index[2*i] = float_names.index('inc_'+str(i+2))
+                        inc_lan_index[2*i+1] = float_names.index('lan_'+str(i+2))
+                    if 'spinc_'+str(i+2) in float_names and 'splan_'+str(i+2) in float_names:
+                        undo_spin[i] = True
+                        spin_index[2*i] = float_names.index('spinc_'+str(i+2))
+                        spin_index[2*i+1] = float_names.index('splan_'+str(i+2))
+                    if 'mea_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
+                        undo_lambda[i] = True
+                        lambda_index[2*i] = float_names.index('mea_'+str(i+2))
+                        lambda_index[2*i+1] = float_names.index('aop_'+str(i+2))
+                    if 'aop_'+str(i+2) in float_names and 'lan_'+str(i+2) in float_names:
+                        undo_pomega[i] = True
+                        pomega_index[2*i] = float_names.index('aop_'+str(i+2))
+                        pomega_index[2*i+1] = float_names.index('lan_'+str(i+2))
+                if 'mass_1' in float_names and 'mass_2' in float_names:
+                    if 'mass_3' in float_names and runprops.get('numobjects') > 2:        
+                        undo_masses[1] = True
+                        masses_index[0] = float_names.index('mass_1')
+                        masses_index[1] = float_names.index('mass_2')
+                        masses_index[2] = float_names.index('mass_3')
+                    else:        
+                        undo_masses[0] = True
+                        masses_index[0] = float_names.index('mass_1')
+                        masses_index[1] = float_names.index('mass_2')
+            
+                fit = []
+        
+                for i in fit_scale.columns:
+                    name = i
+                    if type(name) != str:
+                        name = name[0]
+                    if name in float_names:
+                        val = fit_scale.loc[0, i]
+                        fit.append(val)
+            
+                numparams = len(fit)
+                p0_copy = np.copy(p0)
+                #print(p0_copy)
+                # Take chain "fit" values and make them into real values
+                for i in range(numparams):
+                    p0_copy[:,i] = p0_copy[:,i]*fit[i]
+                #print(p0_copy)
+                # Now de-transform the chain
+                print("Starting un transformations")
+                if runprops.get("transform"):
+                    for b in range(runprops.get('numobjects')-1):
+                        if undo_ecc_aop[b]:
+                            aop_new = p0_copy[:,int(ecc_aop_index[b*2+1])]
+                            ecc_new = p0_copy[:,int(ecc_aop_index[b*2])]
+                            pomega = (np.arctan2(ecc_new,aop_new)*180/np.pi)%360
+                            p0_copy[:,int(ecc_aop_index[b*2+1])] = pomega
+                            p0_copy[:,int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega/180*np.pi)
+                        if undo_inc_lan[b]:
+                            inc_new = p0_copy[:,int(inc_lan_index[b*2])]
+                            lan_new = p0_copy[:,int(inc_lan_index[b*2+1])]
+                            lan = (np.arctan2(inc_new,lan_new)*180/np.pi)%360
+                            p0_copy[:,int(inc_lan_index[b*2+1])] = lan
+                            inc = (np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi)%180
+                            p0_copy[:,int(inc_lan_index[b*2])] = inc
+                        if undo_spin[b]:
+                            spinc_new = p0_copy[:,int(spin_index[b*2])]
+                            splan_new = p0_copy[:,int(spin_index[b*2+1])]
+                            splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
+                            p0_copy[:,int(spin_index[b*2+1])] = lan
+                            spinc = (np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi)%180
+                            p0_copy[:,int(spin_index[b*2])] = spinc
+                        if undo_lambda[b]:
+                            mea_new = p0_copy[:,int(lambda_index[b*2])]
+                            pomega = p0_copy[:,int(lambda_index[b*2+1])]
+                            mea = (mea_new-pomega)%360
+                            p0_copy[:,int(lambda_index[b*2])] = mea
+                        if undo_pomega[b]:
+                            lan = p0_copy[:,int(pomega_index[b*2+1])]
+                            pomega = p0_copy[:,int(pomega_index[b*2])]
+                            aop = (pomega-lan)%360
+                            p0_copy[:,int(pomega_index[b*2])] = aop
+                    if undo_masses[0]:
+                        mass_1 = p0_copy[:,int(masses_index[0])]
+                        mass_2 = p0_copy[:,int(masses_index[1])]
+                        p0_copy[:,int(masses_index[1])] = mass_2-mass_1
+                    elif undo_masses[1]:
+                        mass_1 = p0_copy[:,int(masses_index[0])]
+                        mass_2 = p0_copy[:,int(masses_index[1])]
+                        mass_3 = p0_copy[:,int(masses_index[2])]
+                        p0_copy[:,int(masses_index[2])] = (mass_3-mass_2)/(10**18) 
+                        p0_copy[:,int(masses_index[1])] = (mass_2-mass_1)/(10**18)
+                        p0_copy[:,int(masses_index[0])] = (mass_1)/(10**18)
+                
+                #print(p0_copy)
+                latexnames = names.copy()
+                for i in range(len(latexnames)):
+                    if "mass" in latexnames[i]:
+                        latexnames[i] = "$"+latexnames[i].replace("mass","m")+"$ ($10^{18}$ kg)"
+                        latexnames[i] = fr"{latexnames[i]}"
+                    if "sma" in latexnames[i]:
+                        latexnames[i] = "$"+latexnames[i].replace("sma","a")+"$ (km)"
+                        latexnames[i] = fr"{latexnames[i]}"
+                    if "ecc" in latexnames[i]:
+                        latexnames[i] = "$"+latexnames[i].replace("ecc","e")+"$"
+                        latexnames[i] = fr"{latexnames[i]}"
+                    if "aop" in latexnames[i]:
+                        latexnames[i] = "$"+latexnames[i].replace("aop","\omega")+"$ ($^{\circ}$)"
+                        latexnames[i] = fr"{latexnames[i]}"
+                    if "inc" in latexnames[i]:
+                        latexnames[i] = "$"+latexnames[i].replace("inc","i")+"$ ($^{\circ}$)"
+                        latexnames[i] = fr"{latexnames[i]}"
+                    if "lan" in latexnames[i]:
+                        latexnames[i] = "$"+latexnames[i].replace("lan","\Omega")+"$ ($^{\circ}$)"
+                        latexnames[i] = fr"{latexnames[i]}"
+                    if "mea" in latexnames[i]:
+                        latexnames[i] = "$"+latexnames[i].replace("mea","M")+"$ ($^{\circ}$)"
+                        latexnames[i] = fr"{latexnames[i]}"
+                    if "j2r2" in latexnames[i]:
+                        latexnames[i] = "$"+latexnames[i].replace("j2r2","J_2R^2")+"$ (km$^2$)"
+                        latexnames[i] = fr"{latexnames[i]}"
+                    if "spinc" in latexnames[i]:
+                        latexnames[i] = "$"+latexnames[i].replace("spinc","i^{spin}")+"$ ($^{\circ}$)"
+                        latexnames[i] = fr"{latexnames[i]}"
+                    if "splan" in latexnames[i]:
+                        latexnames[i] = "$"+latexnames[i].replace("splan","\Omega^{spin}")+"$ ($^{\circ}$)"
+                        latexnames[i] = fr"{latexnames[i]}"
+                    if "c22r2" in latexnames[i]:
+                        latexnames[i] = "$"+latexnames[i].replace("c22r2","C_{22}R^2")+"$ (km$^2$)"
+                        latexnames[i] = fr"{latexnames[i]}"
+                    if "spaop" in latexnames[i]:
+                        latexnames[i] = "$"+latexnames[i].replace("spaop","\omega^{spin}")+"$ ($^{\circ}$)"
+                        latexnames[i] = fr"{latexnames[i]}"
+                    if "sprate" in latexnames[i]:
+                        latexnames[i] = "$"+latexnames[i].replace("sprate","")+"$ (rad s$^{-1}$)"
+                        latexnames[i] = fr"{latexnames[i]}"    
+                
+                fig = corner.corner(p0_copy, labels = latexnames, bins = 40, show_titles = True, 
+                                    plot_datapoints = False, color = "blue", fill_contours = True,
+                                    title_fmt = ".3f", label_kwargs=dict(fontsize=20))
+                fig.show()
+                fname = runprops.get('results_folder')+"/opt_corner.pdf"       
+                fig.savefig(fname, format = 'pdf')
+                #print("Saved at ",fname)
+                plt.close("all")
                 #sys.exit()
                 
             else:
-                '''def loop(i, p0, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods):
-                    llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods)
-                    reset = 0
-                    #print(llhood)
-                    while (llhood == -np.Inf):
-                        p = random.random()
-                        p0[i,:] = (p*p0[random.randrange(nwalkers),:] + (1-p)*p0[random.randrange(nwalkers),:])
-                        llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df,total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods)
-                        reset += 1
-                        if reset > maxreset:
-                            print("ERROR: Maximum number of resets has been reached, aborting run.")
-                            sys.exit() 
-                    return p0
-                import functools
-                from datetime import datetime
-                            
-                input_data = functools.partial(loop, p0=p0, float_names=float_names, fixed_df = fixed_df, total_df_names=total_df_names, fit_scale=fit_scale, runprops=runprops, obsdf=obsdf, geo_obj_pos=geo_obj_pos, best_llhoods=best_llhoods)
-                x = tqdm(range(nwalkers))
-                begin = datetime.now()    
-                p0 = pool.map(input_data, x)
-                print(datetime.now()-begin)    
-               ''' 
                 for i in tqdm(range(nwalkers)):  
                     llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods)
                     reset = 0
@@ -575,7 +726,7 @@ if __name__ == '__main__':
             print("effective sample size = ", ess)
             chain = sampler.get_chain(thin = runprops.get("nthinning"))
             flatchain = sampler.get_chain(flat = True, thin = runprops.get("nthinning"))
-                
+            
             # Begin analysis!
             #print('Beginning mm_analysis plots')
             
