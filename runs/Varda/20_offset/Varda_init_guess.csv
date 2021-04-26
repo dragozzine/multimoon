@@ -13,3 +13,5 @@ splan_1,3.0,5
 sprate_1,1.5e-4,0.1e-4
 spaop_1,50,20
 c22r2_1,500.0,50.0
+lat_offset,0.0,0.0001
+long_offset,0.0,0.0001
