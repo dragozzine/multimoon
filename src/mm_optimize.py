@@ -25,7 +25,7 @@ def neg_log_prob(float_params, float_names, fixed_df, total_df_names, fit_scale,
 	return out
 
 def op_map(i, p0, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods):
-    return scipy.optimize.minimize(neg_log_prob, p0[i,:], args = (float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods), method = runprops.get('opt_method'), tol=runprops.get("spinny_tolerance"),options={'maxiter': runprops.get('opt_iter')})
+    return scipy.optimize.minimize(neg_log_prob, p0[i,:], args = (float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods), method = runprops.get('opt_method'), tol=runprops.get("opt_tol"),options={'maxiter': runprops.get('opt_iter')})
 
 def mm_optimize(nwalkers, p0, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods, pool):
 	#print(p0)    
