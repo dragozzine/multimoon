@@ -459,7 +459,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	#print(paraminput)
 	#print(paramnames)
 	names_dict = runprops.get("names_dict")    
-	paramdf = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
+	paramdf,fit_params = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
 
 	#paramdf = pd.DataFrame(paraminput).transpose()
 	#paramdf.columns = paramnames

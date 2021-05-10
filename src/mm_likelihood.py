@@ -58,7 +58,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     #print("floats:", float_params)
     #print("fixed:", fixed_df)
     #print("fit_scale:", fit_scale)
-    params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict, runprops)
+    params,fit_params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict, runprops)
     
     #print(params)
     
@@ -97,6 +97,8 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
             #print('Llhood:', llhood)
             
         num_rows = len(best_csv.index)+1
+        #print("Params: ", params)
+        #print("Fit Params: ", fit_params)
         #print(llhood, curr_best)
         if llhood > curr_best:
             #print('adding')
@@ -112,6 +114,12 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
                 #print(thelist)
                 for i in range(runprops.get('numobjects')):
                     thelist.pop()
+                print(fit_params.head(1).values.tolist()[0])
+                print(fit_params)
+                
+                for i in fit_params.head(1).values.tolist()[0]:
+                    thelist.append(i)
+
                 for i in range(runprops.get("numobjects")-1):
                     thelist.append(residuals[2*(i-1)])
                     thelist.append(residuals[2*(i-1)+1])

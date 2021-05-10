@@ -23,7 +23,7 @@
     "nsteps" : 400,			# number of initial steps for sampling
     "essgoal" : 10,			# effective sample size desired
     "maxiter" : 1,			# maximum number of steps to take within the final sampling
-    "nthinning" : 100,			# How many steps overall to thin the data down to, should be a multiplier of nburnin, nsteps, and cluster_burnin
+    "nthinning" : 1,			# How many steps overall to thin the data down to, should be a multiplier of nburnin, nsteps, and cluster_burnin
     "thin_run" : false,
     "thin_plots": 1,
     "maxreset" : 10000,			# maximum number of resets when checking parameters set
@@ -54,7 +54,7 @@
     "float_dict" : 
     { 
         "mass_1": 1,
-        "mass_2": 0,
+        "mass_2": 1,
         "sma_2": 1,
         "ecc_2": 1,
         "aop_2": 1,
