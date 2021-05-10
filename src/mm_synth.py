@@ -163,7 +163,7 @@ except FileExistsError:
 #	os.remove(savedir + "astrometry.png")
 #	os.remove(savedir + "obsdf.csv")
 plt.savefig(savedir + "astrometry.png")
-obsdf.to_csv(savedir + "testcases_obs_df.csv")
+obsdf.to_csv(savedir + runprops.get("run_dir")+"_obs_df.csv")
 shutil.copy("runprops_gensynth.txt", savedir)
 
 

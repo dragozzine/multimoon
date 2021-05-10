@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import sys
 """
 Function to convert the parameter dataframe to a scaled and fitted array.
 Inputs: 
@@ -24,10 +25,12 @@ def from_param_df_to_fit_array(dataframe, runprops):
     for i in range(1,runprops.get('numobjects')):
         if runprops.get('lockspinanglesflag') == True:
             if int(runprops.get('dynamicstoincludeflags')[i]) != 0:
-            #Need to fix this soon, because there are no (aop, inc, lan)_1's
-                dataframe[['spaop_'+str(i+1)]] = dataframe[['aop_'+str(i+1)]]
-                dataframe[['spinc_'+str(i+1)]] = dataframe[['inc_'+str(i+1)]]
-                dataframe[['splan_'+str(i+1)]] = dataframe[['lan_'+str(i+1)]]
+                print('spaop_'+str(i+1),'aop_'+str(i+1))
+                print(dataframe[['spaop_'+str(i+1)]].values)
+                print(dataframe[['aop_'+str(i+1)]].values)
+                dataframe[['spaop_'+str(i+1)]] = dataframe[['aop_'+str(i+1)]].values
+                dataframe[['spinc_'+str(i+1)]] = dataframe[['inc_'+str(i+1)]].values
+                dataframe[['splan_'+str(i+1)]] = dataframe[['lan_'+str(i+1)]].values
                 if fix_float_dict.get('spaop_'+str(i+1)) == 1:
                     print('Since you have chosen to lock the spin angles, please change the spaop_'+str(i+1)+' variable in the float_dict to be fixed.')
                     sys.exit()
