@@ -114,8 +114,8 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
                 #print(thelist)
                 for i in range(runprops.get('numobjects')):
                     thelist.pop()
-                print(fit_params.head(1).values.tolist()[0])
-                print(fit_params)
+                #print(fit_params.head(1).values.tolist()[0])
+                #print(fit_params)
                 
                 for i in fit_params.head(1).values.tolist()[0]:
                     thelist.append(i)

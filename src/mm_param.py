@@ -48,7 +48,7 @@ def from_param_df_to_fit_array(dataframe, runprops):
                 dataframe[['mass_3']] = np.array(dataframe[['mass_3']])+np.array(dataframe[['mass_2']])
                 
                 fit_names.append('mass1+2')
-                fit_names.append(mass1+2+3)
+                fit_names.append('mass1+2+3')
             else:
                 dataframe[['mass_2']] = np.array(dataframe[['mass_1']])+np.array(dataframe[['mass_2']])
                 fit_names.append('mass1+2')
