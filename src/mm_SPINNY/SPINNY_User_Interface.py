@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(1, '../mm_SPINNY/')
 from spinny_plots import spinny_plot
 from spinny_generate import *
 from spinny_nosun import *
@@ -10,8 +12,14 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import sys
+import commentjson as json
 
-
+class ReadJson(object):
+    def __init__(self, filename):
+        print('Read the runprops.txt file')
+        self.data = json.load(open(filename))
+    def outProps(self):
+        return self.data
 
 def main_menu():
     print("S: Run a system though SPINNY")
@@ -70,6 +78,7 @@ def run_spinny():
         file_t += ".csv"
         
     #pd.set_option('display.max_columns', None)
+    print(file_sys)
     sys_df = pd.read_csv(str(file_sys),index_col=[0])
     time_df = pd.read_csv(str(file_t))
     
@@ -88,8 +97,10 @@ def run_spinny():
         print("\n Returning to main menu...")    
         return main_menu()
     elif not "Sun" in names:
-        system = build_spinny_ns(sys_df)
-        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
+        getData = ReadJson('runprops.txt')
+        runprops = getData.outProps()
+        system = build_spinny_ns(sys_df, runprops)
+        spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr, runprops)
         s_df = spinny[0]
         names = spinny[2]
         save(s_df,names)

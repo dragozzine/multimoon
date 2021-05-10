@@ -419,7 +419,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.ylabel("Log(L)")
 		plt.ylim(ylimmin, ylimmax)
 		plt.subplot(224)
-		plt.hist(llhoods.flatten(), bins = 40, orientation = "horizontal", 
+		llflat = llhoods.flatten()
+		plt.hist(llflat[np.isfinite(llflat)], bins = 40, orientation = "horizontal", 
 			 histtype = "step", color = "black")
 		plt.ylim(ylimmin, ylimmax)
 		likelihoodspdf.attach_note(names[i])

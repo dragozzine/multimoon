@@ -21,21 +21,22 @@ def from_param_df_to_fit_array(dataframe, runprops):
     
     
 
-    for i in range(runprops.get('numobjects')):
-        if runprops.get('lockspinanglesflag') and runprops.get('dynamicstoincludeflags')[i+1] != 0:
+    for i in range(1,runprops.get('numobjects')):
+        if runprops.get('lockspinanglesflag') == True:
+            if int(runprops.get('dynamicstoincludeflags')[i]) != 0:
             #Need to fix this soon, because there are no (aop, inc, lan)_1's
-            dataframe['spaop_'+str(i+1)] = dataframe['aop_'+str(i+1)]
-            dataframe['spinc_'+str(i+1)] = dataframe['inc_'+str(i+1)]
-            dataframe['splan_'+str(i+1)] = dataframe['lan_'+str(i+1)]
-            if fix_float_dict.get('spaop_'+str(i+1)) == 1:
-                print('Since you have chosen to lock the spin angles, please change the spaop_'+str(i+1)+' variable in the float_dict to be fixed.')
-                sys.exit()
-            if fix_float_dict.get('spinc_'+str(i+1)) == 1:
-                print('Since you have chosen to lock the spin angles, please change the spinc_'+str(i+1)+' variable in the float_dict to be fixed.')
-                sys.exit()
-            if fix_float_dict.get('splan_'+str(i+1)) == 1:
-                print('Since you have chosen to lock the spin angles, please change the splan_'+str(i+1)+' variable in the float_dict to be fixed.')
-                sys.exit()
+                dataframe[['spaop_'+str(i+1)]] = dataframe[['aop_'+str(i+1)]]
+                dataframe[['spinc_'+str(i+1)]] = dataframe[['inc_'+str(i+1)]]
+                dataframe[['splan_'+str(i+1)]] = dataframe[['lan_'+str(i+1)]]
+                if fix_float_dict.get('spaop_'+str(i+1)) == 1:
+                    print('Since you have chosen to lock the spin angles, please change the spaop_'+str(i+1)+' variable in the float_dict to be fixed.')
+                    sys.exit()
+                if fix_float_dict.get('spinc_'+str(i+1)) == 1:
+                    print('Since you have chosen to lock the spin angles, please change the spinc_'+str(i+1)+' variable in the float_dict to be fixed.')
+                    sys.exit()
+                if fix_float_dict.get('splan_'+str(i+1)) == 1:
+                    print('Since you have chosen to lock the spin angles, please change the splan_'+str(i+1)+' variable in the float_dict to be fixed.')
+                    sys.exit()
                 #'''
     
     if runprops.get('transform'):
@@ -81,6 +82,7 @@ def from_param_df_to_fit_array(dataframe, runprops):
     
     num = 0
     fit_scale = dataframe.iloc[0]
+    #print(fit_scale)
     fit_scale = fit_scale.to_frame().transpose()
     #Scale every column down by the values in the first row.
     
@@ -197,6 +199,7 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
         #Now unfit all of the variables by multipliyng each column by its fit variable.
         
         #print(param_df)
+        #print(fit_scale.columns)
         for col in fit_scale.columns:
             param_col = col
             if type(col) != str:

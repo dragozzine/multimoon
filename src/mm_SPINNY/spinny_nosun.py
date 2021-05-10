@@ -286,6 +286,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
 """                          
 
 def build_spinny_ns(sys_df, runprops): 
+    print(sys_df)
     G = 6.67e-20 # Gravitational constant in km
     
     verbose = runprops.get('verbose')
