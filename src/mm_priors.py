@@ -89,26 +89,26 @@ def mm_priors(priors, params, runprops):
             
             if 'mass' in i:
                 if i in params and params[i][0] < 0:
-                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    print(i, " is outside of the realistic value with a value of ", params[i][0])
                     return -np.inf
             elif 'ecc' in i:
                 if i in params and params[i][0] < 0:
-                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    print(i, " is outside of the realistic value with a value of ", params[i][0])
                     return -np.inf
                 elif i in params and params[i][0] > 1:
-                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    print(i, " is outside of the realistic value with a value of ", params[i][0])
                     return -np.inf
             elif 'sma' in i:
                 if i in params and params[i][0] < 0:
-                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    print(i, " is outside of the realistic value with a value of ", params[i][0])
                     return -np.inf
             elif 'j2r2' in i:
                 if i in params and params[i][0] < 0:
-                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    print(i, " is outside of the realistic value with a value of ", params[i][0])
                     return -np.inf      
             elif 'c22r2' in i:
                 if i in params and params[i][0] < 0:
-                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    print(i, " is outside of the realistic value with a value of ", params[i][0])
                     return -np.inf      
                     
             #Here, add the Prior Probability Density function for this element to the total
@@ -118,6 +118,7 @@ def mm_priors(priors, params, runprops):
     for i in range(runprops.get("numobjects")):
         if dynamicstoincludeflags[i] == "2":
             if (params["j2r2_" + str(i+1)].values[0]*0.5 < params["c22r2_" + str(i+1)].values[0]):
+                #print('j2r2_',str(i+1),'is less than double the c2r2_',str(i+1),'value')
                 return -np.inf
 
     # Making sure min periapse is obeyed
