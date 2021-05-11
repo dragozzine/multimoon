@@ -89,26 +89,26 @@ def mm_priors(priors, params, runprops):
             
             if 'mass' in i:
                 if i in params and params[i][0] < 0:
-                    print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
                     return -np.inf
             elif 'ecc' in i:
                 if i in params and params[i][0] < 0:
-                    print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
                     return -np.inf
                 elif i in params and params[i][0] > 1:
-                    print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
                     return -np.inf
             elif 'sma' in i:
                 if i in params and params[i][0] < 0:
-                    print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
                     return -np.inf
             elif 'j2r2' in i:
                 if i in params and params[i][0] < 0:
-                    print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
                     return -np.inf      
             elif 'c22r2' in i:
                 if i in params and params[i][0] < 0:
-                    print(i, " is outside of the realistic value with a value of ", params[i][0])
+                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
                     return -np.inf      
                     
             #Here, add the Prior Probability Density function for this element to the total
