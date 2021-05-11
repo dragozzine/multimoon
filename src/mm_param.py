@@ -25,9 +25,9 @@ def from_param_df_to_fit_array(dataframe, runprops):
     for i in range(1,runprops.get('numobjects')):
         if runprops.get('lockspinanglesflag') == True:
             if int(runprops.get('dynamicstoincludeflags')[i]) != 0:
-                print('spaop_'+str(i+1),'aop_'+str(i+1))
-                print(dataframe[['spaop_'+str(i+1)]].values)
-                print(dataframe[['aop_'+str(i+1)]].values)
+                #print('spaop_'+str(i+1),'aop_'+str(i+1))
+                #print(dataframe[['spaop_'+str(i+1)]].values)
+                #print(dataframe[['aop_'+str(i+1)]].values)
                 dataframe[['spaop_'+str(i+1)]] = dataframe[['aop_'+str(i+1)]].values
                 dataframe[['spinc_'+str(i+1)]] = dataframe[['inc_'+str(i+1)]].values
                 dataframe[['splan_'+str(i+1)]] = dataframe[['lan_'+str(i+1)]].values
