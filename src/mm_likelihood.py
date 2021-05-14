@@ -60,7 +60,8 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     #print("fit_scale:", fit_scale)
     params,fit_params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict, runprops)
     
-    #print(params)
+    #print('Params: ',params)
+    #print('Priors: ',priors)
     
     lp = prior.mm_priors(priors,params,runprops)
     #print('LP: ', lp)
@@ -71,7 +72,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
 
     log_likeli, residuals = log_likelihood(params, obsdf, runprops, geo_obj_pos)
     llhood = lp + log_likeli
-    
+    #print(llhood)
     the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
 
     #You will notice this differes from the regular runs way to save data

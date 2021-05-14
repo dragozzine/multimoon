@@ -118,6 +118,7 @@ def mm_priors(priors, params, runprops):
     for i in range(runprops.get("numobjects")):
         if dynamicstoincludeflags[i] == "2":
             if (params["j2r2_" + str(i+1)].values[0]*0.5 < params["c22r2_" + str(i+1)].values[0]):
+                #print('j2r2_',str(i+1),'is less than double the c2r2_',str(i+1),'value')
                 return -np.inf
 
     # Making sure min periapse is obeyed
@@ -126,8 +127,12 @@ def mm_priors(priors, params, runprops):
     #print("min_periapse")
     for i in range(1,runprops.get("numobjects")):
         if i == 1 and (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0]) < min_periapse):
+            #print('i=1')
             return -np.inf
         elif i != 1 and (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0])-params["sma_" + str(i)].values[0]*(1+params["ecc_" + str(i)].values[0]) < min_periapse):
+            #print('i>1')
+            #print('sma',params["sma_" + str(i)].values,'sma',params["sma_" + str(i+1)].values)
+            #print('ecc',params["ecc_" + str(i)].values,'ecc',params["ecc_" + str(i+1)].values)
             return -np.inf
     #print("hill")    
     for i in range(2,runprops.get("numobjects")):
