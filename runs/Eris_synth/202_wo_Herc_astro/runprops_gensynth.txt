@@ -3,7 +3,7 @@
     "time": "now",
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
-    "numobjects" : 2,
+    "numobjects" : 3,
     "run_dir" : "Eris_synth",
     "runs_file": "202",
     "objectname": "Eris",
@@ -25,13 +25,14 @@
     "params_dict" :
     {
         "mass_1": 1.6e+22,
-        "mass_2": 1.6e+20,
-        "sma_2": 13273.0,
+        "mass_2": 1.6e+18,
+        "sma_2": 13273,
         "ecc_2": 0.01,
         "aop_2": 260.0,
         "inc_2": 61.25,
         "lan_2": 139.2,
         "mea_2": 80.0,
+        "mass_3": 1.6e+20,
         "sma_3": 37250.0,
         "ecc_3": 0.01,
         "aop_3": 260.0,
@@ -49,7 +50,8 @@
         "sprate_3": 5e-6,
         "spaop_3": 260,
         "splan_3": 139.2,
-        "spinc_3": 61.25        
+        "spinc_3": 61.25
+        
     },
     "float_dict" :
     {
@@ -70,13 +72,11 @@
         "mea_3": 1,
         "j2r2_1": 1,
         "c22r2_1": 1,
-        "sprate_1": 1,
         "spaop_1": 1,
         "spinc_1": 1,
         "splan_1": 1,
         "j2r2_3": 1,
         "c22r2_3": 1,
-        "sprate_3": 1,
         "spaop_3": 1,
         "spinc_3": 1,
         "splan_3": 1
