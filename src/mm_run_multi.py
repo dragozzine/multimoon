@@ -654,6 +654,7 @@ if __name__ == '__main__':
                 #sys.exit()
                 
             else:
+		runprops["is_mcmc"] = False
                 for i in tqdm(range(nwalkers)):  
                     llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods)
                     reset = 0
