@@ -46,7 +46,7 @@ def kepler_2body(sys_df, t_arr, runprops):
     
     if verbose:
         print("Running two-body Keplerian integration...")
-    
+
     for t in range(0,T):
     
         vec_arr[t] = spice.conics(orb2,t_arr[t])
@@ -77,7 +77,6 @@ def kepler_2body(sys_df, t_arr, runprops):
     if verbose:
         print("Constructing dataframe...")
     
-   
     body_dict.setdefault('X_Pos_'+names[1] , vec_arr[:,0])
     body_dict.setdefault('Y_Pos_'+names[1] , vec_arr[:,1])
     body_dict.setdefault('Z_Pos_'+names[1] , vec_arr[:,2])
@@ -100,7 +99,7 @@ def kepler_2body(sys_df, t_arr, runprops):
     body_dict.setdefault('Z_Vel_'+names[0] , 0.0)
     
     kepler_df = pd.DataFrame(body_dict)
-    
+    #print(kepler_df)
     return(kepler_df, names)
     
 def kepler_nbody(sys_df,t_arr, runprops): # runs Keplerian integrations for systems with ONE massive body and N massless bodies

@@ -129,6 +129,14 @@ def from_param_df_to_fit_array(dataframe, runprops):
 
     for col in fit_scale.columns:
         fit_scale.rename(columns={col: col[0]}, inplace=True)
+    j = 1
+    for i in runprops.get('dynamicstoincludeflags'):
+        if int(i) > 0:
+            fit_names.append('period_'+str(j))
+        j = j+1
+    if int(runprops.get('dynamicstoincludeflags')[0]) > 0:
+        for i in range(runprops.get('numobjects')-1):
+            fit_names.append('sat_spin_inc_'+str(i+2))
     #print(fit_names)
     #fit_names = np.array(fit_names)
     return float_arr, float_names, fixed_df, total_df_names, fit_scale, fit_names
@@ -310,5 +318,15 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                     aop = aop%360
                 param_df['aop_'+str(i+2)] = aop
                 
+            if int(runprops.get('dynamicstoincludeflags')[0]) > 0:
+                spinc1=np.deg2rad(np.array(param_df['spinc_1']))
+                splan1=np.deg2rad(np.array(param_df['splan_1']))
+                for i in range(runprops.get('numobjects')-1):
+                    inc = np.deg2rad(np.array(param_df['inc_'+str(i+2)]))
+                    lan = np.deg2rad(np.array(param_df['lan_'+str(i+2)]))
+                    mutualinc = np.arccos( np.cos(spinc1)*np.cos(inc) + np.sin(spinc1)*np.sin(inc)*np.cos(splan1 - lan) )
+                    mutualinc = np.rad2deg(mutualinc)
+                    fit_params['spin_sat_inc_'+str(i+2)] = mutualinc
+                    
     return param_df, fit_params
 

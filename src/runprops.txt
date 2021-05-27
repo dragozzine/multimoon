@@ -22,7 +22,7 @@
     "maxiter" : 10,			# maximum number of steps to take within the final sampling
     "nthinning" : 1,			# thinning fraction
     "maxreset" : 10,			# maximum number of resets when checking parameters set
-    "spinny_tolerance": 1e-10,		# tolerance of spinny
+    "spinny_tolerance": 1e-13,		# tolerance of spinny
     "numprocesses": 20,			# number of cores to use
 
     # Input data files
@@ -47,6 +47,13 @@
         "name_1": "Haumea",
         "name_2": "Hiiaka",
         "name_3": "Namaka"
+    },
+    # The mean radius of the objects themselves (used for spinny_plots)
+    "axes_size" :
+    {
+        "obj_1": 780,
+        "obj_2": 155,
+        "obj_3": 85
     },
 
     # Which parameters to have floating

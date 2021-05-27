@@ -410,7 +410,7 @@ if __name__ == '__main__':
             if os.path.exists(obsdata):
                 if verbose:
                     print("Observational data file " + obsdata + " will be used")
-                obsdf = pd.read_csv(obsdata)
+                obsdf = pd.read_csv(obsdata, index_col = 0)
             else:
                 if verbose:
                     print("ERROR: No observational data file exists. Aborting run.")
@@ -445,7 +445,7 @@ if __name__ == '__main__':
                     print("geocentric_" + objname + "_position.csv has been created")
             
             # Reads in th geocentric_object data file
-            geo_obj_pos = pd.read_csv(geofile)
+            geo_obj_pos = pd.read_csv(geofile, index_col=0)
             shutil.copy(geofile, runprops.get('results_folder')+'/geocentric_'+objname+'_position.csv')
             shutil.copy(geo_analysis, runprops.get('results_folder')+'/geocentric_'+objname+'_position_analysis.csv')
             

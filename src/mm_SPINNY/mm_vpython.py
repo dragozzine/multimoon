@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
-from spinny_generate import *
-from quaternion import *
+from mm_SPINNY.spinny_generate import *
+from mm_SPINNY.quaternion import *
 #from scipy.spatial.transform import Rotation as R
 from vpython import *
 

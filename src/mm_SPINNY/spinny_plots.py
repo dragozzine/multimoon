@@ -14,7 +14,7 @@ sys.path.insert(1,"..")
 import pandas as pd
 
     
-def spinny_plot(plot_df, names):    
+def spinny_plot(plot_df, names, runprops):    
     
     cols = plot_df.columns.values
     N = sum(1 for s in cols if 'X_Pos_' in s)
@@ -78,7 +78,7 @@ def spinny_plot(plot_df, names):
     
     t_current = ctime().replace(" ","_")
     t_current = t_current.replace(":",".")
-    filename = "../results/SPINNY-models/"+name_prim+"_figures_"+t_current+".pdf"
+    filename = '../../'+runprops.get('results_folder')+'/spinny_figures.pdf'
     
     with PdfPages(filename) as pdf:
         
@@ -148,14 +148,14 @@ def spinny_plot(plot_df, names):
                     ax4.set_xlabel('x ($10^3$ kilometers)', fontsize = 18)
                     ax4.set_ylabel('y ($10^3$ kilometers)', fontsize = 18)
 
-                    ax2.plot(nx,nz,label=name)
-                    ax4.plot(nx,ny,label=name)
-                    ax3.plot(nz,ny,label=name)
+                    ax2.plot(nx,nz,label=name,alpha=0.3)
+                    ax4.plot(nx,ny,label=name,alpha=0.3)
+                    ax3.plot(nz,ny,label=name,alpha=0.3)
 
                 else:
-                    ax2.plot(nx,nz,label=name)
-                    ax4.plot(nx,ny)
-                    ax3.plot(nz,ny)
+                    ax2.plot(nx,nz,label=name,alpha=0.3)
+                    ax4.plot(nx,ny,alpha=0.3)
+                    ax3.plot(nz,ny,alpha=0.3)
 
 
                 ax1[0,0].set_title('Inclination')

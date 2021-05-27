@@ -286,7 +286,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
 """                          
 
 def build_spinny_ns(sys_df, runprops): 
-    print(sys_df)
+    #print(sys_df)
     G = 6.67e-20 # Gravitational constant in km
     
     verbose = runprops.get('verbose')
@@ -297,7 +297,7 @@ def build_spinny_ns(sys_df, runprops):
     N = len(masses) 
     
     names = np.empty(N,dtype='object')
-    
+    #print(sys_df)
     for n in range(0,N):
         idx_n = int(np.where(sys_df==masses[n])[1].flatten())
         name_n = (sys_df.columns[idx_n])
