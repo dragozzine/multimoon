@@ -128,14 +128,6 @@ def build_spinny_multimoon(sys_df, runprops):
             mass_n = sys_df["mass_"+str(n)].iloc[0] # set mass of the body
         else:
             mass_n = 0.0                    # default value--set to 0.0 if none given 
-            
-        if "ax_"+str(n) in sys_df.columns:
-            ax_n = sys_df["ax_"+str(n)].iloc[0]
-        else:
-            ax_n = runprops.get("c_axis")
-            if runprops.get("c_axis") == None:
-                print("\n\n\033[1;37;41mRunprops has been updated to require a value for the c axis. Please include this before proceeding. Correct formatting should be 'c_axis' = val. Aborting run.\033[0m\n\n")
-                sys.exit()
 
         if "j2r2_"+str(n) in sys_df.columns:
             j2r2_n = sys_df["j2r2_"+str(n)].iloc[0]
@@ -146,6 +138,18 @@ def build_spinny_multimoon(sys_df, runprops):
             c22r2_n = sys_df["c22r2_"+str(n)].iloc[0]
         else:
             c22r2_n = 0.0
+            
+        if "ax_"+str(n) in sys_df.columns:
+            ax_n = sys_df["ax_"+str(n)].iloc[0]
+        else:
+            if j2r2_n == 0.0:
+                ax_n = 1.0
+            else:
+                ax_n = runprops.get("c_axis")
+                if (runprops.get("c_axis") == None):
+                    print("\n\n\033[1;37;41mRunprops has been updated to require a value for the c axis. Please include this before proceeding. Correct formatting should be 'c_axis' = val. Aborting run.\033[0m\n\n")
+                    print(sys_df)
+                    sys.exit()
                 
         # set physical properties array
         phys_arr[i] = np.array([mass_n, ax_n, j2r2_n, c22r2_n])
@@ -215,7 +219,8 @@ def build_spinny_multimoon(sys_df, runprops):
             sp_rate_n = sys_df["sprate_"+str(n)].iloc[0]
         else:
             # the default is equal to the orbital period, calculated from semi-major axis, sum of masses of body and primary 
-            sp_rate_n = 2*np.pi/np.sqrt(orb_arr[i,0]**3.0/(G*(phys_arr[i,0]+phys_arr[1,0])) ) 
+            sp_rate_n = 2*np.pi/np.sqrt(orb_arr[i,0]**3.0/(G*(phys_arr[i,0]+phys_arr[1,0])) )
+            print(sp_rate_n)
 
         # set spin properties array
         spin_arr[i] = np.array([sp_prc_n, sp_obl_n, sp_lon_n, sp_rate_n])

@@ -15,13 +15,6 @@
 #	chi-squared below 1, while maintaining the shortest possible run time. 
 #
 
-# Input files
-runprops = ReadJson("../runs/Haumea/100/runprops.txt").outProps()
-initparams = pd.read_csv("../runs/Haumea/100/Haumea_init_guess.csv", index_col = 0)
-obsdata = "../runs/Haumea/100/Haumea_obs_df.csv"
-
-tolvals = np.logspace(-14,-8,20)
-
 
 # Code starts
 class ReadJson(object):
@@ -30,6 +23,7 @@ class ReadJson(object):
         self.data = json.load(open(filename))
     def outProps(self):
         return self.data
+
 
 # load in all required packages and functions
 import numpy as np
@@ -53,6 +47,13 @@ from mm_SPINNY.spinny_vector import generate_vector
 import mm_relast
 import time
 
+# Input files
+runprops = ReadJson("../runs/Haumea/200/runprops.txt").outProps()
+initparams = pd.read_csv("../runs/Haumea/200/Haumea_init_guess.csv", index_col = 0)
+obsdata = "../runs/Haumea/200/Haumea_obs_df.csv"
+
+tolvals = np.logspace(-14,-8,20)
+
 verbose = runprops.get("verbose")
 nobjects = runprops.get("numobjects")
 objname = runprops.get('objectname')
@@ -70,6 +71,14 @@ for k in initparams.iloc[:,0].values:
 for k in list(initparams.index):
 	paramnames.append(k)
 	paramnames2.append(k)
+
+#params.append(500.0)
+#params2.append(500.0)
+params.append(1.0)
+params2.append(1.0)
+paramnames.append("ax_1")
+paramnames2.append("ax_1")
+
 for k in name_dict.values():
 	params.append(k)
 	params2.append(k)
