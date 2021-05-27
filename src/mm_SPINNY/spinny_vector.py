@@ -40,11 +40,14 @@ def generate_vector(paramsdf, t_arr, runprops):
     mass_primary = sys_df["mass_1"].iloc[0]
     
     if N == 2 and j2_sum == 0.00:  # checks if all objects are point masses, does keplerian integration instead
+        #print('sys_Df:', sys_df)
         kepler_system = kepler_2body(sys_df,t_arr, runprops)
+        #print('got the kepler system')
         s_df = kepler_system[0]
         names = kepler_system[1]
+        #print('next')
         
-    if mass_sum == mass_primary: #checks if only the primary has mass, all other bodies are massless
+    elif mass_sum == mass_primary: #checks if only the primary has mass, all other bodies are massless
         kepler_system = kepler_nbody(sys_df,t_arr, runprops)
         s_df = kepler_system[0]
         names = kepler_system[1]
@@ -65,7 +68,9 @@ def generate_vector(paramsdf, t_arr, runprops):
 
       
     # creates a new dataframe using x,y,z position and velocity for each body
+    #print('times arr')
     data = {"Times":t_arr}
+    #print('Create times/data array')
     for name in names:
         data.setdefault("X_Pos_"+name, s_df["X_Pos_"+name])
         data.setdefault("Y_Pos_"+name, s_df["Y_Pos_"+name])

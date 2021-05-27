@@ -11,6 +11,11 @@ from astropy.time import Time
 import commentjson as json
 import mm_param
 import mm_make_geo_pos
+from mm_SPINNY.spinny_plots import spinny_plot
+from mm_SPINNY.spinny_generate import *
+from mm_SPINNY.spinny_nosun import *
+from mm_SPINNY.mm_vpython import *
+from mm_SPINNY.keplerian import *
 
 class ReadJson(object):
     def __init__(self, filename):
@@ -18,7 +23,25 @@ class ReadJson(object):
         self.data = json.load(open(filename))
     def outProps(self):
         return self.data
+def save(s_df,names):
 
+    save_yn = "N"
+    if save_yn=="Y":
+        print("Generating .csv...")
+        t_current = ctime().replace(" ","_")
+        filename = names[1]+"_SPINNY_"+t_current+".csv"
+        s_df.to_csv("output/"+filename)
+        print("SPINNY data saved to the output file as "+filename)
+        plot_q(s_df, names)
+    elif save_yn == "N":
+        print("")
+        plot_q(s_df, names)
+    else:
+        print("")
+        print('Invalid Response.')
+        return save(s_df,names)   
+    
+    
 #chain = (nwalkers, nlink, ndim)
 
 def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names):
@@ -79,7 +102,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	burnin = int(runprops.get('nburnin'))
 	clusterburn = int(runprops.get('clustering_burnin'))
 	thin_plots = runprops.get('thin_plots')    
-	chain = sampler.get_chain(flat = False)
+	chain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
 	fit = []
 
 	for i in fit_scale.columns:
@@ -101,19 +124,31 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	for i in range(numparams):
 		chain[:,:,i] = chain[:,:,i]*fit[i]
 
+	fitparam_chain = np.zeros((1,numwalkers,numgens))
+	print(fitparam_chain)    
+	fitparam_names = []    
 	# Now de-transform the chain
-	print("Strating un transformations")
+	print("Starting un transformations")
 	if runprops.get("transform"):
 		for b in range(runprops.get('numobjects')-1):
 			if undo_ecc_aop[b]:
 				aop_new = chain[:,:,int(ecc_aop_index[b*2+1])]
 				ecc_new = chain[:,:,int(ecc_aop_index[b*2])]
+				#print(aop_new)
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([aop_new])),axis=0)
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([ecc_new])),axis=0)                
+				fitparam_names.append('aop_new')
+				fitparam_names.append('ecc_new')
 				pomega = (np.arctan2(ecc_new,aop_new)*180/np.pi)%360
 				chain[:,:,int(ecc_aop_index[b*2+1])] = pomega
 				chain[:,:,int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega/180*np.pi)
 			if undo_inc_lan[b]:
 				inc_new = chain[:,:,int(inc_lan_index[b*2])]
 				lan_new = chain[:,:,int(inc_lan_index[b*2+1])]
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([inc_new])),axis=0)
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([lan_new])),axis=0)
+				fitparam_names.append('inc_new')
+				fitparam_names.append('lan_new')
 				lan = (np.arctan2(inc_new,lan_new)*180/np.pi)%360
 				chain[:,:,int(inc_lan_index[b*2+1])] = lan
 				inc = (np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi)%180
@@ -121,6 +156,10 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			if undo_spin[b]:
 				spinc_new = chain[:,:,int(spin_index[b*2])]
 				splan_new = chain[:,:,int(spin_index[b*2+1])]
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([spinc_new])),axis=0)
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([splan_new])),axis=0)
+				fitparam_names.append('sp_p')
+				fitparam_names.append('sp_q')
 				splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
 				chain[:,:,int(spin_index[b*2+1])] = lan
 				spinc = (np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi)%180
@@ -128,6 +167,10 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			if undo_lambda[b]:
 				mea_new = chain[:,:,int(lambda_index[b*2])]
 				pomega = chain[:,:,int(lambda_index[b*2+1])]
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([mea_new])),axis=0)
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([pomega])),axis=0)
+				fitparam_names.append('mea_new')
+				fitparam_names.append('pomega')
 				mea = (mea_new-pomega)%360
 				chain[:,:,int(lambda_index[b*2])] = mea
 			if undo_pomega[b]:
@@ -138,28 +181,40 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		if undo_masses[0]:
 			mass_1 = chain[:,:,int(masses_index[0])]
 			mass_2 = chain[:,:,int(masses_index[1])]
+			fitparam_chain = np.concatenate((fitparam_chain, np.array([mass_2])),axis=0)
+			fitparam_names.append('mass1+2')
 			chain[:,:,int(masses_index[1])] = mass_2-mass_1
 		elif undo_masses[1]:
 			mass_1 = chain[:,:,int(masses_index[0])]
 			mass_2 = chain[:,:,int(masses_index[1])]
 			mass_3 = chain[:,:,int(masses_index[2])]
+			fitparam_chain = np.concatenate((fitparam_chain, np.array([mass_2])),axis=0)
+			fitparam_chain = np.concatenate((fitparam_chain, np.array([mass_3])),axis=0)
+			fitparam_names.append('mass1+2')
+			fitparam_names.append('mass1+2+3')
 			chain[:,:,int(masses_index[2])] = (mass_3-mass_2)/(10**18) 
 			chain[:,:,int(masses_index[1])] = (mass_2-mass_1)/(10**18)
 			chain[:,:,int(masses_index[0])] = (mass_1)/(10**18)
 
-
+	fitparam_chain = np.delete(fitparam_chain,0,0)
+	fitparam_chain = fitparam_chain.T    
+        
 	print("Un transforming done")
 
 	# Cutting up chain
 	full_chain = np.copy(chain)
-	chain = chain[int(burnin+clusterburn + thin_plots - 1) :: thin_plots]
+	#chain = chain[int(burnin+clusterburn + thin_plots - 1) :: thin_plots]
 	print(chain.shape)
 
 	# Flattening the chain based on method in emcee
 	s = list(chain.shape[1:])
 	s[0] = np.prod(chain.shape[:2])
+	s2 = list(fitparam_chain.shape[1:])
+	s2[0] = np.prod(fitparam_chain.shape[:2])
+	print(s2, fitparam_chain.shape)    
 	flatchain = chain.reshape(s)
-	print(chain.shape, flatchain.shape)
+	fitparam_chain = fitparam_chain.reshape(s2)    
+	print(flatchain.shape, fitparam_chain.shape)
 
 	# Getting parameter names
 	names = []
@@ -169,6 +224,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Getting log likelihood posterior values for use throughout
 	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
+	print(llhoods.shape)    
 	ind = np.argmax(llhoods)
 	params = flatchain[ind,:].flatten()
 
@@ -298,7 +354,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		dnames = np.append(dnames, ["sat-sat inc"])
 		dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
 
-	# Creating corner+derived plot
+# Creating corner+derived plot
 	fig = corner.corner(dfchain, labels = dnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".4f", truths = dfchain[ind,:].flatten())
@@ -337,7 +393,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	for i in range(numparams):
 		plt.figure(dpi = 50)
 		for j in range(numwalkers):
-			plt.plot(np.reshape(chain[0:numgens,j,i], numgens))
+			plt.plot(np.reshape(chain[0:numgens,j,i], numgens), alpha=0.2)
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
 		#plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
@@ -357,7 +413,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	for i in range(numparams):
 		plt.figure(dpi = 50)
 		for j in range(numwalkers):
-			plt.plot(np.reshape(full_chain[0:fullgens,j,i], fullgens))
+			plt.plot(np.reshape(full_chain[0:fullgens,j,i], fullgens), alpha=0.2)
 		plt.axvline(x=burnin)
 		plt.axvline(x=(clusterburn+burnin))
 		plt.ylabel(names[i])
@@ -406,7 +462,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	likelihoodspdf = PdfPages("likelihoods.pdf")
 	ylimmin = np.percentile(llhoods.flatten(), 1)
 	ylimmax = llhoods.flatten().max() + 1
-
+	print(chain.shape,flatchain.shape, llhoods.shape)
+	dfparams = dfchain.shape[1]
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
@@ -415,7 +472,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.scatter(flatchain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
 			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True)
-		plt.xlabel(names[i])
+		plt.xlabel(dnames[i])
 		plt.ylabel("Log(L)")
 		plt.ylim(ylimmin, ylimmax)
 		plt.subplot(224)
@@ -423,7 +480,47 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.hist(llflat[np.isfinite(llflat)], bins = 40, orientation = "horizontal", 
 			 histtype = "step", color = "black")
 		plt.ylim(ylimmin, ylimmax)
-		likelihoodspdf.attach_note(names[i])
+		likelihoodspdf.attach_note(dnames[i])
+		likelihoodspdf.savefig()
+		#plt.savefig(runprops.get("results_folder")+"/likelihood_" + names[i] + ".png")
+        
+	for i in range(numparams,dfchain.shape[1]):
+		plt.figure(figsize = (9,9))
+		plt.subplot(221)
+		plt.hist(dfchain[:,i].flatten(), bins = 40, histtype = "step", color = "black")
+		plt.subplot(223)
+		plt.scatter(dfchain[:,i].flatten(), llhoods.flatten(),
+			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
+			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True)
+		plt.xlabel(dnames[i])
+		plt.ylabel("Log(L)")
+		plt.ylim(ylimmin, ylimmax)
+		plt.subplot(224)
+		llflat = llhoods.flatten()
+		plt.hist(llflat[np.isfinite(llflat)], bins = 40, orientation = "horizontal", 
+			 histtype = "step", color = "black")
+		plt.ylim(ylimmin, ylimmax)
+		likelihoodspdf.attach_note(dnames[i])
+		likelihoodspdf.savefig()
+		#plt.savefig(runprops.get("results_folder")+"/likelihood_" + names[i] + ".png")
+          
+	for i in range(fitparam_chain.shape[1]):
+		plt.figure(figsize = (9,9))
+		plt.subplot(221)
+		plt.hist(fitparam_chain[:,i].flatten(), bins = 40, histtype = "step", color = "black")
+		plt.subplot(223)
+		plt.scatter(fitparam_chain[:,i].flatten(), llhoods.flatten(),
+			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
+			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True)
+		plt.xlabel(fitparam_names[i])
+		plt.ylabel("Log(L)")
+		plt.ylim(ylimmin, ylimmax)
+		plt.subplot(224)
+		llflat = llhoods.flatten()
+		plt.hist(llflat[np.isfinite(llflat)], bins = 40, orientation = "horizontal", 
+			 histtype = "step", color = "black")
+		plt.ylim(ylimmin, ylimmax)
+		likelihoodspdf.attach_note(fitparam_names[i])
 		likelihoodspdf.savefig()
 		#plt.savefig(runprops.get("results_folder")+"/likelihood_" + names[i] + ".png")
 
@@ -503,6 +600,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	t = Time(converttimes, format = 'jd')
 
 	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
+    
 	#geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
 	geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position_analysis.csv')
 
@@ -517,6 +615,100 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		fakeobsdf['time'].iloc[-1] = times[i]
 	fakeobsdf = fakeobsdf.iloc[2:]
 
+	names = list(runprops.get('names_dict').values())
+	vals = ['mass','axis','j2r2','c22r2','sp_rate','sp_obl','sp_prc','sp_lon','sma','ecc','inc','lan','aop','mea']    
+	sys_df = pd.DataFrame(columns=names,index=vals)
+	sys_df[names[0]]['sma'] = 0
+	sys_df[names[0]]['ecc'] = 0
+	sys_df[names[0]]['inc'] = 0
+	sys_df[names[0]]['lan'] = 0
+	sys_df[names[0]]['aop'] = 0
+	sys_df[names[0]]['mea'] = 0
+
+	for i in range(runprops.get('numobjects')):
+		sys_df.loc['mass',names[i]] = paramdf['mass_'+str(i+1)][0]
+		axis = list(runprops.get('axes_size').values())[i]
+		if int(runprops.get('dynamicstoincludeflags')[i]) == 0:        
+			sys_df.loc['axis',names[i]] = 0        
+			sys_df.loc['j2r2',names[i]] = 0        
+			sys_df.loc['c22r2',names[i]] = 0        
+			sys_df.loc['sp_rate',names[i]] = 0        
+			sys_df.loc['sp_obl',names[i]] = 0        
+			sys_df.loc['sp_prc',names[i]] = 0        
+			sys_df.loc['sp_lon',names[i]] = 0
+		elif int(runprops.get('dynamicstoincludeflags')[i]) == 1:   
+			j2 = paramdf['j2r2_'+str(i+1)][0]
+			c22 = paramdf['c22r2_'+str(i+1)][0]
+			sp_rate = paramdf['sprate_'+str(i+1)][0]
+			sp_obl = paramdf['spinc_'+str(i+1)][0]
+			sp_prc = paramdf['splan_'+str(i+1)][0]
+			sp_lon = paramdf['spaop_'+str(i+1)][0]
+			sys_df.loc['axis',names[i]] = axis
+			sys_df.loc['j2r2',names[i]] = j2        
+			sys_df.loc['c22r2',names[i]] = 0
+			sys_df.loc['sp_rate',names[i]] = sp_rate
+			sys_df.loc['sp_obl',names[i]] = sp_obl        
+			sys_df.loc['sp_prc',names[i]] = sp_prc
+			sys_df.loc['sp_lon',names[i]] = 0
+		elif int(runprops.get('dynamicstoincludeflags')[i]) == 2:
+			j2 = paramdf['j2r2_'+str(i+1)][0]
+			c22 = paramdf['c22r2_'+str(i+1)][0]
+			sp_rate = paramdf['sprate_'+str(i+1)][0]
+			sp_obl = paramdf['spinc_'+str(i+1)][0]
+			sp_prc = paramdf['splan_'+str(i+1)][0]
+			sp_lon = paramdf['spaop_'+str(i+1)][0]      
+			sys_df.loc['axis',names[i]] = axis      
+			sys_df.loc['j2r2',names[i]] = j2     
+			sys_df.loc['c22r2',names[i]] = c22    
+			sys_df.loc['sp_rate',names[i]] = sp_rate
+			sys_df.loc['sp_obl',names[i]] = sp_obl
+			sys_df.loc['sp_prc',names[i]] = sp_prc
+			sys_df.loc['sp_lon',names[i]] = sp_lon          
+		if i > 0:
+			sma = paramdf['sma_'+str(i+1)][0]
+			ecc = paramdf['ecc_'+str(i+1)][0]
+			inc = paramdf['inc_'+str(i+1)][0]
+			lan = paramdf['lan_'+str(i+1)][0]
+			aop = paramdf['aop_'+str(i+1)][0]
+			mea = paramdf['mea_'+str(i+1)][0]
+			sys_df.loc['sma',names[i]] = sma
+			sys_df.loc['ecc',names[i]] = ecc
+			sys_df.loc['inc',names[i]] = inc
+			sys_df.loc['lan',names[i]] = lan
+			sys_df.loc['aop',names[i]] = aop
+			sys_df.loc['mea',names[i]] = mea
+    
+	#t_arr = times
+	N = len(sys_df.columns)
+    
+	j2_sum = sum(sys_df.loc["j2r2",:].values.flatten())
+	names = list(sys_df.columns)
+	t_arr = np.array([0])
+	totaltime = 50*365*24*3600
+	t_arr = np.arange(0,totaltime,3600*24)
+   
+    
+	tol = runprops.get("spinny_tolerance")
+
+	#print(sys_df)
+	if N == 2 and j2_sum == 0.00:
+		kepler_system = kepler_integrate(sys_df,t_arr)
+		kepler_df = kepler_system[0]
+		names = kepler_system[1]
+		kepler_save(kepler_df, names)
+	elif not "Sun" in names:
+		system = build_spinny_ns(sys_df,runprops)
+		spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol,runprops)
+		s_df = spinny[0]
+		names = spinny[2]
+		spinny_plot(s_df,names, runprops)
+	else: 
+		system = build_spinny(sys_df)
+		spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
+		s_df = spinny[0]
+		names = spinny[2]
+		spinny_plot(s_df,names, runprops)
+    
 	#Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
 	DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
 
