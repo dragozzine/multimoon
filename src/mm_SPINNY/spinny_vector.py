@@ -220,7 +220,7 @@ def build_spinny_multimoon(sys_df, runprops):
         else:
             # the default is equal to the orbital period, calculated from semi-major axis, sum of masses of body and primary 
             sp_rate_n = 2*np.pi/np.sqrt(orb_arr[i,0]**3.0/(G*(phys_arr[i,0]+phys_arr[1,0])) )
-            print(sp_rate_n)
+            #print(sp_rate_n)
 
         # set spin properties array
         spin_arr[i] = np.array([sp_prc_n, sp_obl_n, sp_lon_n, sp_rate_n])
