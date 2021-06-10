@@ -78,12 +78,13 @@ def vec2orb(s,phys_objects,vec):  # converts a state vector to orbital parameter
 def generate_system(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr, runprops):
     verbose = runprops.get("verbose")
     # integration parameters
-    tol = 1e-11                          # integration tolerance
+    tol = runprops.get('spinny_tolerance') # integration tolerance
     h0P = 1e-5                           # initial step size
     if verbose:
         print("Building SPINNY system...")
     s = Spinny_System(0.,h0=h0P,tol=tol)        # initializes object s, which is the SPINNY system
     
+
     for n in range(0,N):
         j2r20 = phys_arr[n,2]
         c22r20 = phys_arr[n,3]
@@ -104,7 +105,7 @@ def generate_system(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr, runprops):
         s.add_object(name_arr[n],globals()['phys_'+str(n)],globals()['s_'+str(n)],globals()['spin_'+str(n)],quat_arr[n])
     
     s.move2bary()
-    
+
     # add the Sun to the system. Should be added AFTER move2bary() is called
     s.add_object(name_arr[0],globals()['phys_'+str(0)],globals()['s_'+str(0)]) 
     
@@ -113,8 +114,9 @@ def generate_system(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr, runprops):
     return(s, phys_objects)
         
         
-def spinny_evolve(s, name_arr, phys_objects, t_arr): # evolves the SPINNY system to each time given in t_arr
+def spinny_evolve(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPINNY system to each time given in t_arr
     global T
+    verbose = runprops.get('verbose')
     T = int(len(t_arr))
     N = int(len(s.arr0)/13)
     body_arr = np.empty((T,(N*6)))
@@ -122,15 +124,16 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr): # evolves the SPINNY system
     spin_arr = np.empty((N,T))
     quat_arr = np.empty((N,T,4))
     euler_arr = np.empty((N,T,3))
-    
+
     if verbose:
         print("Evolving SPINNY...")
+
     for t in range(0,T):
 
         s.evolve(t_arr[t])
         body_arr[t] = np.concatenate([s.get_state(n,0) for n in range(0,N)]) # taken with respect to the primary
         inertial_arr[t] = s.arr0
-        
+
         for n in range(0,N-1):
             
             spin_rate = np.linalg.norm(s.get_spin(n)) # magnitude of spin vector
@@ -141,18 +144,19 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr): # evolves the SPINNY system
         # Use s.get_state(n,0) with respect to the primary to ignore the motion of the Sun in our vectors,
         # but we take s.arr0 in order to get orbital parameters which might not make any sense in a primaricentric frame
     body_dict = {"Times":t_arr}
-    
+
     if verbose:
         print("Constructing dataframe...")
     m = N-1
+    #print('body_dict nefore:', body_dict)
     body_dict.setdefault('X_Pos_'+name_arr[0] , body_arr[:,(m*6)+0])
     body_dict.setdefault('Y_Pos_'+name_arr[0] , body_arr[:,(m*6)+1])
     body_dict.setdefault('Z_Pos_'+name_arr[0] , body_arr[:,(m*6)+2])
     body_dict.setdefault('X_Vel_'+name_arr[0] , body_arr[:,(m*6)+3])
     body_dict.setdefault('Y_Vel_'+name_arr[0] , body_arr[:,(m*6)+4])
     body_dict.setdefault('Z_Vel_'+name_arr[0] , body_arr[:,(m*6)+5])
-    
-    for n in range(0,N-1):   
+    #print('body_dict after:', body_dict)
+    for n in range(0,N):   
         body_dict.setdefault('X_Pos_'+name_arr[n+1] , body_arr[:,(n*6)+0])
         body_dict.setdefault('Y_Pos_'+name_arr[n+1] , body_arr[:,(n*6)+1])
         body_dict.setdefault('Z_Pos_'+name_arr[n+1] , body_arr[:,(n*6)+2])
@@ -194,9 +198,9 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr): # evolves the SPINNY system
         body_dict.setdefault('longitude_'+name_arr[n+1],  180/np.pi*(euler_arr[n,:,2]) )
         
         body_dict.setdefault('spin_period_'+name_arr[n+1], spin_arr[n,:])
-                             
+    #print(body_dict)                         
     spinny_df = pd.DataFrame(body_dict)
-                               
+                    
     return(spinny_df)     
 
 """    
@@ -345,16 +349,19 @@ def build_spinny(sys_df):
     return(N, names, phys_arr, orb_arr, spin_arr, quat_arr)
     
     
-def evolve_spinny(N, names, phys_arr, orb_arr, spin_arr, quat_arr, t_arr):
-    
+def evolve_spinny(N, names, phys_arr, orb_arr, spin_arr, quat_arr, t_arr, runprops):
+
     start_time = time.time()
-    s = generate_system(N,names,phys_arr,orb_arr,spin_arr,quat_arr)
+    verbose = runprops.get('verbose')
+    names = np.insert(names,0,'Sun')
+    s = generate_system(N,names,phys_arr,orb_arr,spin_arr,quat_arr, runprops)
     spinny = s[0]
+
     phys_arr = s[1]
-    s_df = spinny_evolve(spinny, names, phys_arr,t_arr)
+    s_df = spinny_evolve(spinny, names, phys_arr,t_arr, runprops)
+    
     if verbose:
         print("Done.")
-
     seconds_time = time.time() - start_time
     if verbose:
         if seconds_time >= 60.0:
@@ -365,7 +372,7 @@ def evolve_spinny(N, names, phys_arr, orb_arr, spin_arr, quat_arr, t_arr):
             print("Completed in "+str(seconds_time)+" seconds.")
 
         print("")
-
+    
     return(s_df, names)
 
 

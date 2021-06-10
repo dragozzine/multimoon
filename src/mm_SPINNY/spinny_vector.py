@@ -62,15 +62,20 @@ def generate_vector(paramsdf, t_arr, runprops):
         
     elif includesun and N >= 2:                         # runs SPINNY with the sun included
         system = build_spinny_multimoon(sys_df, runprops)
+        #print(system)
         spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr, runprops)
         s_df = spinny[0]
-        names = spinny[2]
+        #print(s_df)
+        names = spinny[1]
+        #names = np.delete(names,0)
+        #print(names)
+        #print('Done')
 
       
     # creates a new dataframe using x,y,z position and velocity for each body
     #print('times arr')
     data = {"Times":t_arr}
-    #print('Create times/data array')
+
     for name in names:
         data.setdefault("X_Pos_"+name, s_df["X_Pos_"+name])
         data.setdefault("Y_Pos_"+name, s_df["Y_Pos_"+name])
@@ -78,7 +83,7 @@ def generate_vector(paramsdf, t_arr, runprops):
         data.setdefault("X_Vel_"+name, s_df["X_Vel_"+name])
         data.setdefault("Y_Vel_"+name, s_df["Y_Vel_"+name])
         data.setdefault("Z_Vel_"+name, s_df["Z_Vel_"+name])
-    
+    #print('spiny vector line 85')
     vec_df = pd.DataFrame(data)
     return(vec_df)
             

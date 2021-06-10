@@ -125,7 +125,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		chain[:,:,i] = chain[:,:,i]*fit[i]
 
 	fitparam_chain = np.zeros((1,numwalkers,numgens))
-	print(fitparam_chain)    
+	print(fitparam_chain.shape)    
 	fitparam_names = []    
 	# Now de-transform the chain
 	print("Starting un transformations")
@@ -134,9 +134,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			if undo_ecc_aop[b]:
 				aop_new = chain[:,:,int(ecc_aop_index[b*2+1])]
 				ecc_new = chain[:,:,int(ecc_aop_index[b*2])]
-				#print(aop_new)
-				fitparam_chain = np.concatenate((fitparam_chain, np.array([aop_new])),axis=0)
-				fitparam_chain = np.concatenate((fitparam_chain, np.array([ecc_new])),axis=0)                
+				print(aop_new.T.shape, np.array([aop_new.T]).shape)
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([aop_new.T])),axis=0)
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([ecc_new.T])),axis=0)                
 				fitparam_names.append('aop_new')
 				fitparam_names.append('ecc_new')
 				pomega = (np.arctan2(ecc_new,aop_new)*180/np.pi)%360
@@ -145,8 +145,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			if undo_inc_lan[b]:
 				inc_new = chain[:,:,int(inc_lan_index[b*2])]
 				lan_new = chain[:,:,int(inc_lan_index[b*2+1])]
-				fitparam_chain = np.concatenate((fitparam_chain, np.array([inc_new])),axis=0)
-				fitparam_chain = np.concatenate((fitparam_chain, np.array([lan_new])),axis=0)
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([inc_new.T])),axis=0)
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([lan_new.T])),axis=0)
 				fitparam_names.append('inc_new')
 				fitparam_names.append('lan_new')
 				lan = (np.arctan2(inc_new,lan_new)*180/np.pi)%360
@@ -156,8 +156,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			if undo_spin[b]:
 				spinc_new = chain[:,:,int(spin_index[b*2])]
 				splan_new = chain[:,:,int(spin_index[b*2+1])]
-				fitparam_chain = np.concatenate((fitparam_chain, np.array([spinc_new])),axis=0)
-				fitparam_chain = np.concatenate((fitparam_chain, np.array([splan_new])),axis=0)
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([spinc_new.T])),axis=0)
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([splan_new.T])),axis=0)
 				fitparam_names.append('sp_p')
 				fitparam_names.append('sp_q')
 				splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
@@ -167,8 +167,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			if undo_lambda[b]:
 				mea_new = chain[:,:,int(lambda_index[b*2])]
 				pomega = chain[:,:,int(lambda_index[b*2+1])]
-				fitparam_chain = np.concatenate((fitparam_chain, np.array([mea_new])),axis=0)
-				fitparam_chain = np.concatenate((fitparam_chain, np.array([pomega])),axis=0)
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([mea_new.T])),axis=0)
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([pomega.T])),axis=0)
 				fitparam_names.append('mea_new')
 				fitparam_names.append('pomega')
 				mea = (mea_new-pomega)%360
@@ -181,15 +181,15 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		if undo_masses[0]:
 			mass_1 = chain[:,:,int(masses_index[0])]
 			mass_2 = chain[:,:,int(masses_index[1])]
-			fitparam_chain = np.concatenate((fitparam_chain, np.array([mass_2])),axis=0)
+			fitparam_chain = np.concatenate((fitparam_chain, np.array([mass_2.T])),axis=0)
 			fitparam_names.append('mass1+2')
 			chain[:,:,int(masses_index[1])] = mass_2-mass_1
 		elif undo_masses[1]:
 			mass_1 = chain[:,:,int(masses_index[0])]
 			mass_2 = chain[:,:,int(masses_index[1])]
 			mass_3 = chain[:,:,int(masses_index[2])]
-			fitparam_chain = np.concatenate((fitparam_chain, np.array([mass_2])),axis=0)
-			fitparam_chain = np.concatenate((fitparam_chain, np.array([mass_3])),axis=0)
+			fitparam_chain = np.concatenate((fitparam_chain, np.array([mass_2.T])),axis=0)
+			fitparam_chain = np.concatenate((fitparam_chain, np.array([mass_3.T])),axis=0)
 			fitparam_names.append('mass1+2')
 			fitparam_names.append('mass1+2+3')
 			chain[:,:,int(masses_index[2])] = (mass_3-mass_2)/(10**18) 

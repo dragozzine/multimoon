@@ -60,8 +60,10 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     #print("fit_scale:", fit_scale)
     params,fit_params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict, runprops)
     
+    #if runprops.get('includesun') == 1:
+        
     #print('Params: ',params)
-    #print('Priors: ',priors)
+    #print('Priors: ',fit_params)
     
     lp = prior.mm_priors(priors,params,runprops)
     #print('LP: ', lp)
@@ -115,11 +117,12 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
                 #print(thelist)
                 for i in range(runprops.get('numobjects')):
                     thelist.pop()
+                
                 #print(fit_params.head(1).values.tolist()[0])
                 #print(fit_params)
                 
-                for i in fit_params.head(1).values.tolist()[0]:
-                    thelist.append(i)
+                #for i in fit_params.head(1).values.tolist()[0]:
+                #    thelist.append(i)
 
                 for i in range(runprops.get("numobjects")-1):
                     thelist.append(residuals[2*(i-1)])
@@ -214,14 +217,15 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     # primaricentric 
 
     name_1 = "X_Pos_"+names[0]
-    
+    #print(vec_df)
     if (vec_df[name_1][0] != 0.0):
         print("Not primaricentric like I thought!")
         #print("vec_df[name_1] = ", vec_df)
     
     Model_DeltaLong = np.zeros((numObj-1,len(time_arr)))
     Model_DeltaLat = np.zeros((numObj-1,len(time_arr)))
-    #print(vec_df)
+    if runprops.get('includesun') == 1:
+        vec_df = vec_df.drop(['X_Pos_Sun', 'Y_Pos_Sun', 'Z_Pos_Sun', 'X_Vel_Sun', 'Y_Vel_Sun', 'Z_Vel_Sun'], axis=1)
 
     positionData = np.zeros((numObj*3,len(time_arr)))
         
