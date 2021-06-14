@@ -3,6 +3,7 @@ from mm_SPINNY.spinny_generate import *
 from mm_SPINNY.spinny_nosun import *
 from mm_SPINNY.mm_vpython import *
 from mm_SPINNY.keplerian import *
+from mm_SPINNY.spinny_vector import *
 import numpy as np
 import time
 from time import ctime
@@ -103,19 +104,20 @@ def run_spinny():
         return main_menu()
     elif not "Sun" in names:
         system = build_spinny_ns(sys_df,runprops)
+        #system = build_spinny_multimoon(sys_df,runprops)
         spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol,runprops)
         s_df = spinny[0]
         names = spinny[2]
-        save(s_df,names)
+        save(s_df,names, runprops)
     else: 
         system = build_spinny(sys_df)
         spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
         s_df = spinny[0]
         names = spinny[2]
-        save(s_df,names)
+        save(s_df,names, runprops)
 
         
-def save(s_df,names):
+def save(s_df,names, runprops):
 
     save_yn = str(input("Do you want to save this data? (Y/N): "))
     save_yn = save_yn.upper()
@@ -125,35 +127,35 @@ def save(s_df,names):
         filename = names[1]+"_SPINNY_"+t_current+".csv"
         s_df.to_csv("output/"+filename)
         print("SPINNY data saved to the output file as "+filename)
-        plot_q(s_df, names)
+        plot_q(s_df, names, runprops)
     elif save_yn == "N":
         print("")
-        plot_q(s_df, names)
+        plot_q(s_df, names, runprops)
     else:
         print("")
         print('Invalid Response.')
         return save(s_df,names)   
     
     
-def plot_q(s_df, names): 
+def plot_q(s_df, names, runprops): 
     plot_yn = str(input("Do you want me to generate figures from these data? (Y/N): "))
     plot_yn = plot_yn.upper()
     
     if plot_yn == "Y":
-        plot(s_df, names)
+        plot(s_df, names, runprops)
     elif plot_yn == "N":
         print("\n Returning to main menu...")
         return main_menu()
     else:
         print("")
         print('Invalid Response.')
-        return plot_q(s_df)
+        return plot_q(s_df, names, runprops)
            
 
-def plot(plot_df, names):
+def plot(plot_df, names, runprops):
 
     print("\n Generating figures...")
-    spinny_plot(plot_df, names)
+    spinny_plot(plot_df, names, runprops)
     print("\n Returning to main menu...")
     return main_menu()
 
