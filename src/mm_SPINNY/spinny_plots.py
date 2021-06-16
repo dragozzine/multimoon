@@ -78,7 +78,7 @@ def spinny_plot(plot_df, names, runprops):
     
     t_current = ctime().replace(" ","_")
     t_current = t_current.replace(":",".")
-    filename = '../../'+runprops.get('results_folder')+'/spinny_figures.pdf'
+    filename = 'spinny_figures.pdf'
     
     with PdfPages(filename) as pdf:
         
