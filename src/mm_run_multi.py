@@ -356,6 +356,15 @@ if __name__ == '__main__':
                         sys.exit()
             
             # Now checking the includesun flag
+<<<<<<< HEAD
+#            if includesun:
+#                if not (("mass_0" in paramnames) and ("sma_0" in paramnames) and
+#                    ("ecc_0" in paramnames) and ("inc_0" in paramnames) and
+#                    ("aop_0" in paramnames) and ("lan_0" in paramnames) and
+#                    ("mea_0" in paramnames)):
+#                    print("ERROR: includesun flag does not match inputs.")
+#                    sys.exit()
+=======
             #if includesun:
             #if not (("mass_0" in paramnames) and ("sma_0" in paramnames) and
             #        ("ecc_0" in paramnames) and ("inc_0" in paramnames) and
@@ -363,6 +372,7 @@ if __name__ == '__main__':
             #        ("mea_0" in paramnames)):
             #        print("ERROR: includesun flag does not match inputs.")
             #        sys.exit()
+>>>>>>> 8bf3d43e0d6245a4b247310d74b6ff5c7c59556e
             if not includesun:
                 if (("mass_0" in paramnames) or ("sma_0" in paramnames) or
                 ("ecc_0" in paramnames) or ("inc_0" in paramnames) or
