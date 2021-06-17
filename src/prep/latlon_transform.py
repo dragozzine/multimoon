@@ -44,6 +44,7 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
         jd = Time(i,format='jd')
         dateList.append(jd)
         
+    #print(dateList)
     #Get the Horizons data for the object at the times it was observed
     primary = Horizons(id=objectNames[0],location=None,epochs=dateList)
     
@@ -132,6 +133,6 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
     updatedDF.to_csv('New'+objectNames[0]+'_LatLon.csv')
     
 
-params = pd.read_csv('BennecchiData.csv')
+params = pd.read_csv('erisdata.csv')
 
-convert_to_primary_centric(params, ['Lempo','Hiisi','Paha'],3,500)
+convert_to_primary_centric(params, ['Eris','Dysnomia'],2,500)

@@ -208,7 +208,8 @@ def spinny_plot(plot_df, names, runprops):
 
             ax0[0].set_ylabel('Degrees')
             ax0[1].set_ylabel('Degrees')
-            ax0[2].set_ylabel('Hours')
+            ax0[2].set_ylabel('Degrees')
+            ax0[3].set_ylabel('Hours')
 
             ax0[0].ticklabel_format(useOffset=False,style='plain',axis='y')
             ax0[1].ticklabel_format(useOffset=False,style='plain',axis='y')

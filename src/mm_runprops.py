@@ -83,7 +83,9 @@ if runprops.get("first_run") == True:
     
     init = runprops.get('runs_file')+'/'+objname+'_init_guess.csv'
     priors = runprops.get('runs_file')+'/'+objname+'_priors_df.csv'
-    obs = runprops.get('runs_file')+'/'+objname+'_obs_df.csv'
+    print("\n\nWarning: Observations data frames are now centrally located. Loading the centrally located obs_df from runs/"+objname+"/observations/."
+    obs = 'observations/'+objname+'_obs_df.csv'
+    #obs = runprops.get('runs_file')+'/'+objname+'_obs_df.csv'
 
     #print(init,priors,obs)
     
@@ -91,7 +93,7 @@ if runprops.get("first_run") == True:
     runprops['obsdata_file'] = obs
     runprops['priors_filename'] = priors    
     
-    shutil.copy(obs, newpath+'/'+runprops.get("objectname")+'_obs_df.csv')
+    shutil.copy(obs, newpath+'/'+runprops.get("objectname")+'_obs_df_copy.csv')
     shutil.copy(priors, newpath+'/'+runprops.get("objectname")+'_priors_df.csv')
     shutil.copy(init, newpath+'/'+runprops.get("objectname")+'_init_guess.csv')
     
