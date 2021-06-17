@@ -40,11 +40,14 @@ def generate_vector(paramsdf, t_arr, runprops):
     mass_primary = sys_df["mass_1"].iloc[0]
     
     if N == 2 and j2_sum == 0.00:  # checks if all objects are point masses, does keplerian integration instead
+        #print('sys_Df:', sys_df)
         kepler_system = kepler_2body(sys_df,t_arr, runprops)
+        #print('got the kepler system')
         s_df = kepler_system[0]
         names = kepler_system[1]
+        #print('next')
         
-    if mass_sum == mass_primary: #checks if only the primary has mass, all other bodies are massless
+    elif mass_sum == mass_primary: #checks if only the primary has mass, all other bodies are massless
         kepler_system = kepler_nbody(sys_df,t_arr, runprops)
         s_df = kepler_system[0]
         names = kepler_system[1]
@@ -59,13 +62,20 @@ def generate_vector(paramsdf, t_arr, runprops):
         
     elif includesun and N >= 2:                         # runs SPINNY with the sun included
         system = build_spinny_multimoon(sys_df, runprops)
+        #print(system)
         spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr, runprops)
         s_df = spinny[0]
-        names = spinny[2]
+        #print(s_df)
+        names = spinny[1]
+        #names = np.delete(names,0)
+        #print(names)
+        #print('Done')
 
       
     # creates a new dataframe using x,y,z position and velocity for each body
+    #print('times arr')
     data = {"Times":t_arr}
+
     for name in names:
         data.setdefault("X_Pos_"+name, s_df["X_Pos_"+name])
         data.setdefault("Y_Pos_"+name, s_df["Y_Pos_"+name])
@@ -73,7 +83,7 @@ def generate_vector(paramsdf, t_arr, runprops):
         data.setdefault("X_Vel_"+name, s_df["X_Vel_"+name])
         data.setdefault("Y_Vel_"+name, s_df["Y_Vel_"+name])
         data.setdefault("Z_Vel_"+name, s_df["Z_Vel_"+name])
-    
+    #print('spiny vector line 85')
     vec_df = pd.DataFrame(data)
     return(vec_df)
             
@@ -123,12 +133,7 @@ def build_spinny_multimoon(sys_df, runprops):
             mass_n = sys_df["mass_"+str(n)].iloc[0] # set mass of the body
         else:
             mass_n = 0.0                    # default value--set to 0.0 if none given 
-            
-        if "ax_"+str(n) in sys_df.columns:
-            ax_n = sys_df["ax_"+str(n)].iloc[0]
-        else:
-            ax_n = 1.0
-            
+
         if "j2r2_"+str(n) in sys_df.columns:
             j2r2_n = sys_df["j2r2_"+str(n)].iloc[0]
         else:
@@ -138,6 +143,18 @@ def build_spinny_multimoon(sys_df, runprops):
             c22r2_n = sys_df["c22r2_"+str(n)].iloc[0]
         else:
             c22r2_n = 0.0
+            
+        if "ax_"+str(n) in sys_df.columns:
+            ax_n = sys_df["ax_"+str(n)].iloc[0]
+        else:
+            if j2r2_n == 0.0:
+                ax_n = 1.0
+            else:
+                ax_n = runprops.get("c_axis")
+                if (runprops.get("c_axis") == None):
+                    print("\n\n\033[1;37;41mRunprops has been updated to require a value for the c axis. Please include this before proceeding. Correct formatting should be 'c_axis' = val. Aborting run.\033[0m\n\n")
+                    print(sys_df)
+                    sys.exit()
                 
         # set physical properties array
         phys_arr[i] = np.array([mass_n, ax_n, j2r2_n, c22r2_n])
@@ -207,7 +224,8 @@ def build_spinny_multimoon(sys_df, runprops):
             sp_rate_n = sys_df["sprate_"+str(n)].iloc[0]
         else:
             # the default is equal to the orbital period, calculated from semi-major axis, sum of masses of body and primary 
-            sp_rate_n = 2*np.pi/np.sqrt(orb_arr[i,0]**3.0/(G*(phys_arr[i,0]+phys_arr[1,0])) ) 
+            sp_rate_n = 2*np.pi/np.sqrt(orb_arr[i,0]**3.0/(G*(phys_arr[i,0]+phys_arr[1,0])) )
+            #print(sp_rate_n)
 
         # set spin properties array
         spin_arr[i] = np.array([sp_prc_n, sp_obl_n, sp_lon_n, sp_rate_n])

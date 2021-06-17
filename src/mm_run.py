@@ -355,7 +355,7 @@ if __name__ == '__main__':
         #ndim is equal to the number of dimension, should this be equal to the number of columns of the init_guess array?
      
         # Convert the guesses into fitting units and place in numpy array
-        p0,float_names,fixed_df,total_df_names,fit_scale = mm_param.from_param_df_to_fit_array(guesses,runprops)
+        p0,float_names,fixed_df,total_df_names,fit_scale,fit_names = mm_param.from_param_df_to_fit_array(guesses,runprops)
         
         fixed_df.to_csv(runprops.get('results_folder')+'/fixed_df.csv')
         fit_scale.to_csv(runprops.get('results_folder')+'/fit_scale.csv')
@@ -444,6 +444,8 @@ if __name__ == '__main__':
         the_names = []
         for i in total_df_names:
             the_names.append(i[0])
+        for i in fit_names:
+            the_names.append(i)
     
         if runprops.get('updatebestfitfile'):
             the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
@@ -843,3 +845,4 @@ def run():
         #print(params)
         new_init = "../data/"+runprops.get("objectname")+"/"+runprops.get("objectname")+"_init_guess_from_llhood.csv"
         params.to_csv(new_init, sep = ',')
+

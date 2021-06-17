@@ -21,7 +21,7 @@ Outputs:
 def log_likelihood(params, obsdf, runprops, geo_obj_pos):
     # assuming Gaussian independent observations log-likelihood = -1/2 * chisquare
     
-   # print(params, obsdf, geo_obj_pos)
+    #print(params, obsdf, geo_obj_pos)
     lh,residuals = mm_chisquare(params,obsdf, runprops, geo_obj_pos)
     lh = lh*-0.5
     #print('lh ',lh)
@@ -58,9 +58,12 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     #print("floats:", float_params)
     #print("fixed:", fixed_df)
     #print("fit_scale:", fit_scale)
-    params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict, runprops)
+    params,fit_params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict, runprops)
     
-    #print(params)
+    #if runprops.get('includesun') == 1:
+        
+    #print('Params: ',params)
+    #print('Priors: ',fit_params)
     
     lp = prior.mm_priors(priors,params,runprops)
     #print('LP: ', lp)
@@ -71,7 +74,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
 
     log_likeli, residuals = log_likelihood(params, obsdf, runprops, geo_obj_pos)
     llhood = lp + log_likeli
-    
+    #print(llhood)
     the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
 
     #You will notice this differes from the regular runs way to save data
@@ -97,6 +100,8 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
             #print('Llhood:', llhood)
             
         num_rows = len(best_csv.index)+1
+        #print("Params: ", params)
+        #print("Fit Params: ", fit_params)
         #print(llhood, curr_best)
         if llhood > curr_best:
             #print('adding')
@@ -112,6 +117,15 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
                 #print(thelist)
                 for i in range(runprops.get('numobjects')):
                     thelist.pop()
+                
+                #print(fit_params.head(1).values.tolist()[0])
+                #print(fit_params)
+                
+
+                #for i in fit_params.head(1).values.tolist()[0]:
+                #    thelist.append(i)
+
+
                 for i in range(runprops.get("numobjects")-1):
                     thelist.append(residuals[2*(i-1)])
                     thelist.append(residuals[2*(i-1)+1])
@@ -176,7 +190,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     try:
         time_arr_sec = time_arr*86400
         #vec_df = func_timeout(5,generate_vector,args=(paramdf, time_arr_sec, runprops))
-        #print(paramdf, time_arr_sec, runprops)
+
         vec_df = generate_vector(paramdf, time_arr_sec, runprops)
     #except FunctionTimedOut:
     #    print('Spinny took longer than 5 seconds to run 1 walker-step:\n')
@@ -186,6 +200,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 #        return np.inf
     except:
         print('There was an error thrown within spinny:\n')
+        return -np.inf
     names_dict = runprops.get("names_dict")
     names=[0 for i in range(numObj)]
     for i in range(0,numObj):
@@ -204,14 +219,15 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     # primaricentric 
 
     name_1 = "X_Pos_"+names[0]
-    
+    #print(vec_df)
     if (vec_df[name_1][0] != 0.0):
         print("Not primaricentric like I thought!")
         #print("vec_df[name_1] = ", vec_df)
     
     Model_DeltaLong = np.zeros((numObj-1,len(time_arr)))
     Model_DeltaLat = np.zeros((numObj-1,len(time_arr)))
-    #print(vec_df)
+    if runprops.get('includesun') == 1:
+        vec_df = vec_df.drop(['X_Pos_Sun', 'Y_Pos_Sun', 'Z_Pos_Sun', 'X_Vel_Sun', 'Y_Vel_Sun', 'Z_Vel_Sun'], axis=1)
 
     positionData = np.zeros((numObj*3,len(time_arr)))
         

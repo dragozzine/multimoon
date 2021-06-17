@@ -1,3 +1,4 @@
+
 from mm_SPINNY.spinny import Spinny_System, Physical_Properties
 from mm_SPINNY.spinny_plots import *
 from mm_SPINNY.quaternion import *
@@ -70,6 +71,7 @@ def vec2orb_ns(s,phys_objects,vec):  # converts a state vector to orbital parame
                             
 #### generate_system takes input from the dataframe and generates a 
 #### Physical_Properties class and SPINNY object for each body in the system
+    plot(s_df, names, runprops)
 def generate_system_ns(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr,tolerance, runprops):
     
     # integration parameters
@@ -114,8 +116,10 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
     body_arr = np.empty((T,(N*6)))
     inertial_arr = np.empty((T,(N*13))) 
     spin_arr = np.empty((N,T,2))
+    spinvec_arr = np.empty((N,T,3))
     quat_arr = np.empty((N,T,4))
     euler_arr = np.empty((N,T,3))
+    hasspin_arr = np.ones(N, dtype=bool)
     L_arr = np.empty((N,T,3))
     E_arr = np.empty((N,T))
     verbose = runprops.get('verbose')
@@ -143,10 +147,10 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
             
             if quat_n.all() == 0.0:
                 quat_n = [1.,0.,0.,0.]
-                has_spin = False
+                hasspin_arr[n] = False
             else:
                 quat_n = quat_n
-                has_spin = True
+                hasspin_arr[n] = True
             
             qr = quat_n[0]
             qi = quat_n[1]
@@ -154,6 +158,9 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
             qk = quat_n[3]
             
             quat_arr[n,t] = np.array([qi,qj,qk,qr])
+
+            spinvec_arr[n,t,:] = s.get_spin(n)
+
     for t in range(0,T):
         for n in range(0,N):
             
@@ -164,23 +171,28 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
             # These if statements should save some time in integration.
              # For the primary body, measure spin with respect to the second body's orbit so
              # that you don't get devide-by-zero warnings
-            if state.all == 0.00 and has_spin == True:  
-                state_sec = body_arr[t,(n*6):(n*6)+6]         
+            if n == 0 and hasspin_arr[n] == True:  
+                state_sec = body_arr[t,((n+1)*6):((n+1)*6)+6]         
                 h = np.cross(state_sec[:3],state_sec[3:])# Specific orbital angular momentum (of secondary)
+                #print(h)
                 orbit_pole = h/np.linalg.norm(h)  # compute direction of orbit normal
                 spin_orbit_angle = np.arccos(np.dot(obj_pole,orbit_pole))*180./np.pi
+                #print("here1")
 
-            elif has_spin == False: # don't try to compute spin angles if spin isn't included
+            elif hasspin_arr[n] == False: # don't try to compute spin angles if spin isn't included
                 spin_orbit_angle = 0.0
+                #print("here2")
 
             else:
                 h = np.cross(state[:3],state[3:]) # Specific orbital angular momentum
                 orbit_pole = h/np.linalg.norm(h)  # compute direction of orbit normal
+                #print(orbit_pole)
                 spin_orbit_angle = np.arccos(np.dot(obj_pole,orbit_pole))*180./np.pi
+                #print("here3")
 
 
             spin_arr[n,t,0] = spin_orbit_angle 
-            spin_rate = np.linalg.norm(s.get_spin(n)) # magnitude of spin vector
+            spin_rate = np.linalg.norm(spinvec_arr[n,t,:]) # magnitude of spin vector
             spin_arr[n,t,1] = ((2.0*np.pi)/spin_rate) / 3600.0 # spin period in hours
 
 
@@ -192,7 +204,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
             I0 = phys_objects[n].I[0] # moment of inertia
             I1 = phys_objects[n].I[1] # moment of inertia
             I2 = phys_objects[n].I[2] # moment of inertia (this is the spin axis)
-            w = s.get_spin(n)
+            w = spinvec_arr[n,t,:]
 
             L_body = np.array([I0 * w[0],I1 * w[1],I2 * w[2]]) 
             L_sp = r_n.apply(L_body,inverse=False) #translate angular momentum to world frame
@@ -286,6 +298,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
 """                          
 
 def build_spinny_ns(sys_df, runprops): 
+    #print(sys_df)
     G = 6.67e-20 # Gravitational constant in km
     
     verbose = runprops.get('verbose')
@@ -296,7 +309,7 @@ def build_spinny_ns(sys_df, runprops):
     N = len(masses) 
     
     names = np.empty(N,dtype='object')
-    
+    #print(sys_df)
     for n in range(0,N):
         idx_n = int(np.where(sys_df==masses[n])[1].flatten())
         name_n = (sys_df.columns[idx_n])
