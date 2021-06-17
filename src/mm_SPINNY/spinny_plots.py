@@ -78,7 +78,11 @@ def spinny_plot(plot_df, names, runprops):
     
     t_current = ctime().replace(" ","_")
     t_current = t_current.replace(":",".")
-    filename = '../../'+runprops.get('results_folder')+'/spinny_figures.pdf'
+
+    if runprops.get('results_folder') == None:
+        filename = "../results/SPINNY-models/"+name_prim+"_figures_"+t_current+".pdf"
+    else:
+        filename = '../../'+runprops.get('results_folder')+'/spinny_figures.pdf'
     
     with PdfPages(filename) as pdf:
         
@@ -205,7 +209,8 @@ def spinny_plot(plot_df, names, runprops):
 
             ax0[0].set_ylabel('Degrees')
             ax0[1].set_ylabel('Degrees')
-            ax0[2].set_ylabel('Hours')
+            ax0[2].set_ylabel('Degrees')
+            ax0[3].set_ylabel('Hours')
 
             ax0[0].ticklabel_format(useOffset=False,style='plain',axis='y')
             ax0[1].ticklabel_format(useOffset=False,style='plain',axis='y')
