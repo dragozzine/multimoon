@@ -214,9 +214,9 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPI
                      
 """                          
 
-def build_spinny(sys_df): 
+def build_spinny(sys_df, runprops): 
     G = 6.67e-20 # Gravitational constant in km
-    
+    verbose = runprops.get('verbose')
     if verbose:
         print("Reading file to dataframe...")
     
