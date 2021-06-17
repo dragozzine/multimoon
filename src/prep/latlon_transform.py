@@ -132,6 +132,6 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
     updatedDF.to_csv('New'+objectNames[0]+'_LatLon.csv')
     
 
-params = pd.read_csv('BennecchiData.csv')
+params = pd.read_csv('Eris_astrometry.csv')
 
-convert_to_primary_centric(params, ['Lempo','Hiisi','Paha'],3,500)
+convert_to_primary_centric(params, ['Eris','Dysnomia'],3,500)

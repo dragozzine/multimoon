@@ -84,8 +84,8 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
         
         firstC = SkyCoord(ra=RA_1*u.degree, dec=DEC_1*u.degree, frame='icrs',distance = dist,unit=(u.deg,u.deg))
         primC = SkyCoord(ra=RA_Prim*u.degree, dec=DEC_Prim*u.degree, frame='icrs',distance = dist,unit=(u.deg,u.deg))
-        firstEcl = firstC.transform_to(HeliocentricMeanEcliptic(equinox='J2000'))
-        primEcl = primC.transform_to(HeliocentricMeanEcliptic(equinox='J2000'))
+        firstEcl = firstC.transform_to(GeocentricMeanEcliptic(equinox='J2000'))
+        primEcl = primC.transform_to(GeocentricMeanEcliptic(equinox='J2000'))
     
         Lat_Prim = primEcl.lat.degree
         Long_Prim = primEcl.lon.degree
@@ -103,7 +103,7 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
             Long_err_arr = np.zeros(len(dec_err[0]))
             for k in range(len(ra_err[0])):
                 coord_sky = SkyCoord(ra=ra_err[j][k]*u.degree, dec=dec_err[j][k]*u.degree, frame='icrs',distance = dist[j]*u.AU,unit=(u.deg,u.deg))
-                transformed_coord = coord_sky.transform_to(HeliocentricMeanEcliptic(equinox='J2000'))
+                transformed_coord = coord_sky.transform_to(GeocentricMeanEcliptic(equinox='J2000'))
                 Lat_err_arr[k] = transformed_coord.lat.degree
                 Long_err_arr[k] = transformed_coord.lon.degree
             #plt.scatter(Lat_err_arr,Long_err_arr)
