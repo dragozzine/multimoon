@@ -110,10 +110,10 @@ def run_spinny():
         names = spinny[2]
         save(s_df,names, runprops)
     else: 
-        system = build_spinny(sys_df)
-        spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
+        system = build_spinny(sys_df,runprops)
+        spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,runprops)
         s_df = spinny[0]
-        names = spinny[2]
+        names = spinny[1]
         save(s_df,names, runprops)
 
         

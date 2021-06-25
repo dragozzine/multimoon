@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import emcee
 import sys
+import os
 import mm_likelihood
 from astropy.time import Time
 import commentjson as json
@@ -66,6 +67,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	undo_masses = np.zeros(2)    
 	undo_masses[:] = False
 	masses_index = np.zeros(runprops.get('numobjects'))
+	#print(os.getcwd())    
     
 	for i in range(runprops.get('numobjects')-1):
 		if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
@@ -471,7 +473,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.subplot(223)
 		plt.scatter(flatchain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
-			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True)
+			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
 		plt.xlabel(dnames[i])
 		plt.ylabel("Log(L)")
 		plt.ylim(ylimmin, ylimmax)
@@ -491,7 +493,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.subplot(223)
 		plt.scatter(dfchain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
-			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True)
+			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
 		plt.xlabel(dnames[i])
 		plt.ylabel("Log(L)")
 		plt.ylim(ylimmin, ylimmax)
@@ -511,7 +513,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.subplot(223)
 		plt.scatter(fitparam_chain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
-			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True)
+			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
 		plt.xlabel(fitparam_names[i])
 		plt.ylabel("Log(L)")
 		plt.ylim(ylimmin, ylimmax)

@@ -1,6 +1,6 @@
 {
     "first_run": false,
-    "date": "2021-06-18_07.36.17",
+    "date": "2021-06-23_12.47.13",
     "time": "now",
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
@@ -23,6 +23,7 @@
     "maxiter": 1,
     "nthinning": 1,
     "thin_run": false,
+    "obs_df": "Eris_obs_df.csv",
     "thin_plots": 1,
     "maxreset": 10000,
     "spinny_tolerance": 1e-10,
@@ -67,7 +68,11 @@
     },
     "chain_file": null,
     "runs_file": "../runs/Eris/20_offset",
+<<<<<<< HEAD
     "results_folder": "../results/Eris/Eris_2021-06-18_07.36.17_20_offset",
+=======
+    "results_folder": "../results/Eris/Eris_2021-06-23_12.47.13_20_offset",
+>>>>>>> 15fce8f63450c029b8b35172f13796bcd974b78a
     "init_filename": "../runs/Eris/20_offset/Eris_init_guess.csv",
     "obsdata_file": "../runs/Eris/20_offset/../observations/Eris_obs_df.csv",
     "priors_filename": "../runs/Eris/20_offset/Eris_priors_df.csv",

@@ -10,6 +10,7 @@ import mm_relast
 from csv import writer
 import os
 import time
+from scipy.stats import chi2
 #from func_timeout import func_timeout, FunctionTimedOut
 
 """
@@ -59,8 +60,9 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     #print("fixed:", fixed_df)
     #print("fit_scale:", fit_scale)
     params,fit_params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict, runprops)
-    
-    #if runprops.get('includesun') == 1:
+    #print('likelihood params 62', params)
+    if runprops.get('includesun') == 1:
+        params.insert(0,'name_0',['Sun'])
         
     #print('Params: ',params)
     #print('Priors: ',fit_params)
@@ -105,13 +107,20 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
         #print(llhood, curr_best)
         if llhood > curr_best:
             #print('adding')
-            reduced_chi_sq = llhood/(-0.5)/best_llhoods.get('deg_freedom')
-
+            chi_sq = llhood/(-0.5)            
+            reduced_chi_sq = chi_sq/best_llhoods.get('deg_freedom')
+            p_val = 1 - chi2.cdf(chi_sq, best_llhoods.get('deg_freedom'))
             with open(the_file, 'a+', newline='') as write_obj:
                 csv_writer = writer(write_obj, delimiter = ',')
                 thelist = params.head(1).values.tolist()[0]
                 thelist.insert(0, lp)
                 thelist.insert(0, reduced_chi_sq)
+                thelist.insert(0,chi_sq)
+                thelist.insert(0, p_val)
+                thelist.insert(0, best_llhoods.get('deg_freedom'))
+                
+                
+                
                 thelist.insert(0, llhood)
                 #thelist.insert(0, '')
                 #print(thelist)
@@ -198,8 +207,8 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 #    except Exception as e:
 #        logging.exception('')
 #        return np.inf
-    except:
-        print('There was an error thrown within spinny:\n')
+    except Exception as e:
+        print('There was an error thrown within spinny:\n', e)
         return -np.inf
     names_dict = runprops.get("names_dict")
     names=[0 for i in range(numObj)]
@@ -227,6 +236,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     Model_DeltaLong = np.zeros((numObj-1,len(time_arr)))
     Model_DeltaLat = np.zeros((numObj-1,len(time_arr)))
     if runprops.get('includesun') == 1:
+        print(vec_df)
         vec_df = vec_df.drop(['X_Pos_Sun', 'Y_Pos_Sun', 'Z_Pos_Sun', 'X_Vel_Sun', 'Y_Vel_Sun', 'Z_Vel_Sun'], axis=1)
 
     positionData = np.zeros((numObj*3,len(time_arr)))
