@@ -159,6 +159,8 @@ if __name__ == '__main__':
                     csv_writer = writer(write_obj, delimiter = ',')
                     the_names.insert(0,'Prior')
                     the_names.insert(0,'Reduced chi-sq')
+                    the_names.insert(0,'Chi-sq')
+                    the_names.insert(0,'P-val')                   
                     the_names.insert(0,'Likelihood')
                     for i in range(runprops.get('numobjects')-1):
                         the_names.append('Residuals_Lon_Obj_'+str(i+1))
@@ -470,6 +472,9 @@ if __name__ == '__main__':
                     csv_writer = writer(write_obj, delimiter = ',')
                     the_names.insert(0,'Prior')
                     the_names.insert(0,'Reduced_chi_sq')
+                    the_names.insert(0,'Chi-sq')
+                    the_names.insert(0,'P-val')
+                    the_names.insert(0,'Degrees-of-freedom')
                     the_names.insert(0,'Likelihood')
                     #the_names.insert(0,'index')
                     for i in range(runprops.get('numobjects')-1):

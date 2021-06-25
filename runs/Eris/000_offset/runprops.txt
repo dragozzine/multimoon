@@ -12,6 +12,7 @@
     "min_periapse": 4000,
     "mhill_sphere_reject": 3.5,
     "objectname": "Eris",
+    "obs_df": "Eris_obs_df_w_Herc.csv",
     "run_file": "000_offset",
     "numobjects": 3,
     "dynamicstoincludeflags": "000",
