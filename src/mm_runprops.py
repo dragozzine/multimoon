@@ -85,9 +85,12 @@ if runprops.get("first_run") == True:
     priors = runprops.get('runs_file')+'/'+objname+'_priors_df.csv'
     print("\n\nWarning: Observations data frames are now centrally located. Loading the centrally located obs_df from runs/"+objname+"/observations/.")
     #print(sys.cwd())
-    #obs = runprops.get('runs_file')+'/../observations/'+runprops.get('obs_df')
-    obs = runprops.get('runs_file')+'/../observations/'+objname+'_obs_df.csv'
-    #obs = runprops.get('runs_file')+'/'+objname+'_obs_df.csv'
+
+    if 'runs' in runprops.get('runs_file'):
+        obs = runprops.get('runs_file')+'/../observations/'+runprops.get("obs_df")
+    #obs = runprops.get('runs_file')+'../observations/'+objname+'_obs_df.csv'
+    elif 'results' in runprops.get('runs_file'):
+        obs = runprops.get('runs_file')+'/'+runprops.get('objectname')+'_obs_df_copy.csv'
 
     #print(init,priors,obs)
     

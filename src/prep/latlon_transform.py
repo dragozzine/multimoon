@@ -46,9 +46,9 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
         
     #print(dateList)
     #Get the Horizons data for the object at the times it was observed
-    primary = Horizons(id=objectNames[0],location=None,epochs=dateList)
+    primary = Horizons(id=objectNames[0],location='geocentric',epochs=dateList)
     
-    updatedDF['time'] = paramsDF['time']-primary.vectors()['lighttime']
+    updatedDF['time'] = paramsDF['time']-primary.vectors(aberrations = 'astrometric')['lighttime']
 
     #Pull all data from csv file
     #RA_Prim = np.array(paramsDF['RA-Primary'])
@@ -80,10 +80,10 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
             #plt.scatter(ra_err[k],dec_err[k],s=10)
         
     #Essentially we define where the object is in our RA/DEC coordinate system. ICRS is the system our coordinates are in.
-        dist = primary.vectors()['range']
+        dist = primary.vectors(aberrations = 'astrometric')['range']
 
-        firstC = SkyCoord(ra=RA_1*u.degree, dec=DEC_1*u.degree, frame='icrs', obstime = dateList, distance = dist,unit=(u.deg,u.deg))
-        primC = SkyCoord(ra=RA_Prim*u.degree, dec=DEC_Prim*u.degree, frame='icrs', obstime = dateList, distance = dist,unit=(u.deg,u.deg))
+        firstC = SkyCoord(ra=RA_1*u.degree, dec=DEC_1*u.degree, frame='icrs', obstime = dateList, distance = dist)
+        primC = SkyCoord(ra=RA_Prim*u.degree, dec=DEC_Prim*u.degree, frame='icrs', obstime = dateList, distance = dist)
         firstEcl = firstC.transform_to(GeocentricTrueEcliptic(equinox='J2000'))
         primEcl = primC.transform_to(GeocentricTrueEcliptic(equinox='J2000'))
     
@@ -132,7 +132,6 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
     print(updatedDF)
     updatedDF.to_csv('New'+objectNames[0]+'_LatLon.csv')
     
-
 
 params = pd.read_csv('manwedata.csv')
 

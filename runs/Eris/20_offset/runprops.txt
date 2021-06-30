@@ -26,6 +26,7 @@
     "maxiter" : 1,			# maximum number of steps to take within the final sampling
     "nthinning" : 1,			# How many steps overall to thin the data down to, should be a multiplier of nburnin, nsteps, and cluster_burnin
     "thin_run" : false,
+    "obs_df" : "Eris_obs_df.csv",
     "thin_plots": 1,
     "maxreset" : 10000,			# maximum number of resets when checking parameters set
     "spinny_tolerance": 1e-10,		# tolerance of spinny
