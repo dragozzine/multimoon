@@ -9,3 +9,5 @@ Eris_obs_df.csv -- Added on 06/17/21 by Ben Prooudfoot. Contains all Eris data w
                    MultiMoon's coordinate system. 
                 -- New data file with small (a few milliarcsecond) changes due to a bug in the latlon
 		   tranformation code. 06/30/21
+
+Eris_obs_df_w_Herc.csv -- IDentical to Eris_obs_df.csv, but with columns for NaN values of Hercule's astrometry

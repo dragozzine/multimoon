@@ -159,6 +159,8 @@ if __name__ == '__main__':
                     csv_writer = writer(write_obj, delimiter = ',')
                     the_names.insert(0,'Prior')
                     the_names.insert(0,'Reduced chi-sq')
+                    the_names.insert(0,'Chi-sq')
+                    the_names.insert(0,'P-val')                   
                     the_names.insert(0,'Likelihood')
                     for i in range(runprops.get('numobjects')-1):
                         the_names.append('Residuals_Lon_Obj_'+str(i+1))
@@ -356,15 +358,8 @@ if __name__ == '__main__':
                         sys.exit()
             
             # Now checking the includesun flag
-<<<<<<< HEAD
-#            if includesun:
-#                if not (("mass_0" in paramnames) and ("sma_0" in paramnames) and
-#                    ("ecc_0" in paramnames) and ("inc_0" in paramnames) and
-#                    ("aop_0" in paramnames) and ("lan_0" in paramnames) and
-#                    ("mea_0" in paramnames)):
-#                    print("ERROR: includesun flag does not match inputs.")
-#                    sys.exit()
-=======
+
+
             #if includesun:
             #if not (("mass_0" in paramnames) and ("sma_0" in paramnames) and
             #        ("ecc_0" in paramnames) and ("inc_0" in paramnames) and
@@ -372,7 +367,8 @@ if __name__ == '__main__':
             #        ("mea_0" in paramnames)):
             #        print("ERROR: includesun flag does not match inputs.")
             #        sys.exit()
->>>>>>> 8bf3d43e0d6245a4b247310d74b6ff5c7c59556e
+
+
             if not includesun:
                 if (("mass_0" in paramnames) or ("sma_0" in paramnames) or
                 ("ecc_0" in paramnames) or ("inc_0" in paramnames) or
@@ -476,6 +472,9 @@ if __name__ == '__main__':
                     csv_writer = writer(write_obj, delimiter = ',')
                     the_names.insert(0,'Prior')
                     the_names.insert(0,'Reduced_chi_sq')
+                    the_names.insert(0,'Chi-sq')
+                    the_names.insert(0,'P-val')
+                    the_names.insert(0,'Degrees-of-freedom')
                     the_names.insert(0,'Likelihood')
                     #the_names.insert(0,'index')
                     for i in range(runprops.get('numobjects')-1):

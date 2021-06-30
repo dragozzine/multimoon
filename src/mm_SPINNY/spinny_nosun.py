@@ -42,7 +42,6 @@ def orb2vec_ns(orb_arr,phys_arr,n): # converts orbital parameters to state vecto
         
     else:         # all the other objects just use the defined orbits
         orb = [a*(1-e),e,i,O,w,M,0.0,mu]
-
         vec = spice.conics(orb,0)
 
     return(vec) 
@@ -71,7 +70,8 @@ def vec2orb_ns(s,phys_objects,vec):  # converts a state vector to orbital parame
                             
 #### generate_system takes input from the dataframe and generates a 
 #### Physical_Properties class and SPINNY object for each body in the system
-    plot(s_df, names, runprops)
+    #Why is a plot command right here?
+    #plot(s_df, names, runprops)
 def generate_system_ns(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr,tolerance, runprops):
     
     # integration parameters
@@ -116,6 +116,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
     body_arr = np.empty((T,(N*6)))
     inertial_arr = np.empty((T,(N*13))) 
     spin_arr = np.empty((N,T,2))
+    #spinvec isn't in spinny generate
     spinvec_arr = np.empty((N,T,3))
     quat_arr = np.empty((N,T,4))
     euler_arr = np.empty((N,T,3))
@@ -129,12 +130,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
     for t in range(0,T):
         # Use s.get_state(n,0) with respect to the primary to ignore the motion of the Sun in our vectors,
         # but we take s.arr0 in order to get orbital parameters which might not make any sense in a primaricentric frame
-        #t_adj = t_arr[t] - epoch
-
-        #print("t_arr[t]: ",t_arr[t])
-        #if t > 0:
-        #    print('body_arr: ', body_arr[t-1])
-        #print("spinny_nosun Line 133")
+        #print('t_arr', t_arr)
         s.evolve(t_arr[t]) #### <---- The actual integration
         #print("spinny_nosun Line 135")
         body_arr[t] = np.concatenate([s.get_state(n,0) for n in range(0,N)]) # taken with respect to the primary
@@ -190,7 +186,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
                 spin_orbit_angle = np.arccos(np.dot(obj_pole,orbit_pole))*180./np.pi
                 #print("here3")
 
-
+            #print(spin_arr.shape)
             spin_arr[n,t,0] = spin_orbit_angle 
             spin_rate = np.linalg.norm(spinvec_arr[n,t,:]) # magnitude of spin vector
             spin_arr[n,t,1] = ((2.0*np.pi)/spin_rate) / 3600.0 # spin period in hours
@@ -403,7 +399,7 @@ def build_spinny_ns(sys_df, runprops):
         if sys_df.loc["sp_lon",name] != 0.00:
             sp_lon_n = sys_df.loc["sp_lon",name]
         else:
-            sp_lon_n = 0.0 #orb_arr[i,2]
+            sp_lon_n = orb_arr[i,2]
             
         if sys_df.loc["sp_rate",name] != 0.00:
             sp_rate_n = sys_df.loc["sp_rate",name]
@@ -439,8 +435,10 @@ def evolve_spinny_ns(N, names, phys_arr, orb_arr, spin_arr, quat_arr, t_arr, tol
     
     start_time = time.time()
     s = generate_system_ns(N,names,phys_arr,orb_arr,spin_arr,quat_arr,tol, runprops)
+    
     spinny = s[0]
     phys_arr = s[1]
+    
     s_df = spinny_integrate_ns(spinny, names, phys_arr,t_arr, runprops)
     verbose = runprops.get('verbose')
     if verbose:
