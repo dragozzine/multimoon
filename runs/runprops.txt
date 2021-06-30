@@ -25,7 +25,7 @@
     "maxiter" : 10,			# maximum number of steps to take within the final sampling
     "nthinning" : 1,			# thinning fraction
     "maxreset" : 10000,			# maximum number of resets when checking parameters set
-    "spinny_tolerance": 1e-12,		# tolerance of spinny
+    "spinny_tolerance": 1e-13,		# tolerance of spinny
     "numprocesses": 24,			# number of cores to use
     "min_periapse": 2000.0,
 
