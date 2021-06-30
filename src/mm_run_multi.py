@@ -451,7 +451,7 @@ if __name__ == '__main__':
             # Reads in th geocentric_object data file
             geo_obj_pos = pd.read_csv(geofile, index_col=0)
             shutil.copy(geofile, runprops.get('results_folder')+'/geocentric_'+objname+'_position.csv')
-            shutil.copy(geo_analysis, runprops.get('results_folder')+'/geocentric_'+objname+'_position_analysis.csv')
+            #shutil.copy(geo_analysis, runprops.get('results_folder')+'/geocentric_'+objname+'_position_analysis.csv')
             
             # Go through initial guesses and check that all walkers have finite posterior probability
             reset = 0
