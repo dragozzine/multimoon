@@ -55,14 +55,15 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     priors = priors.transpose()
     
     name_dict = runprops.get("names_dict")
-    
+    if runprops.get('includesun') == True:
+        name_dict['name_0'] = 'Sun'
     #print("floats:", float_params)
     #print("fixed:", fixed_df)
     #print("fit_scale:", fit_scale)
     params,fit_params = mm_param.from_fit_array_to_param_df(float_params, float_names, fixed_df, total_df_names, fit_scale, name_dict, runprops)
     #print('likelihood params 62', params)
-    if runprops.get('includesun') == 1:
-        params.insert(0,'name_0',['Sun'])
+    #if runprops.get('includesun') == 1:
+    #    params.insert(0,'name_0',['Sun'])
         
     #print('Params: ',params)
     #print('Priors: ',fit_params)
@@ -123,10 +124,12 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
                 
                 thelist.insert(0, llhood)
                 #thelist.insert(0, '')
-                #print(thelist)
+                print(thelist)
                 for i in range(runprops.get('numobjects')):
                     thelist.pop()
-                
+                if runprops.get('includesun'):
+                    print('likelihood lin e130')
+                    thelist.pop()
                 #print(fit_params.head(1).values.tolist()[0])
                 #print(fit_params)
                 
@@ -199,7 +202,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     try:
         time_arr_sec = time_arr*86400
         #vec_df = func_timeout(5,generate_vector,args=(paramdf, time_arr_sec, runprops))
-
+        print(paramdf)
         vec_df = generate_vector(paramdf, time_arr_sec, runprops)
     #except FunctionTimedOut:
     #    print('Spinny took longer than 5 seconds to run 1 walker-step:\n')
@@ -236,7 +239,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     Model_DeltaLong = np.zeros((numObj-1,len(time_arr)))
     Model_DeltaLat = np.zeros((numObj-1,len(time_arr)))
     if runprops.get('includesun') == 1:
-        print(vec_df)
+        #print(vec_df)
         vec_df = vec_df.drop(['X_Pos_Sun', 'Y_Pos_Sun', 'Z_Pos_Sun', 'X_Vel_Sun', 'Y_Vel_Sun', 'Z_Vel_Sun'], axis=1)
 
     positionData = np.zeros((numObj*3,len(time_arr)))
