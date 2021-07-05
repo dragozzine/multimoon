@@ -140,7 +140,7 @@ def build_spinny_multimoon(sys_df, runprops):
         begin = 0
     else:
         begin = 1
-    
+    #print(begin, N+1)
     if runprops.get('verbose'):
         print('vector line 145')
     for n in range(begin,N+1): # for each body in the system, added in order of descending mass:
@@ -221,7 +221,7 @@ def build_spinny_multimoon(sys_df, runprops):
         if runprops.get('verbose'):
             print('vector line 222')
     # set orbit of primary equal to orbit of secondary (it will be scaled later)
-
+    #print(orb_arr)
     if "Sun" in names_arr:
         orb_arr[1] = orb_arr[2]
         

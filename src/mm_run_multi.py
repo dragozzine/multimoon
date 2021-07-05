@@ -463,8 +463,8 @@ if __name__ == '__main__':
             the_names = []
             for i in total_df_names:
                 the_names.append(i[0])
-            for i in fit_names:
-                the_names.append(i)
+            #for i in fit_names:
+            #    the_names.append(i)
 
             if runprops.get('updatebestfitfile'):
                 the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
@@ -1006,7 +1006,7 @@ def run():
             for i in range(runprops.get('numobjects')-1):
                 the_names.append('Residuals_Lon_Obj_'+str(i+1))
                 the_names.append('Residuals_Lat_Obj_'+str(i+1))
-            csv_writer.writerow(fit_names)
+            #csv_writer.writerow(fit_names)
             csv_writer.writerow(the_names)
             
         

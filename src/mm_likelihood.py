@@ -128,7 +128,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
                 for i in range(runprops.get('numobjects')):
                     thelist.pop()
                 if runprops.get('includesun'):
-                    print('likelihood lin e130')
+                    #print('likelihood lin e130')
                     thelist.pop()
                 #print(fit_params.head(1).values.tolist()[0])
                 #print(fit_params)
