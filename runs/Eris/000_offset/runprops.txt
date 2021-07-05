@@ -23,7 +23,7 @@
     "essgoal": 10,
     "maxiter": 1,
     "nthinning": 100,
-    "op_mode": false,
+    "op_mode": true,
     "thin_run": false,
     "mhill_sphere_reject": 3.5,
     "thin_plots": 100,

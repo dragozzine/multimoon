@@ -9,6 +9,7 @@
     "RunGoal" : "Fit Eris",
     "lockspinanglesflag": false,
     "transform": true,
+    "op_mode": true,
     "com_offset": true,
     "min_periapse": 30000,
 
