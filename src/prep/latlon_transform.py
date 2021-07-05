@@ -15,6 +15,7 @@ from astropy.coordinates import BarycentricMeanEcliptic
 from astropy import coordinates 
 import astropy
 import sys
+
 '''
     NAME:
          convert_to_primary_centric
@@ -46,7 +47,8 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
         
     #print(dateList)
     #Get the Horizons data for the object at the times it was observed
-    primary = Horizons(id=objectNames[0],location='geocentric',epochs=dateList)
+    primary = Horizons(id=objectNames[0],location="geocentric",epochs=dateList)
+    #primary = Horizons(id=objectNames[0],location=None,epochs=dateList)
     
     updatedDF['time'] = paramsDF['time']-primary.vectors(aberrations = 'astrometric')['lighttime']
 
@@ -55,7 +57,7 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
     #DEC_Prim = np.array(paramsDF['DEC-Primary'])
     RA_Prim = np.array(primary.ephemerides()['RA'][:])
     DEC_Prim = np.array(primary.ephemerides()['DEC'][:])
-    #print(RA_Prim, DEC_Prim)
+    print(RA_Prim, DEC_Prim)
     
     for i in range(len(objectNames)-1):
     
@@ -82,8 +84,8 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
     #Essentially we define where the object is in our RA/DEC coordinate system. ICRS is the system our coordinates are in.
         dist = primary.vectors(aberrations = 'astrometric')['range']
 
-        firstC = SkyCoord(ra=RA_1*u.degree, dec=DEC_1*u.degree, frame='icrs', obstime = dateList, distance = dist)
-        primC = SkyCoord(ra=RA_Prim*u.degree, dec=DEC_Prim*u.degree, frame='icrs', obstime = dateList, distance = dist)
+        firstC = SkyCoord(ra=RA_1*u.degree, dec=DEC_1*u.degree, frame='gcrs', obstime = dateList, distance = dist)
+        primC = SkyCoord(ra=RA_Prim*u.degree, dec=DEC_Prim*u.degree, frame='gcrs', obstime = dateList, distance = dist)
         firstEcl = firstC.transform_to(GeocentricTrueEcliptic(equinox='J2000'))
         primEcl = primC.transform_to(GeocentricTrueEcliptic(equinox='J2000'))
     
@@ -102,7 +104,7 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
             Lat_err_arr = np.zeros(len(ra_err[0]))
             Long_err_arr = np.zeros(len(dec_err[0]))
             for k in range(len(ra_err[0])):
-                coord_sky = SkyCoord(ra=ra_err[j][k]*u.degree, dec=dec_err[j][k]*u.degree, frame='icrs', obstime = dateList[j], distance = dist[j]*u.AU,unit=(u.deg,u.deg))
+                coord_sky = SkyCoord(ra=ra_err[j][k]*u.degree, dec=dec_err[j][k]*u.degree, frame='gcrs', obstime = dateList[j], distance = dist[j]*u.AU,unit=(u.deg,u.deg))
                 transformed_coord = coord_sky.transform_to(GeocentricTrueEcliptic(equinox='J2000'))
                 Lat_err_arr[k] = transformed_coord.lat.degree
                 Long_err_arr[k] = transformed_coord.lon.degree
@@ -133,6 +135,6 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
     updatedDF.to_csv('New'+objectNames[0]+'_LatLon.csv')
     
 
-params = pd.read_csv('manwedata.csv')
+params = pd.read_csv('erisdata.csv')
 
-convert_to_primary_centric(params, ['Manwe','Thorondor'],2,500)
+convert_to_primary_centric(params, ['Eris','Dysnomia'],2,1000)
