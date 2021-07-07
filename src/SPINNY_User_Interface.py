@@ -68,9 +68,11 @@ def run_spinny():
     
     file_sys = str(input("Please input file name with system parameters (MUST be .csv): "))
 
-    file_t = str(input("File name with list of times (MUST be .csv): "))
+    file_t = str(input("All times files have been moved to src/mm_SPINNY/times/. Enter name of file in that folder without the path. File name with list of times (MUST be .csv): "))
     
-    file_r = str(input("Input a runprops dictionary (MUST be .txt): "))
+    #file_r = str(input("Input a runprops dictionary (MUST be .txt): "))
+    print("Now using ../runs/runprops by default.")
+    file_r = "../runs/runprops"
     
     if not ".csv" in file_sys:
         file_sys += ".csv"  
@@ -83,7 +85,7 @@ def run_spinny():
         
     #pd.set_option('display.max_columns', None)
     sys_df = pd.read_csv(str(file_sys),index_col=[0])
-    time_df = pd.read_csv(str(file_t))
+    time_df = pd.read_csv(str("mm_SPINNY/times/"+file_t))
     getData = ReadJson(file_r)
     runprops = getData.outProps()
     
@@ -109,11 +111,13 @@ def run_spinny():
         s_df = spinny[0]
         names = spinny[2]
         save(s_df,names, runprops)
-    else: 
-        system = build_spinny(sys_df)
-        spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr)
+    else:
+        print('sys_df line 113', sys_df)
+        system = build_spinny(sys_df,runprops)
+        spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,runprops)
         s_df = spinny[0]
-        names = spinny[2]
+        print('s_df 117', s_df)
+        names = spinny[1]
         save(s_df,names, runprops)
 
         

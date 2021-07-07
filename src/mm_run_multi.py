@@ -159,6 +159,8 @@ if __name__ == '__main__':
                     csv_writer = writer(write_obj, delimiter = ',')
                     the_names.insert(0,'Prior')
                     the_names.insert(0,'Reduced chi-sq')
+                    the_names.insert(0,'Chi-sq')
+                    the_names.insert(0,'P-val')                   
                     the_names.insert(0,'Likelihood')
                     for i in range(runprops.get('numobjects')-1):
                         the_names.append('Residuals_Lon_Obj_'+str(i+1))
@@ -451,7 +453,7 @@ if __name__ == '__main__':
             # Reads in th geocentric_object data file
             geo_obj_pos = pd.read_csv(geofile, index_col=0)
             shutil.copy(geofile, runprops.get('results_folder')+'/geocentric_'+objname+'_position.csv')
-            shutil.copy(geo_analysis, runprops.get('results_folder')+'/geocentric_'+objname+'_position_analysis.csv')
+            #shutil.copy(geo_analysis, runprops.get('results_folder')+'/geocentric_'+objname+'_position_analysis.csv')
             
             # Go through initial guesses and check that all walkers have finite posterior probability
             reset = 0
@@ -461,8 +463,8 @@ if __name__ == '__main__':
             the_names = []
             for i in total_df_names:
                 the_names.append(i[0])
-            for i in fit_names:
-                the_names.append(i)
+            #for i in fit_names:
+            #    the_names.append(i)
 
             if runprops.get('updatebestfitfile'):
                 the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
@@ -470,6 +472,9 @@ if __name__ == '__main__':
                     csv_writer = writer(write_obj, delimiter = ',')
                     the_names.insert(0,'Prior')
                     the_names.insert(0,'Reduced_chi_sq')
+                    the_names.insert(0,'Chi-sq')
+                    the_names.insert(0,'P-val')
+                    the_names.insert(0,'Degrees-of-freedom')
                     the_names.insert(0,'Likelihood')
                     #the_names.insert(0,'index')
                     for i in range(runprops.get('numobjects')-1):
@@ -1001,7 +1006,7 @@ def run():
             for i in range(runprops.get('numobjects')-1):
                 the_names.append('Residuals_Lon_Obj_'+str(i+1))
                 the_names.append('Residuals_Lat_Obj_'+str(i+1))
-            csv_writer.writerow(fit_names)
+            #csv_writer.writerow(fit_names)
             csv_writer.writerow(the_names)
             
         

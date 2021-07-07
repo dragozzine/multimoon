@@ -6,3 +6,5 @@ Haumea_obs_df.csv -- Added on 06/17/21 by Ben Prooudfoot. Contains all Haumea da
                      combining new HST data from DR and the data reported in Ragozzine and Brown 2009.
                      This data is in Geocentric True Ecliptic coordinates, which should match 
                      MultiMoon's coordinate system. 
+		  -- New data file with small (a few milliarcsecond) changes due to a bug in the latlon
+		     tranformation code. 06/30/21

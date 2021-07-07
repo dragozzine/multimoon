@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from mpl_toolkits.mplot3d import Axes3D
 import sys
+import os
 sys.path.insert(1,"..")
 
 import pandas as pd
@@ -21,7 +22,10 @@ def spinny_plot(plot_df, names, runprops):
 
     t_arr = plot_df['Times'].values.flatten()
     T = len(t_arr)
-    names = names
+
+    print(names, plot_df, plot_df.columns)
+    if runprops.get('includesun'):
+        names = np.delete(names,0)
     
     for name in names:
 
@@ -82,7 +86,7 @@ def spinny_plot(plot_df, names, runprops):
     if runprops.get('results_folder') == None:
         filename = "../results/SPINNY-models/"+name_prim+"_figures_"+t_current+".pdf"
     else:
-        filename = '../../'+runprops.get('results_folder')+'/spinny_figures.pdf'
+        filename = os.getcwd()+'/spinny_figures.pdf'
     
     with PdfPages(filename) as pdf:
         

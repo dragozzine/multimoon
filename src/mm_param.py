@@ -80,16 +80,17 @@ def from_param_df_to_fit_array(dataframe, runprops):
             if fix_float_dict.get('inc_'+str(i+2)) == 1 and fix_float_dict.get('lan_'+str(i+2)) == 1:
                 inc = np.array(dataframe[['inc_'+str(i+2)]])*np.pi/180
                 lan = np.array(dataframe[['lan_'+str(i+2)]])*np.pi/180
-                
+                 
                 dataframe[['inc_'+str(i+2)]] = np.tan(inc/2)*np.sin(lan)
                 dataframe[['lan_'+str(i+2)]] = np.tan(inc/2)*np.cos(lan)
+        
+        for i in range(runprops.get('numobjects')):
+            if fix_float_dict.get('spinc_'+str(i+1)) == 1 and fix_float_dict.get('splan_'+str(i+1)) == 1:
+                spinc = np.array(dataframe[['spinc_'+str(i+1)]])*np.pi/180
+                splan = np.array(dataframe[['splan_'+str(i+1)]])*np.pi/180
                 
-            if fix_float_dict.get('spinc_'+str(i+2)) == 1 and fix_float_dict.get('splan_'+str(i+2)) == 1:
-                spinc = np.array(dataframe[['spinc_'+str(i+2)]])*np.pi/180
-                splan = np.array(dataframe[['splan_'+str(i+2)]])*np.pi/180
-                
-                dataframe[['spinc_'+str(i+2)]] = np.tan(spinc/2)*np.sin(splan)
-                dataframe[['splan_'+str(i+2)]] = np.tan(spinc/2)*np.cos(splan)
+                dataframe[['spinc_'+str(i+1)]] = np.tan(spinc/2)*np.sin(splan)
+                dataframe[['splan_'+str(i+1)]] = np.tan(spinc/2)*np.cos(splan)
     
     num = 0
     fit_scale = dataframe.iloc[0]
@@ -180,16 +181,13 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
         undo_pomega[:] = False
         undo_masses = np.zeros(runprops.get('numobjects')-1)
         undo_masses[:] = False
-        undo_spin = np.zeros(runprops.get('numobjects')-1)
+        undo_spin = np.zeros(runprops.get('numobjects'))
         undo_spin[:] = False
         
         for i in range(runprops.get('numobjects')-1):
             if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
                 undo_ecc_aop[i] = True
-            
-            if 'spinc_'+str(i+2) in float_names and 'splan_'+str(i+2) in float_names:
-                undo_spin[i] = True
-            
+                        
             if 'inc_'+str(i+2) in float_names and 'lan_'+str(i+2) in float_names:
                 undo_inc_lan[i] = True
                 
@@ -198,8 +196,11 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 
             if 'lan_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
                 undo_pomega[i] = True
-                
-         
+        
+        for i in range(runprops.get('numobjects')):
+            if 'spinc_'+str(i+1) in float_names and 'splan_'+str(i+1) in float_names:
+                undo_spin[i] = True
+        
         if 'mass_1' in float_names and 'mass_2' in float_names:
             if 'mass_3' in float_names and runprops.get('numobjects') > 2:
                 undo_masses[1] = True
@@ -284,25 +285,6 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
 
                 param_df['inc_'+str(i+2)] = inc
                 param_df['lan_'+str(i+2)] = lan
-                
-            if undo_spin[i]:
-            
-                a = np.array(param_df['spinc_'+str(i+2)])
-                b = np.array(param_df['splan_'+str(i+2)])
-                
-                splan = np.arctan2(a,b)*180/np.pi
-                if splan < 0:
-                    splan = splan%360
-                
-                c = np.sin(splan*np.pi/180)
-                
-                spinc = np.arctan2(a,c)*2*180/np.pi
-                
-                if spinc < 0:
-                    spinc = spinc%180
-                    
-                param_df['spinc_'+str(i+2)] = spinc
-                param_df['splan_'+str(i+2)] = splan
                            
             if undo_lambda[i]:
                 fit_params['lambda_'+str(i+2)] = np.array(param_df['mea_'+str(i+2)])
@@ -323,6 +305,25 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                     aop = aop%360
                 param_df['aop_'+str(i+2)] = aop
                 
+            if undo_spin[i]:
+            
+                a = np.array(param_df['spinc_'+str(i+1)])
+                b = np.array(param_df['splan_'+str(i+1)])
+                
+                splan = np.arctan2(a,b)*180/np.pi
+                if splan < 0:
+                    splan = splan%360
+                
+                c = np.sin(splan*np.pi/180)
+                
+                spinc = np.arctan2(a,c)*2*180/np.pi
+                
+                if spinc < 0:
+                    spinc = spinc%180
+                    
+                param_df['spinc_'+str(i+1)] = spinc
+                param_df['splan_'+str(i+1)] = splan
+                
             if int(runprops.get('dynamicstoincludeflags')[0]) > 0:
                 spinc1=np.deg2rad(np.array(param_df['spinc_1']))
                 splan1=np.deg2rad(np.array(param_df['splan_1']))
@@ -332,6 +333,26 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                     mutualinc = np.arccos( np.cos(spinc1)*np.cos(inc) + np.sin(spinc1)*np.sin(inc)*np.cos(splan1 - lan) )
                     mutualinc = np.rad2deg(mutualinc)
                     fit_params['spin_sat_inc_'+str(i+2)] = mutualinc
+        
+        N = runprops.get('numobjects')
+        if undo_spin[N-1]:
+            
+            a = np.array(param_df['spinc_'+str(N)])
+            b = np.array(param_df['splan_'+str(N)])
+                
+            splan = np.arctan2(a,b)*180/np.pi
+            if splan < 0:
+                splan = splan%360
+                
+            c = np.sin(splan*np.pi/180)
+                
+            spinc = np.arctan2(a,c)*2*180/np.pi
+                
+            if spinc < 0:
+                spinc = spinc%180
+                    
+            param_df['spinc_'+str(N)] = spinc
+            param_df['splan_'+str(N)] = splan            
                     
     return param_df, fit_params
 

@@ -27,6 +27,8 @@ def mm_priors(priors, params, runprops):
 
     # Remove any rows of priors that arent in params
     columnList = list(params)
+    if "name_0" in columnList:
+        columnList.remove("name_0")
     if "name_1" in columnList:
         columnList.remove("name_1")
     if "name_2" in columnList:

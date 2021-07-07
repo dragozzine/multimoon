@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import emcee
 import sys
+import os
 import mm_likelihood
 from astropy.time import Time
 import commentjson as json
@@ -13,6 +14,7 @@ import mm_param
 import mm_make_geo_pos
 from mm_SPINNY.spinny_plots import spinny_plot
 from mm_SPINNY.spinny_generate import *
+from mm_SPINNY.spinny_vector import *
 from mm_SPINNY.spinny_nosun import *
 from mm_SPINNY.mm_vpython import *
 from mm_SPINNY.keplerian import *
@@ -53,7 +55,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	ecc_aop_index = np.zeros((runprops.get('numobjects')-1)*2)
 	undo_inc_lan = np.zeros(runprops.get('numobjects')-1)
 	undo_inc_lan[:] = False
-	undo_spin = np.zeros(runprops.get('numobjects')-1)
+	undo_spin = np.zeros(runprops.get('numobjects'))
 	undo_spin[:] = False
 	spin_index = np.zeros((runprops.get('numobjects')-1)*2)
 	inc_lan_index = np.zeros((runprops.get('numobjects')-1)*2)
@@ -66,6 +68,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	undo_masses = np.zeros(2)    
 	undo_masses[:] = False
 	masses_index = np.zeros(runprops.get('numobjects'))
+	#print(os.getcwd())    
     
 	for i in range(runprops.get('numobjects')-1):
 		if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
@@ -153,17 +156,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				chain[:,:,int(inc_lan_index[b*2+1])] = lan
 				inc = (np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi)%180
 				chain[:,:,int(inc_lan_index[b*2])] = inc
-			if undo_spin[b]:
-				spinc_new = chain[:,:,int(spin_index[b*2])]
-				splan_new = chain[:,:,int(spin_index[b*2+1])]
-				fitparam_chain = np.concatenate((fitparam_chain, np.array([spinc_new.T])),axis=0)
-				fitparam_chain = np.concatenate((fitparam_chain, np.array([splan_new.T])),axis=0)
-				fitparam_names.append('sp_p')
-				fitparam_names.append('sp_q')
-				splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
-				chain[:,:,int(spin_index[b*2+1])] = lan
-				spinc = (np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi)%180
-				chain[:,:,int(spin_index[b*2])] = spinc
 			if undo_lambda[b]:
 				mea_new = chain[:,:,int(lambda_index[b*2])]
 				pomega = chain[:,:,int(lambda_index[b*2+1])]
@@ -178,6 +170,18 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				pomega = chain[:,:,int(pomega_index[b*2])]
 				aop = (pomega-lan)%360
 				chain[:,:,int(pomega_index[b*2])] = aop
+		for b in range(runprops.get('numobjects')):
+			if undo_spin[b]:
+				spinc_new = chain[:,:,int(spin_index[b*2])]
+				splan_new = chain[:,:,int(spin_index[b*2+1])]
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([spinc_new.T])),axis=0)
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([splan_new.T])),axis=0)
+				fitparam_names.append('sp_p')
+				fitparam_names.append('sp_q')
+				splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
+				chain[:,:,int(spin_index[b*2+1])] = lan
+				spinc = (np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi)%180
+				chain[:,:,int(spin_index[b*2])] = spinc
 		if undo_masses[0]:
 			mass_1 = chain[:,:,int(masses_index[0])]
 			mass_2 = chain[:,:,int(masses_index[1])]
@@ -471,7 +475,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.subplot(223)
 		plt.scatter(flatchain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
-			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True)
+			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
 		plt.xlabel(dnames[i])
 		plt.ylabel("Log(L)")
 		plt.ylim(ylimmin, ylimmax)
@@ -491,7 +495,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.subplot(223)
 		plt.scatter(dfchain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
-			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True)
+			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
 		plt.xlabel(dnames[i])
 		plt.ylabel("Log(L)")
 		plt.ylim(ylimmin, ylimmax)
@@ -511,7 +515,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.subplot(223)
 		plt.scatter(fitparam_chain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
-			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True)
+			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
 		plt.xlabel(fitparam_names[i])
 		plt.ylabel("Log(L)")
 		plt.ylim(ylimmin, ylimmax)
@@ -564,7 +568,14 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	#print(paramdf)
 #Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
-	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
+	#chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
+	best_likelihoods = pd.read_csv('best_likelihoods.csv')
+	residuals = []
+	#print(best_likelihoods, best_likelihoods.iloc[-(i+1)])    
+	for i in range(runprops.get('numobjects')):    
+		residuals.insert(0,best_likelihoods.iloc[-(i+1)][-1])
+		residuals.insert(0,best_likelihoods.iloc[-(i+2)][-1])
+	#print(residuals)        
 	#print(chisquare_total, residuals)
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
@@ -583,6 +594,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.plot(xvals2,-circle2, color = "black", alpha = 0.5)
 	plt.plot(xvals3, circle3, color = "black", alpha = 0.25)
 	plt.plot(xvals3,-circle3, color = "black", alpha = 0.25)
+	print(nobjects, np.array(residuals).shape)    
 	for i in range(1, nobjects):
 		plt.scatter(residuals[2*(i-1)][:], residuals[2*(i-1)+1][:], c = colorcycle[i], label = objectnames[i], edgecolors = None)
 	plt.xlabel("Delta Longitude")
@@ -625,6 +637,35 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	sys_df[names[0]]['aop'] = 0
 	sys_df[names[0]]['mea'] = 0
 
+	if runprops.get('includesun'):
+		sys_df.loc['mass','Sun'] = paramdf['mass_0'][0]
+		axis = list(runprops.get('axes_size').values())[0]
+		j2 = 0
+		c22 = 0
+		sp_rate = 0
+		sp_obl = 0
+		sp_prc = 0
+		sp_lon = 0      
+		sys_df.loc['axis','Sun'] = axis      
+		sys_df.loc['j2r2','Sun'] = j2     
+		sys_df.loc['c22r2','Sun'] = c22    
+		sys_df.loc['sp_rate','Sun'] = sp_rate
+		sys_df.loc['sp_obl','Sun'] = sp_obl
+		sys_df.loc['sp_prc','Sun'] = sp_prc
+		sys_df.loc['sp_lon','Sun'] = sp_lon          
+		sma = paramdf['sma_0'][0]
+		ecc = paramdf['ecc_0'][0]
+		inc = paramdf['inc_0'][0]
+		lan = paramdf['lan_0'][0]
+		aop = paramdf['aop_0'][0]
+		mea = paramdf['mea_0'][0]
+		sys_df.loc['sma','Sun'] = sma
+		sys_df.loc['ecc','Sun'] = ecc
+		sys_df.loc['inc','Sun'] = inc
+		sys_df.loc['lan','Sun'] = lan
+		sys_df.loc['aop','Sun'] = aop
+		sys_df.loc['mea','Sun'] = mea
+    
 	for i in range(runprops.get('numobjects')):
 		sys_df.loc['mass',names[i]] = paramdf['mass_'+str(i+1)][0]
 		axis = list(runprops.get('axes_size').values())[i]
@@ -691,22 +732,23 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	tol = runprops.get("spinny_tolerance")
 
 	#print(sys_df)
-	if N == 2 and j2_sum == 0.00:
-		kepler_system = kepler_integrate(sys_df,t_arr)
+	if N == 2 and j2_sum == 0.00 and runprops.get('includesun') == 0:
+		print(paramdf)        
+		kepler_system = kepler_2body(paramdf,t_arr,runprops)
 		kepler_df = kepler_system[0]
 		names = kepler_system[1]
-		kepler_save(kepler_df, names)
+		spinny_plot(kepler_df, names,runprops)
 	elif runprops.get('includesun') == 0:
 		system = build_spinny_ns(sys_df,runprops)
 		spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol,runprops)
 		s_df = spinny[0]
-		names = spinny[2]
+		names = spinny[1]
 		spinny_plot(s_df,names, runprops)
 	else: 
 		system = build_spinny(sys_df, runprops)
 		spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,runprops)
 		s_df = spinny[0]
-		names = spinny[2]
+		names = spinny[1]
 		spinny_plot(s_df,names, runprops)
     
 	#Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
@@ -839,7 +881,7 @@ backend = emcee.backends.HDFBackend('chain.h5')
     
 fit_scale = pd.read_csv('fit_scale.csv',index_col=0)
 float_names = runprops.get('float_names')
-obsdf = pd.read_csv(objname+'_obs_df.csv',index_col=0)
+obsdf = pd.read_csv(objname+'_obs_df_copy.csv',index_col=0)
 geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position.csv',index_col=0)
 fixed_df = pd.read_csv('fixed_df.csv',index_col=0)
 total_df_names = runprops.get('total_df_names')
