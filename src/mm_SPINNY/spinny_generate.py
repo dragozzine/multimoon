@@ -374,17 +374,25 @@ def build_spinny(sys_df, runprops):
     
     names = np.empty(N,dtype='object')
     #print('generate line 363')
+    #if runprops.get('includesun'):
+        
     for n in range(0,N):
         idx_n = int(np.where(sys_df==masses[n])[1].flatten())
         name_n = (sys_df.columns[idx_n])
         names[n] = name_n
-    
+    #if runprops.get('includesun'):
+    #    names = np.insert(names,0,'Sun')
+        
+        
     phys_arr = np.zeros((N,4))
     orb_arr = np.zeros((N,6))
     spin_arr = np.zeros((N,4))
     quat_arr = np.zeros((N,4))
     
     i = 0
+    
+    #print(names)
+    #print(sys_df)
     for name in names: # for each body in the system, added in order of descending mass:
         
         if sys_df.loc["mass",name] != 0.00:
@@ -512,7 +520,7 @@ def build_spinny(sys_df, runprops):
         
         i = i+1
               
-
+    #print(orb_arr, phys_arr, spin_arr, quat_arr)
     return(N, names, phys_arr, orb_arr, spin_arr, quat_arr)
     
     

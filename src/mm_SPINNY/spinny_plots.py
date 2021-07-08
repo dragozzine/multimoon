@@ -22,7 +22,10 @@ def spinny_plot(plot_df, names, runprops):
 
     t_arr = plot_df['Times'].values.flatten()
     T = len(t_arr)
-    names = names
+
+    print(names, plot_df, plot_df.columns)
+    if runprops.get('includesun'):
+        names = np.delete(names,0)
     
     for name in names:
 

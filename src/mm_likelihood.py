@@ -27,6 +27,32 @@ def log_likelihood(params, obsdf, runprops, geo_obj_pos):
     lh = lh*-0.5
     #print('lh ',lh)
 
+    if runprops.get("robust_stats"):
+        rows = obsdf.shape[0]
+        numObj = runprops.get("numobjects")
+        lh_robust = 0
+        jitter = paramdf["jitter"].iloc[0]
+        p_outlier = paramdf["pbad"].iloc[0]
+
+        names_dict = runprops.get("names_dict")
+        names=[0 for i in range(numObj)]
+        for i in range(0,numObj):
+            names[i] = names_dict.get("name_"+str(i+1))
+
+        for j in range(1,numObj):
+            for i in range(rows):
+                combinedlon_err = np.sqrt(obsdf["DeltaLong_"+names[j]+"_err"][i]**2 + jitter**2)
+                combinedlat_err = np.sqrt(obsdf["DeltaLat_"+names[j]+"_err"][i]**2 + jitter**2)
+                omc_lon = (residuals[2*(j-1)][i] * obsdf["DeltaLong_"+names[j]+"_err"][i])**2
+                omc_lat = (residuals[2*(j-1)+1][i] * obsdf["DeltaLat_"+names[j]+"_err"][i])**2
+                lh_robust += np.log( ((1-p_outlier)/(np.sqrt(2*np.pi*obsdf["DeltaLong_"+names[j]+"_err"][i]**2)))*np.exp(-omc_lon/(2*obsdf["DeltaLong_"+names[j]+"_err"][i]**2))
+                                    + (p_outlier/np.sqrt(2*np.pi*combinedlon_err**2))*np.exp(-omc_lon/(2*combinedlon_err**2))  )
+                lh_robust += np.log( ((1-p_outlier)/(np.sqrt(2*np.pi*obsdf["DeltaLat_"+names[j]+"_err"][i]**2)))*np.exp(-omc_lat/(2*obsdf["DeltaLat_"+names[j]+"_err"][i]**2))
+                                    + (p_outlier/np.sqrt(2*np.pi*combinedlat_err**2))*np.exp(-omc_lat/(2*combinedlat_err**2))  )
+
+        print(lh_robust, lh)
+        return lh_robust, residuals
+
     return lh, residuals
 
 
@@ -124,11 +150,11 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
                 
                 thelist.insert(0, llhood)
                 #thelist.insert(0, '')
-                print(thelist)
+                #print(thelist)
                 for i in range(runprops.get('numobjects')):
                     thelist.pop()
                 if runprops.get('includesun'):
-                    print('likelihood lin e130')
+                    #print('likelihood lin e130')
                     thelist.pop()
                 #print(fit_params.head(1).values.tolist()[0])
                 #print(fit_params)
