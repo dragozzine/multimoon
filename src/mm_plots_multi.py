@@ -14,6 +14,7 @@ import mm_param
 import mm_make_geo_pos
 from mm_SPINNY.spinny_plots import spinny_plot
 from mm_SPINNY.spinny_generate import *
+from mm_SPINNY.spinny_vector import *
 from mm_SPINNY.spinny_nosun import *
 from mm_SPINNY.mm_vpython import *
 from mm_SPINNY.keplerian import *
@@ -54,9 +55,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	ecc_aop_index = np.zeros((runprops.get('numobjects')-1)*2)
 	undo_inc_lan = np.zeros(runprops.get('numobjects')-1)
 	undo_inc_lan[:] = False
-	undo_spin = np.zeros(runprops.get('numobjects')-1)
+	undo_spin = np.zeros(runprops.get('numobjects'))
 	undo_spin[:] = False
-	spin_index = np.zeros((runprops.get('numobjects')-1)*2)
+	spin_index = np.zeros((runprops.get('numobjects'))*2)
 	inc_lan_index = np.zeros((runprops.get('numobjects')-1)*2)
 	undo_lambda = np.zeros(runprops.get('numobjects')-1)
 	undo_lambda[:] = False
@@ -80,8 +81,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			inc_lan_index[2*i+1] = float_names.index('lan_'+str(i+2))
 		if 'spinc_'+str(i+2) in float_names and 'splan_'+str(i+2) in float_names:
 			undo_spin[i] = True
-			spin_index[2*i] = float_names.index('spinc_'+str(i+2))
-			spin_index[2*i+1] = float_names.index('splan_'+str(i+2))
+			spin_index[2*(i+1)] = float_names.index('spinc_'+str(i+2))
+			spin_index[2*(i+1)+1] = float_names.index('splan_'+str(i+2))
 		if 'mea_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
 			undo_lambda[i] = True
 			lambda_index[2*i] = float_names.index('mea_'+str(i+2))
@@ -90,6 +91,10 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			undo_pomega[i] = True
 			pomega_index[2*i] = float_names.index('aop_'+str(i+2))
 			pomega_index[2*i+1] = float_names.index('lan_'+str(i+2))
+	if 'spinc_1' in float_names and 'splan_1' in float_names:
+		undo_spin[0] = True
+		spin_index[0] = float_names.index('spinc_1')
+		spin_index[1] = float_names.index('splan_1')
 	if 'mass_1' in float_names and 'mass_2' in float_names:
 		if 'mass_3' in float_names and runprops.get('numobjects') > 2:        
 			undo_masses[1] = True
@@ -155,17 +160,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				chain[:,:,int(inc_lan_index[b*2+1])] = lan
 				inc = (np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi)%180
 				chain[:,:,int(inc_lan_index[b*2])] = inc
-			if undo_spin[b]:
-				spinc_new = chain[:,:,int(spin_index[b*2])]
-				splan_new = chain[:,:,int(spin_index[b*2+1])]
-				fitparam_chain = np.concatenate((fitparam_chain, np.array([spinc_new.T])),axis=0)
-				fitparam_chain = np.concatenate((fitparam_chain, np.array([splan_new.T])),axis=0)
-				fitparam_names.append('sp_p')
-				fitparam_names.append('sp_q')
-				splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
-				chain[:,:,int(spin_index[b*2+1])] = lan
-				spinc = (np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi)%180
-				chain[:,:,int(spin_index[b*2])] = spinc
 			if undo_lambda[b]:
 				mea_new = chain[:,:,int(lambda_index[b*2])]
 				pomega = chain[:,:,int(lambda_index[b*2+1])]
@@ -180,6 +174,18 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				pomega = chain[:,:,int(pomega_index[b*2])]
 				aop = (pomega-lan)%360
 				chain[:,:,int(pomega_index[b*2])] = aop
+		for b in range(runprops.get('numobjects')):
+			if undo_spin[b]:
+				spinc_new = chain[:,:,int(spin_index[b*2])]
+				splan_new = chain[:,:,int(spin_index[b*2+1])]
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([spinc_new.T])),axis=0)
+				fitparam_chain = np.concatenate((fitparam_chain, np.array([splan_new.T])),axis=0)
+				fitparam_names.append('sp_p')
+				fitparam_names.append('sp_q')
+				splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
+				chain[:,:,int(spin_index[b*2+1])] = splan
+				spinc = (np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi)%180
+				chain[:,:,int(spin_index[b*2])] = spinc
 		if undo_masses[0]:
 			mass_1 = chain[:,:,int(masses_index[0])]
 			mass_2 = chain[:,:,int(masses_index[1])]
@@ -567,6 +573,13 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	#print(paramdf)
 #Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
 	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
+	#best_likelihoods = pd.read_csv('best_likelihoods.csv')
+	#residuals = []
+	#print(best_likelihoods, best_likelihoods.iloc[-(i+1)])    
+	#for i in range(runprops.get('numobjects')):    
+	#	residuals.insert(0,best_likelihoods.iloc[-(i+1)][-1])
+	#	residuals.insert(0,best_likelihoods.iloc[-(i+2)][-1])
+	#print(residuals)        
 	#print(chisquare_total, residuals)
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
@@ -585,6 +598,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.plot(xvals2,-circle2, color = "black", alpha = 0.5)
 	plt.plot(xvals3, circle3, color = "black", alpha = 0.25)
 	plt.plot(xvals3,-circle3, color = "black", alpha = 0.25)
+	print(nobjects, np.array(residuals).shape)    
 	for i in range(1, nobjects):
 		plt.scatter(residuals[2*(i-1)][:], residuals[2*(i-1)+1][:], c = colorcycle[i], label = objectnames[i], edgecolors = None)
 	plt.xlabel("Delta Longitude")
@@ -627,6 +641,35 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	sys_df[names[0]]['aop'] = 0
 	sys_df[names[0]]['mea'] = 0
 
+	if runprops.get('includesun'):
+		sys_df.loc['mass','Sun'] = paramdf['mass_0'][0]
+		axis = list(runprops.get('axes_size').values())[0]
+		j2 = 0
+		c22 = 0
+		sp_rate = 0
+		sp_obl = 0
+		sp_prc = 0
+		sp_lon = 0      
+		sys_df.loc['axis','Sun'] = axis      
+		sys_df.loc['j2r2','Sun'] = j2     
+		sys_df.loc['c22r2','Sun'] = c22    
+		sys_df.loc['sp_rate','Sun'] = sp_rate
+		sys_df.loc['sp_obl','Sun'] = sp_obl
+		sys_df.loc['sp_prc','Sun'] = sp_prc
+		sys_df.loc['sp_lon','Sun'] = sp_lon          
+		sma = paramdf['sma_0'][0]
+		ecc = paramdf['ecc_0'][0]
+		inc = paramdf['inc_0'][0]
+		lan = paramdf['lan_0'][0]
+		aop = paramdf['aop_0'][0]
+		mea = paramdf['mea_0'][0]
+		sys_df.loc['sma','Sun'] = sma
+		sys_df.loc['ecc','Sun'] = ecc
+		sys_df.loc['inc','Sun'] = inc
+		sys_df.loc['lan','Sun'] = lan
+		sys_df.loc['aop','Sun'] = aop
+		sys_df.loc['mea','Sun'] = mea
+    
 	for i in range(runprops.get('numobjects')):
 		sys_df.loc['mass',names[i]] = paramdf['mass_'+str(i+1)][0]
 		axis = list(runprops.get('axes_size').values())[i]
@@ -693,22 +736,23 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	tol = runprops.get("spinny_tolerance")
 
 	#print(sys_df)
-	if N == 2 and j2_sum == 0.00:
-		kepler_system = kepler_integrate(sys_df,t_arr)
+	if N == 2 and j2_sum == 0.00 and runprops.get('includesun') == 0:
+		print(paramdf)        
+		kepler_system = kepler_2body(paramdf,t_arr,runprops)
 		kepler_df = kepler_system[0]
 		names = kepler_system[1]
-		kepler_save(kepler_df, names)
+		spinny_plot(kepler_df, names,runprops)
 	elif runprops.get('includesun') == 0:
 		system = build_spinny_ns(sys_df,runprops)
 		spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol,runprops)
 		s_df = spinny[0]
-		names = spinny[2]
+		names = spinny[1]
 		spinny_plot(s_df,names, runprops)
 	else: 
 		system = build_spinny(sys_df, runprops)
 		spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,runprops)
 		s_df = spinny[0]
-		names = spinny[2]
+		names = spinny[1]
 		spinny_plot(s_df,names, runprops)
     
 	#Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
