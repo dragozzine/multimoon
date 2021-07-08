@@ -202,7 +202,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     try:
         time_arr_sec = time_arr*86400
         #vec_df = func_timeout(5,generate_vector,args=(paramdf, time_arr_sec, runprops))
-        print(paramdf)
+        #print(paramdf)
         vec_df = generate_vector(paramdf, time_arr_sec, runprops)
     #except FunctionTimedOut:
     #    print('Spinny took longer than 5 seconds to run 1 walker-step:\n')
