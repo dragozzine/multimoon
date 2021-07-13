@@ -57,7 +57,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	undo_inc_lan[:] = False
 	undo_spin = np.zeros(runprops.get('numobjects'))
 	undo_spin[:] = False
-	spin_index = np.zeros((runprops.get('numobjects')-1)*2)
+	spin_index = np.zeros((runprops.get('numobjects'))*2)
 	inc_lan_index = np.zeros((runprops.get('numobjects')-1)*2)
 	undo_lambda = np.zeros(runprops.get('numobjects')-1)
 	undo_lambda[:] = False
@@ -81,8 +81,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			inc_lan_index[2*i+1] = float_names.index('lan_'+str(i+2))
 		if 'spinc_'+str(i+2) in float_names and 'splan_'+str(i+2) in float_names:
 			undo_spin[i] = True
-			spin_index[2*i] = float_names.index('spinc_'+str(i+2))
-			spin_index[2*i+1] = float_names.index('splan_'+str(i+2))
+			spin_index[2*(i+1)] = float_names.index('spinc_'+str(i+2))
+			spin_index[2*(i+1)+1] = float_names.index('splan_'+str(i+2))
 		if 'mea_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
 			undo_lambda[i] = True
 			lambda_index[2*i] = float_names.index('mea_'+str(i+2))
@@ -91,6 +91,10 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			undo_pomega[i] = True
 			pomega_index[2*i] = float_names.index('aop_'+str(i+2))
 			pomega_index[2*i+1] = float_names.index('lan_'+str(i+2))
+	if 'spinc_1' in float_names and 'splan_1' in float_names:
+		undo_spin[0] = True
+		spin_index[0] = float_names.index('spinc_1')
+		spin_index[1] = float_names.index('splan_1')
 	if 'mass_1' in float_names and 'mass_2' in float_names:
 		if 'mass_3' in float_names and runprops.get('numobjects') > 2:        
 			undo_masses[1] = True
@@ -179,7 +183,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				fitparam_names.append('sp_p')
 				fitparam_names.append('sp_q')
 				splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
-				chain[:,:,int(spin_index[b*2+1])] = lan
+				chain[:,:,int(spin_index[b*2+1])] = splan
 				spinc = (np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi)%180
 				chain[:,:,int(spin_index[b*2])] = spinc
 		if undo_masses[0]:
@@ -568,13 +572,13 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	#print(paramdf)
 #Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
-	#chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
-	best_likelihoods = pd.read_csv('best_likelihoods.csv')
-	residuals = []
+	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
+	#best_likelihoods = pd.read_csv('best_likelihoods.csv')
+	#residuals = []
 	#print(best_likelihoods, best_likelihoods.iloc[-(i+1)])    
-	for i in range(runprops.get('numobjects')):    
-		residuals.insert(0,best_likelihoods.iloc[-(i+1)][-1])
-		residuals.insert(0,best_likelihoods.iloc[-(i+2)][-1])
+	#for i in range(runprops.get('numobjects')):    
+	#	residuals.insert(0,best_likelihoods.iloc[-(i+1)][-1])
+	#	residuals.insert(0,best_likelihoods.iloc[-(i+2)][-1])
 	#print(residuals)        
 	#print(chisquare_total, residuals)
 
@@ -742,12 +746,21 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		system = build_spinny_ns(sys_df,runprops)
 		spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol,runprops)
 		s_df = spinny[0]
-		names = spinny[1]
+		names = spinny[2]
 		spinny_plot(s_df,names, runprops)
 	else: 
 		system = build_spinny(sys_df, runprops)
 		spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,runprops)
+		        
 		s_df = spinny[0]
+		#print(s_df)
+		#s_df = pd.DataFrame()
+		#s_df['X_Pos_'+]=
+		#s_df['']=
+		#s_df['']=
+		#s_df['']=
+		#s_df['']=
+		#s_df['']=        
 		names = spinny[1]
 		spinny_plot(s_df,names, runprops)
     
@@ -881,7 +894,7 @@ backend = emcee.backends.HDFBackend('chain.h5')
     
 fit_scale = pd.read_csv('fit_scale.csv',index_col=0)
 float_names = runprops.get('float_names')
-obsdf = pd.read_csv(objname+'_obs_df_copy.csv',index_col=0)
+obsdf = pd.read_csv(objname+'_obs_df.csv',index_col=0)
 geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position.csv',index_col=0)
 fixed_df = pd.read_csv('fixed_df.csv',index_col=0)
 total_df_names = runprops.get('total_df_names')

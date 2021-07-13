@@ -83,14 +83,15 @@ if runprops.get("first_run") == True:
     
     init = runprops.get('runs_file')+'/'+objname+'_init_guess.csv'
     priors = runprops.get('runs_file')+'/'+objname+'_priors_df.csv'
+    geoanalysis = runprops.get('runs_file')+'/geocentric_'+objname+'_position_analysis.csv'
     print("\n\nWarning: Observations data frames are now centrally located. Loading the centrally located obs_df from runs/"+objname+"/observations/.")
     #print(sys.cwd())
 
     if 'runs' in runprops.get('runs_file'):
-        obs = runprops.get('runs_file')+'/../observations/'+runprops.get("obs_df")
-    #obs = runprops.get('runs_file')+'../observations/'+objname+'_obs_df.csv'
+        #obs = runprops.get('runs_file')+'/../observations/'+runprops.get("obs_df")
+        obs = runprops.get('runs_file')+'/../observations/'+objname+'_obs_df.csv'
     elif 'results' in runprops.get('runs_file'):
-        obs = runprops.get('runs_file')+'/'+runprops.get('objectname')+'_obs_df_copy.csv'
+        obs = runprops.get('runs_file')+'/'+runprops.get('objectname')+'_obs_df.csv'
 
     #print(init,priors,obs)
     
@@ -98,10 +99,10 @@ if runprops.get("first_run") == True:
     runprops['obsdata_file'] = obs
     runprops['priors_filename'] = priors    
     
-    shutil.copy(obs, newpath+'/'+runprops.get("objectname")+'_obs_df_copy.csv')
+    shutil.copy(obs, newpath+'/'+runprops.get("objectname")+'_obs_df.csv')
     shutil.copy(priors, newpath+'/'+runprops.get("objectname")+'_priors_df.csv')
     shutil.copy(init, newpath+'/'+runprops.get("objectname")+'_init_guess.csv')
-    
+    shutil.copy(geoanalysis, newpath+'/geocentric_'+runprops.get("objectname")+'_position_analysis.csv')
     #runprops["init_filename"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_init_guess.csv"
     #runprops["priors_filename"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_priors_df.csv"
     #runprops["obsdata_file"] = "../data/" + runprops.get("objectname") + "/" + runprops.get("objectname") + "_obs_df.csv"

@@ -20,7 +20,7 @@ This file represents a dataframe that is read into MultiMoon and then used as th
 
 ###### time, Lat_Prim, Long_Prim, DeltaLat_Hiiaka, DeltaLong_Hiiaka, DeltaLat_Hiiaka_err, DeltaLong_Hiiaka_err, DeltaLat_Namaka, DeltaLong_Namaka, DeltaLat_Namaka_err, DeltaLong_Namaka_err
 
-The astrometry in this file should all be in the J2000 ecliptic. If current data is not given in the J2000 ecliptic, but rather the equatorial place, a function is currently being written for conversion to the ecliptic plane. The order of the columns does not matter, since the columns are called through the use of pandas dataframes, which use the names of the satellites. The names must be exact and must match the names_dictionary in the runprops dictionary, otherwise the code will throw an error.
+The astrometry in this file should all be in the J2000 ecliptic. If current data is not given in the J2000 ecliptic, but rather the equatorial place, a function is currently being written for conversion to the ecliptic plane. The order of the columns does not matter, since the columns are called through the use of pandas dataframes, which uses the names of the satellites. The names must be exact and must match the names_dictionary in the runprops dictionary, otherwise the code will throw an error.
 
 Observations for objects at certain times can be left as empty, if, for example, the satellite is located behind the primary at the time of observations. This will be translated by the code as a NaN observation at that time, and the code will compensate for that non-observation.
 
