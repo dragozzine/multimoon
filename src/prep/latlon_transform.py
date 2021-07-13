@@ -135,6 +135,7 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
     updatedDF.to_csv('New'+objectNames[0]+'_LatLon.csv')
     
 
-params = pd.read_csv('orcusdata.csv')
 
-convert_to_primary_centric(params, ['Orcus','Vanth'],2,1000)
+params = pd.read_csv('BennecchiData.csv')
+
+convert_to_primary_centric(params, ['Lempo','Hiisi','Paha'],3,1000)

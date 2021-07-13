@@ -88,8 +88,8 @@ if runprops.get("first_run") == True:
     #print(sys.cwd())
 
     if 'runs' in runprops.get('runs_file'):
-        obs = runprops.get('runs_file')+'/../observations/'+runprops.get("obs_df")
-    #obs = runprops.get('runs_file')+'../observations/'+objname+'_obs_df.csv'
+        #obs = runprops.get('runs_file')+'/../observations/'+runprops.get("obs_df")
+        obs = runprops.get('runs_file')+'/../observations/'+objname+'_obs_df.csv'
     elif 'results' in runprops.get('runs_file'):
         obs = runprops.get('runs_file')+'/'+runprops.get('objectname')+'_obs_df.csv'
 
