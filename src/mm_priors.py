@@ -125,7 +125,7 @@ def mm_priors(priors, params, runprops):
 
     # Making sure min periapse is obeyed
     min_periapse = runprops.get("min_periapse")
-    hill_sphere = runprops.get("mhill_sphere_reject")
+    #hill_sphere = runprops.get("mhill_sphere_reject")
     #print("min_periapse")
     for i in range(1,runprops.get("numobjects")):
         if i == 1 and (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0]) < min_periapse):
@@ -137,18 +137,18 @@ def mm_priors(priors, params, runprops):
             #print('ecc',params["ecc_" + str(i)].values,'ecc',params["ecc_" + str(i+1)].values)
             return -np.inf
     #print("hill")    
-    #for i in range(2,runprops.get("numobjects")):
-    #    mass1 = params["mass_" + str(1)].values[0]
-    #    mass2 = params["mass_" + str(i)].values[0]
-    #    mass3 = params["mass_" + str(i+1)].values[0]
-    #    sma1 = params["sma_" + str(i)].values[0]
-    #    sma2 = params["sma_" + str(i+1)].values[0]
-    #    ecc1 = params["ecc_" + str(i)].values[0]
-    #    ecc2 = params["ecc_" + str(i+1)].values[0]
-    #    mhill = (sma2*(1-ecc2)-sma1*(ecc1+1))/(((mass2/mass1+mass3/mass1)/3)**(1/3)*0.5*(sma1+sma2))
-    #    #print(mhill, hill_sphere)
-    #    if mhill < hill_sphere:
-    #        return -np.inf
+#    for i in range(2,runprops.get("numobjects")):
+#        mass1 = params["mass_" + str(1)].values[0]
+#        mass2 = params["mass_" + str(i)].values[0]
+#        mass3 = params["mass_" + str(i+1)].values[0]
+#        sma1 = params["sma_" + str(i)].values[0]
+#        sma2 = params["sma_" + str(i+1)].values[0]
+#        ecc1 = params["ecc_" + str(i)].values[0]
+#        ecc2 = params["ecc_" + str(i+1)].values[0]
+#        mhill = (sma2*(1-ecc2)-sma1*(ecc1+1))/(((mass2/mass1+mass3/mass1)/3)**(1/3)*0.5*(sma1+sma2))
+#        #print(mhill, hill_sphere)
+#        if mhill < hill_sphere:
+#            return -np.inf
         #if mass2 < mass3:
         #    if mass2*100 < mass3:
         #        return -np.inf
