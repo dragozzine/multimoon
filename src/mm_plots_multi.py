@@ -746,12 +746,21 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		system = build_spinny_ns(sys_df,runprops)
 		spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol,runprops)
 		s_df = spinny[0]
-		names = spinny[1]
+		names = spinny[2]
 		spinny_plot(s_df,names, runprops)
 	else: 
 		system = build_spinny(sys_df, runprops)
 		spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,runprops)
+		        
 		s_df = spinny[0]
+		#print(s_df)
+		#s_df = pd.DataFrame()
+		#s_df['X_Pos_'+]=
+		#s_df['']=
+		#s_df['']=
+		#s_df['']=
+		#s_df['']=
+		#s_df['']=        
 		names = spinny[1]
 		spinny_plot(s_df,names, runprops)
     
@@ -885,7 +894,7 @@ backend = emcee.backends.HDFBackend('chain.h5')
     
 fit_scale = pd.read_csv('fit_scale.csv',index_col=0)
 float_names = runprops.get('float_names')
-obsdf = pd.read_csv(objname+'_obs_df_copy.csv',index_col=0)
+obsdf = pd.read_csv(objname+'_obs_df.csv',index_col=0)
 geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position.csv',index_col=0)
 fixed_df = pd.read_csv('fixed_df.csv',index_col=0)
 total_df_names = runprops.get('total_df_names')
