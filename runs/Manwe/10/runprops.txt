@@ -31,6 +31,7 @@
     "spinny_tolerance": 1e-10,		# tolerance of spinny
     "numprocesses": 17,			# number of cores to use
     "epoch_SJD":  2454400.0,		# epoch to fit to
+    "obs_df": "Manwe_obs_df.csv",
 
     # Additional options
     "verbose" : false,			# Enables print statements within the code
