@@ -10,8 +10,10 @@
     "lockspinanglesflag": false,
     "transform": true,
     "com_offset": true,
-    "min_periapse": 400,
+    "min_periapse": 8000,
     "op_mode" : true,
+    "obs_df" : "Eris_obs_df.csv",
+    "c_axis": 1163,
 
     # Run properties/parameters
     "objectname" : "Eris",

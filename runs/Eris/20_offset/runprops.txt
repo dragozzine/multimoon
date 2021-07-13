@@ -11,11 +11,11 @@
     "transform": true,
     "op_mode": true,
     "com_offset": true,
-    "min_periapse": 30000,
+    "min_periapse": 12000,
 
     # Run properties/parameters
     "objectname" : "Eris",
-    "run_file": "20_offset",
+    "run_file": "20_correct",
     "numobjects" : 2,
     "dynamicstoincludeflags" : "20",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
