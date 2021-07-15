@@ -80,7 +80,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			inc_lan_index[2*i] = float_names.index('inc_'+str(i+2))
 			inc_lan_index[2*i+1] = float_names.index('lan_'+str(i+2))
 		if 'spinc_'+str(i+2) in float_names and 'splan_'+str(i+2) in float_names:
-			undo_spin[i] = True
+			undo_spin[i+1] = True
 			spin_index[2*(i+1)] = float_names.index('spinc_'+str(i+2))
 			spin_index[2*(i+1)+1] = float_names.index('splan_'+str(i+2))
 		if 'mea_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
@@ -106,10 +106,18 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			masses_index[0] = float_names.index('mass_1')
 			masses_index[1] = float_names.index('mass_2')
 
-	burnin = int(runprops.get('nburnin'))
-	clusterburn = int(runprops.get('clustering_burnin'))
-	thin_plots = runprops.get('thin_plots')    
+	if runprops.get('thin_run'):
+		burnin = int(runprops.get('nburnin')/runprops.get('nthinning'))
+		clusterburn = int(runprops.get('clustering_burnin')/runprops.get('nthinning'))
+	else:
+		burnin = int(runprops.get('nburnin'))
+		clusterburn = int(runprops.get('clustering_burnin'))
+
+	thin_plots = runprops.get('thin_plots')
+	chain = sampler.get_chain(flat=False)
+	print(chain.shape)    
 	chain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
+	print(chain.shape)    
 	fit = []
 
 	for i in fit_scale.columns:
@@ -131,6 +139,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	for i in range(numparams):
 		chain[:,:,i] = chain[:,:,i]*fit[i]
 
+    
 	fitparam_chain = np.zeros((1,numwalkers,numgens))
 	print(fitparam_chain.shape)    
 	fitparam_names = []    
@@ -141,7 +150,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			if undo_ecc_aop[b]:
 				aop_new = chain[:,:,int(ecc_aop_index[b*2+1])]
 				ecc_new = chain[:,:,int(ecc_aop_index[b*2])]
-				print(aop_new.T.shape, np.array([aop_new.T]).shape)
+				#print(aop_new.T.shape, np.array([aop_new.T]).shape)
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([aop_new.T])),axis=0)
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([ecc_new.T])),axis=0)                
 				fitparam_names.append('aop_new')
@@ -191,18 +200,21 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			mass_2 = chain[:,:,int(masses_index[1])]
 			fitparam_chain = np.concatenate((fitparam_chain, np.array([mass_2.T])),axis=0)
 			fitparam_names.append('mass1+2')
-			chain[:,:,int(masses_index[1])] = mass_2-mass_1
+			chain[:,:,int(masses_index[1])] = (mass_2-mass_1)/(10**18)
+			chain[:,:,int(masses_index[0])] = (mass_1)/(10**18)  
+			print('hallo')
 		elif undo_masses[1]:
 			mass_1 = chain[:,:,int(masses_index[0])]
 			mass_2 = chain[:,:,int(masses_index[1])]
 			mass_3 = chain[:,:,int(masses_index[2])]
+			#print(mass_1,mass_2, mass_3)            
 			fitparam_chain = np.concatenate((fitparam_chain, np.array([mass_2.T])),axis=0)
 			fitparam_chain = np.concatenate((fitparam_chain, np.array([mass_3.T])),axis=0)
 			fitparam_names.append('mass1+2')
 			fitparam_names.append('mass1+2+3')
-			chain[:,:,int(masses_index[2])] = (mass_3-mass_2)/(10**18) 
-			chain[:,:,int(masses_index[1])] = (mass_2-mass_1)/(10**18)
-			chain[:,:,int(masses_index[0])] = (mass_1)/(10**18)
+			chain[:,:,int(masses_index[2])] = (mass_3-mass_2)/10**18
+			chain[:,:,int(masses_index[1])] = (mass_2-mass_1)/10**18
+			chain[:,:,int(masses_index[0])] = (mass_1)/10**18
 
 	fitparam_chain = np.delete(fitparam_chain,0,0)
 	fitparam_chain = fitparam_chain.T    
@@ -219,11 +231,12 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	s[0] = np.prod(chain.shape[:2])
 	s2 = list(fitparam_chain.shape[1:])
 	s2[0] = np.prod(fitparam_chain.shape[:2])
-	print(s2, fitparam_chain.shape)    
+	#print(masses_index,s2, fitparam_chain.shape)    
 	flatchain = chain.reshape(s)
 	fitparam_chain = fitparam_chain.reshape(s2)    
-	print(flatchain.shape, fitparam_chain.shape)
+	#print('flatchain and fitparam chain shape\n',flatchain.shape, fitparam_chain.shape)
 
+	#print('flatchain[:,0] and flatchain[:,1]\n',flatchain[:,0],'\n',flatchain[:,1],'\n',flatchain[:,2],'\n',flatchain[:,3],'\n',flatchain[:,4],'\n',flatchain[:,5],'\n',flatchain[:,6])
 	# Getting parameter names
 	names = []
 	#print(float_names)    
@@ -232,7 +245,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Getting log likelihood posterior values for use throughout
 	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
-	print(llhoods.shape)    
+	#print('llhoods shape',llhoods.shape)    
 	ind = np.argmax(llhoods)
 	params = flatchain[ind,:].flatten()
 
@@ -282,6 +295,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	# Make corner plot
 	#plt.rc('text', usetex=True)
 	fig = 0
+	#print(flatchain[:,0], flatchain[:,1])    
 	fig = corner.corner(flatchain, labels = latexnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".3f", truths = params, label_kwargs=dict(fontsize=20))
@@ -470,7 +484,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	likelihoodspdf = PdfPages("likelihoods.pdf")
 	ylimmin = np.percentile(llhoods.flatten(), 1)
 	ylimmax = llhoods.flatten().max() + 1
-	print(chain.shape,flatchain.shape, llhoods.shape)
+	#print(chain.shape,flatchain.shape, llhoods.shape)
 	dfparams = dfchain.shape[1]
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
@@ -598,7 +612,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.plot(xvals2,-circle2, color = "black", alpha = 0.5)
 	plt.plot(xvals3, circle3, color = "black", alpha = 0.25)
 	plt.plot(xvals3,-circle3, color = "black", alpha = 0.25)
-	print(nobjects, np.array(residuals).shape)    
+	#print(nobjects, np.array(residuals).shape)    
 	for i in range(1, nobjects):
 		plt.scatter(residuals[2*(i-1)][:], residuals[2*(i-1)+1][:], c = colorcycle[i], label = objectnames[i], edgecolors = None)
 	plt.xlabel("Delta Longitude")

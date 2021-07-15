@@ -11,6 +11,7 @@ from csv import writer
 import os
 import time
 from scipy.stats import chi2
+import mpmath as mp
 #from func_timeout import func_timeout, FunctionTimedOut
 
 """
@@ -31,13 +32,15 @@ def log_likelihood(params, obsdf, runprops, geo_obj_pos):
         rows = obsdf.shape[0]
         numObj = runprops.get("numobjects")
         lh_robust = 0
-        jitter = paramdf["jitter"].iloc[0]
-        p_outlier = paramdf["pbad"].iloc[0]
+        jitter = params["jitter"].iloc[0]
+        p_outlier = params["pbad"].iloc[0]
 
         names_dict = runprops.get("names_dict")
         names=[0 for i in range(numObj)]
         for i in range(0,numObj):
             names[i] = names_dict.get("name_"+str(i+1))
+        lh_robust_lon = 0
+        lh_robust_lat = 0
 
         for j in range(1,numObj):
             for i in range(rows):
@@ -45,12 +48,17 @@ def log_likelihood(params, obsdf, runprops, geo_obj_pos):
                 combinedlat_err = np.sqrt(obsdf["DeltaLat_"+names[j]+"_err"][i]**2 + jitter**2)
                 omc_lon = (residuals[2*(j-1)][i] * obsdf["DeltaLong_"+names[j]+"_err"][i])**2
                 omc_lat = (residuals[2*(j-1)+1][i] * obsdf["DeltaLat_"+names[j]+"_err"][i])**2
-                lh_robust += np.log( ((1-p_outlier)/(np.sqrt(2*np.pi*obsdf["DeltaLong_"+names[j]+"_err"][i]**2)))*np.exp(-omc_lon/(2*obsdf["DeltaLong_"+names[j]+"_err"][i]**2))
-                                    + (p_outlier/np.sqrt(2*np.pi*combinedlon_err**2))*np.exp(-omc_lon/(2*combinedlon_err**2))  )
-                lh_robust += np.log( ((1-p_outlier)/(np.sqrt(2*np.pi*obsdf["DeltaLat_"+names[j]+"_err"][i]**2)))*np.exp(-omc_lat/(2*obsdf["DeltaLat_"+names[j]+"_err"][i]**2))
-                                    + (p_outlier/np.sqrt(2*np.pi*combinedlat_err**2))*np.exp(-omc_lat/(2*combinedlat_err**2))  )
+                #print(omc_lon,omc_lat)
+                lh_robust_lon = mp.log( ((1-p_outlier)/(np.sqrt(2*np.pi*obsdf["DeltaLong_"+names[j]+"_err"][i]**2)))*mp.exp(-omc_lon/(2*obsdf["DeltaLong_"+names[j]+"_err"][i]**2)) + (p_outlier/np.sqrt(2*np.pi*combinedlon_err**2))*mp.exp(-omc_lon/(2*combinedlon_err**2))  )
+                lh_robust_lat = mp.log( ((1-p_outlier)/(np.sqrt(2*np.pi*obsdf["DeltaLat_"+names[j]+"_err"][i]**2)))*mp.exp(-omc_lat/(2*obsdf["DeltaLat_"+names[j]+"_err"][i]**2)) + (p_outlier/np.sqrt(2*np.pi*combinedlat_err**2))*mp.exp(-omc_lat/(2*combinedlat_err**2))  )
+                #print(names[j],lh_robust_lat,lh_robust_lon)
 
-        print(lh_robust, lh)
+                if not (mp.isnan(lh_robust_lon) and mp.isnan(lh_robust_lat)):
+                    #print(((1-p_outlier)/(np.sqrt(2*np.pi*obsdf["DeltaLong_"+names[j]+"_err"][i]**2)))*np.exp(-omc_lon/(2*obsdf["DeltaLong_"+names[j]+"_err"][i]**2)) + (p_outlier/np.sqrt(2*np.pi*combinedlon_err**2))*np.exp(-omc_lon/(2*combinedlon_err**2)))
+                    #print(names[j],lh_robust_lat,lh_robust_lon)
+                    lh_robust += lh_robust_lat + lh_robust_lon
+
+        #print(lh_robust, lh, lh_robust-lh)
         return lh_robust, residuals
 
     return lh, residuals

@@ -279,6 +279,12 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPI
     print('line 257')
     #END OF NO-SUN CODE ----------------------------------------------
     '''
+    L_arr = np.empty((N,T,3))
+    E_arr = np.empty((N,T))
+        
+    L_arr = np.sum(L_arr,axis=0)
+    E_arr = np.sum(E_arr,axis=0)
+    
     body_dict = {"Times":t_arr}
 
     if verbose:
@@ -343,6 +349,12 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPI
         body_dict.setdefault('longitude_'+name_arr[n+1],  180/np.pi*(euler_arr[n,:,2]) )
         
         body_dict.setdefault('spin_period_'+name_arr[n+1], spin_arr[n,:])
+        
+        #body_dict.setdefault('Lx_'+name_arr[n], L_arr[:,0] )
+        #body_dict.setdefault('Ly_'+name_arr[n], L_arr[:,1] )
+        #body_dict.setdefault('Lz_'+name_arr[n], L_arr[:,2] )
+        
+        #body_dict.setdefault('E_'+name_arr[n], E_arr )
         
         #No sun includes  spin-orbit angle, Lx, Ly, Lz, and E
     #print(body_dict)
