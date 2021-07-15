@@ -17,6 +17,8 @@ import emcee
 def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset, const = 50, lag = 10, max_prune_frac = 0.9):
 	nwalkers = runprops.get("nwalkers")
 	reburnin = runprops.get("clustering_burnin")
+	if reburnin == 0:
+		return sampler, state
 	verbose = runprops.get("verbose")
 	nthinning = runprops.get("nthinning")
 
@@ -79,7 +81,7 @@ def mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_sca
 							args = (float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods),
 							moves = moveset)
 		if runprops.get('thin_run'):
-			state = sampler.run_mcmc(params, nthinning, progress = True, store = True, thin_by=int(reburnin/nthinning))
+			state = sampler.run_mcmc(params, reburnin, progress = True, store = True, thin=nthinning)
 		else:
 			state = sampler.run_mcmc(params, reburnin, progress = True, store = True)
 		if verbose:

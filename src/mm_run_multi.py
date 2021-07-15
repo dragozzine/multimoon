@@ -411,19 +411,21 @@ if __name__ == '__main__':
             
             # Now get observations data frame
             # DS TODO: take observations data frame from runprops
-            obsdata = runprops.get('obsdata_file')
+            obsdata = '../runs/'+runprops.get('objectname')+'/observations/'+runprops.get('obs_df')
             obsdf = 0
+            #print(obsdata, os.getcwd())
             if os.path.exists(obsdata):
                 if verbose:
                     print("Observational data file " + obsdata + " will be used")
                 obsdf = pd.read_csv(obsdata, index_col = 0)
             else:
-                if verbose:
-                    print("ERROR: No observational data file exists. Aborting run.")
+                
+                print("ERROR: No observational data file exists at "+obsdata+". Aborting run.")
                 sys.exit()
         
             # Calculating the degrees of freedom
             nobservations = 0
+            #print(obsdf, obsdf.columns)
             for i in range(1, nobjects):
                 obsdata = obsdf["DeltaLat_" + objectnames[i]].values
                 for j in range(len(obsdata)):
@@ -716,7 +718,7 @@ if __name__ == '__main__':
             if verbose:
                 print("Starting the burn in")
             if runprops.get('thin_run'):
-                state = sampler.run_mcmc(p0, nthinning, progress = True, store = True, thin_by=int(nburnin/nthinning))
+                state = sampler.run_mcmc(p0, nburnin, progress = True, store = True, thin=nthinning)
             else:
                 state = sampler.run_mcmc(p0, nburnin, progress = True, store = True)
         

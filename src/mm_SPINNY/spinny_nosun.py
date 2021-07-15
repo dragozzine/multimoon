@@ -272,6 +272,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
         body_dict.setdefault('spin_orbit_angle_'+name_arr[n], spin_arr[n,:,0])
         body_dict.setdefault('spin_period_'+name_arr[n],  spin_arr[n,:,1])
         
+        #print(L_arr[:,0],L_arr[:,1],L_arr[:,2])
         body_dict.setdefault('Lx_'+name_arr[n], L_arr[:,0] )
         body_dict.setdefault('Ly_'+name_arr[n], L_arr[:,1] )
         body_dict.setdefault('Lz_'+name_arr[n], L_arr[:,2] )

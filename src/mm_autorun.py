@@ -52,17 +52,17 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0
 	if runprops.get('nburnin') == 0:
 		if runprops.get("chain_file") != None:
 			if runprops.get('thin_run'):
-				state = sampler.run_mcmc(None, nthinning, progress = True, store=True, thin_by=int(initsteps/nthinning))
+				state = sampler.run_mcmc(None, initsteps, progress = True, store=True, thin=nthinning)
 			else:
 				state = sampler.run_mcmc(None, initsteps, progress = True, store=True)
 		else:
 			if runprops.get('thin_run'):
-				state = sampler.run_mcmc(p0, nthinning, progress = True, store=True, thin_by=int(initsteps/nthinning))
+				state = sampler.run_mcmc(p0, initsteps, progress = True, store=True, thin=nthinning)
 			else:
 				state = sampler.run_mcmc(p0, initsteps, progress = True, store=True)
 	else:
 		if runprops.get('thin_run'):
-			state = sampler.run_mcmc(state, nthinning, progress = True, store=True, thin_by=int(initsteps/nthinning))
+			state = sampler.run_mcmc(state, initsteps, progress = True, store=True, thin=nthinning)
 		else:
 			state = sampler.run_mcmc(state, initsteps, progress = True, store=True)
 
