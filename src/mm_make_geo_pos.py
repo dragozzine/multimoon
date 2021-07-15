@@ -35,10 +35,10 @@ def mm_make_geo_pos(objname, times, runprops = None, synthetic = False):
     #runLength = endtime-starttime
     #print("Runtime was: "+str(runLength)+" seconds" )
 
-params = pd.read_csv('prep/haumeadata.csv')
-date = params['time'].values
-print(date)
-mm_make_geo_pos("Haumea",date)
+#params = pd.read_csv('prep/haumeadata.csv')
+#date = params['time'].values
+#print(date)
+#mm_make_geo_pos("Haumea",date)
     
 '''
     NAME:
