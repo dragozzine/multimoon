@@ -114,12 +114,12 @@ def spinny_plot(plot_df, names, runprops):
             
         ##### PLOTS THE ORBITAL PARAMETERS #####
             if name != name_prim: # exclude the primary
-                ax1[0,0].plot(t,globals()[name+'_i'],label=name)
-                ax1[0,1].plot(t,globals()[name+'_e'],label=name)
-                ax1[1,0].plot(t,globals()[name+'_O'],label=name)
-                ax1[1,1].plot(t,globals()[name+'_a'],label=name)
-                ax1[2,0].plot(t,globals()[name+'_M'],label=name)
-                ax1[2,1].plot(t,globals()[name+'_w'],label=name)
+                ax1[0,0].scatter(t,globals()[name+'_i'],label=name, s = 5)
+                ax1[0,1].scatter(t,globals()[name+'_e'],label=name, s = 5)
+                ax1[1,0].scatter(t,globals()[name+'_O'],label=name, s = 5)
+                ax1[1,1].scatter(t,globals()[name+'_a'],label=name, s = 5)
+                ax1[2,0].scatter(t,globals()[name+'_M'],label=name, s = 5)
+                ax1[2,1].scatter(t,globals()[name+'_w'],label=name, s = 5)
 
                 # this generates line of best fit for energy/momentum for calculation of fractional change, if needed
                 trend_x = np.polyfit(t,globals()[name+'_xL'], 1)
@@ -156,14 +156,14 @@ def spinny_plot(plot_df, names, runprops):
                     ax4.set_xlabel('x ($10^3$ kilometers)', fontsize = 18)
                     ax4.set_ylabel('y ($10^3$ kilometers)', fontsize = 18)
 
-                    ax2.plot(nx,nz,label=name,alpha=0.3)
-                    ax4.plot(nx,ny,label=name,alpha=0.3)
-                    ax3.plot(nz,ny,label=name,alpha=0.3)
+                    ax2.scatter(nx,nz,label=name,alpha=0.3, s = 5)
+                    ax4.scatter(nx,ny,label=name,alpha=0.3, s = 5)
+                    ax3.scatter(nz,ny,label=name,alpha=0.3, s = 5)
 
                 else:
-                    ax2.plot(nx,nz,label=name,alpha=0.3)
-                    ax4.plot(nx,ny,alpha=0.3)
-                    ax3.plot(nz,ny,alpha=0.3)
+                    ax2.scatter(nx,nz,label=name,alpha=0.3, s = 5)
+                    ax4.scatter(nx,ny,alpha=0.3, s = 5)
+                    ax3.scatter(nz,ny,alpha=0.3, s = 5)
 
 
                 ax1[0,0].set_title('Inclination')
