@@ -198,10 +198,14 @@ if __name__ == '__main__':
         # run to see what the burn in looks like... It should be a few autocorrelation times
         
             nburnin = runprops.get("nburnin")
+            nthinning = runprops.get('nthinning')
             if verbose:
                 print("Starting the burn in")
             if nburnin != 0:
-                state = sampler.run_mcmc(None, nburnin, progress = True, store = True)
+                if runprops.get('thin_run'):
+                    state = sampler.run_mcmc(None, nburnin, progress = True, store = True, thin=nthinning)
+                else:
+                    state = sampler.run_mcmc(None, nburnin, progress = True, store = True)
             else:
                 state = 0
     
