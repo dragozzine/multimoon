@@ -113,11 +113,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		burnin = int(runprops.get('nburnin'))
 		clusterburn = int(runprops.get('clustering_burnin'))
 
-	thin_plots = runprops.get('thin_plots')
-	chain = sampler.get_chain(flat=False)
-	print(chain.shape)    
-	chain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
-	print(chain.shape)    
+	thin_plots = runprops.get('thin_plots') 
+	chain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)  
+#	chain = sampler.get_chain(flat = False, thin=thin_plots)  
 	fit = []
 
 	for i in fit_scale.columns:
