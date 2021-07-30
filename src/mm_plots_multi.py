@@ -310,69 +310,72 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	dtif = runprops.get("dynamicstoincludeflags")
 
 	# Orbital periods for each satellite
+    
 	for i in range(1,runprops.get('numobjects')):
 		print(names)        
-		a_index = [n for n, l in enumerate(names) if l.startswith('sma_')][0]
-		m_index = [n for n, l in enumerate(names) if l.startswith('mass_')][0]
-		mp_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
+		if 'sma_'+str(i) in names and 'mass_'+str(i) in names and 'mass_1' in names:
+			a_index = [n for n, l in enumerate(names) if l.startswith('sma_')][0]
+			m_index = [n for n, l in enumerate(names) if l.startswith('mass_')][0]
+			mp_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
 
-		a_arr = flatchain[:,a_index]
-		m_arr = flatchain[:,m_index]
-		mp_arr = flatchain[:,mp_index]
+			a_arr = flatchain[:,a_index]
+			m_arr = flatchain[:,m_index]
+			mp_arr = flatchain[:,mp_index]
 
-		period = 2*np.pi*np.sqrt(a_arr**3/(6.674e-20*(m_arr + mp_arr)*10**18))/3600.0/24.0
+			period = 2*np.pi*np.sqrt(a_arr**3/(6.674e-20*(m_arr + mp_arr)*10**18))/3600.0/24.0
 
-		dnames = np.append(dnames, ["period_" + str(i+1)])
-		dfchain = np.concatenate((dfchain, np.array([period]).T), axis = 1)
+			dnames = np.append(dnames, ["period_" + str(i+1)])
+			dfchain = np.concatenate((dfchain, np.array([period]).T), axis = 1)
 
 	# Spin period
 	fixedparams = runprops.get("float_dict")
 	if dtif[0] == "1" or dtif[0] == "2":
-		if fixedparams["sprate_1"] == 1:
-			sprate1_index = [n for n, l in enumerate(names) if l.startswith('sprate_1')][0]
-			sprate1_arr = flatchain[:,sprate1_index]
-			spinperiod = (2*np.pi/sprate1_arr)/3600.0
+		if fixedparams["sprate_1"] == 1:        
+			if 'sprate_1' in names and 'spin_period_1' in names:
+				sprate1_index = [n for n, l in enumerate(names) if l.startswith('sprate_1')][0]
+				sprate1_arr = flatchain[:,sprate1_index]
+				spinperiod = (2*np.pi/sprate1_arr)/3600.0
 
-			dnames = np.append(dnames, ["spin_period_1"])
-			dfchain = np.concatenate((dfchain, np.array([spinperiod]).T), axis = 1)
+				dnames = np.append(dnames, ["spin_period_1"])
+				dfchain = np.concatenate((dfchain, np.array([spinperiod]).T), axis = 1)
 
 	# Satellite-spin mutual inclination
-	if dtif[0] == "1" or dtif[0] == "2":
-		for i in range(1,runprops.get('numobjects')):
-			print(names)            
-			spinc1_index = [n for n, l in enumerate(names) if l.startswith('spinc_1')][0]
-			splan1_index = [n for n, l in enumerate(names) if l.startswith('splan_1')][0]
-			inc_index = [n for n, l in enumerate(names) if l.startswith('inc_'+str(i+1))][0]
-			lan_index = [n for n, l in enumerate(names) if l.startswith('lan_'+str(i+1))][0]
-
-			spinc1_arr = np.deg2rad(flatchain[:,spinc1_index])
-			splan1_arr = np.deg2rad(flatchain[:,splan1_index])
-			inc_arr = np.deg2rad(flatchain[:,inc_index])
-			lan_arr = np.deg2rad(flatchain[:,lan_index])
-
-			mutualinc = np.arccos( np.cos(spinc1_arr)*np.cos(inc_arr) + np.sin(spinc1_arr)*np.sin(inc_arr)*np.cos(splan1_arr - lan_arr) )
-			mutualinc = np.rad2deg(mutualinc)
-
-			dnames = np.append(dnames, ["sat-spin inc_" + str(i+1)])
-			dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
-
-	# Satellite-Satellite mutual inclination (this only works right now for 2 moons/satellites)
-	if runprops.get("numobjects") > 2:
-		inc2_index = [n for n, l in enumerate(names) if l.startswith('inc_2')][0]
-		inc3_index = [n for n, l in enumerate(names) if l.startswith('inc_3')][0]
-		lan2_index = [n for n, l in enumerate(names) if l.startswith('lan_2')][0]
-		lan3_index = [n for n, l in enumerate(names) if l.startswith('lan_3')][0]
-
-		inc2_arr = np.deg2rad(flatchain[:,inc2_index])
-		lan2_arr = np.deg2rad(flatchain[:,lan2_index])
-		inc3_arr = np.deg2rad(flatchain[:,inc3_index])
-		lan3_arr = np.deg2rad(flatchain[:,lan3_index])
-
-		mutualinc = np.arccos( np.cos(inc2_arr)*np.cos(inc3_arr) + np.sin(inc2_arr)*np.sin(inc3_arr)*np.cos(lan2_arr - lan3_arr) )
-		mutualinc = np.rad2deg(mutualinc)
-
-		dnames = np.append(dnames, ["sat-sat inc"])
-		dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
+#	if dtif[0] == "1" or dtif[0] == "2":
+#		for i in range(1,runprops.get('numobjects')):
+#			print(names)            
+#			spinc1_index = [n for n, l in enumerate(names) if l.startswith('spinc_1')][0]
+#			splan1_index = [n for n, l in enumerate(names) if l.startswith('splan_1')][0]
+#			inc_index = [n for n, l in enumerate(names) if l.startswith('inc_'+str(i+1))][0]
+#			lan_index = [n for n, l in enumerate(names) if l.startswith('lan_'+str(i+1))][0]
+#
+#			spinc1_arr = np.deg2rad(flatchain[:,spinc1_index])
+#			splan1_arr = np.deg2rad(flatchain[:,splan1_index])
+#			inc_arr = np.deg2rad(flatchain[:,inc_index])
+#			lan_arr = np.deg2rad(flatchain[:,lan_index])
+#
+#			mutualinc = np.arccos( np.cos(spinc1_arr)*np.cos(inc_arr) + np.sin(spinc1_arr)*np.sin(inc_arr)*np.cos(splan1_arr - lan_arr) )
+#			mutualinc = np.rad2deg(mutualinc)
+#
+#			dnames = np.append(dnames, ["sat-spin inc_" + str(i+1)])
+#			dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
+#
+#	# Satellite-Satellite mutual inclination (this only works right now for 2 moons/satellites)
+#	if runprops.get("numobjects") > 2:
+#		inc2_index = [n for n, l in enumerate(names) if l.startswith('inc_2')][0]
+#		inc3_index = [n for n, l in enumerate(names) if l.startswith('inc_3')][0]
+#		lan2_index = [n for n, l in enumerate(names) if l.startswith('lan_2')][0]
+#		lan3_index = [n for n, l in enumerate(names) if l.startswith('lan_3')][0]
+#
+#		inc2_arr = np.deg2rad(flatchain[:,inc2_index])
+#		lan2_arr = np.deg2rad(flatchain[:,lan2_index])
+#		inc3_arr = np.deg2rad(flatchain[:,inc3_index])
+#		lan3_arr = np.deg2rad(flatchain[:,lan3_index])
+#
+#		mutualinc = np.arccos( np.cos(inc2_arr)*np.cos(inc3_arr) + np.sin(inc2_arr)*np.sin(inc3_arr)*np.cos(lan2_arr - lan3_arr) )
+#		mutualinc = np.rad2deg(mutualinc)
+#
+#		dnames = np.append(dnames, ["sat-sat inc"])
+#		dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
 
 # Creating corner+derived plot
 	fig = corner.corner(dfchain, labels = dnames, bins = 40, show_titles = True, 

@@ -6,7 +6,7 @@
     "numobjects" : 3,
     "c_axis": 1163,
     "run_dir" : "Eris_synth",
-    "runs_file": "202_wmm",
+    "runs_file": "202_wm",
     "objectname": "Eris",
     "spinny_tolerance": 1e-14,
     "verbose" : false,
@@ -26,7 +26,7 @@
     "params_dict" :
     {
         "mass_1": 1.6e+22,
-        "mass_2": 5.0e+19,
+        "mass_2": 1.6e+19,
         "mass_3": 1.6e+20,
         "sma_2": 10000.0,
         "ecc_2": 0.0,
