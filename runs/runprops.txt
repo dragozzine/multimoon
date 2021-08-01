@@ -15,7 +15,7 @@
     # Run properties/parameters
     "objectname" : "2007 UK126",
     "runs_file": "00",
-    "numobjects" : 2,
+    "numobjects" : 3,
     "dynamicstoincludeflags" : "00",	# Length must = numobjects. 0 = point mass. 1 = J2. 2 = full spins
     "includesun" : 0,			# 0 = no sun. 1 = sun.
     "nwalkers" : 50,			# number of walkers in emcee ensemble
@@ -28,6 +28,8 @@
     "spinny_tolerance": 1e-13,		# tolerance of spinny
     "numprocesses": 24,			# number of cores to use
     "min_periapse": 2000.0,
+    "sys_df": "Eris_sys_init.csv",
+    "times_file": "times_1000yr.csv",
 
     # Additional options
     "verbose" : false,			# Enables print statements within the code

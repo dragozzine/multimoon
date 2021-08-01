@@ -151,8 +151,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				#print(aop_new.T.shape, np.array([aop_new.T]).shape)
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([aop_new.T])),axis=0)
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([ecc_new.T])),axis=0)                
-				fitparam_names.append('aop_new')
-				fitparam_names.append('ecc_new')
+				fitparam_names.append('equinoctial_k_'+str(b+1))
+				fitparam_names.append('equinoctial_h_'+str(b+1))
 				pomega = (np.arctan2(ecc_new,aop_new)*180/np.pi)%360
 				chain[:,:,int(ecc_aop_index[b*2+1])] = pomega
 				chain[:,:,int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega/180*np.pi)
@@ -161,8 +161,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				lan_new = chain[:,:,int(inc_lan_index[b*2+1])]
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([inc_new.T])),axis=0)
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([lan_new.T])),axis=0)
-				fitparam_names.append('inc_new')
-				fitparam_names.append('lan_new')
+				fitparam_names.append('equinoctial_q_'+str(b+1))
+				fitparam_names.append('equinoctial_p_'+str(b+1))
 				lan = (np.arctan2(inc_new,lan_new)*180/np.pi)%360
 				chain[:,:,int(inc_lan_index[b*2+1])] = lan
 				inc = (np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi)%180
@@ -172,8 +172,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				pomega = chain[:,:,int(lambda_index[b*2+1])]
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([mea_new.T])),axis=0)
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([pomega.T])),axis=0)
-				fitparam_names.append('mea_new')
-				fitparam_names.append('pomega')
+				fitparam_names.append('lambda_'+str(b+1))
+				fitparam_names.append('pomega_'+str(b+1))
 				mea = (mea_new-pomega)%360
 				chain[:,:,int(lambda_index[b*2])] = mea
 			if undo_pomega[b]:
@@ -187,8 +187,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				splan_new = chain[:,:,int(spin_index[b*2+1])]
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([spinc_new.T])),axis=0)
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([splan_new.T])),axis=0)
-				fitparam_names.append('sp_p')
-				fitparam_names.append('sp_q')
+				fitparam_names.append('spin_equinoctial_p_'+str(b))
+				fitparam_names.append('spin_equinoctial_q_'+str(b))
 				splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
 				chain[:,:,int(spin_index[b*2+1])] = splan
 				spinc = (np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi)%180
@@ -200,7 +200,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			fitparam_names.append('mass1+2')
 			chain[:,:,int(masses_index[1])] = (mass_2-mass_1)/(10**18)
 			chain[:,:,int(masses_index[0])] = (mass_1)/(10**18)  
-			print('hallo')
+			#print('hallo')
 		elif undo_masses[1]:
 			mass_1 = chain[:,:,int(masses_index[0])]
 			mass_2 = chain[:,:,int(masses_index[1])]
