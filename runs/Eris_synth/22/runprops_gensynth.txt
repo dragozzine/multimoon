@@ -3,7 +3,7 @@
     "time": "now",
     "user": "autogenerate",
     "MultiMoon commit hash": "autogenerate",
-    "numobjects" : 3,
+    "numobjects" : 2,
     "c_axis": 1163,
     "run_dir" : "Eris_synth",
     "runs_file": "22",
@@ -20,20 +20,12 @@
     "names_dict" :
     {
         "name_1": "Eris",
-        "name_2": "Dysnomia",
-        "name_3": "Dysnomia"
+        "name_2": "Dysnomia"
     },
     "params_dict" :
     {
         "mass_1": 1.6e+22,
-        "mass_3": 1.6e+18,
         "mass_2": 1.6e+20,
-        "sma_3": 10000.0,
-        "ecc_3": 0.0,
-        "aop_3": 0.0,
-        "inc_3": 0.0,
-        "lan_3": 0.0,
-        "mea_3": 0.0,
         "sma_2": 37211.0,
         "ecc_2": 0.0105,
         "aop_2": 268.0,
