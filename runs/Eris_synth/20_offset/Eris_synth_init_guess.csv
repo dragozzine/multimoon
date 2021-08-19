@@ -13,3 +13,5 @@ spaop_1,20.26,10
 spinc_1,35.44,2
 splan_1,146,5
 sprate_1,5e-6,5.0e-5
+lat_offset,0,0.001
+long_offset,0,0.001
