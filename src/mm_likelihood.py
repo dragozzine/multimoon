@@ -322,6 +322,29 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         # Put into model dataframe? 
 
     # Putting in COM-COL offset
+    if runprops.get('photo_offset'):
+        
+        prim_axis = runprops.get('axes_size').get('obj_1')
+        hidden_axis = runprops.get('axes_size').get('obj_2')
+        volume_ratio = hidden_axis**3/prim_axis**3
+        mass_ratio = paramdf['mass_2'][0]/paramdf['mass_1'][0]
+        density_ratio = mass_ratio/volume_ratio
+
+        prim_albedo = runprops.get('albedos').get('obj_1')
+        hidden_albedo = runprops.get('albedos').get('obj_2')
+        albedo_ratio = hidden_albedo/prim_albedo
+        #bright_ratios = albedo_ratio*density_ratios
+        bright_ratio = albedo_ratio*density_ratio
+
+        rel_pos_lat = Model_DeltaLat[1,:]
+        rel_pos_long = Model_DeltaLong[1,:]
+        #print(rel_pos_long)
+        #print(bright_ratio)
+        delta_offset_lat = bright_ratio*rel_pos_lat
+        delta_offset_long = bright_ratio*rel_pos_long
+        Model_DeltaLat = Model_DeltaLat - delta_offset_lat
+        Model_DeltaLong = Model_DeltaLong - delta_offset_long
+    
     if runprops.get("com_offset"):
         Model_DeltaLong = Model_DeltaLong + paramdf["long_offset"].iloc[0]
         Model_DeltaLat = Model_DeltaLat + paramdf["lat_offset"].iloc[0]
@@ -338,34 +361,18 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     residuals = np.zeros(((numObj-1)*2, rows))
     get_residuals = runprops.get("get_resid")
-
+    delta_offset = 0
+    #if runprops.get('search_inner'):
+        
+        
+        
     for i in range(rows):
         for j in range(1,numObj):
-#            #Check to make sure that these column names exist in the obsdf
-#            if not names[j] in Model_DeltaLong.columns:
-#                print(names[j], " is missing from the DeltaLong dataframe. Aborting run.")
-#                print(Model_DeltaLong)
-#            elif not "DeltaLong_"+names[j] in obsdf.columns:
-#                print("DeltaLong_",names[j], " is missing from the DeltaLong dataframe. Aborting run.")
-#                print(obsdf)
-#            elif not "DeltaLong_"+names[j]+"_err" in obsdf.columns:
-#                print("DeltaLong_",names[j], "_err is missing from the obsdf dataframe. Aborting run.")
-#                print(obsdf)
-#            elif not names[j] in Model_DeltaLat.columns: 
-#                print(names[j], " is missing from the DeltaLat dataframe. Aborting run.")
-#                print(Model_DeltaLat)
-#            elif not "DeltaLat_"+names[j] in obsdf.columns:
-#                print("DeltaLat_",names[j], " is missing from the obs dataframe. Aborting run.")
-#                print(obsdf)
-#            elif not "DeltaLat_"+names[j]+"_err" in obsdf.columns:
-#                print("DeltaLat_",names[j], "_err is missing from the obs dataframe. Aborting run.")
-#                print(obsdf)
-#                sys.exit()
-            
-            #print('DLon', Model_DeltaLong[j-1][i],'\n obs_Dlon', obsdf["DeltaLong_"+names[j]][i],'\nobs_DLon_Err', obsdf["DeltaLong_"+names[j]+"_err"][i])
+
             residuals[2*(j-1)][i] = ((Model_DeltaLong[j-1][i]-obsdf["DeltaLong_"+names[j]][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])
             residuals[2*(j-1)+1][i] = ((Model_DeltaLat[j-1][i]-obsdf["DeltaLat_"+names[j]][i])/obsdf["DeltaLat_"+names[j]+"_err"][i])
-
+           
+                
             if verbose:
                 print("i,j,model,obs,err")
                 print(i, j, Model_DeltaLong[j-1][i], obsdf["DeltaLong_"+names[j]][i], obsdf["DeltaLong_"+names[j]+"_err"][i])
@@ -377,6 +384,8 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     # using the name of the object "Model_DeltaLong_Hiiaka" with "DeltaLong_Hiiaka" 
     # and "DeltaLong_Hiiaka_err"
     # AND throw an error if the names don't all line up right
+    
+    
     chisquares = residuals**2
     #print('residuals ',residuals)
     

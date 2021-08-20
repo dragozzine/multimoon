@@ -187,8 +187,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				splan_new = chain[:,:,int(spin_index[b*2+1])]
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([spinc_new.T])),axis=0)
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([splan_new.T])),axis=0)
-				fitparam_names.append('spin_equinoctial_p_'+str(b))
-				fitparam_names.append('spin_equinoctial_q_'+str(b))
+				fitparam_names.append('spin_equinoctial_p_'+str(b+1))
+				fitparam_names.append('spin_equinoctial_q_'+str(b+1))
 				splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
 				chain[:,:,int(spin_index[b*2+1])] = splan
 				spinc = (np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi)%180
@@ -313,9 +313,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
     
 	for i in range(1,runprops.get('numobjects')):
 		print(names)        
-		if 'sma_'+str(i) in names and 'mass_'+str(i) in names and 'mass_1' in names:
-			a_index = [n for n, l in enumerate(names) if l.startswith('sma_')][0]
-			m_index = [n for n, l in enumerate(names) if l.startswith('mass_')][0]
+		if 'sma_'+str(i+1) in names and 'mass_'+str(i+1) in names and 'mass_1' in names:
+			a_index = [n for n, l in enumerate(names) if l.startswith('sma_'+str(i+1))][0]
+			m_index = [n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))][0]
 			mp_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
 
 			a_arr = flatchain[:,a_index]
