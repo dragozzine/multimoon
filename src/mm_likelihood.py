@@ -336,14 +336,22 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         #bright_ratios = albedo_ratio*density_ratios
         bright_ratio = albedo_ratio*density_ratio
 
-        rel_pos_lat = Model_DeltaLat[1,:]
-        rel_pos_long = Model_DeltaLong[1,:]
+        rel_pos_lat = Model_DeltaLat[0,:]
+        rel_pos_long = Model_DeltaLong[0,:]
         #print(rel_pos_long)
         #print(bright_ratio)
         delta_offset_lat = bright_ratio*rel_pos_lat
         delta_offset_long = bright_ratio*rel_pos_long
+        
+        #print('Model_DeltaLat before: ', Model_DeltaLat)
+        #print('Model_DeltaLong before: ', Model_DeltaLong)
         Model_DeltaLat = Model_DeltaLat - delta_offset_lat
         Model_DeltaLong = Model_DeltaLong - delta_offset_long
+        
+        #print('Model_DeltaLat after: ', Model_DeltaLat)
+        #print('Model_DeltaLong after: ', Model_DeltaLong)
+        
+    
     
     if runprops.get("com_offset"):
         Model_DeltaLong = Model_DeltaLong + paramdf["long_offset"].iloc[0]
