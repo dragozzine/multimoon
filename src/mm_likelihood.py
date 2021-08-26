@@ -329,27 +329,28 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         volume_ratio = hidden_axis**3/prim_axis**3
         mass_ratio = paramdf['mass_2'][0]/paramdf['mass_1'][0]
         density_ratio = mass_ratio/volume_ratio
-
+        
+        
         prim_albedo = runprops.get('albedos').get('obj_1')
         hidden_albedo = runprops.get('albedos').get('obj_2')
         albedo_ratio = hidden_albedo/prim_albedo
         #bright_ratios = albedo_ratio*density_ratios
-        bright_ratio = albedo_ratio*density_ratio
+        
+        #bright_ratio = albedo_ratio*mass_ratio**(2/3)*density_ratio**(-2/3)
+        bright_ratio = albedo_ratio*volume_ratio**(2/3)
+
+        #bright_ratio = flux_ratio*4*np.pi**2
+        #bright_ratio = albedo_ratio*density_ratio
 
         rel_pos_lat = Model_DeltaLat[0,:]
         rel_pos_long = Model_DeltaLong[0,:]
-        #print(rel_pos_long)
-        #print(bright_ratio)
+
         delta_offset_lat = bright_ratio*rel_pos_lat
         delta_offset_long = bright_ratio*rel_pos_long
         
-        #print('Model_DeltaLat before: ', Model_DeltaLat)
-        #print('Model_DeltaLong before: ', Model_DeltaLong)
         Model_DeltaLat = Model_DeltaLat - delta_offset_lat
         Model_DeltaLong = Model_DeltaLong - delta_offset_long
-        
-        #print('Model_DeltaLat after: ', Model_DeltaLat)
-        #print('Model_DeltaLong after: ', Model_DeltaLong)
+
         
     
     

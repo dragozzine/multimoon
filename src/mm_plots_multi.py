@@ -808,7 +808,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		y[i-1,:] = obsdf["DeltaLong_" + objectnames[i]].values
 		ye[i-1,:] = obsdf["DeltaLong_" + objectnames[i] + "_err"].values
 
-		plt.plot(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = objectnames[i], linewidth = 0.5, alpha = 0.5)
+		plt.scatter(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = objectnames[i], alpha = 0.5,s=5)
 		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko", ms = 2)
 
 	plt.axis('equal')
