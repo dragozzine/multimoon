@@ -12,14 +12,14 @@ def loop1(j):
     sims = np.zeros(run_num)
     color_map = np.zeros(run_num)
     a_array = np.linspace(1.0,3.0,num=run_num, endpoint=True)
-    m_array = np.geomspace(1.6e-4,1.6e-2,num=run_num, endpoint=True)
+    m_array = np.geomspace(1.6e-3,1.6e-1,num=run_num, endpoint=True)
     for k in range(run_num):
         sim = rebound.Simulation()
         sim.add(m=ErisData[0])
         a_num = a_array[j]
         m_num = m_array[k]
-        sim.add(m = m_num, r = 0.0100, a = a_num, e = 0.01489, inc = 48, Omega = 50, omega = 131.89, M = 50)
-        sim.add(m = 1.6e-2, r = 0.0450, a = 3.7211, e = 0.01, inc = 61.25, Omega = 260, omega = 139, M = 80)
+        sim.add(m = m_num, r = 0.0400, a = a_num, e = 0.02294, inc = 62, Omega = 130, omega = 138.9, M = 5.2)
+        sim.add(m = 6.9e-3, r = 0.0350, a = 3.7211, e = 0.0049, inc = 62, Omega = 299, omega = 137, M = 39)
 
         sim.move_to_com()
 #sim.status()
