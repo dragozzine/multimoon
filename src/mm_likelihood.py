@@ -324,33 +324,12 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     # Putting in COM-COL offset
     if runprops.get('photo_offset'):
         
-        #prim_axis = runprops.get('axes_size').get('obj_1')
-        #hidden_axis = runprops.get('axes_size').get('obj_2')
-        #volume_ratio1 = hidden_axis**3/prim_axis**3
-        
         mass_ratio = paramdf['mass_2'][0]/paramdf['mass_1'][0]
-        radius_ratio = mass_ratio**0.3
-        #volume_ratio2 = radius_ratio**3
         
+        f_val = paramdf['f_val_1'][0]
         
-        #print('mass' , mass_ratio)
-        #print('volumes' , volume_ratio1,volume_ratio2)
-        #density_ratio = mass_ratio/volume_ratio2
+        bright_ratio = f_val*mass_ratio**(2/3)
         
-        
-        prim_albedo = runprops.get('albedos').get('obj_1')
-        hidden_albedo = runprops.get('albedos').get('obj_2')
-        albedo_ratio = hidden_albedo/prim_albedo
-        #bright_ratios = albedo_ratio*density_ratios
-        
-        #bright_ratio = albedo_ratio*mass_ratio**(2/3)*density_ratio**(-2/3)
-        bright_ratio = albedo_ratio*radius_ratio**2
-        
-        print('bright', bright_ratio)
-
-        #bright_ratio = flux_ratio*4*np.pi**2
-        #bright_ratio = albedo_ratio*density_ratio
-
         rel_pos_lat = Model_DeltaLat[0,:]
         rel_pos_long = Model_DeltaLong[0,:]
 
