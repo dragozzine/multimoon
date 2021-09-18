@@ -346,7 +346,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         #bright_ratio = albedo_ratio*mass_ratio**(2/3)*density_ratio**(-2/3)
         bright_ratio = albedo_ratio*radius_ratio**2
         
-        print('bright', bright_ratio)
+        #print('bright', bright_ratio)
 
         #bright_ratio = flux_ratio*4*np.pi**2
         #bright_ratio = albedo_ratio*density_ratio
