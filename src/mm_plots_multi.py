@@ -568,7 +568,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	objectnames = []
 	for i in range(runprops.get('numobjects')):
-		objectnames.append(name_dict.get('name_'+str(i)))
+		objectnames.append(name_dict.get('name_'+str(i+1)))
     
 	for values,keys in name_dict.items():
 		for j in range(runprops.get('numobjects')):
@@ -613,8 +613,10 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.plot(xvals2,-circle2, color = "black", alpha = 0.5)
 	plt.plot(xvals3, circle3, color = "black", alpha = 0.25)
 	plt.plot(xvals3,-circle3, color = "black", alpha = 0.25)
-	#print(nobjects, np.array(residuals).shape)    
+	print(nobjects, np.array(residuals).shape, objectnames)  
+	print(residuals)  
 	for i in range(1, nobjects):
+		print('plotting ', i, ' ',objectnames[i])
 		plt.scatter(residuals[2*(i-1)][:], residuals[2*(i-1)+1][:], c = colorcycle[i], label = objectnames[i], edgecolors = None)
 	plt.xlabel("Delta Longitude")
 	plt.ylabel("Delta Latitude")
@@ -757,13 +759,13 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		kepler_df = kepler_system[0]
 		names = kepler_system[1]
 		spinny_plot(kepler_df, names,runprops)
-	elif runprops.get('includesun') == 0:
+	elif runprops.get('includesun') == 0 and N==3:
 		system = build_spinny_ns(sys_df,runprops)
 		spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol,runprops)
 		s_df = spinny[0]
 		names = spinny[2]
 		spinny_plot(s_df,names, runprops)
-	else: 
+	elif runprops.get('includesun') == 1: 
 		system = build_spinny(sys_df, runprops)
 		spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,runprops)
 		        
@@ -799,10 +801,12 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		objectnames.append(i)
 
 	fig = plt.figure()
+	print(obsdf)
+	print(objectnames[1])
 	for i in range(1,nobjects):
 		modelx[i-1,:] = DeltaLat_Model[i-1]
 		modely[i-1,:] = DeltaLong_Model[i-1]
-
+        
 		x[i-1,:] = obsdf["DeltaLat_" + objectnames[i]].values
 		xe[i-1,:] = obsdf["DeltaLat_" + objectnames[i] + "_err"].values
 		y[i-1,:] = obsdf["DeltaLong_" + objectnames[i]].values

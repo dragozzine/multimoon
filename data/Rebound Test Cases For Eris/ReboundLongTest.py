@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from schwimmbad import MPIPool
 from matplotlib.colors import LogNorm
 
-ErisData = [1.6, 0.1163]
+ErisData = [1.54, 0.1163]
 global sims
 global color_map
 def loop1(j):
@@ -18,8 +18,8 @@ def loop1(j):
         sim.add(m=ErisData[0])
         a_num = a_array[j]
         m_num = m_array[k]
-        sim.add(m = m_num, r = 0.0400, a = a_num, e = 0.02294, inc = 62, Omega = 130, omega = 138.9, M = 5.2)
-        sim.add(m = 6.9e-3, r = 0.0350, a = 3.7211, e = 0.0049, inc = 62, Omega = 299, omega = 137, M = 39)
+        sim.add(m = m_num, r = 0.0400, a = a_num, e = 0.02294, inc = 62, Omega = 124, omega = 138.9, M = 15.2)
+        sim.add(m = 7.65e-3, r = 0.0350, a = 3.7211, e = 0.0049, inc = 62, Omega = 299, omega = 137, M = 39)
 
         sim.move_to_com()
 #sim.status()
@@ -52,7 +52,7 @@ def loop1(j):
         if np.sqrt(x[0][-1]**2+y[0][-1]**2) > 20.0:
             sims[k] = False
         elif np.sqrt(x[1][-1]**2+y[1][-1]**2) > 20.0:
-            sims[k] = False
+            sims[k] = False    
         else:
             sims[k] = True
         print('k j ', k, j)
