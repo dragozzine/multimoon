@@ -332,6 +332,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         
         rel_pos_lat = Model_DeltaLat[0,:]
         rel_pos_long = Model_DeltaLong[0,:]
+        
 
         delta_offset_lat = bright_ratio*rel_pos_lat
         delta_offset_long = bright_ratio*rel_pos_long

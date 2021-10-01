@@ -430,7 +430,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	fullwalkerpdf = PdfPages("walkers_full.pdf")
 	backend = emcee.backends.HDFBackend('chain.h5')    
 
-#	full_chain = sampler.get_chain(discard=0, flat = False)  
+	full_chain = sampler.get_chain(discard=0, flat = False)  
 	fullgens = full_chain.shape[0]
 	#print(fullgens)
 	for i in range(numparams):

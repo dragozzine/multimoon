@@ -72,7 +72,7 @@ if os.path.exists(obsdata):
 		print("Observational data file " + obsdata + " will be used")
 	obsdf = pd.read_csv(obsdata)
 else:
-	print(obsdata)
+	#print(obsdata)
 	print("ERROR: No observational data file exists. Aborting run.")
 	sys.exit()
 
@@ -88,7 +88,7 @@ params_dict = runprops.get("params_dict")
 name_dict = runprops.get("names_dict")
 for i in params_dict.values():
 	params.append(i)
-	print(i)
+	#print(i)
 for i in params_dict.keys():
 	paramnames.append(i)
 for i in name_dict.values():
@@ -106,7 +106,26 @@ paramdf.columns = paramnames
 Model_DeltaLong, Model_DeltaLat, obsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 #positionData = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 
-print(obsdf["time"])
+if runprops.get('photo_offset'):
+        
+    mass_ratio = paramdf['mass_2'][0]/paramdf['mass_1'][0]
+     
+    f_val = paramdf['f_val_1'][0]
+    
+    bright_ratio = f_val*mass_ratio**(2/3)
+        
+    rel_pos_lat = Model_DeltaLat[0,:]
+    rel_pos_long = Model_DeltaLong[0,:]
+    print("Models: ",Model_DeltaLat)
+    print(Model_DeltaLong)
+
+    delta_offset_lat = bright_ratio*rel_pos_lat
+    delta_offset_long = bright_ratio*rel_pos_long
+        
+    Model_DeltaLat = Model_DeltaLat + delta_offset_lat
+    Model_DeltaLong = Model_DeltaLong + delta_offset_long
+
+#print(obsdf["time"])
 
 cols = ["time","Lat_Prim","Long_Prim"]
 for i in range(1,nobjects):
