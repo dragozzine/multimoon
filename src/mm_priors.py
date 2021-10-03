@@ -93,10 +93,10 @@ def mm_priors(priors, params, runprops):
                 if i in params and params[i][0] < 0:
                     #print(i, " is outside of the realistic value with a value of ", params[i][0])
                     return -np.inf
-            elif 'f_val' in i:
-                if i in params and params[i][0] < 0:
+            #elif 'f_val' in i:
+            #    if i in params and params[i][0] < 0:
                     #print(i, " is outside of the realistic value with a value of ", params[i][0])
-                    return -np.inf
+            #        return -np.inf
             elif 'ecc' in i:
                 if i in params and params[i][0] < 0:
                     #print(i, " is outside of the realistic value with a value of ", params[i][0])
