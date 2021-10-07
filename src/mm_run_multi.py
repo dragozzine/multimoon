@@ -151,7 +151,7 @@ if __name__ == '__main__':
             the_names = []
             for i in total_df_names:
                 the_names.append(i[0])
-                
+            '''    
             print(runprops.get('results_folder'))
             if runprops.get('updatebestfitfile'):
                 the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
@@ -166,7 +166,7 @@ if __name__ == '__main__':
                         the_names.append('Residuals_Lon_Obj_'+str(i+1))
                         the_names.append('Residuals_Lat_Obj_'+str(i+1))
                     csv_writer.writerow(the_names)
-                    
+            '''        
             #print(os.getcwd())
             #print(runprops.get('chain_file'))
             #print(emcee.backends.HDFBackend(runprops.get('chain_file')).get_last_sample())

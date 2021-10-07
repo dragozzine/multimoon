@@ -221,7 +221,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Cutting up chain
 	full_chain = np.copy(chain)
-	#chain = chain[int(burnin+clusterburn + thin_plots - 1) :: thin_plots]
+	#chain = chain[int(burnin+clusterburn + thin_plots - 1) :: 1]
 	print(chain.shape)
 
 	# Flattening the chain based on method in emcee

@@ -76,6 +76,7 @@ if runprops.get("first_run") == True:
     elif ('results' in runprops.get('runs_file')): 
         shutil.copy(runprops.get('runs_file')+'/runprops.txt', newpath+'/runprops.txt')
         shutil.copy(runprops.get('runs_file')+'/chain.h5', newpath+'/chain.h5')
+        shutil.copy(runprops.get('runs_file')+'/best_likelihoods.csv', newpath+'/best_likelihoods.csv')
         runprops['chain_file'] = newpath+'/chain.h5'
     else:
         shutil.copy(filename, newpath+'/runprops.txt')
