@@ -22,15 +22,16 @@ def from_param_df_to_fit_array(dataframe, runprops):
     
     fit_names = []
 
-    for i in range(1,runprops.get('numobjects')):
+    for i in range(0,runprops.get('numobjects')):
         if runprops.get('lockspinanglesflag') == True:
+            #print(runprops.get('dynamicstoincludeflags'))
             if int(runprops.get('dynamicstoincludeflags')[i]) != 0:
-                #print('spaop_'+str(i+1),'aop_'+str(i+1))
                 #print(dataframe[['spaop_'+str(i+1)]].values)
                 #print(dataframe[['aop_'+str(i+1)]].values)
-                dataframe[['spaop_'+str(i+1)]] = dataframe[['aop_'+str(i+1)]].values
-                dataframe[['spinc_'+str(i+1)]] = dataframe[['inc_'+str(i+1)]].values
-                dataframe[['splan_'+str(i+1)]] = dataframe[['lan_'+str(i+1)]].values
+                if int(runprops.get('dynamicstoincludeflags')[i]) == 2:
+                    dataframe[['spaop_'+str(i+1)]] = dataframe[['aop_2']].values
+                dataframe[['spinc_'+str(i+1)]] = dataframe[['inc_2']].values
+                dataframe[['splan_'+str(i+1)]] = dataframe[['lan_2']].values
                 if fix_float_dict.get('spaop_'+str(i+1)) == 1:
                     print('Since you have chosen to lock the spin angles, please change the spaop_'+str(i+1)+' variable in the float_dict to be fixed.')
                     sys.exit()
@@ -352,7 +353,10 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 spinc = spinc%180
                     
             param_df['spinc_'+str(N)] = spinc
-            param_df['splan_'+str(N)] = splan            
-                    
+            param_df['splan_'+str(N)] = splan
+    if runprops.get('lockspinanglesflag') == True:
+        param_df['spinc_1'] = param_df['inc_2']
+        param_df['splan_1'] = param_df['lan_2']
+
     return param_df, fit_params
 

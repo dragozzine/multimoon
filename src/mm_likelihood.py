@@ -76,6 +76,7 @@ Outputs:
 def log_probability(float_params, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods):
     
     #print('float_params read in from p0: \n',float_params)
+    #print(float_params, float_names)
     objname = runprops.get("objectname")
 
     priorFilename = runprops.get('priors_filename')
@@ -122,25 +123,26 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     #print(llhood, best_llhoods.get('best_llhood'), runprops.get("is_mcmc"), runprops.get("updatebestfitfile"))
     if llhood > best_llhoods.get("best_llhood") and runprops.get("is_mcmc") and runprops.get("updatebestfitfile") :
         #print('is_mcmc')
-        if runprops.get('verbose'):
-            print("Previous best_llhoods, new llhood: ", best_llhoods.get('best_llhood'), llhood)
+        #if runprops.get('verbose'):
+        print("Previous best_llhoods, new llhood: ", best_llhoods.get('best_llhood'), llhood)
         best_llhoods['best_llhood'] = llhood
+        curr_best = best_llhoods["best_llhood"]
         #print(best_llhoods.get('best_llhood'))
         best_llhoods['best_params'] = params.to_dict()
-        best_csv = pd.read_csv(the_file, index_col=None)        
+        #best_csv = pd.read_csv(the_file, index_col=None)        
         
-        if len(best_csv.index) < 1:
-            curr_best = -np.inf
-        else:
-            curr_best = best_csv.iloc[-1,0]
+        #if len(best_csv.index) < 1:
+        #    curr_best = -np.inf
+        #else:
+        #    curr_best = best_csv.iloc[-1,0]
             #print('Curr_best:', curr_best)
             #print('Llhood:', llhood)
             
-        num_rows = len(best_csv.index)+1
+        #num_rows = len(best_csv.index)+1
         #print("Params: ", params)
         #print("Fit Params: ", fit_params)
         #print(llhood, curr_best)
-        if llhood > curr_best:
+        if True:
             #print('adding')
             chi_sq = llhood/(-0.5)            
             reduced_chi_sq = chi_sq/best_llhoods.get('deg_freedom')
@@ -191,6 +193,7 @@ Outputs:
 # calculates the chi-square for parameters given observations
 def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
+    #print(paramdf)
     numObj = runprops.get("numobjects")
     verbose = runprops.get("verbose")
     pd.set_option('display.max_columns', None)
