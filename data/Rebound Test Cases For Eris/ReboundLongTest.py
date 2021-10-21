@@ -8,7 +8,7 @@ ErisData = [1.54, 0.1163]
 global sims
 global color_map
 def loop1(j):
-    run_num=100
+    run_num=50
     sims = np.zeros(run_num)
     color_map = np.zeros(run_num)
     a_array = np.linspace(1.0,3.0,num=run_num, endpoint=True)
@@ -55,12 +55,12 @@ def loop1(j):
             sims[k] = False    
         else:
             sims[k] = True
-        print('k j ', k, j)
+        #print('k j ', k, j)
 
     return sims, color_map
         
 with MPIPool() as pool:   
-    run_num = 100
+    run_num = 50
     data = pool.map(loop1, range(run_num))
     sims = np.zeros((run_num,run_num))
     color_map = np.zeros((run_num,run_num))
@@ -68,8 +68,8 @@ with MPIPool() as pool:
         sims[i] = data[i][0]
         color_map[i] = data[i][1]
     
-    #sims = np.transpose(sims)
-    #color_map = np.transpose(color_map)
+    sims = np.transpose(sims)
+    color_map = np.transpose(color_map)
     #print(sims, color_map)
     
 

@@ -173,7 +173,7 @@ def posterior(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fix
 
 	if runprops.get("photo_offset"):
 		mass_rat = totaldf['mass_2']/totaldf['mass_1']
-		bright_rat = totaldf['f_val_1']*mass_rat**(2/3)
+		bright_rat = abs(totaldf['f_val_1'])*mass_rat**(2/3)
 		hubble_sep_arc = 2.1*10**5*5.5*10**(-7)/2.4  
 		brightnesspdf = PdfPages("brightness.pdf")
 		for i in range(len(dlong[0,0,:])):
