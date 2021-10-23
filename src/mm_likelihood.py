@@ -126,15 +126,15 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
         #if runprops.get('verbose'):
         #print("Previous best_llhoods, new llhood: ", best_llhoods.get('best_llhood'), llhood)
         best_llhoods['best_llhood'] = llhood
-        curr_best = best_llhoods["best_llhood"]
+        #curr_best = best_llhoods["best_llhood"]
         #print(best_llhoods.get('best_llhood'))
         best_llhoods['best_params'] = params.to_dict()
-        #best_csv = pd.read_csv(the_file, index_col=None)        
+        best_csv = pd.read_csv(the_file, index_col=None)        
         
-        #if len(best_csv.index) < 1:
-        #    curr_best = -np.inf
-        #else:
-        #    curr_best = best_csv.iloc[-1,0]
+        if len(best_csv.index) < 1:
+            curr_best = -np.inf
+        else:
+            curr_best = best_csv.iloc[-1,0]
             #print('Curr_best:', curr_best)
             #print('Llhood:', llhood)
             
@@ -142,7 +142,8 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
         #print("Params: ", params)
         #print("Fit Params: ", fit_params)
         #print(llhood, curr_best)
-        if True:
+        if llhood > curr_best:
+        #if True:
             #print('adding')
             chi_sq = llhood/(-0.5)            
             reduced_chi_sq = chi_sq/best_llhoods.get('deg_freedom')
