@@ -90,8 +90,18 @@ def from_param_df_to_fit_array(dataframe, runprops):
                 spinc = np.array(dataframe[['spinc_'+str(i+1)]])*np.pi/180
                 splan = np.array(dataframe[['splan_'+str(i+1)]])*np.pi/180
                 
-                dataframe[['spinc_'+str(i+1)]] = np.tan(spinc/2)*np.sin(splan)
-                dataframe[['splan_'+str(i+1)]] = np.tan(spinc/2)*np.cos(splan)
+                a = np.cos(spinc/2)*np.sin(splan)
+                b = np.cos(spinc/2)*np.cos(splan)
+                dataframe[['spinc_'+str(i+1)]] = a
+                dataframe[['splan_'+str(i+1)]] = b
+                
+                #if (a[:]>np.sin(splan[:])).any():
+                #    print("There is a greater a than splan")
+                #    print("spinc:", a)
+                #    print("splan:", splan)
+                
+                #dataframe[['spinc_'+str(i+1)]] = np.tan(spinc/2)*np.sin(splan)
+                #dataframe[['splan_'+str(i+1)]] = np.tan(spinc/2)*np.cos(splan)
     
     num = 0
     fit_scale = dataframe.iloc[0]
@@ -312,18 +322,26 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 b = np.array(param_df['splan_'+str(i+1)])
                 
                 splan = np.arctan2(a,b)*180/np.pi
+                #splan = np.arctan(a/b)*180/np.pi
                 if splan < 0:
-                    splan = splan%360
+                    splan = splan+360
                 
                 c = np.sin(splan*np.pi/180)
                 
-                spinc = np.arctan2(a,c)*2*180/np.pi
+                if a/c > 1 or a/c < -1:
+                    param_df['spinc_'+str(i+1)] = -1
+                    param_df['splan_'+str(i+1)] = splan
+
+                else:
+                    #print(np.arccos(a/c))
+                    spinc = np.arccos(a/c)*2*180/np.pi
+                    #spinc = np.arctan2(a,c)*2*180/np.pi
                 
-                if spinc < 0:
-                    spinc = spinc%180
+                    if spinc < 0:
+                        spinc = spinc%180
                     
-                param_df['spinc_'+str(i+1)] = spinc
-                param_df['splan_'+str(i+1)] = splan
+                    param_df['spinc_'+str(i+1)] = spinc
+                    param_df['splan_'+str(i+1)] = splan
                 
             if int(runprops.get('dynamicstoincludeflags')[0]) > 0:
                 spinc1=np.deg2rad(np.array(param_df['spinc_1']))

@@ -124,7 +124,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     if llhood > best_llhoods.get("best_llhood") and runprops.get("is_mcmc") and runprops.get("updatebestfitfile") :
         #print('is_mcmc')
         #if runprops.get('verbose'):
-        print("Previous best_llhoods, new llhood: ", best_llhoods.get('best_llhood'), llhood)
+        #print("Previous best_llhoods, new llhood: ", best_llhoods.get('best_llhood'), llhood)
         best_llhoods['best_llhood'] = llhood
         curr_best = best_llhoods["best_llhood"]
         #print(best_llhoods.get('best_llhood'))

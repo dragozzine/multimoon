@@ -190,8 +190,15 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				fitparam_names.append('spin_equinoctial_p_'+str(b+1))
 				fitparam_names.append('spin_equinoctial_q_'+str(b+1))
 				splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
+				spinc = (np.arccos(spinc_new/(np.sin(splan*np.pi/180)))*2*180/np.pi)%180
 				chain[:,:,int(spin_index[b*2+1])] = splan
-				spinc = (np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi)%180
+				print(spinc)
+				#print(spinc_new)
+				#print(splan_new)
+				#print(splan)
+				spinc = np.nan_to_num(spinc)
+                    
+				#spinc = (np.arctan2(spinc_new,(np.sin(splan*np.pi/180))*2*180/np.pi))%180
 				chain[:,:,int(spin_index[b*2])] = spinc
 		if undo_masses[0]:
 			mass_1 = chain[:,:,int(masses_index[0])]
@@ -623,7 +630,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.axis("equal")
 	plt.legend()
 	plt.savefig("best_residuals.pdf", format = "pdf")
-
+    
+    
 	# Astrometry plots
 	time_arr = obsdf['time'].values.flatten()
 	tmin = time_arr.min()
