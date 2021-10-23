@@ -114,8 +114,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		clusterburn = int(runprops.get('clustering_burnin'))
 
 	thin_plots = runprops.get('thin_plots') 
-	chain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)  
-#	chain = sampler.get_chain(flat = False, thin=thin_plots)  
+#	chain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)  
+	chain = sampler.get_chain(flat = False, thin=thin_plots)  
 	fit = []
 
 	for i in fit_scale.columns:
@@ -127,11 +127,12 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			fit.append(val)
 
 	# Getting final values for the shape of the chain
-	shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
+	#shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
+	shortchain = sampler.get_chain(flat = False, thin=thin_plots)
 	numparams = shortchain.shape[2]
 	numwalkers = shortchain.shape[1]
 	numgens = shortchain.shape[0]
-	del shortchain	
+	del shortchain
  
 	# Take chain "fit" values and make them into real values
 	for i in range(numparams):
@@ -139,6 +140,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
     
 	fitparam_chain = np.zeros((1,numwalkers,numgens))
+
 	print(fitparam_chain.shape)    
 	fitparam_names = []    
 	# Now de-transform the chain
@@ -190,15 +192,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				fitparam_names.append('spin_equinoctial_p_'+str(b+1))
 				fitparam_names.append('spin_equinoctial_q_'+str(b+1))
 				splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
-				spinc = (np.arccos(spinc_new/(np.sin(splan*np.pi/180)))*2*180/np.pi)%180
 				chain[:,:,int(spin_index[b*2+1])] = splan
-				print(spinc)
-				#print(spinc_new)
-				#print(splan_new)
-				#print(splan)
-				spinc = np.nan_to_num(spinc)
-                    
-				#spinc = (np.arctan2(spinc_new,(np.sin(splan*np.pi/180))*2*180/np.pi))%180
+				#spinc = (np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi)%180
+				spinc = (np.arccos(spinc_new/np.sin(splan*np.pi/180))*2*180/np.pi)%180
 				chain[:,:,int(spin_index[b*2])] = spinc
 		if undo_masses[0]:
 			mass_1 = chain[:,:,int(masses_index[0])]
@@ -222,13 +218,14 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			chain[:,:,int(masses_index[0])] = (mass_1)/10**18
 
 	fitparam_chain = np.delete(fitparam_chain,0,0)
-	fitparam_chain = fitparam_chain.T    
+	fitparam_chain = fitparam_chain.T   
+	fitparam_chain = fitparam_chain[int(burnin+clusterburn + thin_plots - 1) :: 1]
         
 	print("Un transforming done")
 
 	# Cutting up chain
 	full_chain = np.copy(chain)
-	#chain = chain[int(burnin+clusterburn + thin_plots - 1) :: 1]
+	chain = chain[int(burnin+clusterburn + thin_plots - 1) :: 1]
 	print(chain.shape)
 
 	# Flattening the chain based on method in emcee
@@ -419,7 +416,12 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	from matplotlib.backends.backend_pdf import PdfPages
 
 	walkerpdf = PdfPages("walkers.pdf")
-
+	shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
+	#shortchain = sampler.get_chain(flat = False, thin=thin_plots)
+	numparams = shortchain.shape[2]
+	numwalkers = shortchain.shape[1]
+	numgens = shortchain.shape[0]
+	del shortchain
 	for i in range(numparams):
 		plt.figure(dpi = 50)
 		for j in range(numwalkers):
@@ -630,8 +632,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.axis("equal")
 	plt.legend()
 	plt.savefig("best_residuals.pdf", format = "pdf")
-    
-    
+
 	# Astrometry plots
 	time_arr = obsdf['time'].values.flatten()
 	tmin = time_arr.min()
