@@ -27,7 +27,7 @@ def loop1(j):
         Noutputs = 100
 
         year = 2.*np.pi # One year in units where G=1
-        times = np.linspace(0.,10000.*year, Noutputs)
+        times = np.linspace(0.,10**6*year, Noutputs)
         x = np.zeros((2,Noutputs))
         y = np.zeros((2,Noutputs))
 
