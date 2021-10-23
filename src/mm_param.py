@@ -22,15 +22,16 @@ def from_param_df_to_fit_array(dataframe, runprops):
     
     fit_names = []
 
-    for i in range(1,runprops.get('numobjects')):
+    for i in range(0,runprops.get('numobjects')):
         if runprops.get('lockspinanglesflag') == True:
+            #print(runprops.get('dynamicstoincludeflags'))
             if int(runprops.get('dynamicstoincludeflags')[i]) != 0:
-                #print('spaop_'+str(i+1),'aop_'+str(i+1))
                 #print(dataframe[['spaop_'+str(i+1)]].values)
                 #print(dataframe[['aop_'+str(i+1)]].values)
-                dataframe[['spaop_'+str(i+1)]] = dataframe[['aop_'+str(i+1)]].values
-                dataframe[['spinc_'+str(i+1)]] = dataframe[['inc_'+str(i+1)]].values
-                dataframe[['splan_'+str(i+1)]] = dataframe[['lan_'+str(i+1)]].values
+                if int(runprops.get('dynamicstoincludeflags')[i]) == 2:
+                    dataframe[['spaop_'+str(i+1)]] = dataframe[['aop_2']].values
+                dataframe[['spinc_'+str(i+1)]] = dataframe[['inc_2']].values
+                dataframe[['splan_'+str(i+1)]] = dataframe[['lan_2']].values
                 if fix_float_dict.get('spaop_'+str(i+1)) == 1:
                     print('Since you have chosen to lock the spin angles, please change the spaop_'+str(i+1)+' variable in the float_dict to be fixed.')
                     sys.exit()
@@ -89,8 +90,18 @@ def from_param_df_to_fit_array(dataframe, runprops):
                 spinc = np.array(dataframe[['spinc_'+str(i+1)]])*np.pi/180
                 splan = np.array(dataframe[['splan_'+str(i+1)]])*np.pi/180
                 
-                dataframe[['spinc_'+str(i+1)]] = np.tan(spinc/2)*np.sin(splan)
-                dataframe[['splan_'+str(i+1)]] = np.tan(spinc/2)*np.cos(splan)
+                a = np.cos(spinc/2)*np.sin(splan)
+                b = np.cos(spinc/2)*np.cos(splan)
+                dataframe[['spinc_'+str(i+1)]] = a
+                dataframe[['splan_'+str(i+1)]] = b
+                
+                #if (a[:]>np.sin(splan[:])).any():
+                #    print("There is a greater a than splan")
+                #    print("spinc:", a)
+                #    print("splan:", splan)
+                
+                #dataframe[['spinc_'+str(i+1)]] = np.tan(spinc/2)*np.sin(splan)
+                #dataframe[['splan_'+str(i+1)]] = np.tan(spinc/2)*np.cos(splan)
     
     num = 0
     fit_scale = dataframe.iloc[0]
@@ -311,18 +322,26 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 b = np.array(param_df['splan_'+str(i+1)])
                 
                 splan = np.arctan2(a,b)*180/np.pi
+                #splan = np.arctan(a/b)*180/np.pi
                 if splan < 0:
-                    splan = splan%360
+                    splan = splan+360
                 
                 c = np.sin(splan*np.pi/180)
                 
-                spinc = np.arctan2(a,c)*2*180/np.pi
+                if a/c > 1 or a/c < -1:
+                    param_df['spinc_'+str(i+1)] = -1
+                    param_df['splan_'+str(i+1)] = splan
+
+                else:
+                    #print(np.arccos(a/c))
+                    spinc = np.arccos(a/c)*2*180/np.pi
+                    #spinc = np.arctan2(a,c)*2*180/np.pi
                 
-                if spinc < 0:
-                    spinc = spinc%180
+                    if spinc < 0:
+                        spinc = spinc%180
                     
-                param_df['spinc_'+str(i+1)] = spinc
-                param_df['splan_'+str(i+1)] = splan
+                    param_df['spinc_'+str(i+1)] = spinc
+                    param_df['splan_'+str(i+1)] = splan
                 
             if int(runprops.get('dynamicstoincludeflags')[0]) > 0:
                 spinc1=np.deg2rad(np.array(param_df['spinc_1']))
@@ -352,7 +371,10 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 spinc = spinc%180
                     
             param_df['spinc_'+str(N)] = spinc
-            param_df['splan_'+str(N)] = splan            
-                    
+            param_df['splan_'+str(N)] = splan
+    if runprops.get('lockspinanglesflag') == True:
+        param_df['spinc_1'] = param_df['inc_2']
+        param_df['splan_1'] = param_df['lan_2']
+
     return param_df, fit_params
 

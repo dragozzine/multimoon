@@ -142,8 +142,11 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	# Now create info gain arrays
 	infogain = np.zeros((runprops.get('numobjects')-1, times.size))
 	infogain2 = np.zeros((runprops.get('numobjects')-1, times.size))
+	g_gain = np.zeros((runprops.get('numobjects')-1,2))   
 	for i in range(1,runprops.get('numobjects')):
 		infogain[i-1,:] = np.sqrt( (dlongstd[i-1,:]/typicalerror[0,i-1])**2 + (dlatstd[i-1,:]/typicalerror[1,i-1])**2 )
+		g_gain[i-1,0] = times[np.argmax(infogain[i-1,:])]
+		g_gain[i-1,1] = np.amax(infogain[i-1,:])
 
 		#for j in range(times.size):
 		#	bitarr = (dlong[:,i-1,j] < (dlongmean[i-1,j] + typicalerror[0,i-1])) & (dlong[:,i-1,j] > (dlongmean[i-1,j] - typicalerror[0,i-1])) & (dlat[:,i-1,j] < (dlatmean[i-1,j] + typicalerror[1,i-1])) & (dlat[:,i-1,j] > (dlatmean[i-1,j] - typicalerror[1,i-1]))
@@ -157,6 +160,7 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	t = Time(times, format = "jd")
 	for i in range(1,runprops.get('numobjects')):
 		plt.plot_date(t.plot_date, infogain[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 0.5)
+		plt.title("Dates of greatest gain: JD "+str(g_gain[:,0]))        
 		#plt.plot_date(t.plot_date, infogain2[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 0.5)
 
 
@@ -177,12 +181,13 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	predictionspdf = PdfPages("predictions_params.pdf")
 	for i in range(len(paramnames)):
 		plt.figure()
+		plt.axis("equal")
 		plt.scatter(0,0, color = "black")
-		plt.scatter(dlong[:,0,15], dlat[:,0,15], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm")
-		plt.errorbar(np.median(dlong[:,0,15]), np.median(dlat[:,0,15]), xerr = typicalerror[0,0], yerr = typicalerror[1,0], ecolor = "red")
+		plt.scatter(dlong[:,0,g_gain[0,1]], dlat[:,0,g_gain[0,1]], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm")
+		plt.errorbar(np.median(dlong[:,0,g_gain[0,1]]), np.median(dlat[:,0,g_gain[0,1]]), xerr = typicalerror[0,0], yerr = typicalerror[1,0], ecolor = "red")
         
-		plt.scatter(dlong[:,1,15], dlat[:,1,15], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm",marker='D')
-		plt.errorbar(np.median(dlong[:,1,15]), np.median(dlat[:,1,15]), xerr = typicalerror[0,1], yerr = typicalerror[1,1], ecolor = "red")
+		plt.scatter(dlong[:,1,g_gain[0,1]], dlat[:,1,g_gain[0,1]], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm",marker='D')
+		plt.errorbar(np.median(dlong[:,1,g_gain[0,1]]), np.median(dlat[:,1,g_gain[0,1]]), xerr = typicalerror[0,1], yerr = typicalerror[1,1], ecolor = "red")
 		plt.xlabel("dLon")
 		plt.ylabel("dLat")
 		plt.title(paramnames[i])

@@ -44,6 +44,11 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
     for i in date:
         jd = Time(i,format='jd')
         dateList.append(jd)
+
+    # Make new goecentric position file
+    import mm_make_geo_pos
+    geo = mm_make_geo_pos.mm_make_geo_pos(objectNames[0], dateList, runprops = None, synthetic = True)
+    geo.to_csv("geocentric_" + objectNames[0] + "_position.csv")
         
     #print(dateList)
     #Get the Horizons data for the object at the times it was observed
