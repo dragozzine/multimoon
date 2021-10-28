@@ -75,7 +75,7 @@ Outputs:
 """
 def log_probability(float_params, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods):
     
-    #print('float_params read in from p0: \n',float_params)
+    print('float_params read in from p0: \n',float_params)
     #print(float_params, float_names)
     objname = runprops.get("objectname")
 
@@ -120,7 +120,9 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     #I did the math with some intense testing, and found this will only slow down
     #a 1000 step system by 1 minute, which typically takes 2 hours, so there is not much slow down.
     
-    #print(llhood, best_llhoods.get('best_llhood'), runprops.get("is_mcmc"), runprops.get("updatebestfitfile"))
+    #The best_llhoods dictionary keeps track of the best likelihood achieved by each individual processor, whic operates individually
+    #from the othe rprocessors. If a processor/waler achieved a lieklihood that is better than the processor has achieved before,
+    #we enter this if statement. 
     if llhood > best_llhoods.get("best_llhood") and runprops.get("is_mcmc") and runprops.get("updatebestfitfile") :
         #print('is_mcmc')
         #if runprops.get('verbose'):
@@ -131,6 +133,9 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
         best_llhoods['best_params'] = params.to_dict()
         best_csv = pd.read_csv(the_file, index_col=None)        
         
+        #Here we detemrine the current best likelihood overall. This is saved in the best_likelihoods.csv, which is independent, and can be
+        # accessed by any processor. This way the processors can all access the overall best likelihood value without overlapping very 
+        #often.
         if len(best_csv.index) < 1:
             curr_best = -np.inf
         else:

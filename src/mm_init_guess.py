@@ -22,6 +22,7 @@ def mm_init_guess(runprops):
         as start_guess_df and nwalker rows drawn from the 
         distribution.
     """
+    #print(runprops)
     filename = runprops.get("init_filename")
 
     start_guess_df = pd.read_csv(filename,sep=',',index_col=0)

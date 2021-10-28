@@ -199,16 +199,14 @@ def posterior(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fix
 
 	#==============================================We create the posterior.pdf====================================================
 	predictionspdf = PdfPages("posterior.pdf")
+	markers = ["o","D","^"]    
 	for i in range(len(dlong[0,0,:])):
 		plt.figure()
 		plt.axis("equal")        
 		plt.scatter(0,0, color = "black")
-        
-		plt.scatter(dlong[:,0,i], dlat[:,0,i], c=llhoods, cmap = "coolwarm")
-		plt.errorbar(np.median(dlong[:,0,i]), np.median(dlat[:,0,i]), xerr = typicalerror[0,0], yerr = typicalerror[1,0], ecolor = "red")
-        
-		plt.scatter(dlong[:,1,i], dlat[:,1,i], c=llhoods, cmap = "coolwarm",marker="D")
-		plt.errorbar(np.median(dlong[:,1,i]), np.median(dlat[:,1,i]), xerr = typicalerror[0,1], yerr = typicalerror[1,1], ecolor = "red")
+		for j in range(runprops.get('numobjects')-1):        
+			plt.scatter(dlong[:,j,i], dlat[:,j,i], c=llhoods, cmap = "coolwarm",marker=markers[j])
+			plt.errorbar(np.median(dlong[:,j,i]), np.median(dlat[:,j,i]), xerr = typicalerror[0,j], yerr = typicalerror[1,j], ecolor = "red")
 		plt.xlabel("dLon")
 		plt.ylabel("dLat")
 		#plt.xlim(-0.5, 0.5)

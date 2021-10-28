@@ -48,6 +48,7 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	flatchain = sampler.get_chain(discard=int(burnin/thin_plots+clusterburn/thin_plots),flat = True, thin=thin_plots)
 	print(flatchain.shape, 'shape')
 	llhoods = sampler.get_log_prob(discard=int(burnin/thin_plots+clusterburn/thin_plots),flat = True, thin=thin_plots)
+
 	#ind = np.argmax(llhoods)
 	#params = flatchain[ind,:].flatten()
 
@@ -60,6 +61,7 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	# Choose random draws from the flatchain
 	drawsindex = np.random.randint(flatchain.shape[0], size = numdraws)
 	draws = flatchain[drawsindex,:]
+	llhoods = llhoods[drawsindex]
 
 	# Get time arrays
 	converttimes = ["2021-10-01","2022-09-30"]
@@ -146,7 +148,7 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	for i in range(1,runprops.get('numobjects')):
 		infogain[i-1,:] = np.sqrt( (dlongstd[i-1,:]/typicalerror[0,i-1])**2 + (dlatstd[i-1,:]/typicalerror[1,i-1])**2 )
 		g_gain[i-1,0] = times[np.argmax(infogain[i-1,:])]
-		g_gain[i-1,1] = np.amax(infogain[i-1,:])
+		g_gain[i-1,1] = np.argmax(infogain[i-1,:])
 
 		#for j in range(times.size):
 		#	bitarr = (dlong[:,i-1,j] < (dlongmean[i-1,j] + typicalerror[0,i-1])) & (dlong[:,i-1,j] > (dlongmean[i-1,j] - typicalerror[0,i-1])) & (dlat[:,i-1,j] < (dlatmean[i-1,j] + typicalerror[1,i-1])) & (dlat[:,i-1,j] > (dlatmean[i-1,j] - typicalerror[1,i-1]))
@@ -159,7 +161,7 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	fig = plt.figure(figsize = (12.8,4.8))
 	t = Time(times, format = "jd")
 	for i in range(1,runprops.get('numobjects')):
-		plt.plot_date(t.plot_date, infogain[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 0.5)
+		plt.plot_date(times, infogain[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 0.5)
 		plt.title("Dates of greatest gain: JD "+str(g_gain[:,0]))        
 		#plt.plot_date(t.plot_date, infogain2[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 0.5)
 
@@ -179,15 +181,20 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	from matplotlib.backends.backend_pdf import PdfPages
 
 	predictionspdf = PdfPages("predictions_params.pdf")
+	print("Making predictions params")
+	#print(g_gain)
+	#print(dlong[:,0,int(g_gain[1,1])])
 	for i in range(len(paramnames)):
 		plt.figure()
 		plt.axis("equal")
 		plt.scatter(0,0, color = "black")
-		plt.scatter(dlong[:,0,g_gain[0,1]], dlat[:,0,g_gain[0,1]], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm")
-		plt.errorbar(np.median(dlong[:,0,g_gain[0,1]]), np.median(dlat[:,0,g_gain[0,1]]), xerr = typicalerror[0,0], yerr = typicalerror[1,0], ecolor = "red")
-        
-		plt.scatter(dlong[:,1,g_gain[0,1]], dlat[:,1,g_gain[0,1]], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm",marker='D')
-		plt.errorbar(np.median(dlong[:,1,g_gain[0,1]]), np.median(dlat[:,1,g_gain[0,1]]), xerr = typicalerror[0,1], yerr = typicalerror[1,1], ecolor = "red")
+		#print('line 187')        
+		plt.scatter(dlong[:,0,int(g_gain[1,1])], dlat[:,0,int(g_gain[1,1])], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm")
+		#print('line 189')
+		plt.errorbar(np.median(dlong[:,0,int(g_gain[1,1])]), np.median(dlat[:,0,int(g_gain[1,1])]), xerr = typicalerror[0,0], yerr = typicalerror[1,0], ecolor = "red")
+		#print('line 191')        
+		plt.scatter(dlong[:,1,int(g_gain[1,1])], dlat[:,1,int(g_gain[1,1])], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm",marker='D')
+		plt.errorbar(np.median(dlong[:,1,int(g_gain[1,1])]), np.median(dlat[:,1,int(g_gain[1,1])]), xerr = typicalerror[0,1], yerr = typicalerror[1,1], ecolor = "red")
 		plt.xlabel("dLon")
 		plt.ylabel("dLat")
 		plt.title(paramnames[i])
@@ -198,6 +205,28 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 		predictionspdf.savefig()
 	predictionspdf.close()
 
+    
+	pospdf = PdfPages("posterior_prediction.pdf")
+	plt.figure()
+	plt.axis("equal")        
+	plt.scatter(0,0, color = "black")
+       
+	plt.scatter(dlong[:,0,int(g_gain[1,1])], dlat[:,0,int(g_gain[1,1])], c=llhoods, cmap = "coolwarm")
+	plt.errorbar(np.median(dlong[:,0,int(g_gain[1,1])]), np.median(dlat[:,0,int(g_gain[1,1])]), xerr = typicalerror[0,0], yerr = typicalerror[1,0], ecolor = "red")
+       
+	plt.scatter(dlong[:,1,int(g_gain[1,1])], dlat[:,1,int(g_gain[1,1])], c=llhoods, cmap = "coolwarm",marker="D")
+	plt.errorbar(np.median(dlong[:,1,int(g_gain[1,1])]), np.median(dlat[:,1,int(g_gain[1,1])]), xerr = typicalerror[0,1], yerr = typicalerror[1,1], ecolor = "red")
+	plt.xlabel("dLon")
+	plt.ylabel("dLat")
+	#plt.xlim(-0.5, 0.5)
+	#plt.ylim(-0.5, 0.5)
+	plt.title("JD: "+str(g_gain[1,0]))
+	color_bar = plt.colorbar()
+	color_bar.set_alpha(1)
+	color_bar.draw_all()
+	color_bar.set_label('Log-Likelihood')
+	pospdf.savefig()
+	pospdf.close()
 
 #Actually build the plots here
 #====================================================================================================
