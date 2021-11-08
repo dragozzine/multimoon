@@ -157,8 +157,8 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
 
             spinvec_arr[n,t,:] = s.get_spin(n)
 
-    for t in range(0,T):
-        for n in range(0,N):
+    #for t in range(0,T):
+    #    for n in range(0,N):
             
             r_n = R.from_quat(quat_arr[n,t]) # convert quaternion to rotation
             obj_pole = r_n.apply([0.0,0.0,1.0],inverse=False) # get orientation of spin pole in world frame
@@ -221,8 +221,9 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
             E_tot = K_sp + K_orb - U_grav
             E_arr[n,t] = E_tot
     
-    L_arr = np.sum(L_arr,axis=0)
-    E_arr = np.sum(E_arr,axis=0)
+    
+    L_arr_sum = np.sum(L_arr,axis=0)
+    E_arr_sum = np.sum(E_arr,axis=0)
     
     body_dict = {"Times":t_arr}
     if verbose:
@@ -273,14 +274,19 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
         body_dict.setdefault('spin_period_'+name_arr[n],  spin_arr[n,:,1])
         
         #print(L_arr[:,0],L_arr[:,1],L_arr[:,2])
-        body_dict.setdefault('Lx_'+name_arr[n], L_arr[:,0] )
-        body_dict.setdefault('Ly_'+name_arr[n], L_arr[:,1] )
-        body_dict.setdefault('Lz_'+name_arr[n], L_arr[:,2] )
+        body_dict.setdefault('Lx_'+name_arr[n], L_arr[n,:,0] )
+        body_dict.setdefault('Ly_'+name_arr[n], L_arr[n,:,1] )
+        body_dict.setdefault('Lz_'+name_arr[n], L_arr[n,:,2] )
         
-        body_dict.setdefault('E_'+name_arr[n], E_arr )
+        body_dict.setdefault('E_'+name_arr[n], E_arr[n,:] )
                                
+    
+    body_dict.setdefault('Lx_tot'+name_arr[n], L_arr_sum[:,0] )
+    body_dict.setdefault('Ly_tot'+name_arr[n], L_arr_sum[:,1] )
+    body_dict.setdefault('Lz_tot'+name_arr[n], L_arr_sum[:,2] )   
     spinny_df = pd.DataFrame(body_dict)
-                               
+    print('line 288',os.getcwd())
+    spinny_df.to_csv("out.csv")
     return(spinny_df)     
 
 """    

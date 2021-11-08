@@ -593,7 +593,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	#paramdf = pd.DataFrame(paraminput).transpose()
 	#paramdf.columns = paramnames
 
-
+	'''
 	#print(paramdf)
 #Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
 	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
@@ -632,7 +632,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.axis("equal")
 	plt.legend()
 	plt.savefig("best_residuals.pdf", format = "pdf")
-
+	'''
 	# Astrometry plots
 	time_arr = obsdf['time'].values.flatten()
 	tmin = time_arr.min()
@@ -778,15 +778,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		system = build_spinny(sys_df, runprops)
 		spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,runprops)
 		        
-		s_df = spinny[0]
-		#print(s_df)
-		#s_df = pd.DataFrame()
-		#s_df['X_Pos_'+]=
-		#s_df['']=
-		#s_df['']=
-		#s_df['']=
-		#s_df['']=
-		#s_df['']=        
+		s_df = spinny[0]       
 		names = spinny[1]
 		spinny_plot(s_df,names, runprops)
     

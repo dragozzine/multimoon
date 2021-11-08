@@ -19,6 +19,13 @@ from mm_SPINNY.spinny_nosun import *
 from mm_SPINNY.mm_vpython import *
 from mm_SPINNY.keplerian import *
 
+import matplotlib.animation as animation
+
+
+def update(data):
+    points.set_ydata(data)
+    return points
+
 class ReadJson(object):
     def __init__(self, filename):
         print('Read the runprops.txt file')
@@ -314,7 +321,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	dtif = runprops.get("dynamicstoincludeflags")
 
 	# Orbital periods for each satellite
-    
+	periods = []
 	for i in range(1,runprops.get('numobjects')):
 		print(names)        
 		if 'sma_'+str(i+1) in names and 'mass_'+str(i+1) in names and 'mass_1' in names:
@@ -327,10 +334,18 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			mp_arr = flatchain[:,mp_index]
 
 			period = 2*np.pi*np.sqrt(a_arr**3/(6.674e-20*(m_arr + mp_arr)*10**18))/3600.0/24.0
+            
+			m_ratio = mp_arr/m_arr
+			dnames = np.append(dnames, ["mass_" + str(i+1) + "/mass_1"])
+			dfchain = np.concatenate((dfchain, np.array([m_ratio]).T), axis = 1)
 
 			dnames = np.append(dnames, ["period_" + str(i+1)])
+			#print(dfchain.shape)            
 			dfchain = np.concatenate((dfchain, np.array([period]).T), axis = 1)
-
+			#print(dfchain.shape)            
+			periods = np.append(periods,len(dfchain[0])-1)
+            
+	print(periods)
 	# Spin period
 	fixedparams = runprops.get("float_dict")
 	if dtif[0] == "1" or dtif[0] == "2":
@@ -344,43 +359,61 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				dfchain = np.concatenate((dfchain, np.array([spinperiod]).T), axis = 1)
 
 	# Satellite-spin mutual inclination
-#	if dtif[0] == "1" or dtif[0] == "2":
-#		for i in range(1,runprops.get('numobjects')):
-#			print(names)            
-#			spinc1_index = [n for n, l in enumerate(names) if l.startswith('spinc_1')][0]
-#			splan1_index = [n for n, l in enumerate(names) if l.startswith('splan_1')][0]
-#			inc_index = [n for n, l in enumerate(names) if l.startswith('inc_'+str(i+1))][0]
-#			lan_index = [n for n, l in enumerate(names) if l.startswith('lan_'+str(i+1))][0]
-#
-#			spinc1_arr = np.deg2rad(flatchain[:,spinc1_index])
-#			splan1_arr = np.deg2rad(flatchain[:,splan1_index])
-#			inc_arr = np.deg2rad(flatchain[:,inc_index])
-#			lan_arr = np.deg2rad(flatchain[:,lan_index])
-#
-#			mutualinc = np.arccos( np.cos(spinc1_arr)*np.cos(inc_arr) + np.sin(spinc1_arr)*np.sin(inc_arr)*np.cos(splan1_arr - lan_arr) )
-#			mutualinc = np.rad2deg(mutualinc)
-#
-#			dnames = np.append(dnames, ["sat-spin inc_" + str(i+1)])
-#			dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
-#
-#	# Satellite-Satellite mutual inclination (this only works right now for 2 moons/satellites)
-#	if runprops.get("numobjects") > 2:
-#		inc2_index = [n for n, l in enumerate(names) if l.startswith('inc_2')][0]
-#		inc3_index = [n for n, l in enumerate(names) if l.startswith('inc_3')][0]
-#		lan2_index = [n for n, l in enumerate(names) if l.startswith('lan_2')][0]
-#		lan3_index = [n for n, l in enumerate(names) if l.startswith('lan_3')][0]
-#
-#		inc2_arr = np.deg2rad(flatchain[:,inc2_index])
-#		lan2_arr = np.deg2rad(flatchain[:,lan2_index])
-#		inc3_arr = np.deg2rad(flatchain[:,inc3_index])
-#		lan3_arr = np.deg2rad(flatchain[:,lan3_index])
-#
-#		mutualinc = np.arccos( np.cos(inc2_arr)*np.cos(inc3_arr) + np.sin(inc2_arr)*np.sin(inc3_arr)*np.cos(lan2_arr - lan3_arr) )
-#		mutualinc = np.rad2deg(mutualinc)
-#
-#		dnames = np.append(dnames, ["sat-sat inc"])
-#		dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
+	if dtif[0] == "1" or dtif[0] == "2":
+		for i in range(1,runprops.get('numobjects')):
+			print(names)            
+			spinc1_index = [n for n, l in enumerate(names) if l.startswith('spinc_1')][0]
+			splan1_index = [n for n, l in enumerate(names) if l.startswith('splan_1')][0]
+			inc_index = [n for n, l in enumerate(names) if l.startswith('inc_'+str(i+1))][0]
+			lan_index = [n for n, l in enumerate(names) if l.startswith('lan_'+str(i+1))][0]
 
+			spinc1_arr = np.deg2rad(flatchain[:,spinc1_index])
+			splan1_arr = np.deg2rad(flatchain[:,splan1_index])
+			inc_arr = np.deg2rad(flatchain[:,inc_index])
+			lan_arr = np.deg2rad(flatchain[:,lan_index])
+
+			mutualinc = np.arccos( np.cos(spinc1_arr)*np.cos(inc_arr) + np.sin(spinc1_arr)*np.sin(inc_arr)*np.cos(splan1_arr - lan_arr) )
+			mutualinc = np.rad2deg(mutualinc)
+
+			dnames = np.append(dnames, ["sat-spin inc_" + str(i+1)])
+			dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
+#
+	# Satellite-Satellite mutual inclination (this only works right now for 2 moons/satellites)
+	if runprops.get("numobjects") > 2:
+		inc2_index = [n for n, l in enumerate(names) if l.startswith('inc_2')][0]
+		inc3_index = [n for n, l in enumerate(names) if l.startswith('inc_3')][0]
+		lan2_index = [n for n, l in enumerate(names) if l.startswith('lan_2')][0]
+		lan3_index = [n for n, l in enumerate(names) if l.startswith('lan_3')][0]
+
+		inc2_arr = np.deg2rad(flatchain[:,inc2_index])
+		lan2_arr = np.deg2rad(flatchain[:,lan2_index])
+		inc3_arr = np.deg2rad(flatchain[:,inc3_index])
+		lan3_arr = np.deg2rad(flatchain[:,lan3_index])
+
+		mutualinc = np.arccos( np.cos(inc2_arr)*np.cos(inc3_arr) + np.sin(inc2_arr)*np.sin(inc3_arr)*np.cos(lan2_arr - lan3_arr) )
+		mutualinc = np.rad2deg(mutualinc)
+
+		dnames = np.append(dnames, ["sat-sat inc"])
+		dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
+
+		mass1_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
+		mass2_index = [n for n, l in enumerate(names) if l.startswith('mass_2')][0]
+		mass3_index = [n for n, l in enumerate(names) if l.startswith('mass_3')][0]
+
+		mass1_arr = flatchain[:,mass1_index]
+		mass2_arr = flatchain[:,mass2_index]
+		mass3_arr = flatchain[:,mass3_index]
+
+		mass1_3_rat = mass3_arr/mass1_arr
+		mass2_3_rat = mass3_arr/mass2_arr
+
+		dnames = np.append(dnames, ["mass_3/mass_2","period_3/period_2"])
+		#dfchain = np.concatenate((dfchain, np.array([mass1_3_rat]).T), axis = 1)
+		dfchain = np.concatenate((dfchain, np.array([mass2_3_rat]).T), axis = 1)
+		period3 = dfchain[:,int(periods[1])]
+		period2 = dfchain[:,int(periods[0])]       
+		period_ratio = np.array(period3)/np.array(period2)
+		dfchain = np.concatenate((dfchain, np.array([period_ratio]).T), axis = 1)
 # Creating corner+derived plot
 	fig = corner.corner(dfchain, labels = dnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
@@ -593,7 +626,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	#paramdf = pd.DataFrame(paraminput).transpose()
 	#paramdf.columns = paramnames
 
-
+	'''
 	#print(paramdf)
 #Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
 	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
@@ -632,7 +665,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.axis("equal")
 	plt.legend()
 	plt.savefig("best_residuals.pdf", format = "pdf")
-
+	'''
 	# Astrometry plots
 	time_arr = obsdf['time'].values.flatten()
 	tmin = time_arr.min()
@@ -744,10 +777,10 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			mea = paramdf['mea_'+str(i+1)][0]
 			sys_df.loc['sma',names[i]] = sma
 			sys_df.loc['ecc',names[i]] = ecc
-			sys_df.loc['inc',names[i]] = inc
-			sys_df.loc['lan',names[i]] = lan
-			sys_df.loc['aop',names[i]] = aop
-			sys_df.loc['mea',names[i]] = mea
+			sys_df.loc['inc',names[i]] = inc*np.pi/180
+			sys_df.loc['lan',names[i]] = lan*np.pi/180
+			sys_df.loc['aop',names[i]] = aop*np.pi/180
+			sys_df.loc['mea',names[i]] = mea*np.pi/180
     
 	#t_arr = times
 	N = len(sys_df.columns)
