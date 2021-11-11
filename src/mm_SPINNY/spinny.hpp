@@ -196,10 +196,10 @@ void Spinny::add_object(const std::string &name,const Physical_Properties &phys0
     names.push_back(name);
     idx[name] = names.size()-1;
     phys.push_back(phys0);
-    
+
     // Add the state vector
     arr0.insert(arr0.end(), state.begin(), state.end());
-    
+
     // Add the spin vector
     arr0.insert(arr0.end(), spin.begin(), spin.end());
 
@@ -291,7 +291,7 @@ void Spinny::calc_bary(double &ub,std::vector<double> &rb,std::vector<double> &v
     }
 }
 
-// Move the barycentre 
+// Move the barycentre
 void Spinny::move2bary() {
     double ub;
     std::vector<double> rb,vb;
@@ -335,7 +335,7 @@ void Spinny::derivative(
     unsigned i,i2,j;
 
     for(i=0;i<nobj*13;i++) darr[i]=0;
-    
+
     // Evaulate forces and torques
     for(i=0;i<nobj;i++) {
 
@@ -374,7 +374,7 @@ void Spinny::derivative(
         i2 = 13*i;
         //i3 = 3*i;
 
-        for(j=0;j<3;j++) 
+        for(j=0;j<3;j++)
             darr[i2+j  ] = arr[i2+j+3];
 
         if(hasspin[i]) {
@@ -382,16 +382,19 @@ void Spinny::derivative(
             O[0] = arr[i2+6];
             O[1] = arr[i2+7];
             O[2] = arr[i2+8];
-        
+
             // Euler's equations of motion
             //
-            // Note that we stored the torque in darr[i2+6..8], 
+            // Note that we stored the torque in darr[i2+6..8],
             // and are now converting to differential spin
-            
-            darr[i2+6] = - phys[i].Ic0*O[1]*O[2] - (darr[i2+6]*phys[i].iI[0]);
-            darr[i2+7] = - phys[i].Ic1*O[2]*O[0] - (darr[i2+7]*phys[i].iI[1]);
-            darr[i2+8] = - phys[i].Ic2*O[0]*O[1] - (darr[i2+8]*phys[i].iI[2]);
-            
+            //
+            // BP 11/10/21: Flipped the signs for Euler's equations. These are now consistent with the equations
+            //              analytically dervived. This configuration is the only one to conserve total L.
+
+            darr[i2+6] =  phys[i].Ic0*O[1]*O[2] + (darr[i2+6]*phys[i].iI[0]);
+            darr[i2+7] =  phys[i].Ic1*O[2]*O[0] + (darr[i2+7]*phys[i].iI[1]);
+            darr[i2+8] =  phys[i].Ic2*O[0]*O[1] + (darr[i2+8]*phys[i].iI[2]);
+
             // Matrix operator for dqdt
             /*Omat = np.array(
                     [[  0.,-O[0],-O[1],-O[2]],
@@ -404,10 +407,13 @@ void Spinny::derivative(
             qi = arr[i2+10];
             qj = arr[i2+11];
             qk = arr[i2+12];
+
+            // Original code
             darr[i2+ 9] = .5*(        -O[0]*qi -O[1]*qj -O[2]*qk);
             darr[i2+10] = .5*(O[0]*qr          +O[2]*qj -O[1]*qk);
             darr[i2+11] = .5*(O[1]*qr -O[2]*qi          +O[0]*qk);
             darr[i2+12] = .5*(O[2]*qr +O[1]*qi -O[0]*qj         );
+
 
             /*darr[i2  :i2+ 3] = v[i]
             darr[i2+3:i2+ 6] = a[i]
@@ -472,7 +478,7 @@ void Spinny::oblate_grav(const std::vector<double> &arr,const unsigned &i,const 
     const double dr10 = rot[0][0]*dr00 + rot[1][0]*dr01 + rot[2][0]*dr02;
     const double dr11 = rot[0][1]*dr00 + rot[1][1]*dr01 + rot[2][1]*dr02;
     const double dr12 = rot[0][2]*dr00 + rot[1][2]*dr01 + rot[2][2]*dr02;
-    
+
     //const double dr10 = goodrot[0][0]*dr00 + goodrot[1][0]*dr01 + goodrot[2][0]*dr02;
     //const double dr11 = goodrot[0][1]*dr00 + goodrot[1][1]*dr01 + goodrot[2][1]*dr02;
     //const double dr12 = goodrot[0][2]*dr00 + goodrot[1][2]*dr01 + goodrot[2][2]*dr02;
@@ -500,7 +506,7 @@ void Spinny::oblate_grav(const std::vector<double> &arr,const unsigned &i,const 
 
     // Add oblate force
     const double dr5 = dr3*dr2;
-   
+
     //A,B,C = self.phys[i].I
     const double A = phys[i].I[0];
     const double B = phys[i].I[1];
@@ -508,9 +514,9 @@ void Spinny::oblate_grav(const std::vector<double> &arr,const unsigned &i,const 
     //ab0 += ((B+C-2.*A)*dr10)/dr5;
     //ab1 += ((C+A-2.*B)*dr11)/dr5;
     //ab2 += ((A+B-2.*C)*dr12)/dr5;
-    const double ab0 = coef*dr10 + ((B+C-2.*A)*dr10)/dr5;
-    const double ab1 = coef*dr11 + ((C+A-2.*B)*dr11)/dr5;
-    const double ab2 = coef*dr12 + ((A+B-2.*C)*dr12)/dr5;
+    const double ab0 = (coef*dr10 + ((B+C-2.*A)*dr10)/dr5);
+    const double ab1 = (coef*dr11 + ((C+A-2.*B)*dr11)/dr5);
+    const double ab2 = (coef*dr12 + ((A+B-2.*C)*dr12)/dr5);
 
     // Rotate force back to world frame
     //aw = np.dot(rot.T,ab)
@@ -520,9 +526,14 @@ void Spinny::oblate_grav(const std::vector<double> &arr,const unsigned &i,const 
     darr[j2+5] += rot[2][0]*ab0 + rot[2][1]*ab1 + rot[2][2]*ab2;
 
     // Calculate torques in i's body frame and temporarily store them in darr
-    darr[i2+6] = (3.*(C-B)*dr11*dr12)/dr5;
-    darr[i2+7] = (3.*(A-C)*dr12*dr10)/dr5;
-    darr[i2+8] = (3.*(B-A)*dr10*dr11)/dr5;
+    // BP 11/10/21: Added a coefficient to make the torques work. The factor of the "reduced mass" is
+    //              counterintuitive, but is present in Scheeres 2004.
+    const double rat = phys[i].mass/(phys[i].mass+phys[j].mass);
+    const double coef2 = phys[j].mass*rat;
+    // BP 11/10/21: Switched = for +=. This allows for calculations of torques from an arbitrary number of bodies.
+    darr[i2+6] += coef2*(3.*(C-B)*dr11*dr12)/dr5;
+    darr[i2+7] += coef2*(3.*(A-C)*dr12*dr10)/dr5;
+    darr[i2+8] += coef2*(3.*(B-A)*dr10*dr11)/dr5;
 
 }
 
@@ -536,7 +547,7 @@ void Spinny::evolve(const double &t1) {
 
 // Normalize
 void Spinny::norm() {
-    
+
     // Integration normalization
     ck.norm_arr = std::vector<double>(arr0.size(),0);
     for(unsigned i=0;i<nobj;i++) {
@@ -565,7 +576,7 @@ void Spinny::norm() {
     for(unsigned i=0;i<nobj;i++) {
         unsigned i2 = 13*i;
         if(not hasspin[i]) continue;
-        double iq = 1./sqrt(arr0[i2+9]*arr0[i2+9] + arr0[i2+10]*arr0[i2+10] 
+        double iq = 1./sqrt(arr0[i2+9]*arr0[i2+9] + arr0[i2+10]*arr0[i2+10]
                 + arr0[i2+11]*arr0[i2+11] + arr0[i2+12]*arr0[i2+12] );
         arr0[i2+ 9] *= iq;
         arr0[i2+10] *= iq;
