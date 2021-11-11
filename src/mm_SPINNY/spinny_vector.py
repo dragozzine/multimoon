@@ -252,6 +252,7 @@ def build_spinny_multimoon(sys_df, runprops):
             sp_lon_n = 0
             
         if "sprate_"+str(n) in sys_df.columns:
+            #Precisely the same as what is given by multimoon
             sp_rate_n = sys_df["sprate_"+str(n)].iloc[0]
         else:
             # the default is equal to the orbital period, calculated from semi-major axis, sum of masses of body and primary 

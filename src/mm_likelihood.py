@@ -75,7 +75,7 @@ Outputs:
 """
 def log_probability(float_params, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods):
     
-    print('float_params read in from p0: \n',float_params)
+    #print('float_params read in from p0: \n',float_params)
     #print(float_params, float_names)
     objname = runprops.get("objectname")
 
@@ -238,7 +238,8 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     # Sorts them into ascending order
 #    import logging
-    #print(paramdf)
+    #print('time_Arr', time_arr)
+    #print('obsdf', obsdf)
 
     begin = time.time()
     #print(paramdf)

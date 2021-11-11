@@ -686,8 +686,8 @@ def plot_astro(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fi
     
     paraminput = []
     num = num+1
-    params = i.flatten()
-    print('params ', params)
+    #params = i.flatten()
+    #print('params ', params)
     for j in params:
         paraminput.append(j)    
 
@@ -701,12 +701,12 @@ def plot_astro(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fi
                 paraminput.append(values)
                 paramnames.append(keys)
     
-    print('paraminput ',paraminput)
+    
     #print(paramnames)
     names_dict = runprops.get("names_dict")    
     paramdf,fit_params = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
     
-    print(paramdf)
+    
     #print(draws)
     #Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
     #chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
@@ -718,25 +718,26 @@ def plot_astro(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fi
     converttimes = [tmin,tmax]
     t = Time(converttimes, format = 'jd')
     
-    timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
+    timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '3h'}
         
     #geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
-    geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position_analysis.csv')
-    
-    times = geo_obj_pos.values[:,0].flatten()[0::10].copy()
+    geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position_analysis.csv')[-410:]
+    #print(geo_obj_pos)
+    #times = geo_obj_pos.values[:,0].flatten().copy()
+    times = geo_obj_pos['kboTIME'].values.flatten().copy()
     
     fakeobsdf = obsdf.loc[[0,1],:]
     for j in range(len(times)):
         if j == 0 or j == 1:
-            fakeobsdf.iloc[j,0] = times[j*10]
+            fakeobsdf.iloc[j,0] = times[j]
             # change row number?
         fakeobsdf = fakeobsdf.append(fakeobsdf.iloc[-1,:])
-        fakeobsdf['time'].iloc[-1] = times[j*10]
+        #print('times[j] ', times[j])
+        fakeobsdf['time'].iloc[-1] = times[j]
     fakeobsdf = fakeobsdf.iloc[2:]
+    #astro_plot_time(param_df, names, runprops)
     
-    astro_plot_time(param_df, names, runprops)
     
-    '''
     DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
     
     modelx = np.empty((nobjects-1, fakeobsdf.shape[0]))
@@ -753,31 +754,37 @@ def plot_astro(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fi
     objectnames = []
     for i in name_dict.values():
         objectnames.append(i)
-    
-    for i in range(len(DeltaLong_Model))
-    fig = plt.figure()
-    print(obsdf)
-        print(objectnames[1])
+    #print(DeltaLong_Model)
+    maxlong_index = np.argmax(DeltaLong_Model[1])
+    maxlong = round(DeltaLong_Model[1][maxlong_index]+0.1,1)
+    maxlat_index = np.argmax(DeltaLat_Model[1])
+    maxlat = round(DeltaLat_Model[1][maxlat_index]+0.1,1)
+    for j in range(20,len(DeltaLong_Model[0])-1):
+        fig = plt.figure()
+        plt.scatter(0,0)
         for i in range(1,nobjects):
-            modelx[i-1,:] = DeltaLat_Model[i-1]
-            modely[i-1,:] = DeltaLong_Model[i-1]
+            modelx[i-1,j] = DeltaLat_Model[i-1][j]
+            modely[i-1,j] = DeltaLong_Model[i-1][j]
             
             x[i-1,:] = obsdf["DeltaLat_" + objectnames[i]].values
             xe[i-1,:] = obsdf["DeltaLat_" + objectnames[i] + "_err"].values
             y[i-1,:] = obsdf["DeltaLong_" + objectnames[i]].values
             ye[i-1,:] = obsdf["DeltaLong_" + objectnames[i] + "_err"].values
-    
-            plt.scatter(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = objectnames[i], alpha = 0.5,s=5)
-            plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko", ms = 2)
+            
+            plt.plot(DeltaLat_Model[i-1,(j-8):(j+1)], DeltaLong_Model[i-1,(j-8):(j+1)], colorcycle[i], alpha=0.3)
+            plt.scatter(modelx[i-1,j], modely[i-1,j], color = colorcycle[i], label = objectnames[i],s=5)
+            plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko", ms = 2, alpha=0.25)
     
         plt.axis('equal')
         plt.xlabel("Delta Latitude")
         plt.ylabel("Delta Longitude")
+        plt.xlim(-maxlat,maxlat)
+        plt.ylim(-maxlong,maxlong)
         plt.legend()
-    
-        plt.savefig("spinny_plots/0"+str(num)+"_astro.pdf", format = "pdf")
+        fname = str(j).zfill(4)
+        plt.savefig("spinny_astro/"+fname+"_astro.png")
         plt.close()
-    '''
+    
     print('fig ' + str(num) + ' done')
 
 
@@ -848,7 +855,12 @@ if not 'results' in os.getcwd():
     os.chdir(results)
 
 backend = emcee.backends.HDFBackend('chain.h5')
-    
+
+newpath = 'spinny_astro'
+if not os.path.exists(newpath):
+    os.makedirs(newpath)
+
+
 fit_scale = pd.read_csv('fit_scale.csv',index_col=0)
 float_names = runprops.get('float_names')
 obsdf = pd.read_csv(objname+'_obs_df.csv',index_col=0)
@@ -856,7 +868,8 @@ geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position.csv',index_col=0)
 fixed_df = pd.read_csv('fixed_df.csv',index_col=0)
 total_df_names = runprops.get('total_df_names')
 
-plots(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)
+#plots(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)
+plot_astro(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)
 
 
 '''   
