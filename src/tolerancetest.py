@@ -48,9 +48,9 @@ import mm_relast
 import time
 
 # Input files
-runprops = ReadJson("../runs/Haumea/200/runprops.txt").outProps()
-initparams = pd.read_csv("../runs/Haumea/200/Haumea_init_guess.csv", index_col = 0)
-obsdata = "../runs/Haumea/200/Haumea_obs_df.csv"
+runprops = ReadJson("../runs/Salacia/10/runprops.txt").outProps()
+initparams = pd.read_csv("../runs/Salacia/10/Salacia_init_guess.csv", index_col = 0)
+obsdata = "../runs/Salacia/observations/Salacia_obs_df.csv"
 
 tolvals = np.logspace(-14,-8,20)
 
@@ -74,10 +74,10 @@ for k in list(initparams.index):
 
 #params.append(500.0)
 #params2.append(500.0)
-params.append(1.0)
-params2.append(1.0)
-paramnames.append("ax_1")
-paramnames2.append("ax_1")
+#params.append(1.0)
+#params2.append(1.0)
+#paramnames.append("ax_1")
+#paramnames2.append("ax_1")
 
 for k in name_dict.values():
 	params.append(k)
@@ -110,7 +110,7 @@ geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, times, runprops, True)
 
 #print(times)
 start_time = time.time()
-runprops["spinny_tolerance"] = 1e-15
+runprops["spinny_tolerance"] = 1e-14
 Model_DeltaLong, Model_DeltaLat, obsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 print("--- %s seconds ---" % (time.time() - start_time))
 

@@ -355,7 +355,6 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
         
         N = runprops.get('numobjects')
         if undo_spin[N-1]:
-            
             a = np.array(param_df['spinc_'+str(N)])
             b = np.array(param_df['splan_'+str(N)])
                 
@@ -365,13 +364,20 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 
             c = np.sin(splan*np.pi/180)
                 
-            spinc = np.arctan2(a,c)*2*180/np.pi
-                
-            if spinc < 0:
-                spinc = spinc%180
+            if a/c > 1 or a/c < -1:
+                param_df['spinc_'+str(i+1)] = -1
+                param_df['splan_'+str(i+1)] = splan
+            else:
+                #print(np.arccos(a/c))
+                spinc = np.arccos(a/c)*2*180/np.pi
+                #spinc = np.arctan2(a,c)*2*180/np.pi
+            
+                if spinc < 0:
+                    spinc = spinc%180
                     
-            param_df['spinc_'+str(N)] = spinc
-            param_df['splan_'+str(N)] = splan
+                param_df['spinc_'+str(i+1)] = spinc
+                param_df['splan_'+str(i+1)] = splan
+                
     if runprops.get('lockspinanglesflag') == True:
         param_df['spinc_1'] = param_df['inc_2']
         param_df['splan_1'] = param_df['lan_2']

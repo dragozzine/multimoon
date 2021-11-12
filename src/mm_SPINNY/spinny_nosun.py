@@ -286,7 +286,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
     body_dict.setdefault('Lz_tot'+name_arr[n], L_arr_sum[:,2] )   
     spinny_df = pd.DataFrame(body_dict)
     #print('line 288',os.getcwd())
-    spinny_df.to_csv("out.csv")
+    #spinny_df.to_csv("out.csv")
     return(spinny_df)     
 
 """    
