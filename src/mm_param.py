@@ -340,8 +340,8 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                     print('b ',b)
                     print('c ',c)
                     print('splan ', splan)
-                    param_df['spinc_'+str(i+1)] = -1
-                    param_df['splan_'+str(i+1)] = -1
+                    param_df['spinc_'+str(i+1)] = -np.inf
+                    param_df['splan_'+str(i+1)] = -np.inf
 
                 else:
                     #print(np.arccos(a/c))

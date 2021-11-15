@@ -64,7 +64,7 @@ def mm_priors(priors, params, runprops):
                     numNaNs += 1
                 elif '_'+str(j+1) in i:
                     allProbs.append(0)
-                    #print(i, " is log 0", "because i is ", params[i][0])
+                    print(i, " is log 0", " because i is ", params[i][0])
             
             #Log-Uniform Distribution Shape
             elif theInt == 1:
