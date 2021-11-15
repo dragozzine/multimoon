@@ -89,8 +89,8 @@ def from_param_df_to_fit_array(dataframe, runprops):
             if fix_float_dict.get('spinc_'+str(i+1)) == 1 and fix_float_dict.get('splan_'+str(i+1)) == 1:
                 spinc = np.array(dataframe[['spinc_'+str(i+1)]])*np.pi/180
                 splan = np.array(dataframe[['splan_'+str(i+1)]])*np.pi/180
-                print('spinc ',i,' ', spinc)
-                print('splan ',i,' ', splan)
+                #print('spinc ',i,' ', spinc)
+                #print('splan ',i,' ', splan)
                 a = np.cos(spinc/2)*np.sin(splan)
                 b = np.cos(spinc/2)*np.cos(splan)
                 dataframe[['spinc_'+str(i+1)]] = a
@@ -335,11 +335,11 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 c = np.sin(splan*np.pi/180)
                 
                 if a/c > 1 or a/c < -1:
-                    print('a/c is', a/c, ', causing the error')
-                    print('a ',a)
-                    print('b ',b)
-                    print('c ',c)
-                    print('splan ', splan)
+                    #print('a/c is', a/c, ', causing the error')
+                    #print('a ',a)
+                    #print('b ',b)
+                    #print('c ',c)
+                    #print('splan ', splan)
                     param_df['spinc_'+str(i+1)] = -np.inf
                     param_df['splan_'+str(i+1)] = -np.inf
 
@@ -379,7 +379,7 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
             c = np.sin(splan*np.pi/180)
                 
             if a/c > 1 or a/c < -1:
-                print('a/c is', a/c, ', causing the error')
+                #print('a/c is', a/c, ', causing the error')
                 param_df['spinc_'+str(N)] = -1
                 param_df['splan_'+str(N)] = -1
             else:
