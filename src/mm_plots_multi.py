@@ -201,11 +201,11 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
 				chain[:,:,int(spin_index[b*2+1])] = splan
 				#spinc = (np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi)%180
-				print('spinc_new ',spinc_new)
-				print('splan_new ',splan_new)
+				#print('spinc_new ',spinc_new)
+				#print('splan_new ',splan_new)
 				spinc = (np.arccos(spinc_new/np.sin(splan*np.pi/180))*2*180/np.pi)%180
-				print('spinc ',spinc)
-				print('splan ',splan)
+				#print('spinc ',spinc)
+				#print('splan ',splan)
 				chain[:,:,int(spin_index[b*2])] = spinc
 		if undo_masses[0]:
 			mass_1 = chain[:,:,int(masses_index[0])]
