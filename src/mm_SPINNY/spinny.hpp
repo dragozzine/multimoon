@@ -1,5 +1,6 @@
 #ifndef __SPINNY_HPP__
 #define __SPINNY_HPP__
+#include <vector>
 #include <string>
 #include <iostream>
 #include <cmath>
