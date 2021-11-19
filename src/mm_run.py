@@ -1,4 +1,4 @@
-# mm_run.py
+ # mm_run.py
 # 
 # The main script that runs MultiMoon
 # Darin Ragozzine
@@ -404,7 +404,7 @@ if __name__ == '__main__':
         
         # Reads in th geocentric_object data file
         geo_obj_pos = pd.read_csv(geofile)
-        shutil.copy(geofile, runprops.get('results_folder')+'/geo_obj_pos.csv')
+        shutil.copy(geofile, runprops.get('results_folder')+'/geocentric_' + objname + '_pos.csv')
         
         # Go through initial guesses and check that all walkers have finite posterior probability
         reset = 0

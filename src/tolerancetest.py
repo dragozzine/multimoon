@@ -48,9 +48,12 @@ import mm_relast
 import time
 
 # Input files
-runprops = ReadJson("../runs/Salacia/10/runprops.txt").outProps()
-initparams = pd.read_csv("../runs/Salacia/10/Salacia_init_guess.csv", index_col = 0)
-obsdata = "../runs/Salacia/observations/Salacia_obs_df.csv"
+#runprops = ReadJson("../runs/Salacia/10/runprops.txt").outProps()
+#initparams = pd.read_csv("../runs/Salacia/10/Salacia_init_guess.csv", index_col = 0)
+#obsdata = "../runs/Salacia/observations/Salacia_obs_df.csv"
+runprops = ReadJson("../data/227_2021/runs/2006 BR284/10_locked/runprops.txt").outProps()
+initparams = pd.read_csv("../data/227_2021/runs/2006 BR284/10_locked/2006 BR284_init_guess.csv", index_col = 0)
+obsdata = "../data/227_2021/runs/2006 BR284/observations/2006 BR284_obs_df.csv"
 
 tolvals = np.logspace(-14,-8,20)
 
