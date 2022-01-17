@@ -337,7 +337,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			m_arr = flatchain[:,m_index]
 			mp_arr = flatchain[:,mp_index]
 
-			#print('a_arr, ', a_arr)
+			print('a_arr, ', a_arr)
 			#print('m_arr, ', m_arr)
 			#print('mp_arr, ', mp_arr)
             
@@ -660,17 +660,17 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	#paramdf = pd.DataFrame(paraminput).transpose()
 	#paramdf.columns = paramnames
 
-	'''
+	
 	#print(paramdf)
 #Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
 	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
-	#best_likelihoods = pd.read_csv('best_likelihoods.csv')
+	best_likelihoods = pd.read_csv('best_likelihoods.csv')
 	#residuals = []
 	#print(best_likelihoods, best_likelihoods.iloc[-(i+1)])    
 	#for i in range(runprops.get('numobjects')):    
-	#	residuals.insert(0,best_likelihoods.iloc[-(i+1)][-1])
-	#	residuals.insert(0,best_likelihoods.iloc[-(i+2)][-1])
-	#print(residuals)        
+	#	residuals.insert(0,np.array(best_likelihoods.iloc[-(i+1)][-1]))
+	#	residuals.insert(0,np.array(best_likelihoods.iloc[-(i+2)][-1]))
+	print(residuals)        
 	#print(chisquare_total, residuals)
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
@@ -699,7 +699,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.axis("equal")
 	plt.legend()
 	plt.savefig("best_residuals.pdf", format = "pdf")
-	'''
+	
 	# Astrometry plots
 	time_arr = obsdf['time'].values.flatten()
 	tmin = time_arr.min()
@@ -879,6 +879,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	fig = plt.figure()
 	print(obsdf)
 	print(objectnames[1])
+	newnames = np.copy(objectnames)  
+	newnames[1] = "S2"    
 	for i in range(1,nobjects):
 		modelx[i-1,:] = DeltaLat_Model[i-1]
 		modely[i-1,:] = DeltaLong_Model[i-1]
@@ -888,8 +890,22 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		y[i-1,:] = obsdf["DeltaLong_" + objectnames[i]].values
 		ye[i-1,:] = obsdf["DeltaLong_" + objectnames[i] + "_err"].values
 
-		plt.scatter(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = objectnames[i], alpha = 0.5,s=5)
+		plt.scatter(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = newnames[i], alpha = 0.5,s=5)
 		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko", ms = 2)
+     
+	eris_circle = np.arctan(1163/14270012016)*180/np.pi*3600
+	jwst_circle = 0.2*0.53
+
+	angle = np.linspace( 0 , 2 * np.pi , 150 ) 
+	x = eris_circle * np.cos( angle ) 
+	y = eris_circle * np.sin( angle ) 
+	plt.plot( x, y, color = colorcycle[4], label = "Eris actual size" ) 
+	x = jwst_circle * np.cos( angle ) 
+	y = jwst_circle * np.sin( angle ) 
+	plt.plot( x, y, color = colorcycle[5], label = "JWST PSF" ) 
+	x = 0.2 * np.cos( angle ) 
+	y = 0.2 * np.sin( angle ) 
+	plt.plot( x, y, color = colorcycle[6], label = "HST PSF" )
 
 	plt.axis('equal')
 	plt.xlabel("Delta Latitude")

@@ -25,8 +25,8 @@ class ReadJson(object):
 
 def sample_deltas(i, draws, names, fixed_df, total_df_names, fit_scale, names_dict, runprops, nobj, fakeobsdf, geo_obj_pos, dlong, dlat):
 		paramdf = mm_param.from_fit_array_to_param_df(draws[i,:].flatten(), names, fixed_df, total_df_names, fit_scale, names_dict, runprops)[0]
-		dlong = np.zeros((runprops.get('numobjects')-1, 365))
-		dlat = np.zeros((runprops.get('numobjects')-1, 365))       
+		dlong = np.zeros((runprops.get('numobjects')-1, 1457))
+		dlat = np.zeros((runprops.get('numobjects')-1, 1457))       
 		#print(paramdf.iloc[:,:-nobj].values)		
 		drawparams = paramdf.iloc[:,:-nobj].values
 		#print(paramdf)
@@ -66,7 +66,7 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	# Get time arrays
 	converttimes = ["2021-10-01","2022-09-30"]
 	t = Time(converttimes)
-	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '1d'}
+	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
 
 	# Make a geocentric position file
 	geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
@@ -98,8 +98,8 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	x = tqdm(range(draws.shape[0]))
 	data = pool.map(deltas, x)
 
-	dlong = np.zeros((draws.shape[0],2,365))
-	dlat = np.zeros((draws.shape[0],2,365))
+	dlong = np.zeros((draws.shape[0],2,1457))
+	dlat = np.zeros((draws.shape[0],2,1457))
 	for i in range(len(data)):          
 		dlong[i] = data[i][0]
 		dlat[i] = data[i][1]
@@ -145,23 +145,30 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	infogain = np.zeros((runprops.get('numobjects')-1, times.size))
 	infogain2 = np.zeros((runprops.get('numobjects')-1, times.size))
 	g_gain = np.zeros((runprops.get('numobjects')-1,2))   
+	g_gains_ind = np.zeros((runprops.get('numobjects')-1,10))
 	for i in range(1,runprops.get('numobjects')):
 		infogain[i-1,:] = np.sqrt( (dlongstd[i-1,:]/typicalerror[0,i-1])**2 + (dlatstd[i-1,:]/typicalerror[1,i-1])**2 )
 		g_gain[i-1,0] = times[np.argmax(infogain[i-1,:])]
 		g_gain[i-1,1] = np.argmax(infogain[i-1,:])
+		g_gains_ind[i-1,:] = (-infogain[i-1,:]).argsort()[:10]        
+
 
 		#for j in range(times.size):
 		#	bitarr = (dlong[:,i-1,j] < (dlongmean[i-1,j] + typicalerror[0,i-1])) & (dlong[:,i-1,j] > (dlongmean[i-1,j] - typicalerror[0,i-1])) & (dlat[:,i-1,j] < (dlatmean[i-1,j] + typicalerror[1,i-1])) & (dlat[:,i-1,j] > (dlatmean[i-1,j] - typicalerror[1,i-1]))
 		#	#print(bitarr.sum()/draws.shape[0])
 		#	infogain2[i-1,j] = bitarr.sum()/draws.shape[0]/(2*typicalerror[0,i-1])/(2*typicalerror[1,i-1])
-
-
-	# Plot
+ 
+    
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
 	fig = plt.figure(figsize = (12.8,4.8))
 	t = Time(times, format = "jd")
+	#print('times', times)
+	#print('t.iso', t.iso)
+	#print('t', t)
+	mat_times = matplotlib.dates.datestr2num(t.iso, default=None)
+	#print('mat_times', mat_times)    
 	for i in range(1,runprops.get('numobjects')):
-		plt.plot_date(times, infogain[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 0.5)
+		plt.plot_date(mat_times, infogain[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 0.5)
 		plt.title("Dates of greatest gain: JD "+str(g_gain[:,0]))        
 		#plt.plot_date(t.plot_date, infogain2[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 0.5)
 
@@ -175,8 +182,22 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	plt.savefig("predictions.pdf", format = "pdf")
 	plt.close()
 
-
-
+	print('dlatmean',dlatmean)
+	inds = g_gains_ind[0].astype(int) 
+	print('dlatmean',dlatmean[0,inds])
+	gains = pd.DataFrame(columns=['times','dates','Hercules_Delta_Lat','Hercules_Delta_Long','Hercules_angle_tot','Dysnomia_Delta_Lat','Dysnomia_Delta_Long','Dysnomia_angle_tot','infogain_val'])
+	gains['times'] = times[inds]
+	#gains['dates'] = times[inds]
+	gains['dates'] = t.iso[inds]
+	gains['Hercules_Delta_Lat'] = dlatmean[0,inds]
+	gains['Hercules_Delta_Long'] = dlongmean[0,inds]
+	gains['Hercules_angle_tot'] = np.sqrt(dlatmean[0,inds]**2+dlongmean[0,inds]**2)
+	gains['Dysnomia_Delta_Lat'] = dlatmean[1,inds]
+	gains['Dysnomia_Delta_Long'] = dlongmean[1,inds]
+	gains['Dysnomia_angle_tot'] = np.sqrt(dlatmean[1,inds]**2+dlongmean[1,inds]**2)
+	gains['infogain_val'] = infogain[1,inds]
+	print(gains)
+	gains.to_csv('predictions_df.csv')    
 	# Plot dlong vs dlat with color for j2
 	from matplotlib.backends.backend_pdf import PdfPages
 

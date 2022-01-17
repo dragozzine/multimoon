@@ -12,3 +12,4 @@ To install MultiMoon:
 We highly recommend that you use a virtual environment to run MultiMoon. Once you have a virtual environment running, all package requirements are contained in `requirements.txt`
 Next, inside of `multimoon/src/mm_SPINNY` execute `python setup.py build_ext --inplace`. This installs SPINNY in the appropriate location.
 
+Talk about runprops.txt and all of the lines involved. (How to use)
