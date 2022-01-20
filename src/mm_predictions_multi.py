@@ -25,12 +25,14 @@ class ReadJson(object):
 
 def sample_deltas(i, draws, names, fixed_df, total_df_names, fit_scale, names_dict, runprops, nobj, fakeobsdf, geo_obj_pos, dlong, dlat):
 		paramdf = mm_param.from_fit_array_to_param_df(draws[i,:].flatten(), names, fixed_df, total_df_names, fit_scale, names_dict, runprops)[0]
-		dlong = np.zeros((runprops.get('numobjects')-1, 1457))
-		dlat = np.zeros((runprops.get('numobjects')-1, 1457))       
+       
 		#print(paramdf.iloc[:,:-nobj].values)		
 		drawparams = paramdf.iloc[:,:-nobj].values
 		#print(paramdf)
 		DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
+		length = len(DeltaLong_Model)        
+		dlong = np.zeros((runprops.get('numobjects')-1, length))
+		dlat = np.zeros((runprops.get('numobjects')-1, length))
 		for j in range(1,runprops.get('numobjects')):
 			dlong[j-1,:] = DeltaLong_Model[j-1]
 			dlat[j-1,:] = DeltaLat_Model[j-1]
@@ -97,9 +99,10 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	deltas = functools.partial(sample_deltas, draws=draws, names=names, fixed_df=fixed_df, total_df_names=total_df_names, fit_scale=fit_scale, names_dict=names_dict, runprops=runprops, nobj=nobj, fakeobsdf=fakeobsdf, geo_obj_pos=geo_obj_pos, dlong=dlong, dlat=dlat)
 	x = tqdm(range(draws.shape[0]))
 	data = pool.map(deltas, x)
+	length = len(data)    
 
-	dlong = np.zeros((draws.shape[0],2,1457))
-	dlat = np.zeros((draws.shape[0],2,1457))
+	dlong = np.zeros((draws.shape[0],2,length))
+	dlat = np.zeros((draws.shape[0],2,length))
 	for i in range(len(data)):          
 		dlong[i] = data[i][0]
 		dlat[i] = data[i][1]

@@ -26,10 +26,11 @@ class ReadJson(object):
 
 def sample_deltas(i, draws, names, fixed_df, total_df_names, fit_scale, names_dict, runprops, nobj, obsdf, geo_obj_pos):
 		paramdf = mm_param.from_fit_array_to_param_df(draws[i,:].flatten(), names, fixed_df, total_df_names, fit_scale, names_dict, runprops)[0]
-		dlong = np.zeros((runprops.get('numobjects')-1, 19))
-		dlat = np.zeros((runprops.get('numobjects')-1, 19))
-		resid_long = np.zeros((runprops.get('numobjects')-1, 19))
-		resid_lat = np.zeros((runprops.get('numobjects')-1, 19))
+		length = len(paramdf)        
+		dlong = np.zeros((runprops.get('numobjects')-1, length))
+		dlat = np.zeros((runprops.get('numobjects')-1, length))
+		resid_long = np.zeros((runprops.get('numobjects')-1, length))
+		resid_lat = np.zeros((runprops.get('numobjects')-1, length))
 		#print(paramdf.iloc[:,:-nobj].values)		
 		drawparams = paramdf.iloc[:,:-nobj].values
 		#print(paramdf)
@@ -108,10 +109,10 @@ def posterior(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fix
 	x = tqdm(range(draws.shape[0]))
 	data = pool.map(deltas, x)
 
-	dlong = np.zeros((draws.shape[0],2,19))
-	dlat = np.zeros((draws.shape[0],2,19))
-	resid_long = np.zeros((draws.shape[0],2,19))
-	resid_lat = np.zeros((draws.shape[0],2,19))
+	dlong = np.zeros((draws.shape[0],2,length))
+	dlat = np.zeros((draws.shape[0],2,length))
+	resid_long = np.zeros((draws.shape[0],2,length))
+	resid_lat = np.zeros((draws.shape[0],2,length))
 	#print("DATA:    ", data[i][3])
 	#print(data[i][4])
 	for i in range(len(data)):          
