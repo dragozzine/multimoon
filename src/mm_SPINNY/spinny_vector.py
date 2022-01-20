@@ -175,9 +175,12 @@ def build_spinny_multimoon(sys_df, runprops):
             if j2r2_n == 0.0:
                 ax_n = 1.0
             else:
-                ax_n = runprops.get("c_axis")
-                if (runprops.get("c_axis") == None):
-                    print("\n\n\033[1;37;41mRunprops has been updated to require a value for the c axis. Please include this before proceeding. Correct formatting should be 'c_axis' = val. Aborting run.\033[0m\n\n")
+                axes = runprops.get('axes_size')
+                ax_n = axes['obj_1']
+                
+                #ax_n = runprops.get("c_axis")
+                if (ax_n == None):
+                    print("\n\n\033[1;37;41mRunprops has been updated to require a value for the primary axis. Please include this before proceeding. Aborting run.\033[0m\n\n")
                     
                     sys.exit()
                 

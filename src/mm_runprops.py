@@ -38,6 +38,7 @@ getData = ReadJson(filename)
 runprops = getData.outProps()
 runprops['chain_file'] = None
 runprops['first_run'] = True
+
 objname = runprops.get("objectname")
 #print(cwd)
 if 'runs' in cwd:
@@ -55,11 +56,24 @@ if sys.argv[0] == "mm_synth_unseen.py" or sys.argv[0] == "mm_synth.py":
     runprops['first_run'] = False
 
 if runprops.get("first_run") == True:
+    import git
+    repo = git.Repo(search_parent_directories=True)
+    sha = repo.head.object.hexsha
+    
+    runprops['MultiMoon commit hash'] = sha
+    
     x = datetime.datetime.now()
 
     date = str(x.strftime("%Y"))+"-"+str(x.strftime("%m"))+"-"+str(x.strftime("%d"))+"_"+str(x.strftime("%H"))+"."+str(x.strftime("%M"))+"."+str(x.strftime("%S"))
     runprops["date"] = date
     runprops['first_run'] = False
+    
+    
+    now = datetime.datetime.now()
+
+    time = now.strftime("%H:%M:%S")
+    
+    runprops["time"] = time
     
 
     newpath = "../results/"+objname+"/"+objname+"_"+date+"_"+runprops.get("run_file")
