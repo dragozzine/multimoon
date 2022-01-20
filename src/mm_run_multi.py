@@ -56,6 +56,7 @@ def initializer():
 import warnings
 warnings.filterwarnings("ignore", message="divide by zero encountered")
 warnings.filterwarnings("ignore", message="Gimbal lock detected")
+warnings.filterwarnings("ignore", message="invalid value encountered in arccos")
 
 if __name__ == '__main__':
 
