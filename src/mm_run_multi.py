@@ -38,6 +38,7 @@ def initializer():
     import mm_param
     import mm_clustering
     import mm_analysis
+    #import mm_plots_multi
     import warnings
     import shutil
     import commentjson as json
@@ -245,7 +246,7 @@ if __name__ == '__main__':
                 file.write(json.dumps(runprops, indent = 4))
     
             
-            #mm_analysis.plots(sampler, total_df_names, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names)
+            mm_analysis.plots(sampler, total_df_names, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names)
         
                 
             if runprops.get('build_init_from_llhood'):
@@ -308,7 +309,7 @@ if __name__ == '__main__':
                                 sys.exit()
                     elif dynamicstoincludeflags[i] == "1":
                         if not (("mass_" + str(i+1) in paramnames) and ("j2r2_" + str(i+1) in paramnames) and
-                    ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames) and ("sprate_" + str(i+1) in paramnames)):
+                    ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames) and (("sprate_" + str(i+1) in paramnames) or ("period_" + str(i+1) in paramnames))):
                             print("ERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                             sys.exit()
                         if (("c22r2_" + str(i+1) in paramnames) or ("spaop_" + str(i+1) in paramnames)):
@@ -318,7 +319,7 @@ if __name__ == '__main__':
                         if not (("mass_" + str(i+1) in paramnames) and ("j2r2_" + str(i+1) in paramnames) and
                         ("spinc_" + str(i+1) in paramnames) and ("splan_" + str(i+1) in paramnames) and
                         ("c22r2_" + str(i+1) in paramnames) and ("spaop_" + str(i+1) in paramnames) and
-                        ("sprate_" + str(i+1) in paramnames)):
+                        (("sprate_" + str(i+1) in paramnames) or ("period_" + str(i+1) in paramnames))):
                             print("ERROR: dynamics to include flags does not match the input parameters for object " + str(i+1))
                             sys.exit()
                     else:
@@ -397,6 +398,7 @@ if __name__ == '__main__':
             # Convert the guesses into fitting units and place in numpy array
             p0,float_names,fixed_df,total_df_names,fit_scale,fit_names = mm_param.from_param_df_to_fit_array(guesses,runprops)
             
+            #print("outside",float_names, total_df_names, fit_scale)
             fixed_df.to_csv(runprops.get('results_folder')+'/fixed_df.csv')
             fit_scale.to_csv(runprops.get('results_folder')+'/fit_scale.csv')
             runprops['float_names'] = float_names
@@ -404,7 +406,7 @@ if __name__ == '__main__':
             
             runpath = runprops.get("results_folder")+"/runprops.txt"
             new_props = runprops.copy()
-            new_props['total_df_names'] = runprops.get('total_df_names').to_numpy().tolist()
+            new_props['total_df_names'] = runprops.get('total_df_names').tolist()
             del new_props['best_llhood']
             
             with open(runpath, 'w') as file:
@@ -671,6 +673,7 @@ if __name__ == '__main__':
                 
             else:
                 runprops["is_mcmc"] = False
+                #print(float_names, total_df_names, fit_scale)
                 for i in tqdm(range(nwalkers)):  
                     llhood = mm_likelihood.log_probability(p0[i,:], float_names,fixed_df.iloc[[i]],total_df_names, fit_scale, runprops, obsdf, geo_obj_pos, best_llhoods)
                     reset = 0
@@ -753,7 +756,7 @@ if __name__ == '__main__':
             #mm_analysis.plots(sampler, guesses.columns, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names)
             
             runpath = runprops.get("results_folder")+"/runprops.txt"
-            runprops['total_df_names'] = runprops.get('total_df_names').to_numpy().tolist()
+            runprops['total_df_names'] = runprops.get('total_df_names').tolist()
             del runprops['best_llhood']
             
             with open(runpath, 'w') as file:
@@ -762,8 +765,14 @@ if __name__ == '__main__':
             recent_props = runprops.get("runs_file")+"/most_recent_runprops.txt"
             with open(recent_props, 'w') as file:
                 file.write(json.dumps(runprops, indent = 4))
-        
-                
+            
+            backendf = runprops.get('results_folder')+'chain.h5'
+            backend = emcee.backends.HDFBackend(backendf)
+            os.chdir(runprops.get("results_folder"))
+            
+            import mm_plots_multi
+            
+            
             if runprops.get('build_init_from_llhood'):
                 csvfile = runprops.get("results_folder")+"/best_likelihoods.csv"
                 likelihoods = pd.read_csv(csvfile, sep = '\t', header = 0)
