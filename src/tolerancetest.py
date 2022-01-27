@@ -15,6 +15,8 @@
 #	chi-squared below 1, while maintaining the shortest possible run time. 
 #
 
+objectname = "2006 BR284"
+runtype = "10"
 
 # Code starts
 class ReadJson(object):
@@ -48,12 +50,13 @@ import mm_relast
 import time
 
 # Input files
-#runprops = ReadJson("../runs/Salacia/10/runprops.txt").outProps()
-#initparams = pd.read_csv("../runs/Salacia/10/Salacia_init_guess.csv", index_col = 0)
-#obsdata = "../runs/Salacia/observations/Salacia_obs_df.csv"
-runprops = ReadJson("../data/227_2021/runs/2006 BR284/10_locked/runprops.txt").outProps()
-initparams = pd.read_csv("../data/227_2021/runs/2006 BR284/10_locked/2006 BR284_init_guess.csv", index_col = 0)
-obsdata = "../data/227_2021/runs/2006 BR284/observations/2006 BR284_obs_df.csv"
+print("../runs/" + objectname + "/" + runtype + "/runprops.txt")
+runprops = ReadJson("../runs/" + objectname + "/" + runtype + "/runprops.txt").outProps()
+initparams = pd.read_csv("../runs/" + objectname + "/" + runtype + "/" + objectname + "_init_guess.csv", index_col = 0)
+obsdata = "../runs/" + objectname + "/observations/" + objectname + "_obs_df.csv"
+#runprops = ReadJson("../data/227_2021/runs/2006 BR284/10_locked/runprops.txt").outProps()
+#initparams = pd.read_csv("../data/227_2021/runs/2006 BR284/10_locked/2006 BR284_init_guess.csv", index_col = 0)
+#obsdata = "../data/227_2021/runs/2006 BR284/observations/2006 BR284_obs_df.csv"
 
 tolvals = np.logspace(-14,-8,20)
 
@@ -113,7 +116,7 @@ geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, times, runprops, True)
 
 #print(times)
 start_time = time.time()
-runprops["spinny_tolerance"] = 1e-14
+runprops["spinny_tolerance"] = 1e-15
 Model_DeltaLong, Model_DeltaLat, obsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 print("--- %s seconds ---" % (time.time() - start_time))
 
@@ -157,14 +160,14 @@ plt.figure()
 plt.loglog(tolvals, dchisq, marker = ".")
 plt.xlabel("SPINNY Tolerance Value")
 plt.ylabel(r"$\Delta \chi^2$ (compared to tol=1e-15")
-plt.savefig("tolerancetest.png")
+plt.savefig("../runs/" + objectname + "/" + runtype + "/toltest.png")
 plt.close()
 
 plt.figure()
 plt.loglog(tolvals, runtimes, marker = ".")
 plt.xlabel("SPINNY Tolerance Value")
 plt.ylabel("Runtime (s)")
-plt.savefig("tolerancetest_times.png")
+plt.savefig("../runs/" + objectname + "/" + runtype + "/toltest_time.png")
 plt.close()
 
 

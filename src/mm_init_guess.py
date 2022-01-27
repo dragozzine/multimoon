@@ -26,6 +26,8 @@ def mm_init_guess(runprops):
     filename = runprops.get("init_filename")
 
     start_guess_df = pd.read_csv(filename,sep=',',index_col=0)
+    
+    
 
     start_guess_df = start_guess_df.transpose()
 
@@ -50,12 +52,19 @@ def mm_init_guess(runprops):
 
 #    for col in cut_df.columns:
     for col in start_guess_df.columns:
-        name_dict[n] = col
-        #infos = cut_df[col].to_numpy()
-        infos = start_guess_df[col].to_numpy()
-        mean1, stdev1 = infos[0],infos[1]
-        #print(col)
-        #print(fix_float.get(col))
+        if 'period' in col:
+            for i in range(runprops.get('numobjects')):
+                if str(i+1) in col:
+                    name_dict[n] = 'sprate_'+str(i+1)
+            name_dict[n] = col
+            infos = 2*np.pi/start_guess_df[col].to_numpy()/60/60/24
+            mean1, stdev1 = infos[0],infos[1]
+        else:
+            name_dict[n] = col
+            infos = start_guess_df[col].to_numpy()
+            mean1, stdev1 = infos[0],infos[1]
+            #print(col)
+            #print(fix_float.get(col))
         
         if n == 0:
             if fix_float.get(col) == 0:
