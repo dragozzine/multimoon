@@ -75,7 +75,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	undo_masses = np.zeros(2)    
 	undo_masses[:] = False
 	masses_index = np.zeros(runprops.get('numobjects'))
-	print(sampler)    
+	#print(sampler)    
     
 	for i in range(runprops.get('numobjects')-1):
 		if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
@@ -148,7 +148,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
     
 	fitparam_chain = np.zeros((1,numwalkers,numgens))
 
-	print(fitparam_chain.shape)    
+	#print(fitparam_chain.shape)    
 	fitparam_names = []    
 	# Now de-transform the chain
 	print("Starting un transformations")
@@ -337,7 +337,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			m_arr = flatchain[:,m_index]
 			mp_arr = flatchain[:,mp_index]
 
-			print('a_arr, ', a_arr)
+			#print('a_arr, ', a_arr)
 			#print('m_arr, ', m_arr)
 			#print('mp_arr, ', mp_arr)
             
@@ -348,7 +348,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			G = 6.674e-20            
 			g = G*m_arr*10**18/r_sat**2            
 			mu_eff = 19*4e15/2/(rho_sat*g*r_sat)  
-			print(mu_eff)            
+			#print(mu_eff)            
 			k2p = 3/(2*(1+mu_eff))           
 			period = 2*np.pi*np.sqrt(a_arr**3/(G*(m_arr + mp_arr)*10**18))/3600.0/24.0
          
@@ -379,7 +379,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			dfchain = np.concatenate((dfchain, np.array([ecc_timescale]).T), axis = 1)
            
             
-	print(periods)
+	#print(periods)
 	# Spin period
 	fixedparams = runprops.get("float_dict")
 	if dtif[0] == "1" or dtif[0] == "2":
@@ -395,7 +395,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	# Satellite-spin mutual inclination
 	if (dtif[0] == "1" or dtif[0] == "2") and len([n for n, l in enumerate(names) if l.startswith('spinc_1')]) > 0:
 		for i in range(1,runprops.get('numobjects')):
-			print(names)
+			#print(names)
             
 			spinc1_index = [n for n, l in enumerate(names) if l.startswith('spinc_1')][0]
 			splan1_index = [n for n, l in enumerate(names) if l.startswith('splan_1')][0]
