@@ -42,6 +42,7 @@ def mm_priors(priors, params, runprops):
     
     #This loop is to make sure all of the column values are floats, because pandas sometimes turns the values to strings when read from file
     for i in columnList:
+        #print(i)
         priors[i].astype(float)
 
     count = 0
