@@ -795,7 +795,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			sys_df.loc['sp_lon',names[i]] = 0
 		elif int(runprops.get('dynamicstoincludeflags')[i]) == 1:   
 			j2 = paramdf['j2r2_'+str(i+1)][0]
-			c22 = paramdf['c22r2_'+str(i+1)][0]
+			#c22 = paramdf['c22r2_'+str(i+1)][0]
 			sp_rate = paramdf['sprate_'+str(i+1)][0]
 			sp_obl = paramdf['spinc_'+str(i+1)][0]
 			sp_prc = paramdf['splan_'+str(i+1)][0]
