@@ -147,6 +147,9 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
         #print("Params: ", params)
         #print("Fit Params: ", fit_params)
         #print(llhood, curr_best)
+        #print(type(curr_best), type(llhood))
+        if type(curr_best) == str:
+            curr_best = 0
         if llhood > curr_best:
         #if True:
             #print('adding')
