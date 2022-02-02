@@ -423,7 +423,12 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
 
                 param_df['spinc_'+str(N)] = spinc
                 param_df['splan_'+str(N)] = splan
-              
+    
+    if runprops.get('spin_locked') == True:
+        for i in range(runprops.get('numobjects')):
+            if runprops.get('dynamictoincludeflags')[i] == 1 or runprops.get('dynamictoincludeflags')[i] == 2:
+                param_df['sprate_'+str(i+1)] = (4*np.pi**2/(6.67*10**(-11))/(param_df['mass_1']+param_df['mass_'+str(i+1)])*param_df['sma_'+str(i+1)]**3)/0.5
+
     if runprops.get('lockspinanglesflag') == True:
         param_df['spinc_1'] = param_df['inc_2']
         param_df['splan_1'] = param_df['lan_2']
