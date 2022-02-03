@@ -138,6 +138,8 @@ def mm_priors(priors, params, runprops):
             return -np.inf
         elif i != 1 and (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0])-params["sma_" + str(i)].values[0]*(1+params["ecc_" + str(i)].values[0]) < min_periapse):
             #print('i>1')
+            #print(params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0]))
+            #print(params["sma_" + str(i)].values[0]*(1+params["ecc_" + str(i)].values[0]))
             #print('sma',params["sma_" + str(i)].values,'sma',params["sma_" + str(i+1)].values)
             #print('ecc',params["ecc_" + str(i)].values,'ecc',params["ecc_" + str(i+1)].values)
             return -np.inf
@@ -155,6 +157,7 @@ def mm_priors(priors, params, runprops):
 #        if mhill < hill_sphere:
 #            return -np.inf
         if mass1 < mass2:
+            #print('mass1 < mass2')
             return -np.inf
     
     
