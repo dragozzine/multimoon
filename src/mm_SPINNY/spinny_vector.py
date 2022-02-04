@@ -40,7 +40,7 @@ def generate_vector(paramsdf, t_arr, runprops):
     mass_primary = sys_df["mass_1"].iloc[0]
     
     
-    
+    #print('sys_Df', sys_df)
     if N == 2 and j2_sum == 0.00 and not includesun:  # checks if all objects are point masses, does keplerian integration instead
         #print('sys_Df:', sys_df)
         kepler_system = kepler_2body(sys_df,t_arr, runprops)

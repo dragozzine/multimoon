@@ -202,7 +202,7 @@ Outputs:
 # calculates the chi-square for parameters given observations
 def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
-    #print(paramdf)
+    #print('paramdf',paramdf)
     numObj = runprops.get("numobjects")
     verbose = runprops.get("verbose")
     pd.set_option('display.max_columns', None)

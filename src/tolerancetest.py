@@ -16,7 +16,7 @@
 #
 
 objectname = "2006 BR284"
-runtype = "10"
+runtype = "10_sun"
 
 # Code starts
 class ReadJson(object):
@@ -71,20 +71,25 @@ paramnames2 = []
 names = []
 
 name_dict = runprops.get("names_dict")
+
 for k in initparams.iloc[:,0].values:
 	params.append(k)
 	params2.append(k)
 for k in list(initparams.index):
 	paramnames.append(k)
 	paramnames2.append(k)
-
+if runprops.get('includesun') == 1:
+	paramnames.append('name_0')
+	paramnames2.append('name_0') 
 #params.append(500.0)
 #params2.append(500.0)
 #params.append(1.0)
 #params2.append(1.0)
 #paramnames.append("ax_1")
 #paramnames2.append("ax_1")
-
+if runprops.get('includesun') == 1:
+	params.append('Sun')
+	params2.append('Sun')    
 for k in name_dict.values():
 	params.append(k)
 	params2.append(k)
@@ -117,6 +122,7 @@ geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, times, runprops, True)
 #print(times)
 start_time = time.time()
 runprops["spinny_tolerance"] = 1e-15
+#print('paramdf',paramdf)
 Model_DeltaLong, Model_DeltaLat, obsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 print("--- %s seconds ---" % (time.time() - start_time))
 

@@ -20,7 +20,7 @@ G = 6.67e-20 # Gravitational constant in km
 def orb2vec(orb_arr,phys_arr,n): # converts orbital parameters to state vector 
     N = len(phys_arr)            # This MUST be done in an inertial frame or it cannot work
 
-    #print('orb_rr', orb_arr)
+    #print('orb_arr', orb_arr)
     a = orb_arr[0]
     e = orb_arr[1]
     w = orb_arr[2]
@@ -30,25 +30,30 @@ def orb2vec(orb_arr,phys_arr,n): # converts orbital parameters to state vector
     
     list = [l for l in range(1,N)]
     mu = G*sum(phys_arr[list,0])
-         
+    #print('line 33 spinny_generate')    
     if n == 0:      # just the Sun's mass                
         orb = [a*(1-e),e,i,O,w,M,0.0,G*phys_arr[0,0]]
+        #print('line 36 spinny_generate')
+        #print('Sun vec', orb)
         vec = spice.conics(orb,0)
         
     elif n == 1:   # scales the "orbit" of the primary according to the mass of the secondary
         
         orb = [a*(1-e),e,i,O,w,M,0.0,mu]
         cm = 1/(1 + (phys_arr[1,0]/phys_arr[2,0]))
+        #print('line 43 spinny_generate')
         vec = -cm * spice.conics(orb,0)
         
         
     elif n == 2:   # scales the orbit or the secondary according to the mass of the primary        
         orb = [a*(1-e),e,i,O,w,M,0.0,mu]
         cm = 1/(1 + (phys_arr[2,0]/phys_arr[1,0]))
+        #print('line 50 spinny_generate')
         vec = cm * spice.conics(orb,0)
         
     else:         # all the other objects just use the defined orbits
         orb = [a*(1-e),e,i,O,w,M,0.0,mu]
+        #print('line 55 spinny_generate')
         vec = spice.conics(orb,0)
 
     return(vec) 
@@ -96,24 +101,28 @@ def generate_system(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr, runprops):
     #print('spin_arr', spin_arr)
     #print('quat_arr', quat_arr)
     #print('t_arr', t_arr)
-    
+    #print('line 99 spinny_generate')
     if verbose:
         print('generate line 101')
         print("Building SPINNY system...")
     s = Spinny_System(0.,h0=h0P,tol=tol)        # initializes object s, which is the SPINNY system
-
+    #print('line 104 spinny_generate')
     for n in range(0,N):
         j2r20 = phys_arr[n,2]
         c22r20 = phys_arr[n,3]
         ax = phys_arr[n,1]
         # builds physical properties class for each object
+        #print('line 110 spinny_generate')
         globals()['phys_'+str(n)] = Physical_Properties(G*phys_arr[n,0],"grav", J2R2=j2r20, C22R2=c22r20, c=ax) 
         #print(Physical_Properties(G*phys_arr[n,0],"grav", J2R2=j2r20, C22R2=c22r20, c=ax))
         
         # creates an initial state vector for each body
+        #print('line 115 spinny_generate')
+        
         globals()['s_'+str(n)] = orb2vec(orb_arr[n],phys_arr,n)
 
     #This excludes the Sun
+    #print('line 117 spinny_generate')
     for n in range(1,N):
 
         globals()['sp_rate_'+str(n)] = spin_arr[n,3]
@@ -542,7 +551,7 @@ def evolve_spinny(N, names, phys_arr, orb_arr, spin_arr, quat_arr, t_arr, runpro
     verbose = runprops.get('verbose')
     #names = np.insert(names,0,'Sun')
     #print(names)
-    #print('generate line 511')
+    #print('generate line 545')
     s = generate_system(N,names,phys_arr,orb_arr,spin_arr,quat_arr, runprops)
     #print('N', N)
     #print('phys_arr',phys_arr)
@@ -554,7 +563,7 @@ def evolve_spinny(N, names, phys_arr, orb_arr, spin_arr, quat_arr, t_arr, runpro
     phys_arr = s[1]
     #print('spinny', spinny)
     #print('phys_arr', phys_arr)
-    #print('generate line 522')
+    #print('generate line 557')
     s_df = spinny_evolve(spinny, names, phys_arr,t_arr, runprops)
     
     if verbose:
