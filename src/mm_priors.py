@@ -144,9 +144,9 @@ def mm_priors(priors, params, runprops):
             #print('ecc',params["ecc_" + str(i)].values,'ecc',params["ecc_" + str(i+1)].values)
             return -np.inf
     #print("hill")    
-    for i in range(2,runprops.get("numobjects")):
+    for i in range(1,runprops.get("numobjects")):
         mass1 = params["mass_" + str(1)].values[0]
-        mass2 = params["mass_" + str(i)].values[0]
+        mass2 = params["mass_" + str(i+1)].values[0]
 #        mass3 = params["mass_" + str(i+1)].values[0]
 #        sma1 = params["sma_" + str(i)].values[0]
 #        sma2 = params["sma_" + str(i+1)].values[0]
