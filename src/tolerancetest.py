@@ -15,8 +15,8 @@
 #	chi-squared below 1, while maintaining the shortest possible run time. 
 #
 
-objectname = "2006 BR284"
-runtype = "10"
+objectname = "2006_BR284"
+runtype = "000"
 
 # Code starts
 class ReadJson(object):
@@ -53,7 +53,9 @@ import time
 print("../runs/" + objectname + "/" + runtype + "/runprops.txt")
 runprops = ReadJson("../runs/" + objectname + "/" + runtype + "/runprops.txt").outProps()
 initparams = pd.read_csv("../runs/" + objectname + "/" + runtype + "/" + objectname + "_init_guess.csv", index_col = 0)
-obsdata = "../runs/" + objectname + "/observations/" + objectname + "_obs_df.csv"
+#obsdata = runprops.get('
+obsdf = runprops.get('obs_df')
+obsdata = "../runs/" + objectname + "/observations/" + obsdf
 #runprops = ReadJson("../data/227_2021/runs/2006 BR284/10_locked/runprops.txt").outProps()
 #initparams = pd.read_csv("../data/227_2021/runs/2006 BR284/10_locked/2006 BR284_init_guess.csv", index_col = 0)
 #obsdata = "../data/227_2021/runs/2006 BR284/observations/2006 BR284_obs_df.csv"
@@ -71,20 +73,25 @@ paramnames2 = []
 names = []
 
 name_dict = runprops.get("names_dict")
+
 for k in initparams.iloc[:,0].values:
 	params.append(k)
 	params2.append(k)
 for k in list(initparams.index):
 	paramnames.append(k)
 	paramnames2.append(k)
-
+if runprops.get('includesun') == 1:
+	paramnames.append('name_0')
+	paramnames2.append('name_0') 
 #params.append(500.0)
 #params2.append(500.0)
 #params.append(1.0)
 #params2.append(1.0)
 #paramnames.append("ax_1")
 #paramnames2.append("ax_1")
-
+if runprops.get('includesun') == 1:
+	params.append('Sun')
+	params2.append('Sun')    
 for k in name_dict.values():
 	params.append(k)
 	params2.append(k)
@@ -116,7 +123,8 @@ geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, times, runprops, True)
 
 #print(times)
 start_time = time.time()
-runprops["spinny_tolerance"] = 1e-15
+runprops["spinny_tolerance"] = 1e-11
+#print('paramdf',paramdf)
 Model_DeltaLong, Model_DeltaLat, obsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 print("--- %s seconds ---" % (time.time() - start_time))
 

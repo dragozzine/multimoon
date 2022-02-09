@@ -75,7 +75,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	undo_masses = np.zeros(2)    
 	undo_masses[:] = False
 	masses_index = np.zeros(runprops.get('numobjects'))
-	#print(os.getcwd())    
+	#print(sampler)    
     
 	for i in range(runprops.get('numobjects')-1):
 		if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
@@ -122,7 +122,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	thin_plots = runprops.get('thin_plots') 
 #	chain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)  
-	chain = sampler.get_chain(flat = False, thin=thin_plots)  
+	chain = sampler.get_chain(flat = False)  
 	fit = []
 
 	for i in fit_scale.columns:
@@ -135,7 +135,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Getting final values for the shape of the chain
 	#shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
-	shortchain = sampler.get_chain(flat = False, thin=thin_plots)
+	shortchain = sampler.get_chain(flat = False)
 	numparams = shortchain.shape[2]
 	numwalkers = shortchain.shape[1]
 	numgens = shortchain.shape[0]
@@ -148,7 +148,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
     
 	fitparam_chain = np.zeros((1,numwalkers,numgens))
 
-	print(fitparam_chain.shape)    
+	#print(fitparam_chain.shape)    
 	fitparam_names = []    
 	# Now de-transform the chain
 	print("Starting un transformations")
@@ -230,13 +230,13 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	fitparam_chain = np.delete(fitparam_chain,0,0)
 	fitparam_chain = fitparam_chain.T   
-	fitparam_chain = fitparam_chain[int(burnin+clusterburn + thin_plots - 1) :: 1]
+	fitparam_chain = fitparam_chain[int(burnin+clusterburn - 1) :: 1]
         
 	print("Un transforming done")
 
 	# Cutting up chain
 	full_chain = np.copy(chain)
-	chain = chain[int(burnin+clusterburn + thin_plots - 1) :: 1]
+	chain = chain[int(burnin+clusterburn - 1) :: 1]
 	print(chain.shape)
 
 	# Flattening the chain based on method in emcee
@@ -257,7 +257,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		names.append(i)
 
 	# Getting log likelihood posterior values for use throughout
-	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
+	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True)
 	#print('llhoods shape',llhoods.shape)    
 	ind = np.argmax(llhoods)
 	params = flatchain[ind,:].flatten()
@@ -337,7 +337,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			m_arr = flatchain[:,m_index]
 			mp_arr = flatchain[:,mp_index]
 
-			print('a_arr, ', a_arr)
+			#print('a_arr, ', a_arr)
 			#print('m_arr, ', m_arr)
 			#print('mp_arr, ', mp_arr)
             
@@ -348,7 +348,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			G = 6.674e-20            
 			g = G*m_arr*10**18/r_sat**2            
 			mu_eff = 19*4e15/2/(rho_sat*g*r_sat)  
-			print(mu_eff)            
+			#print(mu_eff)            
 			k2p = 3/(2*(1+mu_eff))           
 			period = 2*np.pi*np.sqrt(a_arr**3/(G*(m_arr + mp_arr)*10**18))/3600.0/24.0
          
@@ -379,7 +379,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			dfchain = np.concatenate((dfchain, np.array([ecc_timescale]).T), axis = 1)
            
             
-	print(periods)
+	#print(periods)
 	# Spin period
 	fixedparams = runprops.get("float_dict")
 	if dtif[0] == "1" or dtif[0] == "2":
@@ -393,9 +393,10 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				dfchain = np.concatenate((dfchain, np.array([spinperiod]).T), axis = 1)
 
 	# Satellite-spin mutual inclination
-	if dtif[0] == "1" or dtif[0] == "2":
+	if (dtif[0] == "1" or dtif[0] == "2") and len([n for n, l in enumerate(names) if l.startswith('spinc_1')]) > 0:
 		for i in range(1,runprops.get('numobjects')):
-			print(names)            
+			#print(names)
+            
 			spinc1_index = [n for n, l in enumerate(names) if l.startswith('spinc_1')][0]
 			splan1_index = [n for n, l in enumerate(names) if l.startswith('splan_1')][0]
 			inc_index = [n for n, l in enumerate(names) if l.startswith('inc_'+str(i+1))][0]
@@ -461,7 +462,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 
 	# Creating corner_fitparams plot
-	fitflatchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
+	fitflatchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = True)
 
 	fig = corner.corner(fitflatchain, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
@@ -483,7 +484,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	from matplotlib.backends.backend_pdf import PdfPages
 
 	walkerpdf = PdfPages("walkers.pdf")
-	shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
+	shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False)
 	#shortchain = sampler.get_chain(flat = False, thin=thin_plots)
 	numparams = shortchain.shape[2]
 	numwalkers = shortchain.shape[1]
@@ -527,7 +528,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Figuring out the distributions of total_df_names
 	#old_fchain = sampler.get_chain(flat=True)
-	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
+	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True)
 	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean', 'best fit'], index = dnames)
 	j = 0
 	for i in range(len(dfchain[0])):
@@ -563,12 +564,19 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	ylimmax = llhoods.flatten().max() + 1
 	#print(chain.shape,flatchain.shape, llhoods.shape)
 	dfparams = dfchain.shape[1]
+        
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
 		plt.hist(flatchain[:,i].flatten(), bins = 40, histtype = "step", color = "black")
 		plt.subplot(223)
-		plt.scatter(flatchain[:,i].flatten(), llhoods.flatten(),
+		print(len(flatchain[:,i].flatten()), len(llhoods.flatten()))     
+		if len(flatchain[:,i].flatten()) != len(llhoods.flatten()):
+			plt.scatter(flatchain[:len(llhoods.flatten()),i].flatten(), llhoods.flatten(),
+			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
+			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
+		else:
+			plt.scatter(flatchain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
 			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
 		plt.xlabel(dnames[i])
@@ -588,7 +596,12 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.subplot(221)
 		plt.hist(dfchain[:,i].flatten(), bins = 40, histtype = "step", color = "black")
 		plt.subplot(223)
-		plt.scatter(dfchain[:,i].flatten(), llhoods.flatten(),
+		if len(dfchain[:,i].flatten()) != len(llhoods.flatten()):
+			plt.scatter(dfchain[:len(llhoods.flatten()),i].flatten(), llhoods.flatten(),
+			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
+			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
+		else:
+			plt.scatter(dfchain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
 			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
 		plt.xlabel(dnames[i])
@@ -608,9 +621,15 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.subplot(221)
 		plt.hist(fitparam_chain[:,i].flatten(), bins = 40, histtype = "step", color = "black")
 		plt.subplot(223)
-		plt.scatter(fitparam_chain[:,i].flatten(), llhoods.flatten(),
+		if len(fitparam_chain[:,i].flatten()) != len(llhoods.flatten()):
+			plt.scatter(fitparam_chain[:len(llhoods.flatten()),i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
 			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
+		else:
+			plt.scatter(fitparam_chain[:,i].flatten(), llhoods.flatten(),
+			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
+			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
+            
 		plt.xlabel(fitparam_names[i])
 		plt.ylabel("Log(L)")
 		plt.ylim(ylimmin, ylimmax)
@@ -776,7 +795,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			sys_df.loc['sp_lon',names[i]] = 0
 		elif int(runprops.get('dynamicstoincludeflags')[i]) == 1:   
 			j2 = paramdf['j2r2_'+str(i+1)][0]
-			c22 = paramdf['c22r2_'+str(i+1)][0]
+			#c22 = paramdf['c22r2_'+str(i+1)][0]
 			sp_rate = paramdf['sprate_'+str(i+1)][0]
 			sp_obl = paramdf['spinc_'+str(i+1)][0]
 			sp_prc = paramdf['splan_'+str(i+1)][0]
@@ -991,18 +1010,18 @@ import glob, os
 
 if 'results' in os.getcwd():
     getData = ReadJson('runprops.txt')
-else:
-    getData = ReadJson('most_recent_runprops.txt')
-runprops = getData.outProps()
-objname = runprops.get("objectname")
+#else:
+    #getData = ReadJson('most_recent_runprops.txt')
+    runprops = getData.outProps()
+    objname = runprops.get("objectname")
 
 if not 'results' in os.getcwd():
-	os.chdir('../../../results/'+objname+'/')
-	results = max(glob.glob(os.path.join(os.getcwd(), '*/')), key=os.path.getmtime)
-	os.chdir(results)
+    os.chdir('../../../results/'+objname+'/')
+    results = max(glob.glob(os.path.join(os.getcwd(), '*/')), key=os.path.getmtime)
+    os.chdir(results)
 
 backend = emcee.backends.HDFBackend('chain.h5')
-    
+
 fit_scale = pd.read_csv('fit_scale.csv',index_col=0)
 float_names = runprops.get('float_names')
 obsdf = pd.read_csv(objname+'_obs_df.csv',index_col=0)

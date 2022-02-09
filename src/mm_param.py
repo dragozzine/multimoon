@@ -18,7 +18,22 @@ def from_param_df_to_fit_array(dataframe, runprops):
     
     fix_float_dict = runprops.get("float_dict")
 
-    total_df_names = dataframe.columns
+    total_df_names = np.array([])
+    for i in dataframe.columns:
+        if 'period' in i[0]:
+            for j in range(runprops.get('numobjects')):
+                if str(j+1) in i[0]:
+                    total_df_names = np.append(total_df_names, 'sprate_'+str(j+1))
+        else:
+            total_df_names = np.append(total_df_names, i[0])
+    '''
+    print(total_df_names)
+    for i in range(len(total_df_names)):
+        if 'period' in total_df_names[i][0]:
+            for j in range(runprops.get('numobjects')):
+                if str(j+1) in total_df_names[i][0]:
+                    total_df_names[i] = ('sprate_'+str(j+1))
+    '''                
     
     fit_names = []
 
@@ -121,10 +136,12 @@ def from_param_df_to_fit_array(dataframe, runprops):
     val_list = list(fix_float_dict.values())
     
     fixed_df = pd.DataFrame(index = range(len(dataframe.index)))
+    #print(fixed_df)
     float_df = pd.DataFrame()
     float_names = []
     num = 0
     float_array = np.array([])
+    
     if len(key_list) == 0:
         float_array = dataframe.to_numpy()
     else:
@@ -132,7 +149,11 @@ def from_param_df_to_fit_array(dataframe, runprops):
         for col in dataframe.columns:
             #If the value is fixed
             name = col[0]
-            if fix_float_dict.get(col[0]) == 0:
+            if "period" in name:
+                for i in range(runprops.get('numobjects')):
+                    if str(i+1) in name:
+                        name = "sprate_"+str(i+1)            
+            if fix_float_dict.get(name) == 0:
                 fixed_df[name] = dataframe[col]
             #If the value is floating
             elif fix_float_dict.get(col[0]) == 1:
@@ -143,7 +164,14 @@ def from_param_df_to_fit_array(dataframe, runprops):
         float_arr = float_df.to_numpy()
 
     for col in fit_scale.columns:
-        fit_scale.rename(columns={col: col[0]}, inplace=True)
+        if "period" in col[0]:
+            for i in range(runprops.get('numobjects')):
+                if str(i+1) in col[0]:
+                    newcol = ('sprate_'+str(i+1),)
+            #print(col, newcol)
+            fit_scale.rename(columns={col[0]: newcol[0]}, inplace=True)
+        #print(fit_scale)
+        
     j = 1
     for i in runprops.get('dynamicstoincludeflags'):
         if int(i) > 0:
@@ -152,8 +180,6 @@ def from_param_df_to_fit_array(dataframe, runprops):
     if int(runprops.get('dynamicstoincludeflags')[0]) > 0:
         for i in range(runprops.get('numobjects')-1):
             fit_names.append('sat_spin_inc_'+str(i+2))
-    #print(fit_names)
-    #fit_names = np.array(fit_names)
     return float_arr, float_names, fixed_df, total_df_names, fit_scale, fit_names
     
 """
@@ -220,9 +246,9 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 undo_masses[1] = True
             else:
                 undo_masses[0] = True
-        
+        #print(fixed_df)
         for i in total_df_names:
-            name = i[0]
+            name = i
             if name in fixed_df:
                 value = fixed_df[name].values.tolist()
                 param_df[name] = value
@@ -245,11 +271,16 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
             param_col = col
             if type(col) != str:
                 param_col = col[0]
+            #print(param_df)
+            #print('param_col',param_col)
+            #print('col',col)
+            #print('fit_Scale',fit_scale)
+            #print('fit_Scale[col]',fit_scale.get(col))
+            
             param_df[param_col] = param_df[param_col]*fit_scale.get(col)
             
     param_df = param_df.iloc[[0]]
-    #print(param_df)
-    #print(fit_scale)
+
     
     
     if runprops.get('transform'):
@@ -392,7 +423,12 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
 
                 param_df['spinc_'+str(N)] = spinc
                 param_df['splan_'+str(N)] = splan
-              
+    
+    if runprops.get('spin_locked') == True:
+        for i in range(runprops.get('numobjects')):
+            if runprops.get('dynamictoincludeflags')[i] == 1 or runprops.get('dynamictoincludeflags')[i] == 2:
+                param_df['sprate_'+str(i+1)] = (4*np.pi**2/(6.67*10**(-11))/(param_df['mass_1']+param_df['mass_'+str(i+1)])*param_df['sma_'+str(i+1)]**3)/0.5
+
     if runprops.get('lockspinanglesflag') == True:
         param_df['spinc_1'] = param_df['inc_2']
         param_df['splan_1'] = param_df['lan_2']

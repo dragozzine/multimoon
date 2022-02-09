@@ -147,6 +147,9 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
         #print("Params: ", params)
         #print("Fit Params: ", fit_params)
         #print(llhood, curr_best)
+        #print(type(curr_best), type(llhood))
+        if type(curr_best) == str:
+            curr_best = 0
         if llhood > curr_best:
         #if True:
             #print('adding')
@@ -199,7 +202,7 @@ Outputs:
 # calculates the chi-square for parameters given observations
 def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
-    #print(paramdf)
+    #print('paramdf',paramdf)
     numObj = runprops.get("numobjects")
     verbose = runprops.get("verbose")
     pd.set_option('display.max_columns', None)
@@ -243,6 +246,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     begin = time.time()
     #print(paramdf)
+    #print('param_df:', paramdf)
     try:
         time_arr_sec = time_arr*86400
         #vec_df = func_timeout(5,generate_vector,args=(paramdf, time_arr_sec, runprops))
