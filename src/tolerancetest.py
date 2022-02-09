@@ -15,8 +15,8 @@
 #	chi-squared below 1, while maintaining the shortest possible run time. 
 #
 
-objectname = "Eris"
-runtype = "20"
+objectname = "2006_BR284"
+runtype = "000"
 
 # Code starts
 class ReadJson(object):
@@ -60,7 +60,7 @@ obsdata = "../runs/" + objectname + "/observations/" + obsdf
 #initparams = pd.read_csv("../data/227_2021/runs/2006 BR284/10_locked/2006 BR284_init_guess.csv", index_col = 0)
 #obsdata = "../data/227_2021/runs/2006 BR284/observations/2006 BR284_obs_df.csv"
 
-tolvals = np.logspace(-10,-8,20)
+tolvals = np.logspace(-14,-8,20)
 
 verbose = runprops.get("verbose")
 nobjects = runprops.get("numobjects")
