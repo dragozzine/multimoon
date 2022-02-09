@@ -478,6 +478,8 @@ void cashkarp_class<T>::evolve(
     double t = t_start;
 
     // Step through until done
+    //double nreset = 0;
+    double minh = 1.0e-5;
     while(t!=t_end) {
 
         // Reduce step size if necessary
@@ -485,15 +487,38 @@ void cashkarp_class<T>::evolve(
             h00 = h0;
             h0 = t_end-t;
             recover = true;
-        } else
+        }
+        else {
             recover = false;
-        
+        }
+
         // The magic
         step(y,t);
-        
+
         // If we had reduced the step size, and it worked, recover
-        if(recover and success)
+        if(recover and success) {
             h0 = h00;
+        }
+        //if(success) {
+        //    std::cout<<"Step\n";
+        //    std::cout<<"Timestep "<<h0<<"\n";
+        //}
+        //if(!success) {
+        //    nreset++;
+        //    //std::cout<<"# Fail\n";
+        //    //std::cout<<"Timestep "<<h0<<"\n";
+        //}
+        //if(nreset>10000.) {
+        //    y[0] = NAN;
+        //    t = t_end;
+        //    std::cout<<"Quitting integration";
+        //}
+        if(fabs(h0) < minh){
+            y[0] = NAN;
+            t = t_end;
+            std::cout<<"Equations of motion are stiff. Quitting integration.\n";
+        }
+
     }
 
 }
