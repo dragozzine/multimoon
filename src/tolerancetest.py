@@ -15,8 +15,8 @@
 #	chi-squared below 1, while maintaining the shortest possible run time. 
 #
 
-objectname = "2006_BR284"
-runtype = "000"
+objectname = "Eris"
+runtype = "200"
 
 # Code starts
 class ReadJson(object):
@@ -123,7 +123,7 @@ geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, times, runprops, True)
 
 #print(times)
 start_time = time.time()
-runprops["spinny_tolerance"] = 1e-11
+runprops["spinny_tolerance"] = 1e-15
 #print('paramdf',paramdf)
 Model_DeltaLong, Model_DeltaLat, obsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 print("--- %s seconds ---" % (time.time() - start_time))

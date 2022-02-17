@@ -25,11 +25,11 @@
     "maxiter" : 10,			# maximum number of steps to take within the final sampling
     "nthinning" : 1,			# thinning fraction
     "maxreset" : 10000,			# maximum number of resets when checking parameters set
-    "spinny_tolerance": 1e-13,		# tolerance of spinny
+    "spinny_tolerance": 1e-11,		# tolerance of spinny
     "numprocesses": 24,			# number of cores to use
     "min_periapse": 2000.0,
-    "sys_df": "Eris_sys_init.csv",
-    "times_file": "times_1000yr.csv",
+    "sys_df": "2006BR284_init.csv",
+    "times_file": "times_10yr.csv",
 
     # Additional options
     "verbose" : false,			# Enables print statements within the code
@@ -45,7 +45,7 @@
     # Object names
     "names_dict" :
     {
-        "name_1": "Primary",
+        "name_1": "Prim",
         "name_2": "Secondary"
     },
 

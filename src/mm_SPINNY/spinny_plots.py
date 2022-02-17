@@ -23,19 +23,19 @@ def spinny_plot(plot_df, names, runprops):
     t_arr = plot_df['Times'].values.flatten()
     T = len(t_arr)
 
-    print(names, plot_df, plot_df.columns)
+    print('Spinny plot data',names, plot_df, plot_df.columns)
     if runprops.get('includesun'):
         names = np.delete(names,0)
     
     for name in names:
-
+        
         globals()[name+'_x'] = plot_df["X_Pos_"+name]
         globals()[name+'_y'] = plot_df["Y_Pos_"+name]
         globals()[name+'_z'] = plot_df["Z_Pos_"+name]
-        globals()[name+'_xL'] = plot_df["Lx_"+name]
-        globals()[name+'_yL'] = plot_df["Ly_"+name]
-        globals()[name+'_zL'] = plot_df["Lz_"+name]
-        globals()[name+'_E'] = plot_df["E_"+name]
+        #globals()[name+'_xL'] = plot_df["Lx_"+name]
+        #globals()[name+'_yL'] = plot_df["Ly_"+name]
+        #globals()[name+'_zL'] = plot_df["Lz_"+name]
+        #globals()[name+'_E'] = plot_df["E_"+name]
         
         if globals()[name+'_x'][0] == 0.0:
             name_prim = name
@@ -53,7 +53,7 @@ def spinny_plot(plot_df, names, runprops):
         globals()[name+'_prec'] = plot_df["precession_"+name]
         globals()[name+'_long'] = plot_df["longitude_"+name]
         
-        globals()[name+'_spin_angle'] = plot_df["spin_orbit_angle_"+name]
+        #globals()[name+'_spin_angle'] = plot_df["spin_orbit_angle_"+name]
         globals()[name+'_spin_period'] = plot_df["spin_period_"+name]
         
     
@@ -124,6 +124,7 @@ def spinny_plot(plot_df, names, runprops):
                 ax1[2,1].scatter(t,globals()[name+'_w'],label=name, s = 5)
 
                 # this generates line of best fit for energy/momentum for calculation of fractional change, if needed
+                '''
                 trend_x = np.polyfit(t,globals()[name+'_xL'], 1)
                 px = np.poly1d(trend_x)
                 trend_y = np.polyfit(t,globals()[name+'_yL'], 1)
@@ -139,7 +140,7 @@ def spinny_plot(plot_df, names, runprops):
                 #ax0[2].plot(t,pE(t),"r--")
 
                 L_tot = [np.linalg.norm([px(t)[i],py(t)[i],pz(t)[i]]) for i in range(0,T)]
-
+                '''
                 nx = globals()[name+'_x']
                 ny = globals()[name+'_y']
                 nz = globals()[name+'_z']
@@ -205,26 +206,26 @@ def spinny_plot(plot_df, names, runprops):
         
             ax0[0].plot(t,globals()[name+'_obliq'],label=name)
             ax0[1].plot(t,globals()[name+'_prec'],label=name)
-            ax0[2].plot(t,globals()[name+'_spin_angle'],label=name)
-            ax0[3].plot(t,globals()[name+'_spin_period'],label=name)
+            #ax0[2].plot(t,globals()[name+'_spin_angle'],label=name)
+            #ax0[3].plot(t,globals()[name+'_spin_period'],label=name)
             
             ax0[0].set_title('Axial Obliquity')
             ax0[1].set_title('Axial Precession')
-            ax0[2].set_title('Spin–Orbit Angle')
-            ax0[3].set_title('Spin Period')
+            #ax0[2].set_title('Spin–Orbit Angle')
+            #ax0[3].set_title('Spin Period')
 
             ax0[0].set_ylabel('Degrees')
             ax0[1].set_ylabel('Degrees')
-            ax0[2].set_ylabel('Degrees')
-            ax0[3].set_ylabel('Hours')
+            #ax0[2].set_ylabel('Degrees')
+            #ax0[3].set_ylabel('Hours')
 
             ax0[0].ticklabel_format(useOffset=False,style='plain',axis='y')
             ax0[1].ticklabel_format(useOffset=False,style='plain',axis='y')
-            ax0[2].ticklabel_format(useOffset=False,style='plain',axis='y')
+            #ax0[2].ticklabel_format(useOffset=False,style='plain',axis='y')
 
             ax0[0].grid()
             ax0[1].grid()
-            ax0[2].grid()
+            #ax0[2].grid()
 
             fig0.suptitle('Spin Parameters -- '+name,fontsize=18,fontweight='bold')
             fig0.tight_layout(rect=[0, 0.03, 1, 0.95]) 

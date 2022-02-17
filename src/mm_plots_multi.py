@@ -120,9 +120,21 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		burnin = int(runprops.get('nburnin'))
 		clusterburn = int(runprops.get('clustering_burnin'))
 
-	thin_plots = runprops.get('thin_plots') 
+        
+        
+	#thin_plots = runprops.get('thin_plots') 
+	if isinstance(runprops.get('thin_plots'), int):          
+		thin_plots = runprops.get('thin_plots')
+		if runprops.get('thin_run') and thin_plots > 1:
+			print('Warning: You thinned your chain as you ran the data, and have a thin_plots parameter > 1, this could lead to an empty chain being read in.')
+		#burnin = burnin/thin_plots
+		#clusterburn = clusterburn/thin_plots     
+	else:
+		thin_plots = 1
+        
+        
 #	chain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)  
-	chain = sampler.get_chain(flat = False)  
+	chain = sampler.get_chain(flat = False, thin=thin_plots)  
 	fit = []
 
 	for i in fit_scale.columns:
@@ -135,7 +147,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Getting final values for the shape of the chain
 	#shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
-	shortchain = sampler.get_chain(flat = False)
+	shortchain = sampler.get_chain(flat = False, thin= thin_plots)
 	numparams = shortchain.shape[2]
 	numwalkers = shortchain.shape[1]
 	numgens = shortchain.shape[0]
@@ -144,6 +156,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	# Take chain "fit" values and make them into real values
 	for i in range(numparams):
 		chain[:,:,i] = chain[:,:,i]*fit[i]
+	print('First chain: ',chain.shape)
 
     
 	fitparam_chain = np.zeros((1,numwalkers,numgens))
@@ -230,14 +243,14 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	fitparam_chain = np.delete(fitparam_chain,0,0)
 	fitparam_chain = fitparam_chain.T   
-	fitparam_chain = fitparam_chain[int(burnin+clusterburn - 1) :: 1]
+	fitparam_chain = fitparam_chain[int(burnin/thin_plots+clusterburn/thin_plots - 1) :: 1]
         
 	print("Un transforming done")
 
 	# Cutting up chain
 	full_chain = np.copy(chain)
-	chain = chain[int(burnin+clusterburn - 1) :: 1]
-	print(chain.shape)
+	chain = chain[int(burnin/thin_plots+clusterburn/thin_plots - 1) :: 1]
+	print('Burnin chain:',chain.shape)
 
 	# Flattening the chain based on method in emcee
 	s = list(chain.shape[1:])
@@ -257,7 +270,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		names.append(i)
 
 	# Getting log likelihood posterior values for use throughout
-	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True)
+	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
 	#print('llhoods shape',llhoods.shape)    
 	ind = np.argmax(llhoods)
 	params = flatchain[ind,:].flatten()
@@ -445,10 +458,11 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		dnames = np.append(dnames, ["mass_3/mass_2","period_3/period_2"])
 		#dfchain = np.concatenate((dfchain, np.array([mass1_3_rat]).T), axis = 1)
 		dfchain = np.concatenate((dfchain, np.array([mass2_3_rat]).T), axis = 1)
-		period3 = dfchain[:,int(periods[1])]
-		period2 = dfchain[:,int(periods[0])]       
-		period_ratio = np.array(period3)/np.array(period2)
-		dfchain = np.concatenate((dfchain, np.array([period_ratio]).T), axis = 1)
+		print(dfchain.shape, periods)
+		#period3 = dfchain[:,int(periods[1])]
+		#period2 = dfchain[:,int(periods[0])]       
+		#period_ratio = np.array(period3)/np.array(period2)
+		#dfchain = np.concatenate((dfchain, np.array([period_ratio]).T), axis = 1)
 # Creating corner+derived plot
 	fig = corner.corner(dfchain, labels = dnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
@@ -462,7 +476,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 
 	# Creating corner_fitparams plot
-	fitflatchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = True)
+	fitflatchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
 
 	fig = corner.corner(fitflatchain, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
@@ -484,7 +498,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	from matplotlib.backends.backend_pdf import PdfPages
 
 	walkerpdf = PdfPages("walkers.pdf")
-	shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False)
+	shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
+	print('Shortchain:', shortchain.shape)    
 	#shortchain = sampler.get_chain(flat = False, thin=thin_plots)
 	numparams = shortchain.shape[2]
 	numwalkers = shortchain.shape[1]
@@ -507,7 +522,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	fullwalkerpdf = PdfPages("walkers_full.pdf")
 	backend = emcee.backends.HDFBackend('chain.h5')    
 
-	full_chain = sampler.get_chain(discard=0, flat = False)  
+	full_chain = sampler.get_chain(discard=0, flat = False, thin=thin_plots)  
 	fullgens = full_chain.shape[0]
 	#print(fullgens)
 	for i in range(numparams):
@@ -528,7 +543,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Figuring out the distributions of total_df_names
 	#old_fchain = sampler.get_chain(flat=True)
-	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True)
+	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
 	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean', 'best fit'], index = dnames)
 	j = 0
 	for i in range(len(dfchain[0])):
@@ -646,9 +661,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.close("all")
 
 	# Residual plots
-	flatchain = sampler.get_chain(flat = True)
+	flatchain = sampler.get_chain(flat = True, thin=thin_plots)
 	nobjects = runprops.get('numobjects')
-	llhoods = sampler.get_log_prob(flat = True)
+	llhoods = sampler.get_log_prob(flat = True, thin=thin_plots)
 	ind = np.argmax(llhoods)
 	params = flatchain[ind,:].flatten()
     
