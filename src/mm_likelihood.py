@@ -286,7 +286,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     name_1 = "X_Pos_"+names[0]
     #print(vec_df)
     if (vec_df[name_1][0] != 0.0):
-        #print("Not primaricentric like I thought!")
+        print("Not primaricentric like I thought!")
         rows = obsdf.shape[0]
         return np.inf, np.ones(((numObj-1)*2, rows))*10000
         #print("vec_df[name_1] = ", vec_df)
