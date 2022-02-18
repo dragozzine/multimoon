@@ -243,13 +243,13 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	fitparam_chain = np.delete(fitparam_chain,0,0)
 	fitparam_chain = fitparam_chain.T   
-	fitparam_chain = fitparam_chain[int(burnin/thin_plots+clusterburn/thin_plots - 1) :: 1]
+	fitparam_chain = fitparam_chain[int(burnin/thin_plots+clusterburn/thin_plots) :: 1]
         
 	print("Un transforming done")
 
 	# Cutting up chain
 	full_chain = np.copy(chain)
-	chain = chain[int(burnin/thin_plots+clusterburn/thin_plots - 1) :: 1]
+	chain = chain[int(burnin/thin_plots+clusterburn/thin_plots) :: 1]
 	print('Burnin chain:',chain.shape)
 
 	# Flattening the chain based on method in emcee
@@ -596,6 +596,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
 		plt.xlabel(dnames[i])
 		plt.ylabel("Log(L)")
+		print(ylimmin, ylimmax)        
 		plt.ylim(ylimmin, ylimmax)
 		plt.subplot(224)
 		llflat = llhoods.flatten()
@@ -687,7 +688,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				paramnames.append(keys)
 
 	#print(paraminput)
-	#print(paramnames)
+	print(fixed_df)
 	names_dict = runprops.get("names_dict")    
 	paramdf,fit_params = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
 
@@ -724,8 +725,10 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.plot(xvals3, circle3, color = "black", alpha = 0.25)
 	plt.plot(xvals3,-circle3, color = "black", alpha = 0.25)
 	print(nobjects, np.array(residuals).shape, objectnames)  
-	print(residuals)  
+	print(residuals)
+	objectnames[1] = "S2"
 	for i in range(1, nobjects):
+	
 		print('plotting ', i, ' ',objectnames[i])
 		plt.scatter(residuals[2*(i-1)][:], residuals[2*(i-1)+1][:], c = colorcycle[i], label = objectnames[i], edgecolors = None)
 	plt.xlabel("Delta Longitude")

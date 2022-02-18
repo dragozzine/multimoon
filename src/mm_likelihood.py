@@ -25,6 +25,8 @@ def log_likelihood(params, obsdf, runprops, geo_obj_pos):
     
     #print(params, obsdf, geo_obj_pos)
     lh,residuals = mm_chisquare(params,obsdf, runprops, geo_obj_pos)
+    if not np.isfinite(lh):
+        return -np.inf, residuals
     lh = lh*-0.5
     #print('lh ',lh)
 
@@ -111,6 +113,8 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
         return -np.inf
 
     log_likeli, residuals = log_likelihood(params, obsdf, runprops, geo_obj_pos)
+    if not np.isfinite(log_likeli):
+        return -np.inf
     llhood = lp + log_likeli
     #print(llhood)
     the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
@@ -261,7 +265,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     except Exception as e:
         print('There was an error thrown within spinny:\n', e)
         rows = obsdf.shape[0]
-        return np.inf, np.ones(((numObj-1)*2, rows))*10000
+        return -np.inf, np.ones(((numObj-1)*2, rows))*10000
     names_dict = runprops.get("names_dict")
     names=[0 for i in range(numObj)]
     for i in range(0,numObj):
@@ -282,7 +286,9 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     name_1 = "X_Pos_"+names[0]
     #print(vec_df)
     if (vec_df[name_1][0] != 0.0):
-        print("Not primaricentric like I thought!")
+        #print("Not primaricentric like I thought!")
+        rows = obsdf.shape[0]
+        return np.inf, np.ones(((numObj-1)*2, rows))*10000
         #print("vec_df[name_1] = ", vec_df)
     
     Model_DeltaLong = np.zeros((numObj-1,len(time_arr)))
