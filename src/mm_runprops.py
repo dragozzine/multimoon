@@ -4,6 +4,7 @@ import sys
 import os
 import datetime
 import shutil
+import numpy as np
 
 class ReadJson(object):
     def __init__(self, filename):

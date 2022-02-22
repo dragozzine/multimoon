@@ -170,6 +170,9 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPI
         body_arr[t] = np.concatenate([s.get_state(n,0) for n in range(0,N)]) # taken with respect to the primary
         #print('body_Arr[t]', body_arr[t])
         inertial_arr[t] = s.arr0
+        if np.isnan(s.arr0[0]):
+            raise Exception("SPINNY took too long")
+            
         
        #'''
         #BEGIN OF GENERATE CODE
