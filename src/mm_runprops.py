@@ -82,6 +82,12 @@ if runprops.get("first_run") == True:
     
     runprops['results_folder'] = newpath
     
+    if isinstance(runprops.get('numpy_seed'), int):
+        np.random.seed(seed=runprops.get('numpy_seed'))
+    else:
+        np.random.seed(seed=12)
+        runprops['numpy_seed'] = 12
+    
     #print('runs file: ', runprops.get('runs_file'))
     #print('results file: ', runprops.get('results_folder'))
     
