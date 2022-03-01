@@ -60,6 +60,8 @@ import warnings
 warnings.filterwarnings("ignore", message="divide by zero encountered")
 warnings.filterwarnings("ignore", message="Gimbal lock detected")
 warnings.filterwarnings("ignore", message="invalid value encountered in arccos")
+warnings.filterwarnings("ignore", message="invalid value encountered in cos")
+warnings.filterwarnings("ignore", message="invalid value encountered in sin")
 #print('warnings done')
 if __name__ == '__main__':
 

@@ -917,7 +917,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	print(obsdf)
 	print(objectnames[1])
 	newnames = np.copy(objectnames)  
-	newnames[1] = "S2"    
+	#newnames[1] = "S2"    
 	for i in range(1,nobjects):
 		modelx[i-1,:] = DeltaLat_Model[i-1]
 		modely[i-1,:] = DeltaLong_Model[i-1]
@@ -930,19 +930,19 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.scatter(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = newnames[i], alpha = 0.5,s=5)
 		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko", ms = 2)
      
-	eris_circle = np.arctan(1163/14270012016)*180/np.pi*3600
-	jwst_circle = 0.2*0.53
+	#eris_circle = np.arctan(1163/14270012016)*180/np.pi*3600
+	#jwst_circle = 0.2*0.53
 
-	angle = np.linspace( 0 , 2 * np.pi , 150 ) 
-	x = eris_circle * np.cos( angle ) 
-	y = eris_circle * np.sin( angle ) 
-	plt.plot( x, y, color = colorcycle[4], label = "Eris actual size" ) 
-	x = jwst_circle * np.cos( angle ) 
-	y = jwst_circle * np.sin( angle ) 
-	plt.plot( x, y, color = colorcycle[5], label = "JWST PSF" ) 
-	x = 0.2 * np.cos( angle ) 
-	y = 0.2 * np.sin( angle ) 
-	plt.plot( x, y, color = colorcycle[6], label = "HST PSF" )
+	#angle = np.linspace( 0 , 2 * np.pi , 150 ) 
+	#x = eris_circle * np.cos( angle ) 
+	#y = eris_circle * np.sin( angle ) 
+	#plt.plot( x, y, color = colorcycle[4], label = "Eris actual size" ) 
+	#x = jwst_circle * np.cos( angle ) 
+	#y = jwst_circle * np.sin( angle ) 
+	#plt.plot( x, y, color = colorcycle[5], label = "JWST PSF" ) 
+	#x = 0.2 * np.cos( angle ) 
+	#y = 0.2 * np.sin( angle ) 
+	#plt.plot( x, y, color = colorcycle[6], label = "HST PSF" )
 
 	plt.axis('equal')
 	plt.xlabel("Delta Latitude")

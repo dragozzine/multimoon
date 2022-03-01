@@ -79,11 +79,12 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
         dec_err = np.zeros((len(DEC_1), int(sample_num)))
         
         #Here we create the randomnly distributed ra and dec errors
+        print(RA_1, len(RA_1), RA_1_err, len(RA_1_err))
         for k in range(len(RA_1)):
             #plt.figure(k)
             for j in range(sample_num):
-                ra_err[k][j] = np.random.normal(RA_1[k]*3600, RA_1_err[k])/3600
-                dec_err[k][j] = np.random.normal(DEC_1[k]*3600, DEC_1_err[k])/3600
+                ra_err[k][j] = np.random.normal(RA_1[k]*3600, abs(RA_1_err[k]))/3600
+                dec_err[k][j] = np.random.normal(DEC_1[k]*3600, abs(DEC_1_err[k]))/3600
             #plt.scatter(ra_err[k],dec_err[k],s=10)
         
     #Essentially we define where the object is in our RA/DEC coordinate system. ICRS is the system our coordinates are in.
@@ -141,6 +142,6 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
     
 
 
-params = pd.read_csv('BennecchiData.csv')
+#params = pd.read_csv('BennecchiData.csv')
 
-convert_to_primary_centric(params, ['Lempo','Hiisi','Paha'],3,1000)
+#convert_to_primary_centric(params, ['Lempo','Hiisi','Paha'],3,1000)
