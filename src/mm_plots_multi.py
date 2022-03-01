@@ -524,13 +524,13 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	full_chain = sampler.get_chain(discard=0, flat = False, thin=thin_plots)  
 	fullgens = full_chain.shape[0]
-	#print(fullgens)
+	print(thin_plots, fullgens, full_chain.shape)
 	for i in range(numparams):
 		plt.figure(dpi = 50)
 		for j in range(numwalkers):
 			plt.plot(np.reshape(full_chain[0:fullgens,j,i], fullgens), alpha=0.2)
-		plt.axvline(x=burnin)
-		plt.axvline(x=(clusterburn+burnin))
+		plt.axvline(x=burnin/thin_plots)
+		plt.axvline(x=(clusterburn/thin_plots+burnin/thin_plots))
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
 		#plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
@@ -1033,21 +1033,23 @@ if 'results' in os.getcwd():
     runprops = getData.outProps()
     objname = runprops.get("objectname")
 
-if not 'results' in os.getcwd():
-    os.chdir('../../../results/'+objname+'/')
-    results = max(glob.glob(os.path.join(os.getcwd(), '*/')), key=os.path.getmtime)
-    os.chdir(results)
+#if not 'results' in os.getcwd():
+#    objname = runprops.get('objectname')
+#    os.chdir('../../../results/'+objname+'/')
+#    results = max(glob.glob(os.path.join(os.getcwd(), '*/')), key=os.path.getmtime)
+#    os.chdir(results)
+    
 
-backend = emcee.backends.HDFBackend('chain.h5')
+    backend = emcee.backends.HDFBackend('chain.h5')
 
-fit_scale = pd.read_csv('fit_scale.csv',index_col=0)
-float_names = runprops.get('float_names')
-obsdf = pd.read_csv(objname+'_obs_df.csv',index_col=0)
-geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position.csv',index_col=0)
-fixed_df = pd.read_csv('fixed_df.csv',index_col=0)
-total_df_names = runprops.get('total_df_names')
-
-plots(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)
+    fit_scale = pd.read_csv('fit_scale.csv',index_col=0)
+    float_names = runprops.get('float_names')
+    obsdf = pd.read_csv(objname+'_obs_df.csv',index_col=0)
+    geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position.csv',index_col=0)
+    fixed_df = pd.read_csv('fixed_df.csv',index_col=0)
+    total_df_names = runprops.get('total_df_names')
+    
+    plots(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)
 
 
 '''   

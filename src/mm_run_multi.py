@@ -203,7 +203,7 @@ if __name__ == '__main__':
         # cut off the burn in.
         # I think i want to still create an autoburnin but I really would like to look at a completed
         # run to see what the burn in looks like... It should be a few autocorrelation times
-        
+            '''
             nburnin = runprops.get("nburnin")
             nthinning = runprops.get('nthinning')
             if verbose:
@@ -221,19 +221,23 @@ if __name__ == '__main__':
                 sampler, state = mm_clustering.mm_clustering(sampler, state, float_names, fixed_df, total_df_names, fit_scale, runprops, obsdf,geo_obj_pos, best_llhoods, backend, pool, mm_likelihood, ndim, moveset)
         
             #sampler.reset()
-
+            '''
     # Now do the full run with essgoal and initial n steps
-    
             nsteps = runprops.get("nsteps")
+            if runprops.get('thin_run'):
+                state = sampler.run_mcmc(None, nsteps, progress = True, store = True, thin=nthinning)
+            else:
+                state = sampler.run_mcmc(None, nsteps, progress = True, store = True)
+            
             essgoal = runprops.get("essgoal")
             maxiter = runprops.get("maxiter")
             initsteps = runprops.get("nsteps")
             
             p0=None
         
-            sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0, runprops)
+            #sampler,ess = mm_autorun.mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0, runprops)
         
-            print("effective sample size = ", ess)
+            #print("effective sample size = ", ess)
             chain = sampler.get_chain(flat = False)
             flatchain = sampler.get_chain(flat = True)
         
@@ -251,7 +255,8 @@ if __name__ == '__main__':
                 file.write(json.dumps(runprops, indent = 4))
     
             
-            mm_analysis.plots(sampler, total_df_names, objname, fit_scale, float_names, obsdf, runprops, geo_obj_pos, mm_make_geo_pos, fixed_df, total_df_names)
+            import mm_plots_multi
+            mm_plots_multi.plots(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)
         
                 
             if runprops.get('build_init_from_llhood'):
@@ -776,7 +781,7 @@ if __name__ == '__main__':
             os.chdir(runprops.get("results_folder"))
             
             import mm_plots_multi
-            
+            mm_plots_multi.plots(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)
             
             if runprops.get('build_init_from_llhood'):
                 csvfile = runprops.get("results_folder")+"/best_likelihoods.csv"
