@@ -427,6 +427,15 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
 #
 	# Satellite-Satellite mutual inclination (this only works right now for 2 moons/satellites)
+	if runprops.get('numobjects') == 2:
+		mass1_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
+		mass2_index = [n for n, l in enumerate(names) if l.startswith('mass_2')][0]
+
+		mass1_arr = flatchain[:,mass1_index]
+		mass2_arr = flatchain[:,mass2_index]
+		mass_tot = mass1_arr+mass2_arr
+		dnames = np.append(dnames,['mass_tot'])
+		dfchain = np.concatenate((dfchain, np.array([mass_tot]).T), axis = 1)        
 	if runprops.get("numobjects") > 2:
 		inc2_index = [n for n, l in enumerate(names) if l.startswith('inc_2')][0]
 		inc3_index = [n for n, l in enumerate(names) if l.startswith('inc_3')][0]
@@ -458,6 +467,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		dnames = np.append(dnames, ["mass_3/mass_2","period_3/period_2"])
 		#dfchain = np.concatenate((dfchain, np.array([mass1_3_rat]).T), axis = 1)
 		dfchain = np.concatenate((dfchain, np.array([mass2_3_rat]).T), axis = 1)
+		mass_tot = mass1_arr+mass2_arr+mass3_arr
+		dnames = np.append(dnames,['mass_tot'])
+		dfchain = np.concatenate((dfchain, np.array([mass_tot]).T), axis = 1)
 		print(dfchain.shape, periods)
 		#period3 = dfchain[:,int(periods[1])]
 		#period2 = dfchain[:,int(periods[0])]       
@@ -689,7 +701,28 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	#print(paraminput)
 	print(fixed_df)
-	names_dict = runprops.get("names_dict")    
+	names_dict = runprops.get("names_dict")  
+	print('paraminput 1', paraminput)    
+	#paramdf,fit_params = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
+	best_likelihoods = pd.read_csv('best_likelihoods.csv')
+	best = best_likelihoods.iloc[-(1)]
+	print(best)   
+	best = best.drop(columns=['Likelihood','Degrees-of-freedom','P-val','Chi-sq','Reduced_chi_sq','Prior','Residuals_Lon_Obj_1','Residuals_Lat_Obj_1'])
+	if runprops.get('numobjects') == 3:    
+		best = best.drop(columns=['Residuals_Lon_Obj_2','Residuals_Lat_Obj_2'])
+	paraminput = []
+	for i in range(len(paramnames)):
+		best[paramnames[i]] = best[paramnames[i]]/fit[i]
+	for i in paramnames:
+		paraminput = np.append(paraminput,[best[i]])   
+	print('paraminput',paraminput)    
+	for i in fit_scale.columns:
+		name = i
+		if type(name) != str:
+			name = name[0]
+		if name in float_names:
+			val = fit_scale.loc[0, i]
+			fit.append(val)    
 	paramdf,fit_params = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
 
 	#paramdf = pd.DataFrame(paraminput).transpose()
@@ -817,7 +850,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			sp_rate = paramdf['sprate_'+str(i+1)][0]
 			sp_obl = paramdf['spinc_'+str(i+1)][0]
 			sp_prc = paramdf['splan_'+str(i+1)][0]
-			sp_lon = paramdf['spaop_'+str(i+1)][0]
+			#sp_lon = paramdf['spaop_'+str(i+1)][0]
 			sys_df.loc['axis',names[i]] = axis
 			sys_df.loc['j2r2',names[i]] = j2        
 			sys_df.loc['c22r2',names[i]] = 0
@@ -895,6 +928,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		spinny_plot(s_df,names, runprops)
     
 	#Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
+	print(paramdf)    
 	DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
 
 	modelx = np.empty((nobjects-1, fakeobsdf.shape[0]))

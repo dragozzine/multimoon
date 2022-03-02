@@ -481,7 +481,7 @@ if __name__ == '__main__':
             
             the_names = []
             for i in total_df_names:
-                the_names.append(i[0])
+                the_names.append(i)
             #for i in fit_names:
             #    the_names.append(i)
 
