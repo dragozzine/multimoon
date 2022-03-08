@@ -23,7 +23,7 @@ class ReadJson(object):
 #chain = (nwalkers, nlink, ndim)
 
 def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names):
-	numdraws = 1000
+	numdraws = 250
 
 	# Getting log likelihood posterior values and flatchain for use throughout
 	burnin = int(runprops.get('nburnin'))
