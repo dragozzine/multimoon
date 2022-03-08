@@ -23,7 +23,7 @@ class ReadJson(object):
 #chain = (nwalkers, nlink, ndim)
 
 def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names):
-	numdraws = 250
+	numdraws = 20
 
 	# Getting log likelihood posterior values and flatchain for use throughout
 	burnin = int(runprops.get('nburnin'))
@@ -77,12 +77,14 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	drawparams = np.zeros((ndims, numdraws))
 
 	# Looping to get model values
+	print('draws',draws)    
 	for i in tqdm(range(draws.shape[0])):
 		paramdf = mm_param.from_fit_array_to_param_df(draws[i,:].flatten(), names, fixed_df, total_df_names, fit_scale, names_dict, runprops)[0]
 		#print(paramdf.iloc[:,:-nobj].values)		
 		drawparams[:,i] = paramdf.iloc[:,:-nobj].values
-		#print(paramdf)
+		print(paramdf)
 		DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
+		print(DeltaLong_Model)        
 		for j in range(1,runprops.get('numobjects')):
 			dlong[i,j-1,:] = DeltaLong_Model[j-1]
 			dlat[i,j-1,:] = DeltaLat_Model[j-1]
@@ -115,6 +117,7 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	# Now create info gain arrays
 	infogain = np.zeros((runprops.get('numobjects')-1, times.size))
 	infogain2 = np.zeros((runprops.get('numobjects')-1, times.size))
+	print(dlongstd[0,:], typicalerror, np.sqrt(dlongstd[0,:]/typicalerror[0,0])**2)    
 	for i in range(1,runprops.get('numobjects')):
 		infogain[i-1,:] = np.sqrt( (dlongstd[i-1,:]/typicalerror[0,i-1])**2 + (dlatstd[i-1,:]/typicalerror[1,i-1])**2 )
 

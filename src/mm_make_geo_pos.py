@@ -7,8 +7,8 @@ import time
 def mm_make_geo_pos(objname, times, runprops = None, synthetic = False):
     """This function takes a name of a solar system body(a KBO), and creates a csv file of the body's ephemerides"""
     #starttime = time.time()
-    ourKBO = Horizons(id='1999 CS29',location=399,epochs = times)
-    #ourKBO = Horizons(id=objname,location=399,epochs = times)
+    #ourKBO = Horizons(id='2006 BR284',location=399,epochs = times)
+    ourKBO = Horizons(id=objname,location=399,epochs = times)
     ephKBO = ourKBO.ephemerides()['RA','DEC','datetime_jd']
     vecKBO = ourKBO.vectors(aberrations = 'astrometric')['lighttime','x','y','z']
     
