@@ -203,6 +203,8 @@ if __name__ == '__main__':
         # cut off the burn in.
         # I think i want to still create an autoburnin but I really would like to look at a completed
         # run to see what the burn in looks like... It should be a few autocorrelation times
+        
+            nthinning = runprops.get('nthinning')
             '''
             nburnin = runprops.get("nburnin")
             nthinning = runprops.get('nthinning')

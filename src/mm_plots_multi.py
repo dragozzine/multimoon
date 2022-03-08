@@ -703,7 +703,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	print(fixed_df)
 	names_dict = runprops.get("names_dict")  
 	print('paraminput 1', paraminput)    
-	#paramdf,fit_params = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
+	paramdf,fit_params = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
+	print(paramdf)    
 	best_likelihoods = pd.read_csv('best_likelihoods.csv')
 	best = best_likelihoods.iloc[-(1)]
 	print(best)   
@@ -711,20 +712,30 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	if runprops.get('numobjects') == 3:    
 		best = best.drop(columns=['Residuals_Lon_Obj_2','Residuals_Lat_Obj_2'])
 	paraminput = []
-	for i in range(len(paramnames)):
-		best[paramnames[i]] = best[paramnames[i]]/fit[i]
-	for i in paramnames:
-		paraminput = np.append(paraminput,[best[i]])   
-	print('paraminput',paraminput)    
-	for i in fit_scale.columns:
-		name = i
-		if type(name) != str:
-			name = name[0]
-		if name in float_names:
-			val = fit_scale.loc[0, i]
-			fit.append(val)    
-	paramdf,fit_params = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
-
+	for i in paramdf.columns:
+		if 'name' not in i:
+			print(i, paramdf[i], best[i])
+			paramdf[i] = best[i]
+		#paramdf[i] = best[i]
+		#print(paramnames[i])
+		#print('fit',fit[i])
+		#print('best[paramanems]',best[paramnames[i]])
+		#print('fitted best',best[paramnames[i]]/fit[i])
+		#best[paramnames[i]] = best[paramnames[i]]/fit[i]
+	#for i in paramnames:
+		#paraminput = np.append(paraminput,[best[i]])   
+	#print('paraminput',paraminput)  
+	#paraminput = paraminput.tolist()
+	#print('paraminput',paraminput) 
+	#for i in fit_scale.columns:
+#		name = i
+#		if type(name) != str:
+#			name = name[0]
+#		if name in float_names:
+#			val = fit_scale.loc[0, i]
+#			fit.append(val)    
+	#paramdf,fit_params = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
+	print(paramdf)
 	#paramdf = pd.DataFrame(paraminput).transpose()
 	#paramdf.columns = paramnames
 
