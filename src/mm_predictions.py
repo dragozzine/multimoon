@@ -154,8 +154,8 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 		plt.scatter(dlong[:,0,15], dlat[:,0,15], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm")
 		plt.errorbar(np.median(dlong[:,0,15]), np.median(dlat[:,0,15]), xerr = typicalerror[0,0], yerr = typicalerror[1,0], ecolor = "red")
         
-		plt.scatter(dlong[:,1,15], dlat[:,1,15], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm",marker='D')
-		plt.errorbar(np.median(dlong[:,1,15]), np.median(dlat[:,1,15]), xerr = typicalerror[0,1], yerr = typicalerror[1,1], ecolor = "red")
+#		plt.scatter(dlong[:,1,15], dlat[:,1,15], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm",marker='D')
+#		plt.errorbar(np.median(dlong[:,1,15]), np.median(dlat[:,1,15]), xerr = typicalerror[0,1], yerr = typicalerror[1,1], ecolor = "red")
 		plt.xlabel("dLon")
 		plt.ylabel("dLat")
 		plt.title(paramnames[i])
