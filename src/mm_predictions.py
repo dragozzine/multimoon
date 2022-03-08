@@ -23,7 +23,7 @@ class ReadJson(object):
 #chain = (nwalkers, nlink, ndim)
 
 def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names):
-	numdraws = 1000
+	numdraws = 250
 
 	# Getting log likelihood posterior values and flatchain for use throughout
 	burnin = int(runprops.get('nburnin'))
@@ -46,7 +46,7 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	draws = flatchain[drawsindex,:]
 
 	# Get time arrays
-	converttimes = ["2021-10-01","2022-09-30"]
+	converttimes = ["2022-10-01","2023-09-30"]
 	t = Time(converttimes)
 	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '1d'}
 

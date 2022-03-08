@@ -57,7 +57,7 @@ def mm_init_guess(runprops):
                 if str(i+1) in col:
                     name_dict[n] = 'sprate_'+str(i+1)
             name_dict[n] = col
-            infos = 2*np.pi/start_guess_df[col].to_numpy()/60/60/24
+            infos = 2*np.pi/start_guess_df[col].to_numpy()/60/60
             mean1, stdev1 = infos[0],infos[1]
         else:
             name_dict[n] = col
