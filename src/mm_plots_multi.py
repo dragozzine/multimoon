@@ -120,9 +120,21 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		burnin = int(runprops.get('nburnin'))
 		clusterburn = int(runprops.get('clustering_burnin'))
 
-	thin_plots = runprops.get('thin_plots') 
+        
+        
+	#thin_plots = runprops.get('thin_plots') 
+	if isinstance(runprops.get('thin_plots'), int):          
+		thin_plots = runprops.get('thin_plots')
+		if runprops.get('thin_run') and thin_plots > 1:
+			print('Warning: You thinned your chain as you ran the data, and have a thin_plots parameter > 1, this could lead to an empty chain being read in.')
+		#burnin = burnin/thin_plots
+		#clusterburn = clusterburn/thin_plots     
+	else:
+		thin_plots = 1
+        
+        
 #	chain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)  
-	chain = sampler.get_chain(flat = False)  
+	chain = sampler.get_chain(flat = False, thin=thin_plots)  
 	fit = []
 
 	for i in fit_scale.columns:
@@ -135,7 +147,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Getting final values for the shape of the chain
 	#shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
-	shortchain = sampler.get_chain(flat = False)
+	shortchain = sampler.get_chain(flat = False, thin= thin_plots)
 	numparams = shortchain.shape[2]
 	numwalkers = shortchain.shape[1]
 	numgens = shortchain.shape[0]
@@ -144,6 +156,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	# Take chain "fit" values and make them into real values
 	for i in range(numparams):
 		chain[:,:,i] = chain[:,:,i]*fit[i]
+	print('First chain: ',chain.shape)
 
     
 	fitparam_chain = np.zeros((1,numwalkers,numgens))
@@ -230,14 +243,14 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	fitparam_chain = np.delete(fitparam_chain,0,0)
 	fitparam_chain = fitparam_chain.T   
-	fitparam_chain = fitparam_chain[int(burnin+clusterburn - 1) :: 1]
+	fitparam_chain = fitparam_chain[int(burnin/thin_plots+clusterburn/thin_plots) :: 1]
         
 	print("Un transforming done")
 
 	# Cutting up chain
 	full_chain = np.copy(chain)
-	chain = chain[int(burnin+clusterburn - 1) :: 1]
-	print(chain.shape)
+	chain = chain[int(burnin/thin_plots+clusterburn/thin_plots) :: 1]
+	print('Burnin chain:',chain.shape)
 
 	# Flattening the chain based on method in emcee
 	s = list(chain.shape[1:])
@@ -257,7 +270,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		names.append(i)
 
 	# Getting log likelihood posterior values for use throughout
-	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True)
+	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
 	#print('llhoods shape',llhoods.shape)    
 	ind = np.argmax(llhoods)
 	params = flatchain[ind,:].flatten()
@@ -414,6 +427,15 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
 #
 	# Satellite-Satellite mutual inclination (this only works right now for 2 moons/satellites)
+	if runprops.get('numobjects') == 2:
+		mass1_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
+		mass2_index = [n for n, l in enumerate(names) if l.startswith('mass_2')][0]
+
+		mass1_arr = flatchain[:,mass1_index]
+		mass2_arr = flatchain[:,mass2_index]
+		mass_tot = mass1_arr+mass2_arr
+		dnames = np.append(dnames,['mass_tot'])
+		dfchain = np.concatenate((dfchain, np.array([mass_tot]).T), axis = 1)        
 	if runprops.get("numobjects") > 2:
 		inc2_index = [n for n, l in enumerate(names) if l.startswith('inc_2')][0]
 		inc3_index = [n for n, l in enumerate(names) if l.startswith('inc_3')][0]
@@ -445,10 +467,14 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		dnames = np.append(dnames, ["mass_3/mass_2","period_3/period_2"])
 		#dfchain = np.concatenate((dfchain, np.array([mass1_3_rat]).T), axis = 1)
 		dfchain = np.concatenate((dfchain, np.array([mass2_3_rat]).T), axis = 1)
-		period3 = dfchain[:,int(periods[1])]
-		period2 = dfchain[:,int(periods[0])]       
-		period_ratio = np.array(period3)/np.array(period2)
-		dfchain = np.concatenate((dfchain, np.array([period_ratio]).T), axis = 1)
+		mass_tot = mass1_arr+mass2_arr+mass3_arr
+		dnames = np.append(dnames,['mass_tot'])
+		dfchain = np.concatenate((dfchain, np.array([mass_tot]).T), axis = 1)
+		print(dfchain.shape, periods)
+		#period3 = dfchain[:,int(periods[1])]
+		#period2 = dfchain[:,int(periods[0])]       
+		#period_ratio = np.array(period3)/np.array(period2)
+		#dfchain = np.concatenate((dfchain, np.array([period_ratio]).T), axis = 1)
 # Creating corner+derived plot
 	fig = corner.corner(dfchain, labels = dnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
@@ -462,7 +488,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 
 	# Creating corner_fitparams plot
-	fitflatchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = True)
+	fitflatchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
 
 	fig = corner.corner(fitflatchain, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
@@ -484,7 +510,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	from matplotlib.backends.backend_pdf import PdfPages
 
 	walkerpdf = PdfPages("walkers.pdf")
-	shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False)
+	shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
+	print('Shortchain:', shortchain.shape)    
 	#shortchain = sampler.get_chain(flat = False, thin=thin_plots)
 	numparams = shortchain.shape[2]
 	numwalkers = shortchain.shape[1]
@@ -507,15 +534,15 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	fullwalkerpdf = PdfPages("walkers_full.pdf")
 	backend = emcee.backends.HDFBackend('chain.h5')    
 
-	full_chain = sampler.get_chain(discard=0, flat = False)  
+	full_chain = sampler.get_chain(discard=0, flat = False, thin=thin_plots)  
 	fullgens = full_chain.shape[0]
-	#print(fullgens)
+	print(thin_plots, fullgens, full_chain.shape)
 	for i in range(numparams):
 		plt.figure(dpi = 50)
 		for j in range(numwalkers):
 			plt.plot(np.reshape(full_chain[0:fullgens,j,i], fullgens), alpha=0.2)
-		plt.axvline(x=burnin)
-		plt.axvline(x=(clusterburn+burnin))
+		plt.axvline(x=burnin/thin_plots)
+		plt.axvline(x=(clusterburn/thin_plots+burnin/thin_plots))
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
 		#plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
@@ -528,7 +555,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Figuring out the distributions of total_df_names
 	#old_fchain = sampler.get_chain(flat=True)
-	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True)
+	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
 	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean', 'best fit'], index = dnames)
 	j = 0
 	for i in range(len(dfchain[0])):
@@ -581,6 +608,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
 		plt.xlabel(dnames[i])
 		plt.ylabel("Log(L)")
+		print(ylimmin, ylimmax)        
 		plt.ylim(ylimmin, ylimmax)
 		plt.subplot(224)
 		llflat = llhoods.flatten()
@@ -646,9 +674,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.close("all")
 
 	# Residual plots
-	flatchain = sampler.get_chain(flat = True)
+	flatchain = sampler.get_chain(flat = True, thin=thin_plots)
 	nobjects = runprops.get('numobjects')
-	llhoods = sampler.get_log_prob(flat = True)
+	llhoods = sampler.get_log_prob(flat = True, thin=thin_plots)
 	ind = np.argmax(llhoods)
 	params = flatchain[ind,:].flatten()
     
@@ -672,8 +700,29 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				paramnames.append(keys)
 
 	#print(paraminput)
-	#print(paramnames)
-	names_dict = runprops.get("names_dict")    
+	print(fixed_df)
+	names_dict = runprops.get("names_dict")  
+	print('paraminput 1', paraminput)    
+	#paramdf,fit_params = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
+	best_likelihoods = pd.read_csv('best_likelihoods.csv')
+	best = best_likelihoods.iloc[-(1)]
+	print(best)   
+	best = best.drop(columns=['Likelihood','Degrees-of-freedom','P-val','Chi-sq','Reduced_chi_sq','Prior','Residuals_Lon_Obj_1','Residuals_Lat_Obj_1'])
+	if runprops.get('numobjects') == 3:    
+		best = best.drop(columns=['Residuals_Lon_Obj_2','Residuals_Lat_Obj_2'])
+	paraminput = []
+	for i in range(len(paramnames)):
+		best[paramnames[i]] = best[paramnames[i]]/fit[i]
+	for i in paramnames:
+		paraminput = np.append(paraminput,[best[i]])   
+	print('paraminput',paraminput)    
+	for i in fit_scale.columns:
+		name = i
+		if type(name) != str:
+			name = name[0]
+		if name in float_names:
+			val = fit_scale.loc[0, i]
+			fit.append(val)    
 	paramdf,fit_params = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
 
 	#paramdf = pd.DataFrame(paraminput).transpose()
@@ -709,8 +758,10 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.plot(xvals3, circle3, color = "black", alpha = 0.25)
 	plt.plot(xvals3,-circle3, color = "black", alpha = 0.25)
 	print(nobjects, np.array(residuals).shape, objectnames)  
-	print(residuals)  
+	print(residuals)
+	objectnames[1] = "S2"
 	for i in range(1, nobjects):
+	
 		print('plotting ', i, ' ',objectnames[i])
 		plt.scatter(residuals[2*(i-1)][:], residuals[2*(i-1)+1][:], c = colorcycle[i], label = objectnames[i], edgecolors = None)
 	plt.xlabel("Delta Longitude")
@@ -799,7 +850,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			sp_rate = paramdf['sprate_'+str(i+1)][0]
 			sp_obl = paramdf['spinc_'+str(i+1)][0]
 			sp_prc = paramdf['splan_'+str(i+1)][0]
-			sp_lon = paramdf['spaop_'+str(i+1)][0]
+			#sp_lon = paramdf['spaop_'+str(i+1)][0]
 			sys_df.loc['axis',names[i]] = axis
 			sys_df.loc['j2r2',names[i]] = j2        
 			sys_df.loc['c22r2',names[i]] = 0
@@ -877,6 +928,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		spinny_plot(s_df,names, runprops)
     
 	#Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
+	print(paramdf)    
 	DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
 
 	modelx = np.empty((nobjects-1, fakeobsdf.shape[0]))
@@ -899,7 +951,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	print(obsdf)
 	print(objectnames[1])
 	newnames = np.copy(objectnames)  
-	newnames[1] = "S2"    
+	#newnames[1] = "S2"    
 	for i in range(1,nobjects):
 		modelx[i-1,:] = DeltaLat_Model[i-1]
 		modely[i-1,:] = DeltaLong_Model[i-1]
@@ -912,19 +964,19 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.scatter(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = newnames[i], alpha = 0.5,s=5)
 		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko", ms = 2)
      
-	eris_circle = np.arctan(1163/14270012016)*180/np.pi*3600
-	jwst_circle = 0.2*0.53
+	#eris_circle = np.arctan(1163/14270012016)*180/np.pi*3600
+	#jwst_circle = 0.2*0.53
 
-	angle = np.linspace( 0 , 2 * np.pi , 150 ) 
-	x = eris_circle * np.cos( angle ) 
-	y = eris_circle * np.sin( angle ) 
-	plt.plot( x, y, color = colorcycle[4], label = "Eris actual size" ) 
-	x = jwst_circle * np.cos( angle ) 
-	y = jwst_circle * np.sin( angle ) 
-	plt.plot( x, y, color = colorcycle[5], label = "JWST PSF" ) 
-	x = 0.2 * np.cos( angle ) 
-	y = 0.2 * np.sin( angle ) 
-	plt.plot( x, y, color = colorcycle[6], label = "HST PSF" )
+	#angle = np.linspace( 0 , 2 * np.pi , 150 ) 
+	#x = eris_circle * np.cos( angle ) 
+	#y = eris_circle * np.sin( angle ) 
+	#plt.plot( x, y, color = colorcycle[4], label = "Eris actual size" ) 
+	#x = jwst_circle * np.cos( angle ) 
+	#y = jwst_circle * np.sin( angle ) 
+	#plt.plot( x, y, color = colorcycle[5], label = "JWST PSF" ) 
+	#x = 0.2 * np.cos( angle ) 
+	#y = 0.2 * np.sin( angle ) 
+	#plt.plot( x, y, color = colorcycle[6], label = "HST PSF" )
 
 	plt.axis('equal')
 	plt.xlabel("Delta Latitude")
@@ -1015,21 +1067,23 @@ if 'results' in os.getcwd():
     runprops = getData.outProps()
     objname = runprops.get("objectname")
 
-if not 'results' in os.getcwd():
-    os.chdir('../../../results/'+objname+'/')
-    results = max(glob.glob(os.path.join(os.getcwd(), '*/')), key=os.path.getmtime)
-    os.chdir(results)
+#if not 'results' in os.getcwd():
+#    objname = runprops.get('objectname')
+#    os.chdir('../../../results/'+objname+'/')
+#    results = max(glob.glob(os.path.join(os.getcwd(), '*/')), key=os.path.getmtime)
+#    os.chdir(results)
+    
 
-backend = emcee.backends.HDFBackend('chain.h5')
+    backend = emcee.backends.HDFBackend('chain.h5')
 
-fit_scale = pd.read_csv('fit_scale.csv',index_col=0)
-float_names = runprops.get('float_names')
-obsdf = pd.read_csv(objname+'_obs_df.csv',index_col=0)
-geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position.csv',index_col=0)
-fixed_df = pd.read_csv('fixed_df.csv',index_col=0)
-total_df_names = runprops.get('total_df_names')
-
-plots(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)
+    fit_scale = pd.read_csv('fit_scale.csv',index_col=0)
+    float_names = runprops.get('float_names')
+    obsdf = pd.read_csv(objname+'_obs_df.csv',index_col=0)
+    geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position.csv',index_col=0)
+    fixed_df = pd.read_csv('fixed_df.csv',index_col=0)
+    total_df_names = runprops.get('total_df_names')
+    
+    plots(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)
 
 
 '''   

@@ -170,6 +170,9 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPI
         body_arr[t] = np.concatenate([s.get_state(n,0) for n in range(0,N)]) # taken with respect to the primary
         #print('body_Arr[t]', body_arr[t])
         inertial_arr[t] = s.arr0
+        if np.isnan(s.arr0[0]):
+            raise Exception("SPINNY took too long")
+            
         
        #'''
         #BEGIN OF GENERATE CODE
@@ -178,7 +181,22 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPI
             spin_rate = np.linalg.norm(s.get_spin(n)) # magnitude of spin vector
             spin_arr[n,t] = ((2.0*np.pi)/spin_rate) * 3600.0 # spin period in hours
             quat_n = s.get_quaternion(n) # quaternion, (qr, qi, qj, qk)
-            euler_arr[n,t] = quat2euler(quat_n) # converts quaternion to euler angles, using ZXZ rotation sequence
+                       
+            if quat_n.all() == 0.0 or n == 0:
+                quat_n = [1.,0.,0.,0.]
+                hasspin_arr[n] = False
+            else:
+                quat_n = quat_n
+                hasspin_arr[n] = True
+            
+            qr = quat_n[0]
+            qi = quat_n[1]
+            qj = quat_n[2]
+            qk = quat_n[3]
+            
+            quat_arr[n,t] = np.array([qi,qj,qk,qr])
+            r_n = R.from_quat(quat_arr[n,t])
+            euler_arr[n,t] = r_n.as_euler('ZXZ')# quat2euler(quat_n) # converts quaternion to euler angles, using ZXZ rotation sequence
             
         # Use s.get_state(n,0) with respect to the primary to ignore the motion of the Sun in our vectors,
         # but we take s.arr0 in order to get orbital parameters which might not make any sense in a primaricentric frame

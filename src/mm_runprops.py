@@ -4,6 +4,7 @@ import sys
 import os
 import datetime
 import shutil
+import numpy as np
 
 class ReadJson(object):
     def __init__(self, filename):
@@ -81,6 +82,12 @@ if runprops.get("first_run") == True:
         os.makedirs(newpath)
     
     runprops['results_folder'] = newpath
+    
+    if isinstance(runprops.get('numpy_seed'), int):
+        np.random.seed(seed=runprops.get('numpy_seed'))
+    else:
+        np.random.seed(seed=12)
+        runprops['numpy_seed'] = 12
     
     #print('runs file: ', runprops.get('runs_file'))
     #print('results file: ', runprops.get('results_folder'))
