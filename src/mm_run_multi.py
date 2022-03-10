@@ -157,7 +157,7 @@ if __name__ == '__main__':
             
             the_names = []
             for i in total_df_names:
-                the_names.append(i[0])
+                the_names.append(i)
             '''    
             print(runprops.get('results_folder'))
             if runprops.get('updatebestfitfile'):
