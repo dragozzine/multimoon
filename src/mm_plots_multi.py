@@ -536,13 +536,16 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	full_chain = sampler.get_chain(discard=0, flat = False, thin=thin_plots)  
 	fullgens = full_chain.shape[0]
-	print(thin_plots, fullgens, full_chain.shape)
+	#print(thin_plots, fullgens, full_chain.shape)
+	runnedthin = 1    
+	if runprops.get('thin_run'):
+		runnedthin = runprops.get('nthinning')        
 	for i in range(numparams):
 		plt.figure(dpi = 50)
 		for j in range(numwalkers):
 			plt.plot(np.reshape(full_chain[0:fullgens,j,i], fullgens), alpha=0.2)
-		plt.axvline(x=burnin/thin_plots)
-		plt.axvline(x=(clusterburn/thin_plots+burnin/thin_plots))
+		plt.axvline(x=int(burnin/thin_plots/runnedthin))
+		plt.axvline(x=int(clusterburn/thin_plots/runnedthin+burnin/thin_plots/runnedthin))
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
 		#plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
