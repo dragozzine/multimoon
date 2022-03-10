@@ -76,7 +76,7 @@ with MPIPool() as pool:
     plt.imshow(np.flip(sims,axis=0), cmap='binary',extent=[1.0,3.0,19,21])
     plt.xlabel('Kilometers (in 10,000)')
     plt.ylabel('Mass (1.6e_) kg')
-    plt.savefig('sims_binary_chart.png')
+    plt.savefig('sims_binary_chart.pdf')
     
     plt.imshow(np.flip(color_map,axis=0), extent=[1.0,3.0,19,21], norm=LogNorm())
     plt.xlabel('Kilometers (in 10,000)')
@@ -85,7 +85,7 @@ with MPIPool() as pool:
     plt.colorbar()
     plt.show()
 
-    plt.savefig('delta_a_color.png')
+    plt.savefig('delta_a_color.pdf')
 
     np.savetxt('sims_long.txt',sims)
     np.savetxt('delta_a_arr.txt', color_map)
