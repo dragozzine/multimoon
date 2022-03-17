@@ -711,6 +711,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	best_likelihoods = pd.read_csv('best_likelihoods.csv')
 	best = best_likelihoods.iloc[-(1)]
 	print(best)   
+	#residuals = [np.tolist(best['Residuals    
 	best = best.drop(columns=['Likelihood','Degrees-of-freedom','P-val','Chi-sq','Reduced_chi_sq','Prior','Residuals_Lon_Obj_1','Residuals_Lat_Obj_1'])
 	if runprops.get('numobjects') == 3:    
 		best = best.drop(columns=['Residuals_Lon_Obj_2','Residuals_Lat_Obj_2'])
@@ -745,13 +746,13 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	
 	#print(paramdf)
 #Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
-	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
+	#chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
 	best_likelihoods = pd.read_csv('best_likelihoods.csv')
-	#residuals = []
+	residuals = []
 	#print(best_likelihoods, best_likelihoods.iloc[-(i+1)])    
-	#for i in range(runprops.get('numobjects')):    
-	#	residuals.insert(0,np.array(best_likelihoods.iloc[-(i+1)][-1]))
-	#	residuals.insert(0,np.array(best_likelihoods.iloc[-(i+2)][-1]))
+	for i in range(runprops.get('numobjects')):    
+		residuals.insert(0,np.array(best_likelihoods.iloc[-(i+1)][-1]))
+		residuals.insert(0,np.array(best_likelihoods.iloc[-(i+2)][-1]))
 	print(residuals)        
 	#print(chisquare_total, residuals)
 

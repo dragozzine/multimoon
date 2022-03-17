@@ -123,13 +123,8 @@ def mm_priors(priors, params, runprops):
     # Making sure that c22 < 0.5*j2
     dynamicstoincludeflags = runprops.get("dynamicstoincludeflags")
     for i in range(runprops.get("numobjects")):
+                
         if dynamicstoincludeflags[i] == "2":
-            
-            mutualinc = np.arccos( np.cos(params["spinc_1"])*np.cos(params["inc_"+str(i+1)]) + np.sin(params["spinc_1"])*np.sin(params["inc_"+str(i+1)])*np.cos(params["splan_1"] - params["lan_"+str(i+1)]) )
-            mutualinc = np.rad2deg(mutualinc)
-            
-            if mutualinc > 90:
-                return -np.inf
             
             if (params["j2r2_" + str(i+1)].values[0]*0.5 < params["c22r2_" + str(i+1)].values[0]):
                 #print('j2r2_',str(i+1),'is less than double the c2r2_',str(i+1),'value')
@@ -142,6 +137,23 @@ def mm_priors(priors, params, runprops):
     #hill_sphere = runprops.get("mhill_sphere_reject")
     #print("min_periapse")
     for i in range(1,runprops.get("numobjects")):
+        if dynamicstoincludeflags[i] == "1":
+            
+            mutualinc = np.arccos( np.cos(params["spinc_1"])*np.cos(params["inc_"+str(i+1)]) + np.sin(params["spinc_1"])*np.sin(params["inc_"+str(i+1)])*np.cos(params["splan_1"] - params["lan_"+str(i+1)]) )
+            mutualinc = np.rad2deg(mutualinc)
+            
+            if mutualinc > 90:
+                return -np.inf
+        
+        if dynamicstoincludeflags[i] == "2":
+            
+            mutualinc = np.arccos( np.cos(params["spinc_1"])*np.cos(params["inc_"+str(i+1)]) + np.sin(params["spinc_1"])*np.sin(params["inc_"+str(i+1)])*np.cos(params["splan_1"] - params["lan_"+str(i+1)]) )
+            mutualinc = np.rad2deg(mutualinc)
+            
+            if mutualinc > 90:
+                return -np.inf
+        
+        
         if i == 1 and (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0]) < min_periapse):
             #print('i=1')
             return -np.inf
