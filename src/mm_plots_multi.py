@@ -133,7 +133,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		thin_plots = 1
         
         
-#	chain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)  
+#	chain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots) 
+	print(os.getcwd(), '')
 	chain = sampler.get_chain(flat = False, thin=thin_plots)  
 	fit = []
 
@@ -710,15 +711,17 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	print(paramdf)    
 	best_likelihoods = pd.read_csv('best_likelihoods.csv')
 	best = best_likelihoods.iloc[-(1)]
-	print(best)   
+	#print(best)   
 	#residuals = [np.tolist(best['Residuals    
 	best = best.drop(columns=['Likelihood','Degrees-of-freedom','P-val','Chi-sq','Reduced_chi_sq','Prior','Residuals_Lon_Obj_1','Residuals_Lat_Obj_1'])
 	if runprops.get('numobjects') == 3:    
 		best = best.drop(columns=['Residuals_Lon_Obj_2','Residuals_Lat_Obj_2'])
 	paraminput = []
 	for i in paramdf.columns:
-		if 'name' not in i:
-			print(i, paramdf[i], best[i])
+		if 'name' not in i and '0' not in i:
+			print(i)
+			print(paramdf[i])
+			print(best[i])
 			paramdf[i] = best[i]
 		#paramdf[i] = best[i]
 		#print(paramnames[i])
@@ -746,14 +749,15 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	
 	#print(paramdf)
 #Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
-	#chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
-	best_likelihoods = pd.read_csv('best_likelihoods.csv')
-	residuals = []
+	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
+	#best_likelihoods = pd.read_csv('best_likelihoods.csv')
+	#residuals = []
 	#print(best_likelihoods, best_likelihoods.iloc[-(i+1)])    
-	for i in range(runprops.get('numobjects')):    
-		residuals.insert(0,np.array(best_likelihoods.iloc[-(i+1)][-1]))
-		residuals.insert(0,np.array(best_likelihoods.iloc[-(i+2)][-1]))
-	print(residuals)        
+	#for i in range(runprops.get('numobjects')-1):    
+		#residuals.insert(0,np.array(best_likelihoods.iloc[-(1)][-(2*i+1)]))
+		#residuals.insert(0,np.array(best_likelihoods.iloc[-(1)][-(2*i+2)]))
+	#residuals = np.array(residuals)        
+	print("Residuals: ",residuals)        
 	#print(chisquare_total, residuals)
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
@@ -773,7 +777,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.plot(xvals3, circle3, color = "black", alpha = 0.25)
 	plt.plot(xvals3,-circle3, color = "black", alpha = 0.25)
 	print(nobjects, np.array(residuals).shape, objectnames)  
-	print(residuals)
+	#print(residuals)
 	objectnames[1] = "S2"
 	for i in range(1, nobjects):
 	
@@ -835,12 +839,18 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		sys_df.loc['sp_obl','Sun'] = sp_obl
 		sys_df.loc['sp_prc','Sun'] = sp_prc
 		sys_df.loc['sp_lon','Sun'] = sp_lon          
+		#sma = paramdf['sma_0'][0]
+		#ecc = paramdf['ecc_0'][0]
+		#inc = paramdf['inc_0'][0]
+		#lan = paramdf['lan_0'][0]
+		#aop = paramdf['aop_0'][0]
+		#mea = paramdf['mea_0'][0]          
 		sma = paramdf['sma_0'][0]
-		ecc = paramdf['ecc_0'][0]
-		inc = paramdf['inc_0'][0]
-		lan = paramdf['lan_0'][0]
-		aop = paramdf['aop_0'][0]
-		mea = paramdf['mea_0'][0]
+		ecc = 0
+		inc = 0
+		lan = 0
+		aop = 0
+		mea = 0
 		sys_df.loc['sma','Sun'] = sma
 		sys_df.loc['ecc','Sun'] = ecc
 		sys_df.loc['inc','Sun'] = inc

@@ -256,8 +256,9 @@ if __name__ == '__main__':
             with open(recent_props, 'w') as file:
                 file.write(json.dumps(runprops, indent = 4))
     
-            
+            os.chdir(runprops.get("results_folder"))
             import mm_plots_multi
+            
             mm_plots_multi.plots(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)
         
                 
