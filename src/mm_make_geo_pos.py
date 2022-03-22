@@ -27,7 +27,10 @@ def mm_make_geo_pos(objname, times, runprops = None, synthetic = False):
 
     #filename1 = runprops.get('runs_file')+"/geocentric_" + objname + "_position.csv"
     #geocentricFile.to_csv(filename1)
+    
     fileName2 = runprops.get('runs_file')+'/geocentric_'+objname+'_position.csv'
+    
+    print('Producing ', fileName2)
     outFile.to_csv(fileName2)
     
     #endtime = time.time()
