@@ -778,13 +778,13 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.plot(xvals3,-circle3, color = "black", alpha = 0.25)
 	print(nobjects, np.array(residuals).shape, objectnames)  
 	#print(residuals)
-	objectnames[1] = "S2"
+	#objectnames[1] = "S2"
 	for i in range(1, nobjects):
 	
 		print('plotting ', i, ' ',objectnames[i])
 		plt.scatter(residuals[2*(i-1)][:], residuals[2*(i-1)+1][:], c = colorcycle[i], label = objectnames[i], edgecolors = None)
-	plt.xlabel("Delta Longitude")
-	plt.ylabel("Delta Latitude")
+	plt.xlabel("Standard Deviation: Longitude")
+	plt.ylabel("Standard Deviation: Latitude")
 	plt.axis("equal")
 	plt.legend()
 	plt.savefig("best_residuals.pdf", format = "pdf")
@@ -985,7 +985,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		xe[i-1,:] = obsdf["DeltaLat_" + objectnames[i] + "_err"].values
 		y[i-1,:] = obsdf["DeltaLong_" + objectnames[i]].values
 		ye[i-1,:] = obsdf["DeltaLong_" + objectnames[i] + "_err"].values
-
+		
+		print(modelx[i-1], x[i-1])
+		print(modely[i-1], y[i-1])        
 		plt.scatter(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = newnames[i], alpha = 0.5,s=5)
 		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko", ms = 2)
      
