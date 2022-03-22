@@ -136,6 +136,12 @@ def mm_priors(priors, params, runprops):
     min_periapse = runprops.get("min_periapse")
     #hill_sphere = runprops.get("mhill_sphere_reject")
     #print("min_periapse")
+    
+    for i in range(2,runprops.get('numobjects')):
+        if params['sma_'+str(i)] > params['sma_'+str(i+1)]:
+            print('Objects should be input from closest to furthest object in orbit. We detect that your satellites are not input in this order right now in your initial guess folder. Please change this before running again.')
+            sys.exit()
+    
     for i in range(1,runprops.get("numobjects")):
         if dynamicstoincludeflags[i] == "1":
             
