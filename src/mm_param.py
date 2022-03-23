@@ -96,9 +96,11 @@ def from_param_df_to_fit_array(dataframe, runprops):
             if fix_float_dict.get('inc_'+str(i+2)) == 1 and fix_float_dict.get('lan_'+str(i+2)) == 1:
                 inc = np.array(dataframe[['inc_'+str(i+2)]])*np.pi/180
                 lan = np.array(dataframe[['lan_'+str(i+2)]])*np.pi/180
-                 
-                dataframe[['inc_'+str(i+2)]] = np.tan(inc/2)*np.sin(lan)
-                dataframe[['lan_'+str(i+2)]] = np.tan(inc/2)*np.cos(lan)
+                
+                a = np.cos(inc/2)*np.sin(lan)
+                b = np.cos(inc/2)*np.cos(lan)
+                dataframe[['inc_'+str(i+2)]] = a
+                dataframe[['lan_'+str(i+2)]] = b
         
         for i in range(runprops.get('numobjects')):
             if fix_float_dict.get('spinc_'+str(i+1)) == 1 and fix_float_dict.get('splan_'+str(i+1)) == 1:
@@ -110,17 +112,7 @@ def from_param_df_to_fit_array(dataframe, runprops):
                 b = np.cos(spinc/2)*np.cos(splan)
                 dataframe[['spinc_'+str(i+1)]] = a
                 dataframe[['splan_'+str(i+1)]] = b
-                #print('a ', a)
-                #print('b ', b)
                 
-                #if (a[:]>np.sin(splan[:])).any():
-                #    print("There is a greater a than splan")
-                #    print("spinc:", a)
-                #    print("splan:", splan)
-                
-                #dataframe[['spinc_'+str(i+1)]] = np.tan(spinc/2)*np.sin(splan)
-                #dataframe[['splan_'+str(i+1)]] = np.tan(spinc/2)*np.cos(splan)
-    
     num = 0
     fit_scale = dataframe.iloc[0]
     #print(fit_scale)
@@ -316,6 +308,29 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
             
             if undo_inc_lan[i]:
             
+                a = np.array(param_df['inc_'+str(i+1)])
+                b = np.array(param_df['lan_'+str(i+1)])
+                
+                lan = np.arctan2(a,b)*180/np.pi
+                #splan = np.arctan(a/b)*180/np.pi
+                if lan < 0:
+                    lan = lan%360
+                
+                c = np.sin(lan*np.pi/180)
+                
+                if a/c > 1 or a/c < -1:
+                    param_df['inc_'+str(i+1)] = -np.inf
+                    param_df['lan_'+str(i+1)] = -np.inf
+
+                else:
+                    inc = np.arccos(a/c)*2*180/np.pi
+                
+                    if inc < 0:
+                        inc = inc%180
+                    
+                    param_df['inc_'+str(i+1)] = inc
+                    param_df['lan_'+str(i+1)] = lan
+                '''
                 a = np.array(param_df['inc_'+str(i+2)])
                 b = np.array(param_df['lan_'+str(i+2)])
                 
@@ -332,7 +347,7 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
 
                 param_df['inc_'+str(i+2)] = inc
                 param_df['lan_'+str(i+2)] = lan
-                           
+                '''           
             if undo_lambda[i]:
                 fit_params['lambda_'+str(i+2)] = np.array(param_df['mea_'+str(i+2)])
                 mea = np.array(param_df['mea_'+str(i+2)])-np.array(param_df['aop_'+str(i+2)])
@@ -366,18 +381,11 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 c = np.sin(splan*np.pi/180)
                 
                 if a/c > 1 or a/c < -1:
-                    #print('a/c is', a/c, ', causing the error')
-                    #print('a ',a)
-                    #print('b ',b)
-                    #print('c ',c)
-                    #print('splan ', splan)
                     param_df['spinc_'+str(i+1)] = -np.inf
                     param_df['splan_'+str(i+1)] = -np.inf
 
                 else:
-                    #print(np.arccos(a/c))
                     spinc = np.arccos(a/c)*2*180/np.pi
-                    #spinc = np.arctan2(a,c)*2*180/np.pi
                 
                     if spinc < 0:
                         spinc = spinc%180
