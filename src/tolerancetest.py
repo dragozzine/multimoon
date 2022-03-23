@@ -15,8 +15,8 @@
 #	chi-squared below 1, while maintaining the shortest possible run time. 
 #
 
-objectname = "2006 BR284"
-runtype = "20"
+objectname = "2002 PD149"
+runtype = "10"
 
 # Code starts
 class ReadJson(object):

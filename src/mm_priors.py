@@ -138,8 +138,9 @@ def mm_priors(priors, params, runprops):
     #print("min_periapse")
     
     for i in range(2,runprops.get('numobjects')):
-        if params['sma_'+str(i)] > params['sma_'+str(i+1)]:
+        if params['sma_'+str(i)].values > params['sma_'+str(i+1)].values:
             print('Objects should be input from closest to furthest object in orbit. We detect that your satellites are not input in this order right now in your initial guess folder. Please change this before running again.')
+            import sys
             sys.exit()
     
     for i in range(1,runprops.get("numobjects")):

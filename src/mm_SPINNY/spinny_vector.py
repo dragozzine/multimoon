@@ -176,12 +176,12 @@ def build_spinny_multimoon(sys_df, runprops):
                 ax_n = 1.0
             else:
                 axes = runprops.get('axes_size')
-                ax_n = axes['obj_1']
+                ax_n = axes['obj_'+str(n)]
                 
                 #ax_n = runprops.get("c_axis")
                 if (ax_n == None):
-                    print("\n\n\033[1;37;41mRunprops has been updated to require a value for the primary axis. Please include this before proceeding. Aborting run.\033[0m\n\n")
-                    
+                    print("\n\n\033[1;37;41mRunprops has been updated to require a value for the primary axis. Please include this before proceeding. please include an axis in runprops for object ", str(n)," to a value. Aborting run.\033[0m\n\n")
+                    #ax_n = 1
                     sys.exit()
                 
         # set physical properties array
