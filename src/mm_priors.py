@@ -65,7 +65,7 @@ def mm_priors(priors, params, runprops):
                     numNaNs += 1
                 elif '_'+str(j+1) in i:
                     allProbs.append(0)
-                    #print(i, " is log 0", " because i is ", params[i][0])
+                    print(i, " is log 0", " because i is ", params[i][0])
             
             #Log-Uniform Distribution Shape
             elif theInt == 1:
@@ -138,20 +138,12 @@ def mm_priors(priors, params, runprops):
     #print("min_periapse")
     
     for i in range(2,runprops.get('numobjects')):
-        if params['sma_'+str(i)] > params['sma_'+str(i+1)]:
+        if params['sma_'+str(i)].values > params['sma_'+str(i+1)].values:
             print('Objects should be input from closest to furthest object in orbit. We detect that your satellites are not input in this order right now in your initial guess folder. Please change this before running again.')
             sys.exit()
     
     for i in range(1,runprops.get("numobjects")):
-        if dynamicstoincludeflags[i] == "1":
-            
-            mutualinc = np.arccos( np.cos(params["spinc_1"])*np.cos(params["inc_"+str(i+1)]) + np.sin(params["spinc_1"])*np.sin(params["inc_"+str(i+1)])*np.cos(params["splan_1"] - params["lan_"+str(i+1)]) )
-            mutualinc = np.rad2deg(mutualinc)
-            
-            if mutualinc > 90:
-                return -np.inf
-        
-        if dynamicstoincludeflags[i] == "2":
+        if dynamicstoincludeflags[i] == "1" or dynamicstoincludeflags[i] == "2":
             
             mutualinc = np.arccos( np.cos(params["spinc_1"])*np.cos(params["inc_"+str(i+1)]) + np.sin(params["spinc_1"])*np.sin(params["inc_"+str(i+1)])*np.cos(params["splan_1"] - params["lan_"+str(i+1)]) )
             mutualinc = np.rad2deg(mutualinc)

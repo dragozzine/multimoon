@@ -446,29 +446,58 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		dnames = np.append(dnames,['mass_tot'])
 		dfchain = np.concatenate((dfchain, np.array([mass_tot]).T), axis = 1)        
 	if runprops.get("numobjects") > 2:
-		inc2_index = [n for n, l in enumerate(names) if l.startswith('inc_2')][0]
-		inc3_index = [n for n, l in enumerate(names) if l.startswith('inc_3')][0]
-		lan2_index = [n for n, l in enumerate(names) if l.startswith('lan_2')][0]
-		lan3_index = [n for n, l in enumerate(names) if l.startswith('lan_3')][0]
+		if 'inc_2' in float_names:
+			inc2_index = [n for n, l in enumerate(names) if l.startswith('inc_2')][0]
+			inc2_arr = np.deg2rad(flatchain[:,inc2_index])
+		else:
+			inc2_arr = fit_scale['inc_2'].values*np.pi/180            
+		if 'inc_3' in float_names:            
+			inc3_index = [n for n, l in enumerate(names) if l.startswith('inc_3')][0]
+			inc3_arr = np.deg2rad(flatchain[:,inc3_index])
+		else:
+			inc3_arr = fit_scale['inc_3'].values*np.pi/180  
+		if 'lan_2' in float_names:         
+			lan2_index = [n for n, l in enumerate(names) if l.startswith('lan_2')][0]
+			lan2_arr = np.deg2rad(flatchain[:,lan2_index])
+		else:
+			lan2_arr = fit_scale['lan_2'].values*np.pi/180  
+		if 'lan_3' in float_names:         
+			lan3_index = [n for n, l in enumerate(names) if l.startswith('lan_3')][0]
+			lan3_arr = np.deg2rad(flatchain[:,lan3_index])
+		else:
+			lan2_arr = fit_scale['lan_2'].values*np.pi/180  
 
-		inc2_arr = np.deg2rad(flatchain[:,inc2_index])
-		lan2_arr = np.deg2rad(flatchain[:,lan2_index])
-		inc3_arr = np.deg2rad(flatchain[:,inc3_index])
-		lan3_arr = np.deg2rad(flatchain[:,lan3_index])
 
 		mutualinc = np.arccos( np.cos(inc2_arr)*np.cos(inc3_arr) + np.sin(inc2_arr)*np.sin(inc3_arr)*np.cos(lan2_arr - lan3_arr) )
 		mutualinc = np.rad2deg(mutualinc)
 
 		dnames = np.append(dnames, ["sat-sat inc"])
 		dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
+        
+        
+		if 'mass_1' in float_names:         
+			mass1_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
+			mass1_arr = flatchain[:,mass1_index]
+		else:
+			mass1_arr = fit_scale['mass_1'].values*np.pi/180  
+		if 'mass_2' in float_names:         
+			mass2_index= [n for n, l in enumerate(names) if l.startswith('mass_2')][0]
+			mass2_arr = flatchain[:,mass2_index]
+		else:
+			lan2_arr = fit_scale['mass_3'].values*np.pi/180  
+		if 'mass_3' in float_names:         
+			mass3_index = [n for n, l in enumerate(names) if l.startswith('mass_3')][0]
+			mass3_arr = flatchain[:,mass3_index]
+		else:
+			mass3_arr = fit_scale['mass_3'].values*np.pi/180  
+            
+		#mass1_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
+		#mass2_index = [n for n, l in enumerate(names) if l.startswith('mass_2')][0]
+		#mass3_index = [n for n, l in enumerate(names) if l.startswith('mass_3')][0]
 
-		mass1_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
-		mass2_index = [n for n, l in enumerate(names) if l.startswith('mass_2')][0]
-		mass3_index = [n for n, l in enumerate(names) if l.startswith('mass_3')][0]
-
-		mass1_arr = flatchain[:,mass1_index]
-		mass2_arr = flatchain[:,mass2_index]
-		mass3_arr = flatchain[:,mass3_index]
+		#mass1_arr = flatchain[:,mass1_index]
+		#mass2_arr = flatchain[:,mass2_index]
+		#mass3_arr = flatchain[:,mass3_index]
 
 		mass1_3_rat = mass3_arr/mass1_arr
 		mass2_3_rat = mass3_arr/mass2_arr
