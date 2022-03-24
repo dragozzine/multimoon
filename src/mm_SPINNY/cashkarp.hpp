@@ -479,7 +479,7 @@ void cashkarp_class<T>::evolve(
 
     // Step through until done
     //double nreset = 0;
-    double minh = 1.0e-5;
+    double minh = 1.0e-4;
     while(t!=t_end) {
 
         // Reduce step size if necessary
