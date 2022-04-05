@@ -778,7 +778,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.plot(xvals3,-circle3, color = "black", alpha = 0.25)
 	print(nobjects, np.array(residuals).shape, objectnames)  
 	#print(residuals)
-	#objectnames[1] = "S2"
+	objectnames[1] = "S2"
 	for i in range(1, nobjects):
 	
 		print('plotting ', i, ' ',objectnames[i])

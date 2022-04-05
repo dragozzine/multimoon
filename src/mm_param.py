@@ -26,6 +26,7 @@ def from_param_df_to_fit_array(dataframe, runprops):
                     total_df_names = np.append(total_df_names, 'sprate_'+str(j+1))
         else:
             total_df_names = np.append(total_df_names, i[0])
+    #print('Total df names at creation: ', total_df_names)
     '''
     print(total_df_names)
     for i in range(len(total_df_names)):
@@ -249,12 +250,19 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
         #print(fixed_df)
         for i in total_df_names:
             name = i
-            if name in fixed_df:
-                value = fixed_df[name].values.tolist()
-                param_df[name] = value
-            elif name in float_df:
+            #print(name, i[0])
+            #print(float_df.columns)
+            #print(fixed_df.columns)
+            if name in float_df.columns:
                 value = float_df[name].values.tolist()
                 param_df[name] = value
+            elif name in fixed_df.columns:
+                value = fixed_df[name].values.tolist()
+                param_df[name] = value
+            else:
+                print('Please check line 252 in mm_params. You are likely pulling only a letter nd not an enitre string.')
+                sys.exit()   
+            
         
         names_df = pd.DataFrame.from_dict(names_dict,orient='index')
         names_df = names_df.transpose()
@@ -277,7 +285,7 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
             #print('fit_Scale',fit_scale)
             #print('fit_Scale[col]',fit_scale.get(col))
             
-            param_df[param_col] = param_df[param_col]*fit_scale.get(col)
+            param_df[param_col] = param_df[param_col]*fit_scale.get(col).values
             
     param_df = param_df.iloc[[0]]
 

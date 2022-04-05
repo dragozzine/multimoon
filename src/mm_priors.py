@@ -145,8 +145,12 @@ def mm_priors(priors, params, runprops):
     
     for i in range(1,runprops.get("numobjects")):
         if dynamicstoincludeflags[0] == "1" or dynamicstoincludeflags[0] == "2":
+            spinc_1_n = params["spinc_1"]/180*np.pi
+            splan_1_n = params["splan_1"]/180*np.pi
+            inc_i_n = params["inc_"+str(i+1)]/180*np.pi
+            lan_i_n = params["lan_"+str(i+1)]/180*np.pi
             
-            mutualinc = np.arccos( np.cos(params["spinc_1"])*np.cos(params["inc_"+str(i+1)]) + np.sin(params["spinc_1"])*np.sin(params["inc_"+str(i+1)])*np.cos(params["splan_1"] - params["lan_"+str(i+1)]) )
+            mutualinc = np.arccos( np.cos(spinc_1_n)*np.cos(inc_i_n) + np.sin(spinc_1_n)*np.sin(inc_i_n)*np.cos(splan_1_n - lan_i_n) )
             mutualinc = np.rad2deg(mutualinc).values
             #print('mutualinc ', mutualinc)
             if mutualinc > 90:

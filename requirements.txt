@@ -1,6 +1,6 @@
 aiohttp==3.6.2
 argon2-cffi==20.1.0
-astropy==5.0
+astropy
 astroquery==0.4.1
 async-timeout==3.0.1
 attrs==19.3.0
@@ -35,7 +35,7 @@ jupyter-client==6.1.6
 jupyter-console==6.1.0
 jupyter-core==4.6.3
 jupyter-server-proxy==1.5.0
-keyring==21.3.0
+keyring
 kiwisolver==1.2.0
 lark-parser==0.7.8
 MarkupSafe==1.1.1
