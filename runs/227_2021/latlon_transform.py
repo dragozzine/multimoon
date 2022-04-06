@@ -56,7 +56,8 @@ def convert_to_primary_centric(paramsDF, objectNames, numobjects, sample_num):
     #primary = Horizons(id=objectNames[0],location=None,epochs=dateList)
     
     updatedDF['time'] = paramsDF['time']-primary.vectors(aberrations = 'astrometric')['lighttime']
-
+    #updatedDF['time'] = paramsDF['time']
+    
     #Pull all data from csv file
     #RA_Prim = np.array(paramsDF['RA-Primary'])
     #DEC_Prim = np.array(paramsDF['DEC-Primary'])
