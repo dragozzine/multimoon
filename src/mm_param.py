@@ -250,7 +250,7 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
         #print(fixed_df)
         for i in total_df_names:
             name = i
-            #print(name, i[0])
+            #print(name, i)
             #print(float_df.columns)
             #print(fixed_df.columns)
             if name in float_df.columns:

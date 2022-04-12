@@ -144,6 +144,7 @@ def mm_priors(priors, params, runprops):
             sys.exit()
     
     for i in range(1,runprops.get("numobjects")):
+        #UQ18 / Altjira
         if dynamicstoincludeflags[0] == "1" or dynamicstoincludeflags[0] == "2":
             spinc_1_n = params["spinc_1"]/180*np.pi
             splan_1_n = params["splan_1"]/180*np.pi
@@ -154,11 +155,12 @@ def mm_priors(priors, params, runprops):
             mutualinc = np.rad2deg(mutualinc).values
             #print('mutualinc ', mutualinc)
             if mutualinc > 90:
+                print('mutualinc > 90')
                 return -np.inf
         
         
         if i == 1 and (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0]) < min_periapse):
-            #print('i=1')
+            #UQ18 / Altjira
             return -np.inf
         elif i != 1 and (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0])-params["sma_" + str(i)].values[0]*(1+params["ecc_" + str(i)].values[0]) < min_periapse):
             #print('i>1')
