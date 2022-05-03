@@ -14,7 +14,7 @@ sys.path.insert(1,"..")
 
 import pandas as pd
 
-    
+#This function can be called to produce an animated orbit of your final posterior over the time period of the orbit.  
 def spinny_plot(plot_df, names, runprops):    
     
     cols = plot_df.columns.values
