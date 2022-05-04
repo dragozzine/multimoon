@@ -26,9 +26,7 @@ class ReadJson(object):
 def sample_deltas(i, draws, names, fixed_df, total_df_names, fit_scale, names_dict, runprops, nobj, fakeobsdf, geo_obj_pos, dlong, dlat):
 		paramdf = mm_param.from_fit_array_to_param_df(draws[i,:].flatten(), names, fixed_df, total_df_names, fit_scale, names_dict, runprops)[0]
        
-		#print(paramdf.iloc[:,:-nobj].values)		
 		drawparams = paramdf.iloc[:,:-nobj].values
-		#print(paramdf)
 		DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
 		length = len(DeltaLong_Model)        
 		dlong = np.zeros((runprops.get('numobjects')-1, length))
@@ -36,8 +34,6 @@ def sample_deltas(i, draws, names, fixed_df, total_df_names, fit_scale, names_di
 		for j in range(1,runprops.get('numobjects')):
 			dlong[j-1,:] = DeltaLong_Model[j-1]
 			dlat[j-1,:] = DeltaLat_Model[j-1]
-		#print("dlong",dlong)
-		#print("dlat",dlat)
 		return dlong, dlat, drawparams        
 
 def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names, pool):
@@ -66,7 +62,7 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	llhoods = llhoods[drawsindex]
 
 	# Get time arrays
-	converttimes = ["2021-10-01","2022-09-30"]
+	converttimes = ["2023-10-01","2024-09-30"]
 	t = Time(converttimes)
 	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
 
@@ -108,19 +104,6 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 		dlat[i] = data[i][1]
 		drawparams[:,i] = data[i][2]
         
-	'''# Looping to get model values
-	for i in tqdm(range(draws.shape[0])):
-		paramdf = mm_param.from_fit_array_to_param_df(draws[i,:].flatten(), names, fixed_df, total_df_names, fit_scale, names_dict, runprops)[0]
-		#print(paramdf.iloc[:,:-nobj].values)		
-		drawparams[:,i] = paramdf.iloc[:,:-nobj].values
-		#print(paramdf)
-		DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
-		for j in range(1,runprops.get('numobjects')):
-			dlong[i,j-1,:] = DeltaLong_Model[j-1]
-			dlat[i,j-1,:] = DeltaLat_Model[j-1]
-		#print("dlong",dlong)
-		#print("dlat",dlat)
-	'''
 	# Now collapse the arrays with a std call
 	dlongstd = np.std(dlong,axis = 0)
 	dlatstd = np.std(dlat,axis = 0)
@@ -156,28 +139,13 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 		g_gains_ind[i-1,:] = (-infogain[i-1,:]).argsort()[:10]        
 
 
-		#for j in range(times.size):
-		#	bitarr = (dlong[:,i-1,j] < (dlongmean[i-1,j] + typicalerror[0,i-1])) & (dlong[:,i-1,j] > (dlongmean[i-1,j] - typicalerror[0,i-1])) & (dlat[:,i-1,j] < (dlatmean[i-1,j] + typicalerror[1,i-1])) & (dlat[:,i-1,j] > (dlatmean[i-1,j] - typicalerror[1,i-1]))
-		#	#print(bitarr.sum()/draws.shape[0])
-		#	infogain2[i-1,j] = bitarr.sum()/draws.shape[0]/(2*typicalerror[0,i-1])/(2*typicalerror[1,i-1])
- 
-    
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
 	fig = plt.figure(figsize = (12.8,4.8))
 	t = Time(times, format = "jd")
-	#print('times', times)
-	#print('t.iso', t.iso)
-	#print('t', t)
 	mat_times = matplotlib.dates.datestr2num(t.iso, default=None)
-	#print('mat_times', mat_times)    
 	for i in range(1,runprops.get('numobjects')):
 		plt.plot_date(mat_times, infogain[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 0.5)
 		plt.title("Dates of greatest gain: JD "+str(g_gain[:,0]))        
-		#plt.plot_date(t.plot_date, infogain2[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 0.5)
-
-
-	#if runprops.get('numobjects') > 2:
-	#	plt.plot(t.plot_date, np.sum(infogain, axis = 0).flatten()/2, color = "black", label = "Combined gain")
 
 	plt.xlabel("Time")
 	plt.ylabel("Info gained")
@@ -190,8 +158,10 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	print('dlatmean',dlatmean[0,inds])
 	gains = pd.DataFrame(columns=['times','dates','Hercules_Delta_Lat','Hercules_Delta_Long','Hercules_angle_tot','Dysnomia_Delta_Lat','Dysnomia_Delta_Long','Dysnomia_angle_tot','infogain_val'])
 	gains['times'] = times[inds]
-	#gains['dates'] = times[inds]
 	gains['dates'] = t.iso[inds]
+
+	# DS TODO: remove eris specific code
+
 	gains['Hercules_Delta_Lat'] = dlatmean[0,inds]
 	gains['Hercules_Delta_Long'] = dlongmean[0,inds]
 	gains['Hercules_angle_tot'] = np.sqrt(dlatmean[0,inds]**2+dlongmean[0,inds]**2)
@@ -206,17 +176,12 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 
 	predictionspdf = PdfPages("predictions_params.pdf")
 	print("Making predictions params")
-	#print(g_gain)
-	#print(dlong[:,0,int(g_gain[1,1])])
 	for i in range(len(paramnames)):
 		plt.figure()
 		plt.axis("equal")
 		plt.scatter(0,0, color = "black")
-		#print('line 187')        
 		plt.scatter(dlong[:,0,int(g_gain[1,1])], dlat[:,0,int(g_gain[1,1])], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm")
-		#print('line 189')
 		plt.errorbar(np.median(dlong[:,0,int(g_gain[1,1])]), np.median(dlat[:,0,int(g_gain[1,1])]), xerr = typicalerror[0,0], yerr = typicalerror[1,0], ecolor = "red")
-		#print('line 191')        
 		plt.scatter(dlong[:,1,int(g_gain[1,1])], dlat[:,1,int(g_gain[1,1])], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm",marker='D')
 		plt.errorbar(np.median(dlong[:,1,int(g_gain[1,1])]), np.median(dlat[:,1,int(g_gain[1,1])]), xerr = typicalerror[0,1], yerr = typicalerror[1,1], ecolor = "red")
 		plt.xlabel("dLon")
@@ -242,8 +207,6 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	plt.errorbar(np.median(dlong[:,1,int(g_gain[1,1])]), np.median(dlat[:,1,int(g_gain[1,1])]), xerr = typicalerror[0,1], yerr = typicalerror[1,1], ecolor = "red")
 	plt.xlabel("dLon")
 	plt.ylabel("dLat")
-	#plt.xlim(-0.5, 0.5)
-	#plt.ylim(-0.5, 0.5)
 	plt.title("JD: "+str(g_gain[1,0]))
 	color_bar = plt.colorbar()
 	color_bar.set_alpha(1)

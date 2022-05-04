@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import sys
+
+# DS TODO: Comment this please :)
 """
 Function to convert the parameter dataframe to a scaled and fitted array.
 Inputs: 
@@ -15,7 +17,6 @@ Outputs:
 5) The original fit scale which will be needed later during recombination
 """
 def from_param_df_to_fit_array(dataframe, runprops):
-    #Hey
     fix_float_dict = runprops.get("float_dict")
 
     total_df_names = np.array([])
@@ -26,24 +27,12 @@ def from_param_df_to_fit_array(dataframe, runprops):
                     total_df_names = np.append(total_df_names, 'sprate_'+str(j+1))
         else:
             total_df_names = np.append(total_df_names, i[0])
-    #print('Total df names at creation: ', total_df_names)
-    '''
-    print(total_df_names)
-    for i in range(len(total_df_names)):
-        if 'period' in total_df_names[i][0]:
-            for j in range(runprops.get('numobjects')):
-                if str(j+1) in total_df_names[i][0]:
-                    total_df_names[i] = ('sprate_'+str(j+1))
-    '''                
     
     fit_names = []
 
     for i in range(0,runprops.get('numobjects')):
         if runprops.get('lockspinanglesflag') == True:
-            #print(runprops.get('dynamicstoincludeflags'))
             if int(runprops.get('dynamicstoincludeflags')[i]) != 0:
-                #print(dataframe[['spaop_'+str(i+1)]].values)
-                #print(dataframe[['aop_'+str(i+1)]].values)
                 if int(runprops.get('dynamicstoincludeflags')[i]) == 2:
                     dataframe[['spaop_'+str(i+1)]] = dataframe[['aop_2']].values
                 dataframe[['spinc_'+str(i+1)]] = dataframe[['inc_2']].values
@@ -57,7 +46,6 @@ def from_param_df_to_fit_array(dataframe, runprops):
                 if fix_float_dict.get('splan_'+str(i+1)) == 1:
                     print('Since you have chosen to lock the spin angles, please change the splan_'+str(i+1)+' variable in the float_dict to be fixed.')
                     sys.exit()
-                #'''
     
     if runprops.get('transform'):
         if runprops.get('numobjects') > 3:
@@ -105,29 +93,16 @@ def from_param_df_to_fit_array(dataframe, runprops):
             if fix_float_dict.get('spinc_'+str(i+1)) == 1 and fix_float_dict.get('splan_'+str(i+1)) == 1:
                 spinc = np.array(dataframe[['spinc_'+str(i+1)]])*np.pi/180
                 splan = np.array(dataframe[['splan_'+str(i+1)]])*np.pi/180
-                #print('spinc ',i,' ', spinc)
-                #print('splan ',i,' ', splan)
                 a = np.cos(spinc/2)*np.sin(splan)
                 b = np.cos(spinc/2)*np.cos(splan)
                 dataframe[['spinc_'+str(i+1)]] = a
                 dataframe[['splan_'+str(i+1)]] = b
-                #print('a ', a)
-                #print('b ', b)
-                
-                #if (a[:]>np.sin(splan[:])).any():
-                #    print("There is a greater a than splan")
-                #    print("spinc:", a)
-                #    print("splan:", splan)
-                
-                #dataframe[['spinc_'+str(i+1)]] = np.tan(spinc/2)*np.sin(splan)
-                #dataframe[['splan_'+str(i+1)]] = np.tan(spinc/2)*np.cos(splan)
     
     num = 0
     fit_scale = dataframe.iloc[0]
-    #print(fit_scale)
     fit_scale = fit_scale.to_frame().transpose()
+
     #Scale every column down by the values in the first row.
-    
     for col in dataframe.columns:
         if fit_scale[col][0] != 0.0:
             dataframe[col] = dataframe[col]/fit_scale[col][0]
@@ -137,7 +112,6 @@ def from_param_df_to_fit_array(dataframe, runprops):
     val_list = list(fix_float_dict.values())
     
     fixed_df = pd.DataFrame(index = range(len(dataframe.index)))
-    #print(fixed_df)
     float_df = pd.DataFrame()
     float_names = []
     num = 0
@@ -169,9 +143,7 @@ def from_param_df_to_fit_array(dataframe, runprops):
             for i in range(runprops.get('numobjects')):
                 if str(i+1) in col[0]:
                     newcol = ('sprate_'+str(i+1),)
-            #print(col, newcol)
             fit_scale.rename(columns={col[0]: newcol[0]}, inplace=True)
-        #print(fit_scale)
         
     j = 1
     for i in runprops.get('dynamicstoincludeflags'):
@@ -247,12 +219,8 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 undo_masses[1] = True
             else:
                 undo_masses[0] = True
-        #print(fixed_df)
         for i in total_df_names:
             name = i
-            #print(name, i)
-            #print(float_df.columns)
-            #print(fixed_df.columns)
             if name in float_df.columns:
                 value = float_df[name].values.tolist()
                 param_df[name] = value
@@ -260,10 +228,10 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 value = fixed_df[name].values.tolist()
                 param_df[name] = value
             else:
-                print('Please check line 252 in mm_params. You are likely pulling only a letter nd not an enitre string.')
+                # DS TODO: what is this???????
+                print('Please check line 252 in mm_params. You are likely pulling only a letter and not an enitre string.')
                 sys.exit()   
             
-        
         names_df = pd.DataFrame.from_dict(names_dict,orient='index')
         names_df = names_df.transpose()
         
@@ -272,18 +240,10 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
     
       
         #Now unfit all of the variables by multipliyng each column by its fit variable.
-        
-        #print(param_df)
-        #print(fit_scale.columns)
         for col in fit_scale.columns:
             param_col = col
             if type(col) != str:
                 param_col = col[0]
-            #print(param_df)
-            #print('param_col',param_col)
-            #print('col',col)
-            #print('fit_Scale',fit_scale)
-            #print('fit_Scale[col]',fit_scale.get(col))
             
             param_df[param_col] = param_df[param_col]*fit_scale.get(col).values
             
@@ -360,40 +320,29 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                     aop = aop%360
                 param_df['aop_'+str(i+2)] = aop
                 
-        #for i in range(runprops.get('numobjects')):      
             if undo_spin[i]:
             
                 a = np.array(param_df['spinc_'+str(i+1)])
                 b = np.array(param_df['splan_'+str(i+1)])
                 
                 splan = np.arctan2(a,b)*180/np.pi
-                #splan = np.arctan(a/b)*180/np.pi
                 if splan < 0:
                     splan = splan%360
                 
                 c = np.sin(splan*np.pi/180)
                 
                 if a/c > 1 or a/c < -1:
-                    #print('a/c is', a/c, ', causing the error')
-                    #print('a ',a)
-                    #print('b ',b)
-                    #print('c ',c)
-                    #print('splan ', splan)
                     param_df['spinc_'+str(i+1)] = -np.inf
                     param_df['splan_'+str(i+1)] = -np.inf
 
                 else:
-                    #print(np.arccos(a/c))
                     spinc = np.arccos(a/c)*2*180/np.pi
-                    #spinc = np.arctan2(a,c)*2*180/np.pi
                 
                     if spinc < 0:
                         spinc = spinc%180
                     
                     param_df['spinc_'+str(i+1)] = spinc
                     param_df['splan_'+str(i+1)] = splan
-                    #print('spinc_new ',i,' ', spinc)
-                    #print('splan_new ',i,' ', splan)
                 
             if int(runprops.get('dynamicstoincludeflags')[0]) > 0:
                 spinc1=np.deg2rad(np.array(param_df['spinc_1']))
@@ -418,13 +367,10 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
             c = np.sin(splan*np.pi/180)
                 
             if a/c > 1 or a/c < -1:
-                #print('a/c is', a/c, ', causing the error')
                 param_df['spinc_'+str(N)] = -1
                 param_df['splan_'+str(N)] = -1
             else:
-                #print(np.arccos(a/c))
                 spinc = np.arccos(a/c)*2*180/np.pi
-                #spinc = np.arctan2(a,c)*2*180/np.pi
             
                 if spinc < 0:
                     spinc = spinc%180

@@ -42,15 +42,14 @@ def mm_priors(priors, params, runprops):
     
     #This loop is to make sure all of the column values are floats, because pandas sometimes turns the values to strings when read from file
     for i in columnList:
-        #print(i)
         priors[i].astype(float)
 
     count = 0
     allProbs = []
     numNaNs = 0
+
     #This loop runs through every column in the priors dataframe, and evaluates the probability density
     #function of the specified type.
-    
     for i in columnList:
         count += 1
         theInt = int(priors[i][0])
@@ -94,10 +93,6 @@ def mm_priors(priors, params, runprops):
                 if i in params and params[i][0] < 0:
                     #print(i, " is outside of the realistic value with a value of ", params[i][0])
                     return -np.inf
-            #elif 'f_val' in i:
-            #    if i in params and params[i][0] < 0:
-                    #print(i, " is outside of the realistic value with a value of ", params[i][0])
-            #        return -np.inf
             elif 'ecc' in i:
                 if i in params and params[i][0] < 0:
                     #print(i, " is outside of the realistic value with a value of ", params[i][0])
@@ -123,28 +118,23 @@ def mm_priors(priors, params, runprops):
     # Making sure that c22 < 0.5*j2
     dynamicstoincludeflags = runprops.get("dynamicstoincludeflags")
     for i in range(runprops.get("numobjects")):
-                
         if dynamicstoincludeflags[i] == "2":
-            
             if (params["j2r2_" + str(i+1)].values[0]*0.5 < params["c22r2_" + str(i+1)].values[0]):
-                #print('j2r2_',str(i+1),'is less than double the c2r2_',str(i+1),'value')
                 return -np.inf
-            
-    
-    
-    # Making sure min periapse is obeyed
+
+    # Checking object specific properties...
     min_periapse = runprops.get("min_periapse")
-    #hill_sphere = runprops.get("mhill_sphere_reject")
-    #print("min_periapse")
-    
+
+    # Check that objects are ordered correctly.
     for i in range(2,runprops.get('numobjects')):
         if params['sma_'+str(i)].values > params['sma_'+str(i+1)].values:
             print('Objects should be input from closest to furthest object in orbit. We detect that your satellites are not input in this order right now in your initial guess folder. Please change this before running again.')
             import sys
             sys.exit()
     
+    # Ensure sat-spin inc is <90 (forces prograde orbits). This can be removed to loosen this restriction.
+    # TODO: Make this a setting in runprops?
     for i in range(1,runprops.get("numobjects")):
-        #UQ18 / Altjira
         if dynamicstoincludeflags[0] == "1" or dynamicstoincludeflags[0] == "2":
             spinc_1_n = params["spinc_1"]/180*np.pi
             splan_1_n = params["splan_1"]/180*np.pi
@@ -153,41 +143,26 @@ def mm_priors(priors, params, runprops):
             
             mutualinc = np.arccos( np.cos(spinc_1_n)*np.cos(inc_i_n) + np.sin(spinc_1_n)*np.sin(inc_i_n)*np.cos(splan_1_n - lan_i_n) )
             mutualinc = np.rad2deg(mutualinc).values
-            #print('mutualinc ', mutualinc)
             if mutualinc > 90:
                 print('mutualinc > 90')
                 return -np.inf
         
-        
+        # Making sure min periapse is obeyed        
         if i == 1 and (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0]) < min_periapse):
-            #UQ18 / Altjira
             return -np.inf
+
+        # Enforce max apoapse for when there are two moons. Ensures collisions are not possible.
         elif i != 1 and (params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0])-params["sma_" + str(i)].values[0]*(1+params["ecc_" + str(i)].values[0]) < min_periapse):
-            #print('i>1')
-            #print(params["sma_" + str(i+1)].values[0]*(1-params["ecc_" + str(i+1)].values[0]))
-            #print(params["sma_" + str(i)].values[0]*(1+params["ecc_" + str(i)].values[0]))
-            #print('sma',params["sma_" + str(i)].values,'sma',params["sma_" + str(i+1)].values)
-            #print('ecc',params["ecc_" + str(i)].values,'ecc',params["ecc_" + str(i+1)].values)
             return -np.inf
-    #print("hill")    
+
+    # Makes sure mass1 is greater than mass2
+    # TODO: Is this necessary???
     for i in range(1,runprops.get("numobjects")):
         mass1 = params["mass_" + str(1)].values[0]
         mass2 = params["mass_" + str(i+1)].values[0]
-#        mass3 = params["mass_" + str(i+1)].values[0]
-#        sma1 = params["sma_" + str(i)].values[0]
-#        sma2 = params["sma_" + str(i+1)].values[0]
-#        ecc1 = params["ecc_" + str(i)].values[0]
-#        ecc2 = params["ecc_" + str(i+1)].values[0]
-#        mhill = (sma2*(1-ecc2)-sma1*(ecc1+1))/(((mass2/mass1+mass3/mass1)/3)**(1/3)*0.5*(sma1+sma2))
-#        #print(mhill, hill_sphere)
-#        if mhill < hill_sphere:
-#            return -np.inf
         if mass1 < mass2:
-            #print('mass1 < mass2')
             return -np.inf
     
-    
-    #print("adding")
     if runprops.get('verbose'):
         print('AllProbs:' ,allProbs)
     

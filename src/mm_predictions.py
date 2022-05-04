@@ -80,7 +80,6 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	print('draws',draws)    
 	for i in tqdm(range(draws.shape[0])):
 		paramdf = mm_param.from_fit_array_to_param_df(draws[i,:].flatten(), names, fixed_df, total_df_names, fit_scale, names_dict, runprops)[0]
-		#print(paramdf.iloc[:,:-nobj].values)		
 		drawparams[:,i] = paramdf.iloc[:,:-nobj].values
 		print(paramdf)
 		DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
@@ -88,8 +87,6 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 		for j in range(1,runprops.get('numobjects')):
 			dlong[i,j-1,:] = DeltaLong_Model[j-1]
 			dlat[i,j-1,:] = DeltaLat_Model[j-1]
-		#print("dlong",dlong)
-		#print("dlat",dlat)
 
 	# Now collapse the arrays with a std call
 	dlongstd = np.std(dlong,axis = 0)
@@ -121,23 +118,12 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	for i in range(1,runprops.get('numobjects')):
 		infogain[i-1,:] = np.sqrt( (dlongstd[i-1,:]/typicalerror[0,i-1])**2 + (dlatstd[i-1,:]/typicalerror[1,i-1])**2 )
 
-		#for j in range(times.size):
-		#	bitarr = (dlong[:,i-1,j] < (dlongmean[i-1,j] + typicalerror[0,i-1])) & (dlong[:,i-1,j] > (dlongmean[i-1,j] - typicalerror[0,i-1])) & (dlat[:,i-1,j] < (dlatmean[i-1,j] + typicalerror[1,i-1])) & (dlat[:,i-1,j] > (dlatmean[i-1,j] - typicalerror[1,i-1]))
-		#	#print(bitarr.sum()/draws.shape[0])
-		#	infogain2[i-1,j] = bitarr.sum()/draws.shape[0]/(2*typicalerror[0,i-1])/(2*typicalerror[1,i-1])
-
-
 	# Plot
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
 	fig = plt.figure(figsize = (12.8,4.8))
 	t = Time(times, format = "jd")
 	for i in range(1,runprops.get('numobjects')):
 		plt.plot_date(t.plot_date, infogain[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 0.5)
-		#plt.plot_date(t.plot_date, infogain2[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 0.5)
-
-
-	#if runprops.get('numobjects') > 2:
-	#	plt.plot(t.plot_date, np.sum(infogain, axis = 0).flatten()/2, color = "black", label = "Combined gain")
 
 	plt.xlabel("Time")
 	plt.ylabel("Info gained")
@@ -156,9 +142,6 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 		plt.scatter(0,0, color = "black")
 		plt.scatter(dlong[:,0,15], dlat[:,0,15], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm")
 		plt.errorbar(np.median(dlong[:,0,15]), np.median(dlat[:,0,15]), xerr = typicalerror[0,0], yerr = typicalerror[1,0], ecolor = "red")
-        
-#		plt.scatter(dlong[:,1,15], dlat[:,1,15], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm",marker='D')
-#		plt.errorbar(np.median(dlong[:,1,15]), np.median(dlat[:,1,15]), xerr = typicalerror[0,1], yerr = typicalerror[1,1], ecolor = "red")
 		plt.xlabel("dLon")
 		plt.ylabel("dLat")
 		plt.title(paramnames[i])
