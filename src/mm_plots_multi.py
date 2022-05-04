@@ -50,8 +50,10 @@ def save(s_df,names):
         print('Invalid Response.')
         return save(s_df,names)   
     
-    
+
+# Format of the chain    
 #chain = (nwalkers, nlink, ndim)
+# DS TODO: Comment this where I haven't  -BP
 
 def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names):
 	# Here total_df_names is whatever file/object will have the run params
@@ -75,7 +77,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	undo_masses = np.zeros(2)    
 	undo_masses[:] = False
 	masses_index = np.zeros(runprops.get('numobjects'))
-	#print(sampler)    
     
 	for i in range(runprops.get('numobjects')-1):
 		if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
@@ -122,18 +123,14 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
         
         
-	#thin_plots = runprops.get('thin_plots') 
 	if isinstance(runprops.get('thin_plots'), int):          
 		thin_plots = runprops.get('thin_plots')
 		if runprops.get('thin_run') and thin_plots > 1:
 			print('Warning: You thinned your chain as you ran the data, and have a thin_plots parameter > 1, this could lead to an empty chain being read in.')
-		#burnin = burnin/thin_plots
-		#clusterburn = clusterburn/thin_plots     
 	else:
 		thin_plots = 1
         
         
-#	chain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots) 
 	print(os.getcwd(), '')
 	chain = sampler.get_chain(flat = False, thin=thin_plots)  
 	fit = []
@@ -147,7 +144,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			fit.append(val)
 
 	# Getting final values for the shape of the chain
-	#shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
 	shortchain = sampler.get_chain(flat = False, thin= thin_plots)
 	numparams = shortchain.shape[2]
 	numwalkers = shortchain.shape[1]
@@ -162,7 +158,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
     
 	fitparam_chain = np.zeros((1,numwalkers,numgens))
 
-	#print(fitparam_chain.shape)    
 	fitparam_names = []    
 	# Now de-transform the chain
 	print("Starting un transformations")
@@ -171,7 +166,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			if undo_ecc_aop[b]:
 				aop_new = chain[:,:,int(ecc_aop_index[b*2+1])]
 				ecc_new = chain[:,:,int(ecc_aop_index[b*2])]
-				#print(aop_new.T.shape, np.array([aop_new.T]).shape)
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([aop_new.T])),axis=0)
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([ecc_new.T])),axis=0)                
 				fitparam_names.append('equinoctial_k_'+str(b+1))
@@ -214,12 +208,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				fitparam_names.append('spin_equinoctial_q_'+str(b+1))
 				splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
 				chain[:,:,int(spin_index[b*2+1])] = splan
-				#spinc = (np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi)%180
-				#print('spinc_new ',spinc_new)
-				#print('splan_new ',splan_new)
 				spinc = (np.arccos(spinc_new/np.sin(splan*np.pi/180))*2*180/np.pi)%180
-				#print('spinc ',spinc)
-				#print('splan ',splan)
 				chain[:,:,int(spin_index[b*2])] = spinc
 		if undo_masses[0]:
 			mass_1 = chain[:,:,int(masses_index[0])]
@@ -228,12 +217,10 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			fitparam_names.append('mass1+2')
 			chain[:,:,int(masses_index[1])] = (mass_2-mass_1)/(10**18)
 			chain[:,:,int(masses_index[0])] = (mass_1)/(10**18)  
-			#print('hallo')
 		elif undo_masses[1]:
 			mass_1 = chain[:,:,int(masses_index[0])]
 			mass_2 = chain[:,:,int(masses_index[1])]
 			mass_3 = chain[:,:,int(masses_index[2])]
-			#print(mass_1,mass_2, mass_3)            
 			fitparam_chain = np.concatenate((fitparam_chain, np.array([mass_2.T])),axis=0)
 			fitparam_chain = np.concatenate((fitparam_chain, np.array([mass_3.T])),axis=0)
 			fitparam_names.append('mass1+2')
@@ -258,21 +245,16 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	s[0] = np.prod(chain.shape[:2])
 	s2 = list(fitparam_chain.shape[1:])
 	s2[0] = np.prod(fitparam_chain.shape[:2])
-	#print(masses_index,s2, fitparam_chain.shape)    
 	flatchain = chain.reshape(s)
 	fitparam_chain = fitparam_chain.reshape(s2)    
-	#print('flatchain and fitparam chain shape\n',flatchain.shape, fitparam_chain.shape)
 
-	#print('flatchain[:,0] and flatchain[:,1]\n',flatchain[:,0],'\n',flatchain[:,1],'\n',flatchain[:,2],'\n',flatchain[:,3],'\n',flatchain[:,4],'\n',flatchain[:,5],'\n',flatchain[:,6])
 	# Getting parameter names
 	names = []
-	#print(float_names)    
 	for i in float_names:
 		names.append(i)
 
 	# Getting log likelihood posterior values for use throughout
 	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
-	#print('llhoods shape',llhoods.shape)    
 	ind = np.argmax(llhoods)
 	params = flatchain[ind,:].flatten()
 
@@ -320,9 +302,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			latexnames[i] = fr"{latexnames[i]}"
 
 	# Make corner plot
-	#plt.rc('text', usetex=True)
 	fig = 0
-	#print(flatchain[:,0], flatchain[:,1])    
 	fig = corner.corner(flatchain, labels = latexnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".3f", truths = params, label_kwargs=dict(fontsize=20))
@@ -355,6 +335,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			#print('m_arr, ', m_arr)
 			#print('mp_arr, ', mp_arr)
             
+			# DS TODO: Please clean this up. If you want to keep it put it in the Eris branch
 			rho_prim = 2.4*10**9
 			rho_sat = 10**9
 			r_sat = runprops.get('axes_size').get('obj_'+str(i))
@@ -393,7 +374,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			dfchain = np.concatenate((dfchain, np.array([ecc_timescale]).T), axis = 1)
            
             
-	#print(periods)
 	# Spin period
 	fixedparams = runprops.get("float_dict")
 	if dtif[0] == "1" or dtif[0] == "2":
@@ -426,8 +406,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 			dnames = np.append(dnames, ["sat-spin inc_" + str(i+1)])
 			dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
-#
-	# Satellite-Satellite mutual inclination (this only works right now for 2 moons/satellites)
+
+	# Calculate combined masses
 	if runprops.get('numobjects') == 2:
 		mass1_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
 		mass2_index = [n for n, l in enumerate(names) if l.startswith('mass_2')][0]
@@ -437,6 +417,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		mass_tot = mass1_arr+mass2_arr
 		dnames = np.append(dnames,['mass_tot'])
 		dfchain = np.concatenate((dfchain, np.array([mass_tot]).T), axis = 1)        
+	# Satellite-Satellite mutual inclination (this only works right now for 2 moons/satellites) and combined masses
 	if runprops.get("numobjects") > 2:
 		inc2_index = [n for n, l in enumerate(names) if l.startswith('inc_2')][0]
 		inc3_index = [n for n, l in enumerate(names) if l.startswith('inc_3')][0]
@@ -472,17 +453,11 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		dnames = np.append(dnames,['mass_tot'])
 		dfchain = np.concatenate((dfchain, np.array([mass_tot]).T), axis = 1)
 		print(dfchain.shape, periods)
-		#period3 = dfchain[:,int(periods[1])]
-		#period2 = dfchain[:,int(periods[0])]       
-		#period_ratio = np.array(period3)/np.array(period2)
-		#dfchain = np.concatenate((dfchain, np.array([period_ratio]).T), axis = 1)
-# Creating corner+derived plot
+
+	# Creating corner+derived plot
 	fig = corner.corner(dfchain, labels = dnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".4f", truths = dfchain[ind,:].flatten())
-	#fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
-	#for ax in fig.get_axes():
-	#	ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
 	fname = "corner+derived.pdf"       
 	fig.savefig(fname, format = 'pdf')
 	plt.close("all")
@@ -490,22 +465,14 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Creating corner_fitparams plot
 	fitflatchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
-
 	fig = corner.corner(fitflatchain, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".6f", truths = fitflatchain[ind,:].flatten())
-	#fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
-	#for ax in fig.get_axes():
-	#	ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
 	fname = "corner_fitparams.pdf"       
 	fig.savefig(fname, format = 'pdf')
 	plt.close("all")
 	
-	del fitflatchain
-
-
-	#plt.rc('text', usetex=False)
-	
+	del fitflatchain	
 
 	# Now make the walker plots
 	from matplotlib.backends.backend_pdf import PdfPages
@@ -513,7 +480,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	walkerpdf = PdfPages("walkers.pdf")
 	shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
 	print('Shortchain:', shortchain.shape)    
-	#shortchain = sampler.get_chain(flat = False, thin=thin_plots)
 	numparams = shortchain.shape[2]
 	numwalkers = shortchain.shape[1]
 	numgens = shortchain.shape[0]
@@ -524,10 +490,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			plt.plot(np.reshape(chain[0:numgens,j,i], numgens), alpha=0.2)
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
-		#plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
 		walkerpdf.attach_note(names[i])
 		walkerpdf.savefig()
-		#plt.close()
 
 	walkerpdf.close()
 	plt.close("all")
@@ -537,7 +501,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	full_chain = sampler.get_chain(discard=0, flat = False, thin=thin_plots)  
 	fullgens = full_chain.shape[0]
-	#print(thin_plots, fullgens, full_chain.shape)
 	runnedthin = 1    
 	if runprops.get('thin_run'):
 		runnedthin = runprops.get('nthinning')        
@@ -557,15 +520,12 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	fullwalkerpdf.close()
 	plt.close("all")
 
-	# Figuring out the distributions of total_df_names
-	#old_fchain = sampler.get_chain(flat=True)
+	# Figuring out the distributions of total_df_names, making sigsdf.csv
 	llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
 	sigsdf = pd.DataFrame(columns = ['-3sigma','-2sigma','-1sigma','median','1sigma','2sigma','3sigma', 'mean', 'best fit'], index = dnames)
 	j = 0
 	for i in range(len(dfchain[0])):
 		num = dfchain[:,i]
-#		if i>len(names):
-# 			
 		median = np.percentile(num,50, axis = None)
 		neg3sig= np.percentile(num,0.37, axis = None)
 		neg2sig = np.percentile(num,2.275, axis = None)
@@ -584,7 +544,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		sigsdf['3sigma'].iloc[i] = pos3sig-median
 		sigsdf['mean'].iloc[i] = mean
 		sigsdf['best fit'].iloc[i] = bestfit
-	#if runprops.get('verbose'):
 	print(sigsdf)
 	filename = 'sigsdf.csv'    
 	sigsdf.to_csv(filename)
@@ -593,7 +552,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	likelihoodspdf = PdfPages("likelihoods.pdf")
 	ylimmin = np.percentile(llhoods.flatten(), 1)
 	ylimmax = llhoods.flatten().max() + 1
-	#print(chain.shape,flatchain.shape, llhoods.shape)
 	dfparams = dfchain.shape[1]
         
 	for i in range(numparams):
@@ -621,7 +579,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.ylim(ylimmin, ylimmax)
 		likelihoodspdf.attach_note(dnames[i])
 		likelihoodspdf.savefig()
-		#plt.savefig(runprops.get("results_folder")+"/likelihood_" + names[i] + ".png")
         
 	for i in range(numparams,dfchain.shape[1]):
 		plt.figure(figsize = (9,9))
@@ -703,7 +660,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				paraminput.append(values)
 				paramnames.append(keys)
 
-	#print(paraminput)
 	print(fixed_df)
 	names_dict = runprops.get("names_dict")  
 	print('paraminput 1', paraminput)    
@@ -711,8 +667,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	print(paramdf)    
 	best_likelihoods = pd.read_csv('best_likelihoods.csv')
 	best = best_likelihoods.iloc[-(1)]
-	#print(best)   
-	#residuals = [np.tolist(best['Residuals    
 	best = best.drop(columns=['Likelihood','Degrees-of-freedom','P-val','Chi-sq','Reduced_chi_sq','Prior','Residuals_Lon_Obj_1','Residuals_Lat_Obj_1'])
 	if runprops.get('numobjects') == 3:    
 		best = best.drop(columns=['Residuals_Lon_Obj_2','Residuals_Lat_Obj_2'])
@@ -723,42 +677,12 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			print(paramdf[i])
 			print(best[i])
 			paramdf[i] = best[i]
-		#paramdf[i] = best[i]
-		#print(paramnames[i])
-		#print('fit',fit[i])
-		#print('best[paramanems]',best[paramnames[i]])
-		#print('fitted best',best[paramnames[i]]/fit[i])
-		#best[paramnames[i]] = best[paramnames[i]]/fit[i]
-	#for i in paramnames:
-		#paraminput = np.append(paraminput,[best[i]])   
-	#print('paraminput',paraminput)  
-	#paraminput = paraminput.tolist()
-	#print('paraminput',paraminput) 
-	#for i in fit_scale.columns:
-#		name = i
-#		if type(name) != str:
-#			name = name[0]
-#		if name in float_names:
-#			val = fit_scale.loc[0, i]
-#			fit.append(val)    
-	#paramdf,fit_params = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
 	print(paramdf)
-	#paramdf = pd.DataFrame(paraminput).transpose()
-	#paramdf.columns = paramnames
 
 	
-	#print(paramdf)
-#Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
-	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
-	#best_likelihoods = pd.read_csv('best_likelihoods.csv')
-	#residuals = []
-	#print(best_likelihoods, best_likelihoods.iloc[-(i+1)])    
-	#for i in range(runprops.get('numobjects')-1):    
-		#residuals.insert(0,np.array(best_likelihoods.iloc[-(1)][-(2*i+1)]))
-		#residuals.insert(0,np.array(best_likelihoods.iloc[-(1)][-(2*i+2)]))
-	#residuals = np.array(residuals)        
-	print("Residuals: ",residuals)        
-	#print(chisquare_total, residuals)
+	#Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
+	#chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
+	# DS TODO: instead of rerunning spinny, can we just take the residuals from the best_likelihoods file. 
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
 
@@ -776,9 +700,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.plot(xvals2,-circle2, color = "black", alpha = 0.5)
 	plt.plot(xvals3, circle3, color = "black", alpha = 0.25)
 	plt.plot(xvals3,-circle3, color = "black", alpha = 0.25)
-	print(nobjects, np.array(residuals).shape, objectnames)  
-	#print(residuals)
-	objectnames[1] = "S2"
 	for i in range(1, nobjects):
 	
 		print('plotting ', i, ' ',objectnames[i])
@@ -952,8 +873,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		names = spinny[1]
 		spinny_plot(s_df,names, runprops)
     
-	#Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
-	print(paramdf)    
 	DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
 
 	modelx = np.empty((nobjects-1, fakeobsdf.shape[0]))
@@ -991,20 +910,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.scatter(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = newnames[i], alpha = 0.5,s=5)
 		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko", ms = 2)
      
-	#eris_circle = np.arctan(1163/14270012016)*180/np.pi*3600
-	#jwst_circle = 0.2*0.53
-
-	#angle = np.linspace( 0 , 2 * np.pi , 150 ) 
-	#x = eris_circle * np.cos( angle ) 
-	#y = eris_circle * np.sin( angle ) 
-	#plt.plot( x, y, color = colorcycle[4], label = "Eris actual size" ) 
-	#x = jwst_circle * np.cos( angle ) 
-	#y = jwst_circle * np.sin( angle ) 
-	#plt.plot( x, y, color = colorcycle[5], label = "JWST PSF" ) 
-	#x = 0.2 * np.cos( angle ) 
-	#y = 0.2 * np.sin( angle ) 
-	#plt.plot( x, y, color = colorcycle[6], label = "HST PSF" )
-
 	plt.axis('equal')
 	plt.xlabel("Delta Latitude")
 	plt.ylabel("Delta Longitude")

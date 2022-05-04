@@ -22,21 +22,16 @@ def mm_init_guess(runprops):
         as start_guess_df and nwalker rows drawn from the 
         distribution.
     """
-    #print(runprops)
+
+    # Reading in/getting necessary data
     filename = runprops.get("init_filename")
-
-    start_guess_df = pd.read_csv(filename,sep=',',index_col=0)
-    
-    
-
-    start_guess_df = start_guess_df.transpose()
-
-    arrSet = start_guess_df.to_numpy()
-
     nwalkers = runprops.get("nwalkers")
     fix_float = runprops.get("float_dict")
-    
-      
+
+    start_guess_df = pd.read_csv(filename,sep=',',index_col=0)
+    start_guess_df = start_guess_df.transpose()
+    arrSet = start_guess_df.to_numpy()
+
     # Some code to help us get the names for the columns.
     name_dict = {0:"Junk"}
     n = 0
@@ -50,8 +45,8 @@ def mm_init_guess(runprops):
                 cut_df[col] = start_guess_df[col]
         
 
-#    for col in cut_df.columns:
     for col in start_guess_df.columns:
+        # In the future this should be moved to spinny stuff???
         if 'period' in col:
             for i in range(runprops.get('numobjects')):
                 if str(i+1) in col:
@@ -63,8 +58,6 @@ def mm_init_guess(runprops):
             name_dict[n] = col
             infos = start_guess_df[col].to_numpy()
             mean1, stdev1 = infos[0],infos[1]
-            #print(col)
-            #print(fix_float.get(col))
         
         if n == 0:
             if fix_float.get(col) == 0:
@@ -101,11 +94,3 @@ def get_init_guess_from_multirow_startguess(dataframe, nwalkers):
     if len(startguess) < nwalkers:
          dum=0
     return 1
-        
-        
-def get_init_guess_from_singlerow_startguess_rough():
-    return 1
-    
-def get_init_guess_from_prior():
-    return 1
-    

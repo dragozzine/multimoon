@@ -14,12 +14,6 @@ class ReadJson(object):
     def outProps(self):
         return self.data
 
-# I think the best method would be to have a tests directory where we store the synthetic astrometry,
-# an output file associated with the creation of that synthetic astrometry (basically the parameters),
-# and everything else needed to test the system (geocentric_obj_position.csv, etc).
-
-# Starting psuedocode
-
 # load in all required packages and functions
 import numpy as np
 import pandas as pd
@@ -44,19 +38,7 @@ sys.path.insert(1, 'mm_SPINNY/')
 from mm_SPINNY.spinny_vector import generate_vector
 import mm_relast
 
-#plt.switch_backend("MacOSX")
-
-# maybe have a runprops type thing to hold the inputs?
-# it then saves a copy of this to the directory where the test case is stored
-
-# Getting the inputs from runprops_gensynth.txt
-# This file needs to have everything that mm_chisquare needs
-#	numobjects, verbose, float_dict, 
-#filename = "runprops_gensynth.txt"
-
-#getData= ReadJson(filename)
-#runprops = getData.outProps()
-
+# Start getting things needed
 runprops = mm_runprops.runprops
 
 verbose = runprops.get("verbose")
@@ -72,7 +54,6 @@ if os.path.exists(obsdata):
 		print("Observational data file " + obsdata + " will be used")
 	obsdf = pd.read_csv(obsdata)
 else:
-	#print(obsdata)
 	print("ERROR: No observational data file exists. Aborting run.")
 	sys.exit()
 
@@ -88,7 +69,6 @@ params_dict = runprops.get("params_dict")
 name_dict = runprops.get("names_dict")
 for i in params_dict.values():
 	params.append(i)
-	#print(i)
 for i in params_dict.keys():
 	paramnames.append(i)
 for i in name_dict.values():
@@ -104,8 +84,8 @@ paramdf.columns = paramnames
 
 # Outputting model astrometry based on the params df
 Model_DeltaLong, Model_DeltaLat, obsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
-#positionData = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 
+# Changing the astrometry based on the effects of a hidden moon.
 if runprops.get('photo_offset'):
         
     mass_ratio = paramdf['mass_2'][0]/paramdf['mass_1'][0]
@@ -125,8 +105,7 @@ if runprops.get('photo_offset'):
     Model_DeltaLat = Model_DeltaLat + delta_offset_lat
     Model_DeltaLong = Model_DeltaLong + delta_offset_long
 
-#print(obsdf["time"])
-
+# Putting the synthetic data into the right formats
 cols = ["time","Lat_Prim","Long_Prim"]
 for i in range(1,nobjects):
 	obsdf["DeltaLat_" + objectnames[i]] = Model_DeltaLat[i-1]
@@ -174,18 +153,9 @@ savedir = "../runs/" + runprops.get("run_dir") + "/" + runprops.get("runs_file")
 
 try:
 	os.mkdir(savedir)
-	if verbose:
-		print("Made directory to save testcase (" + savedir + ").")
+	print("Made directory to save testcase (" + savedir + ").")
 except FileExistsError:
-	if verbose:
-		print("directory already exists. Removing obsdf and .png files")
-#	os.remove(savedir + "astrometry.png")
-#	os.remove(savedir + "obsdf.csv")
+	print("directory already exists. Removing obsdf and .png files")
 plt.savefig(savedir + "astrometry.png")
 obsdf.to_csv(savedir + runprops.get("run_dir")+"_obs_df.csv")
 shutil.copy("runprops_gensynth.txt", savedir)
-
-
-# Need to think about excluding data points where the secondary/tertiary/etc is aligned with the 
-# primary. In theory the fitter will have no problem fitting to this data, but it really isn't 
-# realistic...

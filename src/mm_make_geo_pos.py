@@ -4,46 +4,45 @@ import pandas as pd
 from astropy.time import Time
 import time
 
-def mm_make_geo_pos(objname, times, runprops = None, synthetic = False):
-    """This function takes a name of a solar system body(a KBO), and creates a csv file of the body's ephemerides"""
-    #starttime = time.time()
-    #ourKBO = Horizons(id='2006 BR284',location=399,epochs = times)
+def mm_make_geo_pos(objname, times, runprops, synthetic = False):
+    """This function takes a name of a solar system body(a KBO), and creates a csv file of the body's ephemerides
+
+    Inputs:
+        objname: string, name of the object in question
+        times: array, array of times in JD
+        runprops: runprops dict from MultiMoon
+        synthetic: bool, for when you need an output
+
+    Output:
+        none, unless synthetic == true
+
+    """
+    # Begin by querying Horizons for the ephemerides and vectors for ther chosen object
     ourKBO = Horizons(id=objname,location=399,epochs = times)
     ephKBO = ourKBO.ephemerides()['RA','DEC','datetime_jd']
     vecKBO = ourKBO.vectors(aberrations = 'astrometric')['lighttime','x','y','z']
-    
+
+    # Get the time delays and convert to system julian date
     jdTime= ephKBO['datetime_jd']
     lightTime = vecKBO['lighttime']
     kboTime=jdTime-lightTime
     
-    #taking care to convert the AU distances to kilometers
+    # taking care to convert the AU distances to kilometers
     geocentricFile = pd.DataFrame({'geocentricTime':ephKBO['datetime_jd'],'x':vecKBO['x']*149597870.7,'y':vecKBO['y']*149597870.7 ,'z':vecKBO['z']*149597870.7})
     outFile = pd.DataFrame({'kboTIME':kboTime,'x':vecKBO['x']*149597870.7 ,'y':vecKBO['y']*149597870.7 ,'z':vecKBO['z']*149597870.7 })
-    with pd.option_context('display.float_format', '{:0.4f}'.format):
-        print(outFile)
 
+    # Output dataframe if synthetic == true
     if synthetic:
         return outFile
 
-    #filename1 = runprops.get('runs_file')+"/geocentric_" + objname + "_position.csv"
-    #geocentricFile.to_csv(filename1)
-    
+    # Outputting to a file
     fileName2 = runprops.get('runs_file')+'/geocentric_'+objname+'_position.csv'
-    
-    print('Producing ', fileName2)
     outFile.to_csv(fileName2)
     
-    #endtime = time.time()
-    
-    #runLength = endtime-starttime
-    #print("Runtime was: "+str(runLength)+" seconds" )
 
-#params = pd.read_csv('prep/haumeadata.csv')
-#date = params['time'].values
-#print(date)
-#mm_make_geo_pos("Haumea",date)
     
 '''
+    This should probably be removed... I'm not sure this function is used. -BP
     NAME:
          geotoKBOtime
          
