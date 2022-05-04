@@ -1,6 +1,7 @@
 .ipynb_checkpoints
 *.pyc
 results
+runs
 *.h5
 src/__pycache__
 build/
