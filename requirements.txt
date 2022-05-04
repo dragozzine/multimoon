@@ -1,6 +1,6 @@
 aiohttp==3.6.2
 argon2-cffi==20.1.0
-astropy
+astropy>=4.2
 astroquery==0.4.1
 async-timeout==3.0.1
 attrs==19.3.0

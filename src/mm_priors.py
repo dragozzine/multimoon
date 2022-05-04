@@ -183,7 +183,8 @@ def mm_priors(priors, params, runprops):
 #        if mhill < hill_sphere:
 #            return -np.inf
         if mass1 < mass2:
-            #print('mass1 < mass2')
+            if runprops.get('is_mcmc'):
+                print('It seems one of your initial guesses prodcues a mass1 < mass2. MultiMoon currently runs best when the most massive object is the primary. If your run will not start due to a maximum reset, we recommend modifying your initial guesses to have the most massive object exist as the primary.')
             return -np.inf
     
     

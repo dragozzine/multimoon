@@ -44,8 +44,11 @@ objname = runprops.get("objectname")
 #print(cwd)
 if 'runs' in cwd:
     runs_file = os.path.basename(os.path.normpath(cwd))
-    os.chdir('../../../src')
-    runprops['runs_file'] = '../runs/'+objname+'/'+runs_file
+    os.chdir('../')
+    cwd = os.getcwd()
+    runs_file2 = os.path.basename(os.path.normpath(cwd))
+    os.chdir('../../src')
+    runprops['runs_file'] = '../runs/'+runs_file2+'/'+runs_file
     #print(runprops)
 elif 'results' in cwd:
     runs_file = os.path.basename(os.path.normpath(cwd))
