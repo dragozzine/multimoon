@@ -107,7 +107,6 @@ if runprops.get("first_run") == True:
     init = runprops.get('runs_file')+'/'+objname+'_init_guess.csv'
     priors = runprops.get('runs_file')+'/'+objname+'_priors_df.csv'
     geoanalysis = runprops.get('runs_file')+'/geocentric_'+objname+'_position_analysis.csv'
-    print("\n\nWarning: Observations data frames are now centrally located. Loading the centrally located obs_df from runs/"+objname+"/observations/.")
 
     if 'runs' in runprops.get('runs_file'):
         obs = runprops.get('runs_file')+'/../observations/'+runprops.get("obs_df")
