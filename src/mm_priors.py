@@ -161,7 +161,7 @@ def mm_priors(priors, params, runprops):
         mass1 = params["mass_" + str(1)].values[0]
         mass2 = params["mass_" + str(i+1)].values[0]
         if mass1 < mass2:
-            if runprops.get('is_mcmc'):
+            if runprops.get('is_mcmc') == False:
                 print('It seems one of your initial guesses prodcues a mass1 < mass2. MultiMoon currently runs best when the most massive object is the primary. If your run will not start due to a maximum reset, we recommend modifying your initial guesses to have the most massive object exist as the primary.')
             return -np.inf
     

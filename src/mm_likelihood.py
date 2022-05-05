@@ -246,8 +246,10 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     for i in range(1,numObj):
         prim_to_sat_pos = [positionData[i*3],positionData[i*3+1],positionData[i*3+2]]
         Model_DeltaLong[i-1], Model_DeltaLat[i-1] = mm_relast.convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos)
-        
-    # Putting in COM-COL offset fopr hidden objects
+    
+    '''
+    # We are commenting this out until MultiMoon 2.0. We will release this as a feature then.
+    # Putting in photocenter-braycenter offset for hidden objects in >2 object systems
     if runprops.get('photo_offset'):
         
         mass_ratio = paramdf['mass_2'][0]/paramdf['mass_1'][0]
@@ -265,7 +267,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         
         Model_DeltaLat = Model_DeltaLat - delta_offset_lat
         Model_DeltaLong = Model_DeltaLong - delta_offset_long
-
+    '''
     # Adding in center of mass center of light offsets    
     if runprops.get("com_offset"):
         Model_DeltaLong = Model_DeltaLong + paramdf["long_offset"].iloc[0]
