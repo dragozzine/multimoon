@@ -3,56 +3,57 @@
 ### Purpose of MultiMoon
 
 MultiMoon is a program designed to fit solar system small body multiple systems with non-Keplerian orbits including their quadrupole shapes. This will allow us to learn more about distant solar system objects, and determine their orbital parameters through Bayesian statistical sampling. 
-This code requires several types of files to be able to run, which will be exaplined here. In particular, to get MultiMoon to functino properly, you will need to provide a...
-1) A csv file of the Observational astrometry of the object
-2) A csv file of the inital guess for the physical and orbital parameters of the object
-3) A csv file that will control how the Priors of the given parameters will be calculated.
-
-Additonally a .txt file called 'runprops.txt' will need to be initialized which holds all of the variables needed to control the input and output for the program. This file will be explained in depth, and the variables explained. 
-
-In the exmaples for csv file organiation, the Haumea system (Primary = Haumea, Satellites = Hiiaka, Namaka) will be the example for the set up. 
+This code requires several types of files to be able to run. In particular, to get MultiMoon to function properly, you will need to provide a...
+1) A csv file of the relative astrometry of the object
+2) A csv file with the position of the object in geocentric cartesian coordinates
+3) A csv file of the inital guess for the physical and orbital parameters of the object
+4) A csv file that contains the priors for the object
+5) A csv file containing information about the run
 
 
+In the `runs/Lempo` folder, we have two examples of complete runs directories which can work out of the box. 
 
 ### Observation CSV,  "Object"_obs_df.csv
 
-This file represents a dataframe that is read into MultiMoon and then used as the posterior belief against which our model will be calculated. As a dataframe, it will have named columns. As a dataframe the columns do not need to be in order, besides the first column, which will represent the indices, which in this case is 'time', and the indice will portray the individual epoch's of the observations listed. The column names often include the name of the object and the satellites. The columns should be organized like so....
+The relative astrometry of the binary in question is contained in this file. As MultiMoon uses J2000 geocentric ecliptic coordinates in its fitting, astrometry should be provided in J2000 geocentric ecliptic coordinates. A script for conversion of relative astrometry in J2000 geocentric equatorial coordinates to the appropriate coordinates is located at `src/latlon_transform.py`. 
 
-###### time, Lat_Prim, Long_Prim, DeltaLat_Hiiaka, DeltaLong_Hiiaka, DeltaLat_Hiiaka_err, DeltaLong_Hiiaka_err, DeltaLat_Namaka, DeltaLong_Namaka, DeltaLat_Namaka_err, DeltaLong_Namaka_err
+Generally, the obs_df files use the following format (with Lempo as an example):
 
-The astrometry in this file should all be in the J2000 ecliptic. If current data is not given in the J2000 ecliptic, but rather the equatorial place, a function is currently being written for conversion to the ecliptic plane. The order of the columns does not matter, since the columns are called through the use of pandas dataframes, which uses the names of the satellites. The names must be exact and must match the names_dictionary in the runprops dictionary, otherwise the code will throw an error.
+###### time, DeltaLat_Hiisi, DeltaLong_Hiisi, DeltaLat_Hiisi_err, DeltaLong_Hiisi_err, DeltaLat_Paha, DeltaLong_Paha, DeltaLat_Paha_err, DeltaLong_Paha_err
 
-Observations for objects at certain times can be left as empty, if, for example, the satellite is located behind the primary at the time of observations. This will be translated by the code as a NaN observation at that time, and the code will compensate for that non-observation.
+In reality, the order of the columns does not matter, since the columns are called through the use of pandas dataframes. The names in the columns must match the names given in the `runprops.txt` file. 
 
-The observation dataframe that you would like to use must be specified in the runprops.txt file as the obsdata_file variable.
+Observations for objects at certain times can be left empty if data does not exist at that time (only really applicable for 3 body or higher systems). The observation dataframe that you would like to use must be specified in the runprops.txt file as the obsdata_file variable.
 
 ### Initial Guess, "Object"_init_guess.csv
 
-The initial guess file is composed of two columns, and a number of rows equal to the numebr of parameters that the user wants to test, which each row representing a parameter for which we are initializing our code. The dynamicstoincludeflags variable in the runrops dictinoary controls which variables must be included in the dataframe, and will be described later. 
+The initial guess file allows the user to specify a distribution from which initial walker position will be drawn. For each parameter, two numbers must be supplied, the mean and standard deviation of the walker distribution. The user is responsible for ensuring that the correct parameters are used in the initial guess file; MultiMoon will not run unless the  correct parameters are used. Which parameters are required is based on the dynamics to include flags inside `runprops.txt`.
 
-The first column asks for the mean of each parameter. In most cases, this will be the currently best known value for that parameter. The second column will ask for the standard deviation of error that you would like to initalize the code with. The inital guess csv will be used to create a number of variables for each floating parameter and will use a normal distribution to spread out the initial sample of parameters.  
+### Priors, "Object"_priors_df.csv
 
-
-### Priors Dataframe, "Object"_priors_df.csv
-
-The priors csv file is meant to control how we calculate our prior beliefs for our Bayesian statistical calculations. Each row, like the inital guess cv file, represents a parameter, floating or fixed. The priors dataframe does not require you to include a row for every parameter, unlike the initial guess dataframe. 
-
-The first column of the file is called dist_shape. This column should include an integer from 0-3. Any other number will cause this parameter's prior belief to be skipped during the calculation of the total prior likelihood. Each integer 0-3 means a different distribution shape will be used to calculate that parameter's prior likelihood.
-
-0 - A Uniform Distirbution will be calculated
-1 - A Log-Uniform Distribution will be calculated
-2 - A Normal Distribution will be calculated
-3 - A Log-Normal Distribution will be calculated
-
-The remaining columns control the distribution calculations. 
-Columns 2 and 3 are uni-low and uni-up, representing the lower and upper limits of the desired uniform distirbution calulcation.
-Columns 4 and 5 are log-uni-low and log-uni-up, representing the lower and upper limits of the desired uniform distirbution calulcation.
-Columns 6 and 7 are norm-cen and norm-spread, representing the center of the normal distiribution and the standard deviation expected for the parameter
-Columns 8 and 9 are log-norm-cen and log-norm-spread, representing the center of the log-normal distiribution and the standard deviation expected for the parameter
-
+The priors input file contains a table with the desired priors for your MultiMoon run. As of right now, only uniform priors are well tested and used regularly. This file should have every parameter in it. Thankfully, parameters that appear in the priors file, but aren't being used in the run, will not cause any significant issues. Generally, the prior files are edited only rarely. 
 
 ### The Run properties, "runprops.txt"
 
-All of the variables necessary for running MultiMoon are defined in the runprops dictionary. The runprops.txt file is set up in such a way to display the whole dictionary in a readable format, and should look familiar to anyone versed in JSON.
+All of the variables necessary for running MultiMoon are defined in the runprops dictionary. The runprops.txt file is set up in such a way to display the whole dictionary in a readable format, and should look familiar to anyone versed in JSON. A guide for all runprops inputs is located at
 
-Some variables are very necessary for MultiMoon to run, and others are just cosmetic, and help keep a record of the goals and pruposes of the run, for future reference. 
+
+
+### How to run MultiMoon
+
+Once all required packages are installed and SPINNY is compiled, MultiMoon is generally run from the command line. From inside a runs directory (e.g. `src/runs/Lempo/000`) the following command can be used to run MultiMoon:
+
+`mpiexec -n numprocs python ../../../src/mm_run_multi.py`
+
+where numprocs is the number of processors you would like to use. MultiMoon is extremely parallelizeable and can accomodate using any number of processors (MultiMoon devs often use hundreds of processors per run). Running MultiMoon will automatically create a new, unique directory in `src/results` which saves all data from your run. Whilel MultiMoon is running, a loading bar will appear showing the progress and estimated time remaining in that step. Once MultiMoon is done running, a variety of plots will be output to the results folder. 
+
+
+### Some caveats
+
+1) Bodies must be listed from inside out. For example, in the Lempo system, Hiisi needs to be object 2 and Paha object 3, MultiMoon doesn't like when the order isn't from inside out.
+2) All units in the initial guess files are in km, degrees, and seconds, except the spin rate (sprate) of objects with spins. sprate must be input in units of radians/second. This may be fixed in later verison of MultiMoon.
+3) Observations files (as described above) are stored separately from all other data, this allows only one copy to be stored per object. 
+4) Thinning (the process in which data isn't stored to save space) should be avoided, if possible. It only saves memory/storage and purposefully throws away data.
+5) If trying to fit an object with a known Keplerian orbit, make sure to use the same fitting epoch (called epoch_sjd in runprops). This will allow you to use previously published fits as a starting guess. 
+
+If you want to use MultiMoon but are having trouble getting started/troubleshooting, contact Benjamin Proudfoot (benp175 at gmail dot com) or other members of the development team. We are willing to help people get started!

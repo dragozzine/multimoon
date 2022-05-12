@@ -70,8 +70,6 @@ def vec2orb_ns(s,phys_objects,vec):  # converts a state vector to orbital parame
                             
 #### generate_system takes input from the dataframe and generates a 
 #### Physical_Properties class and SPINNY object for each body in the system
-    #Why is a plot command right here?
-    #plot(s_df, names, runprops)
 def generate_system_ns(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr,tolerance, runprops):
     
     # integration parameters
@@ -110,7 +108,6 @@ def generate_system_ns(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr,tolerance, 
         
 def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPINNY system to each time given in t_arr
     global T
-    #epoch = 2453880.0 * 24.*3600.
     T = int(len(t_arr))
     N = int(len(s.arr0)/13)
     body_arr = np.empty((T,(N*6)))
@@ -130,9 +127,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
     for t in range(0,T):
         # Use s.get_state(n,0) with respect to the primary to ignore the motion of the Sun in our vectors,
         # but we take s.arr0 in order to get orbital parameters which might not make any sense in a primaricentric frame
-        #print('t_arr', t_arr)
         s.evolve(t_arr[t]) #### <---- The actual integration
-        #print("spinny_nosun Line 135")
         body_arr[t] = np.concatenate([s.get_state(n,0) for n in range(0,N)]) # taken with respect to the primary
         
         inertial_arr[t] = s.arr0
@@ -157,9 +152,6 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
 
             spinvec_arr[n,t,:] = s.get_spin(n)
 
-    #for t in range(0,T):
-    #    for n in range(0,N):
-            
             r_n = R.from_quat(quat_arr[n,t]) # convert quaternion to rotation
             obj_pole = r_n.apply([0.0,0.0,1.0],inverse=False) # get orientation of spin pole in world frame
             state = body_arr[t,(n*6):(n*6)+6] # get barycentric state vector for the body
@@ -170,23 +162,17 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
             if n == 0 and hasspin_arr[n] == True:  
                 state_sec = body_arr[t,((n+1)*6):((n+1)*6)+6]         
                 h = np.cross(state_sec[:3],state_sec[3:])# Specific orbital angular momentum (of secondary)
-                #print(h)
                 orbit_pole = h/np.linalg.norm(h)  # compute direction of orbit normal
                 spin_orbit_angle = np.arccos(np.dot(obj_pole,orbit_pole))*180./np.pi
-                #print("here1")
 
             elif hasspin_arr[n] == False: # don't try to compute spin angles if spin isn't included
                 spin_orbit_angle = 0.0
-                #print("here2")
 
             else:
                 h = np.cross(state[:3],state[3:]) # Specific orbital angular momentum
                 orbit_pole = h/np.linalg.norm(h)  # compute direction of orbit normal
-                #print(orbit_pole)
                 spin_orbit_angle = np.arccos(np.dot(obj_pole,orbit_pole))*180./np.pi
-                #print("here3")
 
-            #print(spin_arr.shape)
             spin_arr[n,t,0] = spin_orbit_angle 
             spin_rate = np.linalg.norm(spinvec_arr[n,t,:]) # magnitude of spin vector
             spin_arr[n,t,1] = ((2.0*np.pi)/spin_rate) / 3600.0 # spin period in hours
@@ -228,7 +214,6 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
     body_dict = {"Times":t_arr}
     if verbose:
         print("Constructing dataframe...")
-    #print("spinny_no_sun line 222")
     for n in range(0,N):   
         body_dict.setdefault('X_Pos_'+name_arr[n] , body_arr[:,(n*6)+0])
         body_dict.setdefault('Y_Pos_'+name_arr[n] , body_arr[:,(n*6)+1])
@@ -243,6 +228,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
         vec = inertial_arr[:,(n*13):((n*13)+6)] - cm1*inertial_arr[:,0:6] - cm2*inertial_arr[:,13:13+6]
        
         ##### Attempt to subtract motion of the barycenter from state vectors
+        # keeping this in just in case... probably should be removed eventually
         #print([phys_objects[i].mass for i in range(1,N)])
         #vec_arr = np.array([body_arr[:,(i*6):((i*6)+6)] for i in range(0,N-1)])
         #M = sum([phys_objects[i].mass for i in range(1,N)])
@@ -273,7 +259,6 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
         body_dict.setdefault('spin_orbit_angle_'+name_arr[n], spin_arr[n,:,0])
         body_dict.setdefault('spin_period_'+name_arr[n],  spin_arr[n,:,1])
         
-        #print(L_arr[:,0],L_arr[:,1],L_arr[:,2])
         body_dict.setdefault('Lx_'+name_arr[n], L_arr[n,:,0] )
         body_dict.setdefault('Ly_'+name_arr[n], L_arr[n,:,1] )
         body_dict.setdefault('Lz_'+name_arr[n], L_arr[n,:,2] )
@@ -285,8 +270,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
     body_dict.setdefault('Ly_tot'+name_arr[n], L_arr_sum[:,1] )
     body_dict.setdefault('Lz_tot'+name_arr[n], L_arr_sum[:,2] )   
     spinny_df = pd.DataFrame(body_dict)
-    #print('line 288',os.getcwd())
-    #spinny_df.to_csv("out.csv")
+    #spinny_df.to_csv("out.csv")      <----- this is really useful for debugging purposes...
     return(spinny_df)     
 
 """    
@@ -301,7 +285,6 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
 """                          
 
 def build_spinny_ns(sys_df, runprops): 
-    #print(sys_df)
     G = 6.67e-20 # Gravitational constant in km
     
     verbose = runprops.get('verbose')
@@ -312,7 +295,6 @@ def build_spinny_ns(sys_df, runprops):
     N = len(masses) 
     
     names = np.empty(N,dtype='object')
-    #print(sys_df)
     for n in range(0,N):
         idx_n = int(np.where(sys_df==masses[n])[1].flatten())
         name_n = (sys_df.columns[idx_n])

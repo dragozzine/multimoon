@@ -499,20 +499,8 @@ void cashkarp_class<T>::evolve(
         if(recover and success) {
             h0 = h00;
         }
-        //if(success) {
-        //    std::cout<<"Step\n";
-        //    std::cout<<"Timestep "<<h0<<"\n";
-        //}
-        //if(!success) {
-        //    nreset++;
-        //    //std::cout<<"# Fail\n";
-        //    //std::cout<<"Timestep "<<h0<<"\n";
-        //}
-        //if(nreset>10000.) {
-        //    y[0] = NAN;
-        //    t = t_end;
-        //    std::cout<<"Quitting integration";
-        //}
+        // If step size gets too small, quit integration.
+        // minh = 1e-5
         if(fabs(h0) < minh){
             y[0] = NAN;
             t = t_end;

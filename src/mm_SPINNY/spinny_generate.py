@@ -20,7 +20,6 @@ G = 6.67e-20 # Gravitational constant in km
 def orb2vec(orb_arr,phys_arr,n): # converts orbital parameters to state vector 
     N = len(phys_arr)            # This MUST be done in an inertial frame or it cannot work
 
-    #print('orb_arr', orb_arr)
     a = orb_arr[0]
     e = orb_arr[1]
     w = orb_arr[2]
@@ -30,30 +29,24 @@ def orb2vec(orb_arr,phys_arr,n): # converts orbital parameters to state vector
     
     list = [l for l in range(1,N)]
     mu = G*sum(phys_arr[list,0])
-    #print('line 33 spinny_generate')    
     if n == 0:      # just the Sun's mass                
         orb = [a*(1-e),e,i,O,w,M,0.0,G*phys_arr[0,0]]
-        #print('line 36 spinny_generate')
-        #print('Sun vec', orb)
         vec = spice.conics(orb,0)
         
     elif n == 1:   # scales the "orbit" of the primary according to the mass of the secondary
         
         orb = [a*(1-e),e,i,O,w,M,0.0,mu]
         cm = 1/(1 + (phys_arr[1,0]/phys_arr[2,0]))
-        #print('line 43 spinny_generate')
         vec = -cm * spice.conics(orb,0)
         
         
     elif n == 2:   # scales the orbit or the secondary according to the mass of the primary        
         orb = [a*(1-e),e,i,O,w,M,0.0,mu]
         cm = 1/(1 + (phys_arr[2,0]/phys_arr[1,0]))
-        #print('line 50 spinny_generate')
         vec = cm * spice.conics(orb,0)
         
     else:         # all the other objects just use the defined orbits
         orb = [a*(1-e),e,i,O,w,M,0.0,mu]
-        #print('line 55 spinny_generate')
         vec = spice.conics(orb,0)
 
     return(vec) 
@@ -95,34 +88,22 @@ def generate_system(N,name_arr,phys_arr,orb_arr,spin_arr,quat_arr, runprops):
     #h0P = 1e-5                           # initial step size
     h0P = 1
     
-    #print('N', N)
-    #print('phys_arr',phys_arr)
-    #print('orb_arr', orb_arr)
-    #print('spin_arr', spin_arr)
-    #print('quat_arr', quat_arr)
-    #print('t_arr', t_arr)
-    #print('line 99 spinny_generate')
     if verbose:
         print('generate line 101')
         print("Building SPINNY system...")
     s = Spinny_System(0.,h0=h0P,tol=tol)        # initializes object s, which is the SPINNY system
-    #print('line 104 spinny_generate')
     for n in range(0,N):
         j2r20 = phys_arr[n,2]
         c22r20 = phys_arr[n,3]
         ax = phys_arr[n,1]
         # builds physical properties class for each object
-        #print('line 110 spinny_generate')
         globals()['phys_'+str(n)] = Physical_Properties(G*phys_arr[n,0],"grav", J2R2=j2r20, C22R2=c22r20, c=ax) 
-        #print(Physical_Properties(G*phys_arr[n,0],"grav", J2R2=j2r20, C22R2=c22r20, c=ax))
         
         # creates an initial state vector for each body
-        #print('line 115 spinny_generate')
         
         globals()['s_'+str(n)] = orb2vec(orb_arr[n],phys_arr,n)
 
     #This excludes the Sun
-    #print('line 117 spinny_generate')
     for n in range(1,N):
 
         globals()['sp_rate_'+str(n)] = spin_arr[n,3]
@@ -148,7 +129,6 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPI
     N = int(len(s.arr0)/13)
     body_arr = np.empty((T,(N*6)))
     inertial_arr = np.empty((T,(N*13))) 
-    #spin_arr = np.empty((N,T,2))
     spin_arr = np.empty((N,T))
     quat_arr = np.empty((N,T,4))
     euler_arr = np.empty((N,T,3))  
@@ -162,19 +142,17 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPI
     if verbose:
         print("Evolving SPINNY...")
 
-    #print(s)
     for t in range(0,T):
-        #print('Evolving')
         s.evolve(t_arr[t])
         
         body_arr[t] = np.concatenate([s.get_state(n,0) for n in range(0,N)]) # taken with respect to the primary
-        #print('body_Arr[t]', body_arr[t])
         inertial_arr[t] = s.arr0
         if np.isnan(s.arr0[0]):
             raise Exception("SPINNY took too long")
             
         
        #'''
+        # DS TODO: what is this huge commented out section?? DO we need it?
         #BEGIN OF GENERATE CODE
         for n in range(0,N-1):
             
@@ -318,7 +296,6 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPI
         print("Constructing dataframe...")
     m = N-1
 
-    #print('body_dict nefore:', body_dict)
     #Here we set the Sun before the rest of the bodies
     #m is N-1, because the Sun in body_arr is the last object
 
@@ -328,18 +305,13 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPI
     body_dict.setdefault('X_Vel_'+name_arr[0] , body_arr[:,(m*6)+3])
     body_dict.setdefault('Y_Vel_'+name_arr[0] , body_arr[:,(m*6)+4])
     body_dict.setdefault('Z_Vel_'+name_arr[0] , body_arr[:,(m*6)+5])
-    #print('body_dict after:', body_dict)
-    #print('line 297', name_arr)
-    #print(name_arr.shape, body_arr.shape, N)
     for n in range(0,N-1):   
-        #print(name_arr[n+1])
         body_dict.setdefault('X_Pos_'+name_arr[n+1] , body_arr[:,(n*6)+0])
         body_dict.setdefault('Y_Pos_'+name_arr[n+1] , body_arr[:,(n*6)+1])
         body_dict.setdefault('Z_Pos_'+name_arr[n+1] , body_arr[:,(n*6)+2])
         body_dict.setdefault('X_Vel_'+name_arr[n+1] , body_arr[:,(n*6)+3])
         body_dict.setdefault('Y_Vel_'+name_arr[n+1] , body_arr[:,(n*6)+4])
         body_dict.setdefault('Z_Vel_'+name_arr[n+1] , body_arr[:,(n*6)+5])
-        #print('line 306')
         cm1 = phys_objects[1].mass/(phys_objects[2].mass+phys_objects[1].mass)
         cm2 = phys_objects[2].mass/(phys_objects[2].mass+phys_objects[1].mass)
         
@@ -358,7 +330,7 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPI
         #    bary_arr[t] = (M**(-1.0))*sum([phys_objects[i].mass*vec_arr[i-1,t] for i in range(1,N)])
         #    
         #new_vec = np.array([np.subtract(vec_arr[n,t],bary_arr[t]) for t in range(0,T)])
-        #print('line 326')
+
         orb_n = vec2orb(s,phys_objects,vec)
             
         #semi-major axis calculated by a = (periapsis)/(1-e)
@@ -369,7 +341,7 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPI
         body_dict.setdefault('longitude_ascending_'+name_arr[n+1] , 180/np.pi*orb_n[:,3])
         body_dict.setdefault('argument_periapse_'+name_arr[n+1]   , 180/np.pi*orb_n[:,4])
         body_dict.setdefault('mean_anomaly_'+name_arr[n+1]        , 180/np.pi*orb_n[:,5]) 
-        #print('line 337')
+
         # Euler angles, with respect to the orbit
         body_dict.setdefault('precession_'+name_arr[n+1], 180/np.pi*(euler_arr[n,:,0]) )
         body_dict.setdefault('obliquity_'+name_arr[n+1],  180/np.pi*(euler_arr[n,:,1]) )
@@ -384,10 +356,7 @@ def spinny_evolve(s, name_arr, phys_objects, t_arr, runprops): # evolves the SPI
         #body_dict.setdefault('E_'+name_arr[n], E_arr )
         
         #No sun includes  spin-orbit angle, Lx, Ly, Lz, and E
-    #print(body_dict)
-    #print('line 347')
     spinny_df = pd.DataFrame(body_dict)
-    #print('line 349' ,spinny_df)              
     return(spinny_df)     
 
 """    
@@ -406,21 +375,15 @@ def build_spinny(sys_df, runprops):
     verbose = runprops.get('verbose')
     if verbose:
         print("Reading file to dataframe...")
-    #print('generate line 358')
-    #print(sys_df)
     masses = -np.sort(-sys_df.loc["mass"].values.flatten()) # in DESCENDING ORDER of size, an array of the masses (sun is first)
     N = len(masses) # number of bodies in the system, including the Sun
     
     names = np.empty(N,dtype='object')
-    #print('generate line 363')
-    #if runprops.get('includesun'):
         
     for n in range(0,N):
         idx_n = int(np.where(sys_df==masses[n])[1].flatten())
         name_n = (sys_df.columns[idx_n])
         names[n] = name_n
-    #if runprops.get('includesun'):
-    #    names = np.insert(names,0,'Sun')
         
         
     phys_arr = np.zeros((N,4))
@@ -430,8 +393,6 @@ def build_spinny(sys_df, runprops):
     
     i = 0
     
-    #print(names)
-    #print(sys_df)
     for name in names: # for each body in the system, added in order of descending mass:
         
         if sys_df.loc["mass",name] != 0.00:
@@ -500,6 +461,7 @@ def build_spinny(sys_df, runprops):
     for name in names[1:]: #exclude the Sun, since its spin doesn't matter
         # precession, obliquity angles are measured with respect to the ECLIPTIC, not the body's orbit
         # default values are set to be aligned with the orbit (LAN for prec, inc for obliq, AOP for longitude)
+	# These if statements look useless??
         
         if sys_df.loc["sp_prc",name] != 0.00:
             sp_prc_n = (np.pi/180.)*sys_df.loc["sp_prc",name]
@@ -559,7 +521,6 @@ def build_spinny(sys_df, runprops):
         
         i = i+1
               
-    #print(orb_arr, phys_arr, spin_arr, quat_arr)
     return(N, names, phys_arr, orb_arr, spin_arr, quat_arr)
     
     
@@ -568,20 +529,9 @@ def evolve_spinny(N, names, phys_arr, orb_arr, spin_arr, quat_arr, t_arr, runpro
     start_time = time.time()
     verbose = runprops.get('verbose')
     #names = np.insert(names,0,'Sun')
-    #print(names)
-    #print('generate line 545')
     s = generate_system(N,names,phys_arr,orb_arr,spin_arr,quat_arr, runprops)
-    #print('N', N)
-    #print('phys_arr',phys_arr)
-    #print('orb_arr', orb_arr)
-    #print('spin_arr', spin_arr)
-    #print('quat_arr', quat_arr)
-    #print('t_arr', t_arr)
     spinny = s[0]
     phys_arr = s[1]
-    #print('spinny', spinny)
-    #print('phys_arr', phys_arr)
-    #print('generate line 557')
     s_df = spinny_evolve(spinny, names, phys_arr,t_arr, runprops)
     
     if verbose:
