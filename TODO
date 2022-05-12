@@ -10,20 +10,20 @@ timeframe for when this might be needed can be listed.
 
 TODO
 
-DS - Test/Ensure that a single user can run the code multiple times simultaneously, even in the same directory, 
-without running into issues. UPDATE: You can, and it works great.
+MultiMoon version 1.1
 
-SP: Code that takes binary orbital angles in equatorial (RA/Dec) and calculate 
-what these would be in ecliptic (Long/Lat). Could potentially also do 
-the analytical calculation of the mirror degeneracy orbital angles as 
-well. (June)
+- Includesun: Include the sun in your integration of the system (introduce solar perturbations to the system). 
 
-Keep track (probably in runprops) of current best set of parameters and 
-log-likelihood and when a better log-likelihood is found, output to a 
-text file.
+- Automated tolerance testing
 
-Have a non-auto version that can be set with a flag that just runs it a 
-fixed number of times.
+MultiMoon version 2.0
+
+- Photocenter-barycenter shift: Include photocenter-barycenter offset in the case of a >3 body system with a tight inner body. Less complex than a full PSF fit, we check to see if the center of the primary body moves around, due to the photometric addition of the inner body. A relative brightness can be estimated with this method. 
+
+- nPSF integration with MultiMoon. In the case of tight inner body's, perform a PSF fit to the data with the estimated seperation for the best fit.
+
+
+
 
 Code that reads in entire Grundy database, but work with Grundy on 
 this (to get proprietary data he's willing to share too). (August?)
