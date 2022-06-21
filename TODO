@@ -33,6 +33,10 @@ probably have an additional post-processing calculation that calculates
 likelihoods on a grid and thinks ahead to how the likelihood for an 
 arbitrary value would be calculated.
 
+Implement GPU use in the parallelziation code
+
+Do an affine transformation after the burnin for 10X speedup.
+
 
 
 
