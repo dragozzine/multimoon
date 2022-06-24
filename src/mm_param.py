@@ -332,8 +332,9 @@ def from_fit_array_to_param_df(float_array, float_names, fixed_df, total_df_name
                 c = np.sin(splan*np.pi/180)
                 
                 if a/c > 1 or a/c < -1:
-                    param_df['spinc_'+str(i+1)] = -np.inf
-                    param_df['splan_'+str(i+1)] = -np.inf
+                    # This enforces the "prior" for our transformed spin coordinates
+                    param_df['spinc_'+str(i+1)] = -1
+                    param_df['splan_'+str(i+1)] = -1
 
                 else:
                     spinc = np.arccos(a/c)*2*180/np.pi
