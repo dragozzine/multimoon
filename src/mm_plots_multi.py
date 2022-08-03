@@ -851,7 +851,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		kepler_df = kepler_system[0]
 		names = kepler_system[1]
 		spinny_plot(kepler_df, names,runprops)
-	elif runprops.get('includesun') == 0 and N==3:
+	elif runprops.get('includesun') == 0:
 		system = build_spinny_ns(sys_df,runprops)
 		spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol,runprops)
 		s_df = spinny[0]
