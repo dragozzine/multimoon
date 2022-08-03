@@ -89,7 +89,7 @@ def spinny_plot(plot_df, names, runprops):
         filename = os.getcwd()+'/spinny_plots/0'+runprops.get('animate_num')+'_figs.pdf'
     else:
         filename = os.getcwd()+'/spinny_figures.pdf'
-    
+    print('Starting spinny plots')
     with PdfPages(filename) as pdf:
         
         for name in names:

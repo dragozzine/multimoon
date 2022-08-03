@@ -450,22 +450,26 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			inc2_index = [n for n, l in enumerate(names) if l.startswith('inc_2')][0]
 			inc2_arr = np.deg2rad(flatchain[:,inc2_index])
 		else:
-			inc2_arr = fit_scale['inc_2'].values*np.pi/180            
+			inc2_arr = np.zeros(len(flatchain[:,0]))            
+			inc2_arr[:] = fit_scale['inc_2'].values*np.pi/180            
 		if 'inc_3' in float_names:            
 			inc3_index = [n for n, l in enumerate(names) if l.startswith('inc_3')][0]
 			inc3_arr = np.deg2rad(flatchain[:,inc3_index])
 		else:
-			inc3_arr = fit_scale['inc_3'].values*np.pi/180  
+			inc3_arr = np.zeros(len(flatchain[:,0]))            
+			inc3_arr[:] = fit_scale['inc_3'].values*np.pi/180  
 		if 'lan_2' in float_names:         
 			lan2_index = [n for n, l in enumerate(names) if l.startswith('lan_2')][0]
 			lan2_arr = np.deg2rad(flatchain[:,lan2_index])
 		else:
-			lan2_arr = fit_scale['lan_2'].values*np.pi/180  
+			lan2_arr = np.zeros(len(flatchain[:,0]))            
+			lan2_arr[:] = fit_scale['lan_2'].values*np.pi/180  
 		if 'lan_3' in float_names:         
 			lan3_index = [n for n, l in enumerate(names) if l.startswith('lan_3')][0]
 			lan3_arr = np.deg2rad(flatchain[:,lan3_index])
 		else:
-			lan2_arr = fit_scale['lan_2'].values*np.pi/180  
+			lan3_arr = np.zeros(len(flatchain[:,0]))            
+			lan3_arr[:] = fit_scale['lan_3'].values*np.pi/180  
 
 
 		mutualinc = np.arccos( np.cos(inc2_arr)*np.cos(inc3_arr) + np.sin(inc2_arr)*np.sin(inc3_arr)*np.cos(lan2_arr - lan3_arr) )
@@ -479,17 +483,20 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			mass1_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
 			mass1_arr = flatchain[:,mass1_index]
 		else:
-			mass1_arr = fit_scale['mass_1'].values*np.pi/180  
+			mass1_arr = np.zeros(len(flatchain[:,0]))            
+			mass1_arr[:] = fit_scale['mass_1'].values*np.pi/180  
 		if 'mass_2' in float_names:         
 			mass2_index= [n for n, l in enumerate(names) if l.startswith('mass_2')][0]
 			mass2_arr = flatchain[:,mass2_index]
 		else:
-			lan2_arr = fit_scale['mass_3'].values*np.pi/180  
+			mass2_arr = np.zeros(len(flatchain[:,0]))            
+			mass2_arr[:] = fit_scale['mass_2'].values*np.pi/180  
 		if 'mass_3' in float_names:         
 			mass3_index = [n for n, l in enumerate(names) if l.startswith('mass_3')][0]
 			mass3_arr = flatchain[:,mass3_index]
 		else:
-			mass3_arr = fit_scale['mass_3'].values*np.pi/180  
+			mass3_arr = np.zeros(len(flatchain[:,0]))            
+			mass3_arr[:] = fit_scale['mass_3'].values*np.pi/180  
             
 		#mass1_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
 		#mass2_index = [n for n, l in enumerate(names) if l.startswith('mass_2')][0]
@@ -502,7 +509,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		mass1_3_rat = mass3_arr/mass1_arr
 		mass2_3_rat = mass3_arr/mass2_arr
 
-		dnames = np.append(dnames, ["mass_3/mass_2","period_3/period_2"])
+		dnames = np.append(dnames, ["mass_3/mass_2"])
 		#dfchain = np.concatenate((dfchain, np.array([mass1_3_rat]).T), axis = 1)
 		dfchain = np.concatenate((dfchain, np.array([mass2_3_rat]).T), axis = 1)
 		mass_tot = mass1_arr+mass2_arr+mass3_arr
@@ -967,7 +974,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		kepler_df = kepler_system[0]
 		names = kepler_system[1]
 		spinny_plot(kepler_df, names,runprops)
-	elif runprops.get('includesun') == 0 and N==3:
+	elif runprops.get('includesun') == 0:
 		system = build_spinny_ns(sys_df,runprops)
 		spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol,runprops)
 		s_df = spinny[0]
@@ -975,17 +982,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		spinny_plot(s_df,names, runprops)
 	elif runprops.get('includesun') == 1: 
 		system = build_spinny(sys_df, runprops)
-		spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,runprops)
-		        
-		s_df = spinny[0]
-		#print(s_df)
-		#s_df = pd.DataFrame()
-		#s_df['X_Pos_'+]=
-		#s_df['']=
-		#s_df['']=
-		#s_df['']=
-		#s_df['']=
-		#s_df['']=        
+		spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,runprops)       
+		s_df = spinny[0]     
 		names = spinny[1]
 		spinny_plot(s_df,names, runprops)
     
@@ -1056,7 +1054,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	objpos = [x,y]
 	objposerr = [xe,ye]
 	labels = ["dLat", "dLong"]
-
+	print(len(time_arr), len(objpos), len(modelpos))
 	for i in range(1,nobjects):
 		for j in range(2):
 			plt.figure()
