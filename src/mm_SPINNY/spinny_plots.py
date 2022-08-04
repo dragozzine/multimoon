@@ -32,6 +32,9 @@ def spinny_plot(plot_df, names, runprops):
         globals()[name+'_x'] = plot_df["X_Pos_"+name]
         globals()[name+'_y'] = plot_df["Y_Pos_"+name]
         globals()[name+'_z'] = plot_df["Z_Pos_"+name]
+        
+        print(plot_df.head)
+        print(plot_df['X_Vel_'+name])
         #globals()[name+'_xL'] = plot_df["Lx_"+name]
         #globals()[name+'_yL'] = plot_df["Ly_"+name]
         #globals()[name+'_zL'] = plot_df["Lz_"+name]
