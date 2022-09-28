@@ -41,6 +41,7 @@ def mm_priors(priors, params, runprops):
         columnList.remove("name_5")
     
     #This loop is to make sure all of the column values are floats, because pandas sometimes turns the values to strings when read from file
+    #print(priors)
     for i in columnList:
         #print(i)
         priors[i].astype(float)
