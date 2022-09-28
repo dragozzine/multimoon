@@ -46,6 +46,7 @@ def generate_vector(paramsdf, t_arr, runprops):
         kepler_system = kepler_2body(sys_df,t_arr, runprops)
         #print('got the kepler system')
         s_df = kepler_system[0]
+        #print(s_df,len(s_df),t_arr)
         names = kepler_system[1]
         #print('next')
         
@@ -60,6 +61,7 @@ def generate_vector(paramsdf, t_arr, runprops):
         spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol, runprops)
         #print("spinny_vector line 56")
         s_df = spinny[0]
+        #print(s_df,len(s_df),t_arr)
         names = spinny[2]
         
     elif includesun and N >= 2: # runs SPINNY with the sun included

@@ -237,6 +237,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     obsdf = obsdf.sort_values(by=['time'])
     #time_arr = np.sort(obsdf['time'].values.flatten())
+    #print('OBSDF: ',obsdf)
     time_arr = obsdf['time'].values.flatten()# gets an array of observation times from the obs dataframe
 
     # Setting times relative to the epoch
@@ -255,7 +256,9 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         time_arr_sec = time_arr*86400
         #vec_df = func_timeout(5,generate_vector,args=(paramdf, time_arr_sec, runprops))
         #print(paramdf)
+        #print('time_arr_sec: ',time_arr_sec)
         vec_df = generate_vector(paramdf, time_arr_sec, runprops)
+        
     #except FunctionTimedOut:
     #    print('Spinny took longer than 5 seconds to run 1 walker-step:\n')
     #    return np.inf

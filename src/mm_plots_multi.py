@@ -330,6 +330,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	# Make corner plot
 	#plt.rc('text', usetex=True)
 	fig = 0
+	'''    
 	#print(flatchain[:,0], flatchain[:,1])    
 	fig = corner.corner(flatchain, labels = latexnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
@@ -720,7 +721,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	likelihoodspdf.close()
 	plt.close("all")
-
+	'''
 	# Residual plots
 	flatchain = sampler.get_chain(flat = True, thin=thin_plots)
 	nobjects = runprops.get('numobjects')
@@ -753,7 +754,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	print('paraminput 1', paraminput)    
 	paramdf,fit_params = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
 	print(paramdf)    
-	best_likelihoods = pd.read_csv('best_likelihoods.csv')
+	best_likelihoods = pd.read_csv('best_likelihoods.csv',index_col=0)
 	best = best_likelihoods.iloc[-(1)]
 	#print(best)   
 	#residuals = [np.tolist(best['Residuals    
@@ -844,7 +845,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
     
 	#geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
-	geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position_analysis.csv')
+	geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position_analysis.csv',index_col=0)
 
 	times = geo_obj_pos.values[:,0].flatten()
 
@@ -973,7 +974,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		kepler_system = kepler_2body(paramdf,t_arr,runprops)
 		kepler_df = kepler_system[0]
 		names = kepler_system[1]
-		spinny_plot(kepler_df, names,runprops)
+		#spinny_plot(kepler_df, names,runprops)
 	elif runprops.get('includesun') == 0:
 		system = build_spinny_ns(sys_df,runprops)
 		spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol,runprops)
@@ -988,12 +989,12 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		spinny_plot(s_df,names, runprops)
     
 	#Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
-	print(paramdf)    
+	print(paramdf, fakeobsdf,runprops,geo_obj_pos)    
 	DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
-
+	print(fakeobsdf)
 	modelx = np.empty((nobjects-1, fakeobsdf.shape[0]))
 	modely = np.empty((nobjects-1, fakeobsdf.shape[0]))
-
+	print('modelx len: ',len(modelx[0]))
 	x = np.empty((nobjects-1, obsdf.shape[0]))
 	xe = np.empty((nobjects-1, obsdf.shape[0]))
 	y = np.empty((nobjects-1, obsdf.shape[0]))
