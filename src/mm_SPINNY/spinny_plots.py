@@ -16,7 +16,7 @@ import pandas as pd
 
     
 def spinny_plot(plot_df, names, runprops):    
-    
+    print('Plot _df Spinny: ', plot_df)
     cols = plot_df.columns.values
     N = sum(1 for s in cols if 'X_Pos_' in s)
 
