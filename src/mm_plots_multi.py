@@ -330,7 +330,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	# Make corner plot
 	#plt.rc('text', usetex=True)
 	fig = 0
-	'''    
+	    
 	#print(flatchain[:,0], flatchain[:,1])    
 	fig = corner.corner(flatchain, labels = latexnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
@@ -406,7 +406,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	# Spin period
 	fixedparams = runprops.get("float_dict")
 	if dtif[0] == "1" or dtif[0] == "2":
-		if fixedparams["sprate_1"] == 1:        
+		if fixedparams["sprate_1"] == 1 and len([n for n, l in enumerate(names) if l.startswith('sprate_1')]) > 0:        
 			if 'sprate_1' in names and 'spin_period_1' in names:
 				sprate1_index = [n for n, l in enumerate(names) if l.startswith('sprate_1')][0]
 				sprate1_arr = flatchain[:,sprate1_index]
@@ -416,33 +416,58 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				dfchain = np.concatenate((dfchain, np.array([spinperiod]).T), axis = 1)
 
 	# Satellite-spin mutual inclination
-	if (dtif[0] == "1" or dtif[0] == "2") and len([n for n, l in enumerate(names) if l.startswith('spinc_1')]) > 0:
+	if (dtif[0] == "1" or dtif[0] == "2"):
 		for i in range(1,runprops.get('numobjects')):
 			#print(names)
-            
-			spinc1_index = [n for n, l in enumerate(names) if l.startswith('spinc_1')][0]
-			splan1_index = [n for n, l in enumerate(names) if l.startswith('splan_1')][0]
-			inc_index = [n for n, l in enumerate(names) if l.startswith('inc_'+str(i+1))][0]
-			lan_index = [n for n, l in enumerate(names) if l.startswith('lan_'+str(i+1))][0]
-
-			spinc1_arr = np.deg2rad(flatchain[:,spinc1_index])
-			splan1_arr = np.deg2rad(flatchain[:,splan1_index])
-			inc_arr = np.deg2rad(flatchain[:,inc_index])
-			lan_arr = np.deg2rad(flatchain[:,lan_index])
-
+			if len([n for n, l in enumerate(names) if l.startswith('spinc_1')]) > 0:
+				spinc1_index = [n for n, l in enumerate(names) if l.startswith('spinc_1')][0]
+				spinc1_arr = np.deg2rad(flatchain[:,spinc1_index])
+			else:
+				spinc1_arr = np.zeros(len(flatchain[:,0]))
+				spinc1_arr[:] = fit_scale['spinc_1'].values              
+			if len([n for n, l in enumerate(names) if l.startswith('splan_1')]) > 0:                
+				splan1_index = [n for n, l in enumerate(names) if l.startswith('splan_1')][0]
+				splan1_arr = np.deg2rad(flatchain[:,splan1_index])
+			else:
+				splan1_arr = np.zeros(len(flatchain[:,0]))
+				splan1_arr[:] = fit_scale['splan_1'].values
+			if len([n for n, l in enumerate(names) if l.startswith('inc_'+str(i+1))]) > 0:
+				inc_index = [n for n, l in enumerate(names) if l.startswith('inc_'+str(i+1))][0]
+				inc_arr = np.deg2rad(flatchain[:,inc_index])
+			else:
+				inc_arr = np.zeros(len(flatchain[:,0]))
+				inc_arr[:] = fit_scale['inc_'+str(i+1)].values
+			if len([n for n, l in enumerate(names) if l.startswith('lan_'+str(i+1))]) > 0:
+				lan_index = [n for n, l in enumerate(names) if l.startswith('lan_'+str(i+1))][0]
+				lan_arr = np.deg2rad(flatchain[:,lan_index])
+			else:
+				lan_arr = np.zeros(len(flatchain[:,0]))
+				lan_arr[:] = fit_scale['lan_'+str(i+1)].values  
+                
 			mutualinc = np.arccos( np.cos(spinc1_arr)*np.cos(inc_arr) + np.sin(spinc1_arr)*np.sin(inc_arr)*np.cos(splan1_arr - lan_arr) )
 			mutualinc = np.rad2deg(mutualinc)
+			if np.std(mutualinc) == 0:
+				mutualinc[0] = mutualinc[0] - mutualinc[0]*1e-10
+        
 
 			dnames = np.append(dnames, ["sat-spin inc_" + str(i+1)])
 			dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
 #
 	# Satellite-Satellite mutual inclination (this only works right now for 2 moons/satellites)
 	if runprops.get('numobjects') == 2:
-		mass1_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
-		mass2_index = [n for n, l in enumerate(names) if l.startswith('mass_2')][0]
+		if len([n for n, l in enumerate(names) if l.startswith('mass_1')]) > 0:
+			mass1_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
+			mass1_arr = flatchain[:,mass1_index]
+		else:
+			mass1_arr = np.zeros(len(flatchain[:,0]))
+			mass1_arr[:] = fit_scale['mass_1'].values 
+		if len([n for n, l in enumerate(names) if l.startswith('mass_2')]) > 0:
+			mass2_index = [n for n, l in enumerate(names) if l.startswith('mass_2')][0]
+			mass2_arr = flatchain[:,mass2_index]
+		else:
+			mass2_arr = np.zeros(len(flatchain[:,0]))           
+			mass2_arr[:] = fit_scale['mass_2'].values 
 
-		mass1_arr = flatchain[:,mass1_index]
-		mass2_arr = flatchain[:,mass2_index]
 		mass_tot = mass1_arr+mass2_arr
 		dnames = np.append(dnames,['mass_tot'])
 		dfchain = np.concatenate((dfchain, np.array([mass_tot]).T), axis = 1)        
@@ -474,7 +499,10 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 
 		mutualinc = np.arccos( np.cos(inc2_arr)*np.cos(inc3_arr) + np.sin(inc2_arr)*np.sin(inc3_arr)*np.cos(lan2_arr - lan3_arr) )
-		mutualinc = np.rad2deg(mutualinc)
+		mutualinc = np.rad2deg(mutualinc)       
+		if np.std(mutualinc) == 0:
+			mutualinc[0] = mutualinc[0] - mutualinc[0]*1e-10
+			mutualinc[-1] = mutualinc[0] - mutualinc[0]*1e-10
 
 		dnames = np.append(dnames, ["sat-sat inc"])
 		dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
@@ -510,10 +538,20 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		mass1_3_rat = mass3_arr/mass1_arr
 		mass2_3_rat = mass3_arr/mass2_arr
 
-		dnames = np.append(dnames, ["mass_3/mass_2"])
-		#dfchain = np.concatenate((dfchain, np.array([mass1_3_rat]).T), axis = 1)
+		if np.std(mass1_3_rat) < 1e-10:
+			mass1_3_rat[0] = mass1_3_rat[0] - mass1_3_rat[0]*1e-10
+            
+		if np.std(mass2_3_rat) < 1e-10:
+			mass2_3_rat[0] = mass2_3_rat[0] - mass2_3_rat[0]*1e-10
+			#print('mass23',mass2_3_rat)
+
+		dnames = np.append(dnames, ["mass_3/mass_1","mass_3/mass_2"])
+		dfchain = np.concatenate((dfchain, np.array([mass1_3_rat]).T), axis = 1)
 		dfchain = np.concatenate((dfchain, np.array([mass2_3_rat]).T), axis = 1)
+		print(dfchain)
 		mass_tot = mass1_arr+mass2_arr+mass3_arr
+		if np.std(mass_tot) < 1e-10:
+			mass_tot[0] = mass_tot[0] - mass_tot[0]*1e-10
 		dnames = np.append(dnames,['mass_tot'])
 		dfchain = np.concatenate((dfchain, np.array([mass_tot]).T), axis = 1)
 		print(dfchain.shape, periods)
@@ -522,15 +560,17 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		#period_ratio = np.array(period3)/np.array(period2)
 		#dfchain = np.concatenate((dfchain, np.array([period_ratio]).T), axis = 1)
 # Creating corner+derived plot
-	fig = corner.corner(dfchain, labels = dnames, bins = 40, show_titles = True, 
+	if len(dfchain) > 0:
+		print(ind, dnames)        
+		fig = corner.corner(dfchain, labels = dnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".4f", truths = dfchain[ind,:].flatten())
 	#fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
 	#for ax in fig.get_axes():
 	#	ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
-	fname = "corner+derived.pdf"       
-	fig.savefig(fname, format = 'pdf')
-	plt.close("all")
+		fname = "corner+derived.pdf"       
+		fig.savefig(fname, format = 'pdf')
+		plt.close("all")
 
 
 	# Creating corner_fitparams plot
@@ -721,7 +761,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	likelihoodspdf.close()
 	plt.close("all")
-	'''
+	
 	# Residual plots
 	flatchain = sampler.get_chain(flat = True, thin=thin_plots)
 	nobjects = runprops.get('numobjects')
