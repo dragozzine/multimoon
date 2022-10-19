@@ -77,7 +77,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	undo_masses = np.zeros(2)    
 	undo_masses[:] = False
 	masses_index = np.zeros(runprops.get('numobjects'))
-    
+  
 	for i in range(runprops.get('numobjects')-1):
 		if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
 			undo_ecc_aop[i] = True
@@ -121,7 +121,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		burnin = int(runprops.get('nburnin'))
 		clusterburn = int(runprops.get('clustering_burnin'))
 
-        
+	#print(float_names)
+	#print(lambda_index)
+	#print(fit_scale)               
         
 	if isinstance(runprops.get('thin_plots'), int):          
 		thin_plots = runprops.get('thin_plots')
