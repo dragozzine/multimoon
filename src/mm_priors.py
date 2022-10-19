@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import scipy as sp
 import time
-
+import sys
 '''
     NAME:
          mm_priors
@@ -138,10 +138,10 @@ def mm_priors(priors, params, runprops):
     #hill_sphere = runprops.get("mhill_sphere_reject")
     #print("min_periapse")
     
-    for i in range(2,runprops.get('numobjects')):
-        if params['sma_'+str(i)].values > params['sma_'+str(i+1)].values:
-            print('Objects should be input from closest to furthest object in orbit. We detect that your satellites are not input in this order right now in your initial guess folder. Please change this before running again.')
-            sys.exit()
+    #for i in range(2,runprops.get('numobjects')):
+    #    if params['sma_'+str(i)].values > params['sma_'+str(i+1)].values:
+    #        print('Objects should be input from closest to furthest object in orbit. We detect that your satellites are not input in this order right now in your initial guess folder. Please change this before running again.')
+    #        sys.exit()
     
     for i in range(1,runprops.get("numobjects")):
         if dynamicstoincludeflags[0] == "1" or dynamicstoincludeflags[0] == "2":
