@@ -331,7 +331,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	#plt.rc('text', usetex=True)
 	fig = 0
 	    
-	#print(flatchain[:,0], flatchain[:,1])    
+	print(flatchain[0])    
+	flatchain[np.isnan(flatchain)] = 0
 	fig = corner.corner(flatchain, labels = latexnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".3f", truths = params, label_kwargs=dict(fontsize=20))
@@ -351,55 +352,73 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	periods = []
 	for i in range(1,runprops.get('numobjects')):
 		print(names)        
-		if 'sma_'+str(i+1) in names and 'mass_'+str(i+1) in names and 'mass_1' in names:
-			a_index = [n for n, l in enumerate(names) if l.startswith('sma_'+str(i+1))][0]
-			m_index = [n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))][0]
+		#if 'sma_'+str(i+1) in names and 'mass_'+str(i+1) in names and 'mass_1' in names:
+        
+		if len([n for n, l in enumerate(names) if l.startswith('mass_1')]) > 0:
 			mp_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
-
-			a_arr = flatchain[:,a_index]
-			m_arr = flatchain[:,m_index]
 			mp_arr = flatchain[:,mp_index]
+		else:
+			mp_arr = np.zeros(len(flatchain[:,0]))
+			mp_arr[:] = fit_scale['mass_1'].values  
+		if len([n for n, l in enumerate(names) if l.startswith('sma_'+str(i+1))]) > 0:
+			a_index = [n for n, l in enumerate(names) if l.startswith('sma_'+str(i+1))][0]
+			a_arr = flatchain[:,a_index]
+		else:
+			a_arr = np.zeros(len(flatchain[:,0]))
+			a_arr[:] = fit_scale['sma_'+str(i+1)].values            
+		if len([n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))]) > 0:
+			m_index = [n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))][0]
+			m_arr = flatchain[:,m_index]
+		else:
+			mp_arr = np.zeros(len(flatchain[:,0]))
+			mp_arr[:] = fit_scale['mass_'+str(i+1)].values
+		#a_index = [n for n, l in enumerate(names) if l.startswith('sma_'+str(i+1))][0]
+		#m_index = [n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))][0]
+		#mp_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
+		#a_arr = flatchain[:,a_index]
+		#m_arr = flatchain[:,m_index]
+		#mp_arr = flatchain[:,mp_index]
 
-			#print('a_arr, ', a_arr)
-			#print('m_arr, ', m_arr)
-			#print('mp_arr, ', mp_arr)
+		#print('a_arr, ', a_arr)
+		#print('m_arr, ', m_arr)
+		#print('mp_arr, ', mp_arr)
             
-			rho_prim = 2.4*10**9
-			rho_sat = 10**9
-			r_sat = runprops.get('axes_size').get('obj_'+str(i))
-			Qp = 100
-			G = 6.674e-20            
-			g = G*m_arr*10**18/r_sat**2            
-			mu_eff = 19*4e15/2/(rho_sat*g*r_sat)  
-			#print(mu_eff)            
-			k2p = 3/(2*(1+mu_eff))           
-			period = 2*np.pi*np.sqrt(a_arr**3/(G*(m_arr + mp_arr)*10**18))/3600.0/24.0
+		rho_prim = 2.4*10**9
+		rho_sat = 10**9
+		r_sat = runprops.get('axes_size').get('obj_'+str(i))
+		Qp = 100
+		G = 6.674e-20            
+		g = G*m_arr*10**18/r_sat**2            
+		mu_eff = 19*4e15/2/(rho_sat*g*r_sat)  
+		#print(mu_eff)            
+		k2p = 3/(2*(1+mu_eff))           
+		period = 2*np.pi*np.sqrt(a_arr**3/(G*(m_arr + mp_arr)*10**18))/3600.0/24.0
          
 
-			a_timescale = 3/18/np.pi*Qp/k2p*mp_arr/m_arr*(a_arr/r_sat)**5*period/365/10**6
-			despinning_time = 2/15/np.pi*Qp/k2p*(rho_sat/rho_prim)**1.5*(a_arr/r_sat)**4.5*period/365/10**6
-			ecc_timescale = 4/63*Qp*(a_arr**3/G/(mp_arr*10**18))**0.5*(m_arr/mp_arr)*(a_arr/r_sat)**5/365/24/3600/10**6
-			
+		a_timescale = 3/18/np.pi*Qp/k2p*mp_arr/m_arr*(a_arr/r_sat)**5*period/365/10**6
+		despinning_time = 2/15/np.pi*Qp/k2p*(rho_sat/rho_prim)**1.5*(a_arr/r_sat)**4.5*period/365/10**6
+		ecc_timescale = 4/63*Qp*(a_arr**3/G/(mp_arr*10**18))**0.5*(m_arr/mp_arr)*(a_arr/r_sat)**5/365/24/3600/10**6
+		
 			#print('a:',a_timescale)          
 			#print('despin:',despinning_time)          
 			#print('ecc:',ecc_timescale)          
 			 
                 
-			m_ratio = mp_arr/m_arr
-			dnames = np.append(dnames, ["mass_" + str(i+1) + "/mass_1"])
-			dfchain = np.concatenate((dfchain, np.array([m_ratio]).T), axis = 1)
+		m_ratio = mp_arr/m_arr
+		dnames = np.append(dnames, ["mass_" + str(i+1) + "/mass_1"])
+		dfchain = np.concatenate((dfchain, np.array([m_ratio]).T), axis = 1)
 
-			dnames = np.append(dnames, ["period_" + str(i+1)])
-			#print(dfchain.shape)            
-			dfchain = np.concatenate((dfchain, np.array([period]).T), axis = 1)
-			periods = np.append(periods,len(dfchain[0])-1)
+		dnames = np.append(dnames, ["period_" + str(i+1)])
+		#print(dfchain.shape)            
+		dfchain = np.concatenate((dfchain, np.array([period]).T), axis = 1)
+		periods = np.append(periods,len(dfchain[0])-1)
             
-			dnames = np.append(dnames, ["a_timescale_" + str(i+1)])          
-			dfchain = np.concatenate((dfchain, np.array([a_timescale]).T), axis = 1)
-			dnames = np.append(dnames, ["despin_timescale_" + str(i+1)])       
-			dfchain = np.concatenate((dfchain, np.array([despinning_time]).T), axis = 1) 
-			dnames = np.append(dnames, ["e_timescale_" + str(i+1)])       
-			dfchain = np.concatenate((dfchain, np.array([ecc_timescale]).T), axis = 1)
+		dnames = np.append(dnames, ["a_timescale_" + str(i+1)])          
+		dfchain = np.concatenate((dfchain, np.array([a_timescale]).T), axis = 1)
+		dnames = np.append(dnames, ["despin_timescale_" + str(i+1)])       
+		dfchain = np.concatenate((dfchain, np.array([despinning_time]).T), axis = 1) 
+		dnames = np.append(dnames, ["e_timescale_" + str(i+1)])       
+		dfchain = np.concatenate((dfchain, np.array([ecc_timescale]).T), axis = 1)
            
             
 	#print(periods)
