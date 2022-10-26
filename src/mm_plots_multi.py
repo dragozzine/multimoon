@@ -356,7 +356,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
         
 		if len([n for n, l in enumerate(names) if l.startswith('mass_1')]) > 0:
 			mp_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
-			mp_arr = flatchain[:,mp_index]
+			mp_arr = flatchain[:,mp_index]/1e18
 		else:
 			mp_arr = np.zeros(len(flatchain[:,0]))
 			mp_arr[:] = fit_scale['mass_1'].values  
@@ -370,8 +370,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			m_index = [n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))][0]
 			m_arr = flatchain[:,m_index]
 		else:
-			mp_arr = np.zeros(len(flatchain[:,0]))
-			mp_arr[:] = fit_scale['mass_'+str(i+1)].values
+			m_arr = np.zeros(len(flatchain[:,0]))
+			m_arr[:] = fit_scale['mass_'+str(i+1)].values/1e18
 		#a_index = [n for n, l in enumerate(names) if l.startswith('sma_'+str(i+1))][0]
 		#m_index = [n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))][0]
 		#mp_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
@@ -393,6 +393,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		#print(mu_eff)            
 		k2p = 3/(2*(1+mu_eff))           
 		period = 2*np.pi*np.sqrt(a_arr**3/(G*(m_arr + mp_arr)*10**18))/3600.0/24.0
+		print('period:', i, ' ', period)
          
 
 		a_timescale = 3/18/np.pi*Qp/k2p*mp_arr/m_arr*(a_arr/r_sat)**5*period/365/10**6
