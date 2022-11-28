@@ -128,7 +128,7 @@ def mm_priors(priors, params, runprops):
         if dynamicstoincludeflags[i] == "2":
             
             if (params["j2r2_" + str(i+1)].values[0]*0.5 < params["c22r2_" + str(i+1)].values[0]):
-                print('j2r2_',str(i+1),'is less than double the c2r2_',str(i+1),'value')
+#                print('j2r2_',str(i+1),'is less than double the c2r2_',str(i+1),'value')
                 return -np.inf
             
     
