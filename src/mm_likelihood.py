@@ -103,7 +103,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     #    params.insert(0,'name_0',['Sun'])
         
     #print('Params: ',params)
-    #print('Priors: ',fit_params)
+    #print('Priors: ',priors)
     
     lp = prior.mm_priors(priors,params,runprops)
     #print('LP: ', lp)
