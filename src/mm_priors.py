@@ -112,9 +112,24 @@ def mm_priors(priors, params, runprops):
                 if i in params and params[i][0] < 0:
                     #print(i, " is outside of the realistic value with a value of ", params[i][0])
                     return -np.inf      
-                    
             #Here, add the Prior Probability Density function for this element to the total
 
+    # Checking robust statistics priors
+    if runprops.get("robust_stats"):
+        jitter = params["jitter"].iloc[0]
+        p_outlier = params["pbad"].iloc[0]
+        
+        # Jitter must be between 0.0-1.0 arcseconds
+        if jitter < 0.0:
+            return -np.inf
+        if jitter > 1.0:
+            return -np.inf
+        # p_outlier must be between 0-1
+        if p_outlier < 0.0:
+            return -np.inf
+        if p_outlier > 1.0:
+            return -np.inf
+        
     # Making sure that c22 < 0.5*j2
     dynamicstoincludeflags = runprops.get("dynamicstoincludeflags")
     for i in range(runprops.get("numobjects")):

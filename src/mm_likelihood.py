@@ -12,7 +12,6 @@ from csv import writer
 import os
 import time
 from scipy.stats import chi2
-import mpmath as mp
 
 """
 Inputs:
@@ -33,7 +32,7 @@ def log_likelihood(params, obsdf, runprops, geo_obj_pos):
     if runprops.get("robust_stats"):
         rows = obsdf.shape[0]
         numObj = runprops.get("numobjects")
-        lh_robust = 0
+        ll_robust = 0
         jitter = params["jitter"].iloc[0]
         p_outlier = params["pbad"].iloc[0]
 
@@ -41,27 +40,47 @@ def log_likelihood(params, obsdf, runprops, geo_obj_pos):
         names=[0 for i in range(numObj)]
         for i in range(0,numObj):
             names[i] = names_dict.get("name_"+str(i+1))
-        lh_robust_lon = 0
-        lh_robust_lat = 0
 
+        # Loop over the all the data point for each object. This could be vectorized in the future.
         for j in range(1,numObj):
             for i in range(rows):
-                combinedlon_err = np.sqrt(obsdf["DeltaLong_"+names[j]+"_err"][i]**2 + jitter**2)
-                combinedlat_err = np.sqrt(obsdf["DeltaLat_"+names[j]+"_err"][i]**2 + jitter**2)
-                omc_lon = (residuals[2*(j-1)][i] * obsdf["DeltaLong_"+names[j]+"_err"][i])**2
-                omc_lat = (residuals[2*(j-1)+1][i] * obsdf["DeltaLat_"+names[j]+"_err"][i])**2
-                #print(omc_lon,omc_lat)
-                lh_robust_lon = mp.log( ((1-p_outlier)/(np.sqrt(2*np.pi*obsdf["DeltaLong_"+names[j]+"_err"][i]**2)))*mp.exp(-omc_lon/(2*obsdf["DeltaLong_"+names[j]+"_err"][i]**2)) + (p_outlier/np.sqrt(2*np.pi*combinedlon_err**2))*mp.exp(-omc_lon/(2*combinedlon_err**2))  )
-                lh_robust_lat = mp.log( ((1-p_outlier)/(np.sqrt(2*np.pi*obsdf["DeltaLat_"+names[j]+"_err"][i]**2)))*mp.exp(-omc_lat/(2*obsdf["DeltaLat_"+names[j]+"_err"][i]**2)) + (p_outlier/np.sqrt(2*np.pi*combinedlat_err**2))*mp.exp(-omc_lat/(2*combinedlat_err**2))  )
-                #print(names[j],lh_robust_lat,lh_robust_lon)
+                # Extract uncertainties from the data
+                lon_err = obsdf["DeltaLong_"+names[j]+"_err"][i]
+                lat_err = obsdf["DeltaLat_"+names[j]+"_err"][i]
+                
+                # Calculate variance for the background model
+                combinedlon_err = np.sqrt(lon_err**2 + jitter**2)
+                combinedlat_err = np.sqrt(lat_err**2 + jitter**2)
+                
+                # Extract O-C from the residuals
+                omc_lon = (residuals[2*(j-1)][i] * obsdf["DeltaLong_"+names[j]+"_err"][i])
+                omc_lat = (residuals[2*(j-1)+1][i] * obsdf["DeltaLat_"+names[j]+"_err"][i])
+                
+                # Calculate likelihood for foreground model
+                ll_fg_lon = -0.5 * (omc_lon/lon_err)**2 - np.log(lon_err)
+                ll_fg_lat = -0.5 * (omc_lat/lat_err)**2 - np.log(lat_err)
+                ll_fg = ll_fg_lon + ll_fg_lat
+                
+                # Calculate likelihood for background model
+                ll_bg_lon = -0.5 * (omc_lon/combinedlon_err)**2 - np.log(combinedlon_err)
+                ll_bg_lat = -0.5 * (omc_lat/combinedlat_err)**2 - np.log(combinedlat_err)
+                ll_bg = ll_bg_lon + ll_bg_lat
+                
+                # Calculate the combined likelihood, including the penlaization for data rejection
+                arg1 = np.log(1 - p_outlier) + ll_fg
+                arg2 = np.log(p_outlier) + ll_bg
+                if np.isnan(arg2):
+                    print("args", arg1, arg2)
+                    print("params", jitter, p_outlier)
+                
+                # Use logaddexp for numerical stability, as suggested by Foreman-Mackey
+                ll_i = np.logaddexp(arg1, arg2)
 
-                if not (mp.isnan(lh_robust_lon) and mp.isnan(lh_robust_lat)):
-                    #print(((1-p_outlier)/(np.sqrt(2*np.pi*obsdf["DeltaLong_"+names[j]+"_err"][i]**2)))*np.exp(-omc_lon/(2*obsdf["DeltaLong_"+names[j]+"_err"][i]**2)) + (p_outlier/np.sqrt(2*np.pi*combinedlon_err**2))*np.exp(-omc_lon/(2*combinedlon_err**2)))
-                    #print(names[j],lh_robust_lat,lh_robust_lon)
-                    lh_robust += lh_robust_lat + lh_robust_lon
+                # Add total likelihood for data point to the summed likelihood
+                if not np.isnan(ll_i):
+                    ll_robust += ll_i
 
-        #print(lh_robust, lh, lh_robust-lh)
-        return lh_robust, residuals
+        return ll_robust, residuals
 
     # Return log likelihood and residuals arrays
     return lh, residuals

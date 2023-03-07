@@ -106,7 +106,7 @@ if runprops.get("first_run") == True:
     
     init = runprops.get('runs_file')+'/'+objname+'_init_guess.csv'
     priors = runprops.get('runs_file')+'/'+objname+'_priors_df.csv'
-    geoanalysis = runprops.get('runs_file')+'/geocentric_'+objname+'_position_analysis.csv'
+    #geoanalysis = runprops.get('runs_file')+'/geocentric_'+objname+'_position_analysis.csv'
 
     if 'runs' in runprops.get('runs_file'):
         obs = runprops.get('runs_file')+'/../observations/'+runprops.get("obs_df")
@@ -120,4 +120,4 @@ if runprops.get("first_run") == True:
     shutil.copy(obs, newpath+'/'+runprops.get("objectname")+'_obs_df.csv')
     shutil.copy(priors, newpath+'/'+runprops.get("objectname")+'_priors_df.csv')
     shutil.copy(init, newpath+'/'+runprops.get("objectname")+'_init_guess.csv')
-    shutil.copy(geoanalysis, newpath+'/geocentric_'+runprops.get("objectname")+'_position_analysis.csv')
+    #shutil.copy(geoanalysis, newpath+'/geocentric_'+runprops.get("objectname")+'_position_analysis.csv')

@@ -122,7 +122,7 @@ if __name__ == '__main__':
             # Check to see if geocentric_object_position.csv exists and if not creates it
             objname = runprops.get('objectname')
             geofile = runprops.get('runs_file')+'/geocentric_' + objname + '_position.csv'
-            geo_analysis = runprops.get('runs_file')+'/geocentric_' + objname + '_position_analysis.csv'
+            #geo_analysis = runprops.get('runs_file')+'/geocentric_' + objname + '_position_analysis.csv'
 
             if os.path.exists(geofile):
                 if verbose:
@@ -140,7 +140,7 @@ if __name__ == '__main__':
 
             # Copies files to results folder
             shutil.copy(geofile, runprops.get('results_folder')+'/geocentric_'+runprops.get('objectname')+'_position.csv')
-            shutil.copy(geo_analysis, runprops.get('results_folder')+'/geocentric_'+runprops.get('objectname')+'_position_analysis.csv')
+            #shutil.copy(geo_analysis, runprops.get('results_folder')+'/geocentric_'+runprops.get('objectname')+'_position_analysis.csv')
             
             backend = emcee.backends.HDFBackend(runprops.get('chain_file'))
             

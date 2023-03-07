@@ -126,9 +126,10 @@ for i in range(obsdf.shape[0]):
 obsdf = obsdf.drop(labels = [col for col in obsdf if col not in cols], axis = 1)
 
 # Adding random errors to obsdf
+q = 1.0
 for i in range(1,nobjects):
-	obsdf["DeltaLat_" + objectnames[i]] = obsdf["DeltaLat_" + objectnames[i]].values + np.random.normal(size = obsdf.shape[0])*obsdf["DeltaLat_" + objectnames[i] + "_err"].values
-	obsdf["DeltaLong_" + objectnames[i]] = obsdf["DeltaLong_" + objectnames[i]].values + np.random.normal(size = obsdf.shape[0])*obsdf["DeltaLong_" + objectnames[i] + "_err"].values
+	obsdf["DeltaLat_" + objectnames[i]] = obsdf["DeltaLat_" + objectnames[i]].values + q*np.random.normal(size = obsdf.shape[0])*obsdf["DeltaLat_" + objectnames[i] + "_err"].values
+	obsdf["DeltaLong_" + objectnames[i]] = obsdf["DeltaLong_" + objectnames[i]].values + q*np.random.normal(size = obsdf.shape[0])*obsdf["DeltaLong_" + objectnames[i] + "_err"].values
 
 # Now plot it to check to see if it look okay
 x = np.empty((nobjects-1, obsdf.shape[0]))
