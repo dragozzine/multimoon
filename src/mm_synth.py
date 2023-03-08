@@ -131,6 +131,16 @@ for i in range(1,nobjects):
 	obsdf["DeltaLat_" + objectnames[i]] = obsdf["DeltaLat_" + objectnames[i]].values + q*np.random.normal(size = obsdf.shape[0])*obsdf["DeltaLat_" + objectnames[i] + "_err"].values
 	obsdf["DeltaLong_" + objectnames[i]] = obsdf["DeltaLong_" + objectnames[i]].values + q*np.random.normal(size = obsdf.shape[0])*obsdf["DeltaLong_" + objectnames[i] + "_err"].values
 
+# Adding additional random errors to the data to test robust statistics
+true_frac = 1.0
+bkg_std = 0.01       # in arcseconds
+bkg_lon = np.random.rand(obsdf.shape[0]) > true_frac
+bkg_lat = np.random.rand(obsdf.shape[0]) > true_frac
+
+for i in range(1,nobjects):
+	obsdf["DeltaLat_" + objectnames[i]][bkg_lat] += bkg_std*np.random.randn(sum(bkg_lat))
+	obsdf["DeltaLong_" + objectnames[i]][bkg_lon] += bkg_std*np.random.randn(sum(bkg_lon))
+
 # Now plot it to check to see if it look okay
 x = np.empty((nobjects-1, obsdf.shape[0]))
 xe = np.empty((nobjects-1, obsdf.shape[0]))
@@ -160,3 +170,4 @@ except FileExistsError:
 plt.savefig(savedir + "astrometry.png")
 obsdf.to_csv(savedir + runprops.get("run_dir")+"_obs_df.csv")
 shutil.copy("runprops_gensynth.txt", savedir)
+geo_obj_pos.to_csv(savedir + runprops.get("run_dir")+"geocentric_pos.csv")

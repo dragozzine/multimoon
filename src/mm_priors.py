@@ -116,13 +116,13 @@ def mm_priors(priors, params, runprops):
 
     # Checking robust statistics priors
     if runprops.get("robust_stats"):
-        jitter = params["jitter"].iloc[0]
+        logjitter = params["logjitter"].iloc[0]
         p_outlier = params["pbad"].iloc[0]
         
-        # Jitter must be between 0.0-1.0 arcseconds
-        if jitter < 0.0:
+        # log(jitter) must be between -3.0-0.0 (0.001-1.0 arcseconds)
+        if logjitter < -3.0:
             return -np.inf
-        if jitter > 1.0:
+        if logjitter > 0.0:
             return -np.inf
         # p_outlier must be between 0-1
         if p_outlier < 0.0:

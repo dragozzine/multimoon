@@ -28,57 +28,56 @@ def log_likelihood(params, obsdf, runprops, geo_obj_pos):
         return -np.inf, residuals
     lh = lh*-0.5
 
-    # Robust statistics. Not working in MultiMoon v1.0
+    # Robust statistics. It can recover the correct parameters with 50% of bad data with outlier variance of 0.01 arcseconds.
     if runprops.get("robust_stats"):
         rows = obsdf.shape[0]
         numObj = runprops.get("numobjects")
         ll_robust = 0
-        jitter = params["jitter"].iloc[0]
+        jitter = 10.0**(params["logjitter"].iloc[0])
         p_outlier = params["pbad"].iloc[0]
 
+        # Extract names from runprops
         names_dict = runprops.get("names_dict")
         names=[0 for i in range(numObj)]
         for i in range(0,numObj):
             names[i] = names_dict.get("name_"+str(i+1))
 
-        # Loop over the all the data point for each object. This could be vectorized in the future.
+        # Loop over each object
         for j in range(1,numObj):
-            for i in range(rows):
-                # Extract uncertainties from the data
-                lon_err = obsdf["DeltaLong_"+names[j]+"_err"][i]
-                lat_err = obsdf["DeltaLat_"+names[j]+"_err"][i]
-                
-                # Calculate variance for the background model
-                combinedlon_err = np.sqrt(lon_err**2 + jitter**2)
-                combinedlat_err = np.sqrt(lat_err**2 + jitter**2)
-                
-                # Extract O-C from the residuals
-                omc_lon = (residuals[2*(j-1)][i] * obsdf["DeltaLong_"+names[j]+"_err"][i])
-                omc_lat = (residuals[2*(j-1)+1][i] * obsdf["DeltaLat_"+names[j]+"_err"][i])
-                
-                # Calculate likelihood for foreground model
-                ll_fg_lon = -0.5 * (omc_lon/lon_err)**2 - np.log(lon_err)
-                ll_fg_lat = -0.5 * (omc_lat/lat_err)**2 - np.log(lat_err)
-                ll_fg = ll_fg_lon + ll_fg_lat
-                
-                # Calculate likelihood for background model
-                ll_bg_lon = -0.5 * (omc_lon/combinedlon_err)**2 - np.log(combinedlon_err)
-                ll_bg_lat = -0.5 * (omc_lat/combinedlat_err)**2 - np.log(combinedlat_err)
-                ll_bg = ll_bg_lon + ll_bg_lat
-                
-                # Calculate the combined likelihood, including the penlaization for data rejection
-                arg1 = np.log(1 - p_outlier) + ll_fg
-                arg2 = np.log(p_outlier) + ll_bg
-                if np.isnan(arg2):
-                    print("args", arg1, arg2)
-                    print("params", jitter, p_outlier)
-                
-                # Use logaddexp for numerical stability, as suggested by Foreman-Mackey
-                ll_i = np.logaddexp(arg1, arg2)
+            # Extract uncertainties from the data
+            lon_err = obsdf["DeltaLong_"+names[j]+"_err"][:]
+            lat_err = obsdf["DeltaLat_"+names[j]+"_err"][:]
+            
+            # Calculate variance for the background model
+            combinedlon_err = np.sqrt(lon_err**2 + jitter**2)
+            combinedlat_err = np.sqrt(lat_err**2 + jitter**2)
+            
+            # Extract O-C from the residuals
+            omc_lon = (residuals[2*(j-1)][:] * obsdf["DeltaLong_"+names[j]+"_err"][:])
+            omc_lat = (residuals[2*(j-1)+1][:] * obsdf["DeltaLat_"+names[j]+"_err"][:])
+            
+            # Calculate likelihood for foreground model
+            ll_fg_lon = -0.5 * (omc_lon/lon_err)**2 - np.log(lon_err)
+            ll_fg_lat = -0.5 * (omc_lat/lat_err)**2 - np.log(lat_err)
+            ll_fg = ll_fg_lon + ll_fg_lat
+           
+            # Calculate likelihood for background model
+            ll_bg_lon = -0.5 * (omc_lon/combinedlon_err)**2 - np.log(combinedlon_err)
+            ll_bg_lat = -0.5 * (omc_lat/combinedlat_err)**2 - np.log(combinedlat_err)
+            ll_bg = ll_bg_lon + ll_bg_lat
+            
+            # Calculate the combined likelihood, including the penlaization for data rejection
+            arg1 = np.log(1 - p_outlier) + ll_fg
+            arg2 = np.log(p_outlier) + ll_bg
+            #if np.isnan(arg2):
+            #    print("args", arg1, arg2)
+            #    print("params", jitter, p_outlier)
+            
+            # Use logaddexp for numerical stability, as suggested by Foreman-Mackey
+            ll_i = np.logaddexp(arg1, arg2)
 
-                # Add total likelihood for data point to the summed likelihood
-                if not np.isnan(ll_i):
-                    ll_robust += ll_i
+            # Add total likelihood for data point to the summed likelihood
+            ll_robust += np.nansum(ll_i)
 
         return ll_robust, residuals
 
@@ -305,7 +304,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
     get_residuals = runprops.get("get_resid")
     delta_offset = 0
         
-    # Calculating the residuals
+    # Calculating the residuals. Potential for vectorization
     for i in range(rows):
         for j in range(1,numObj):
 
