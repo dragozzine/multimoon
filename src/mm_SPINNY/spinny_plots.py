@@ -56,7 +56,7 @@ def spinny_plot(plot_df, names, runprops):
         globals()[name+'_prec'] = plot_df["precession_"+name]
         globals()[name+'_long'] = plot_df["longitude_"+name]
         
-        #globals()[name+'_spin_angle'] = plot_df["spin_orbit_angle_"+name]
+        globals()[name+'_spin_angle'] = plot_df["spin_orbit_angle_"+name]
         globals()[name+'_spin_period'] = plot_df["spin_period_"+name]
         
     
@@ -119,12 +119,12 @@ def spinny_plot(plot_df, names, runprops):
             
         ##### PLOTS THE ORBITAL PARAMETERS #####
             if name != name_prim: # exclude the primary
-                ax1[0,0].scatter(t,globals()[name+'_i'],label=name, s = 5)
+                ax1[0,0].plot(t,globals()[name+'_i'],label=name)
                 ax1[0,1].scatter(t,globals()[name+'_e'],label=name, s = 5)
-                ax1[1,0].scatter(t,globals()[name+'_O'],label=name, s = 5)
+                ax1[1,0].plot(t,globals()[name+'_O'],label=name)
                 ax1[1,1].scatter(t,globals()[name+'_a'],label=name, s = 5)
                 ax1[2,0].scatter(t,globals()[name+'_M'],label=name, s = 5)
-                ax1[2,1].scatter(t,globals()[name+'_w'],label=name, s = 5)
+                ax1[2,1].plot(t,globals()[name+'_w'],label=name)
 
                 # this generates line of best fit for energy/momentum for calculation of fractional change, if needed
                 '''
@@ -162,14 +162,14 @@ def spinny_plot(plot_df, names, runprops):
                     ax4.set_xlabel('x ($10^3$ kilometers)', fontsize = 18)
                     ax4.set_ylabel('y ($10^3$ kilometers)', fontsize = 18)
 
-                    ax2.scatter(nx,nz,label=name,alpha=0.3, s = 5)
-                    ax4.scatter(nx,ny,label=name,alpha=0.3, s = 5)
-                    ax3.scatter(nz,ny,label=name,alpha=0.3, s = 5)
+                    ax2.scatter(nx,nz,c = t,label=name,alpha=0.3, s = 5, cmap = "viridis", rasterized = True)
+                    ax4.scatter(nx,ny,c = t,label=name,alpha=0.3, s = 5, cmap = "viridis", rasterized = True)
+                    ax3.scatter(nz,ny,c = t,label=name,alpha=0.3, s = 5, cmap = "viridis", rasterized = True)
 
                 else:
-                    ax2.scatter(nx,nz,label=name,alpha=0.3, s = 5)
-                    ax4.scatter(nx,ny,alpha=0.3, s = 5)
-                    ax3.scatter(nz,ny,alpha=0.3, s = 5)
+                    ax2.scatter(nx,nz,c = t,label=name,alpha=0.3, s = 5, cmap = "viridis", rasterized = True)
+                    ax4.scatter(nx,ny,c = t,alpha=0.3, s = 5, cmap = "viridis", rasterized = True)
+                    ax3.scatter(nz,ny,c = t,alpha=0.3, s = 5, cmap = "viridis", rasterized = True)
 
 
                 ax1[0,0].set_title('Inclination')
@@ -177,7 +177,7 @@ def spinny_plot(plot_df, names, runprops):
                 ax1[1,0].set_title('Longitude of Ascending Node')
                 ax1[1,1].set_title('Semi-major Axis')
                 ax1[2,0].set_title('Mean Anomaly')
-                ax1[2,1].set_title('Argument of Periapsis')
+                ax1[2,1].set_title('Longitude of Periapsis')
 
                 ax1[0,0].set_ylabel('Degrees (from the ecliptic)')
                 ax1[0,1].set_ylabel('')
@@ -209,26 +209,26 @@ def spinny_plot(plot_df, names, runprops):
         
             ax0[0].plot(t,globals()[name+'_obliq'],label=name)
             ax0[1].plot(t,globals()[name+'_prec'],label=name)
-            #ax0[2].plot(t,globals()[name+'_spin_angle'],label=name)
-            #ax0[3].plot(t,globals()[name+'_spin_period'],label=name)
+            ax0[2].plot(t,globals()[name+'_spin_angle'],label=name)
+            ax0[3].plot(t,globals()[name+'_spin_period'],label=name)
             
             ax0[0].set_title('Axial Obliquity')
             ax0[1].set_title('Axial Precession')
-            #ax0[2].set_title('Spin–Orbit Angle')
-            #ax0[3].set_title('Spin Period')
+            ax0[2].set_title('Spin–Orbit Angle')
+            ax0[3].set_title('Spin Period')
 
             ax0[0].set_ylabel('Degrees')
             ax0[1].set_ylabel('Degrees')
-            #ax0[2].set_ylabel('Degrees')
-            #ax0[3].set_ylabel('Hours')
+            ax0[2].set_ylabel('Degrees')
+            ax0[3].set_ylabel('Hours')
 
             ax0[0].ticklabel_format(useOffset=False,style='plain',axis='y')
             ax0[1].ticklabel_format(useOffset=False,style='plain',axis='y')
-            #ax0[2].ticklabel_format(useOffset=False,style='plain',axis='y')
+            ax0[2].ticklabel_format(useOffset=False,style='plain',axis='y')
 
             ax0[0].grid()
             ax0[1].grid()
-            #ax0[2].grid()
+            ax0[2].grid()
 
             fig0.suptitle('Spin Parameters -- '+name,fontsize=18,fontweight='bold')
             fig0.tight_layout(rect=[0, 0.03, 1, 0.95]) 

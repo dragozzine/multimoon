@@ -128,6 +128,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
         # Use s.get_state(n,0) with respect to the primary to ignore the motion of the Sun in our vectors,
         # but we take s.arr0 in order to get orbital parameters which might not make any sense in a primaricentric frame
         s.evolve(t_arr[t]) #### <---- The actual integration
+        s.move2bary()
         body_arr[t] = np.concatenate([s.get_state(n,0) for n in range(0,N)]) # taken with respect to the primary
         
         inertial_arr[t] = s.arr0
@@ -222,11 +223,13 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
         body_dict.setdefault('Y_Vel_'+name_arr[n] , body_arr[:,(n*6)+4])
         body_dict.setdefault('Z_Vel_'+name_arr[n] , body_arr[:,(n*6)+5])
         
-        cm1 = phys_objects[0].mass/(phys_objects[1].mass+phys_objects[0].mass)
-        cm2 = phys_objects[1].mass/(phys_objects[1].mass+phys_objects[0].mass)
+        #cm1 = phys_objects[0].mass/(phys_objects[1].mass+phys_objects[0].mass)
+        cmnew = 1/(1 + (phys_objects[1].mass/phys_objects[0].mass))
+        #cm2 = phys_objects[1].mass/(phys_objects[1].mass+phys_objects[0].mass)
         
-        vec = inertial_arr[:,(n*13):((n*13)+6)] - cm1*inertial_arr[:,0:6] - cm2*inertial_arr[:,13:13+6]
-       
+        #vec = inertial_arr[:,(n*13):((n*13)+6)] - cm1*inertial_arr[:,0:6] - cm2*inertial_arr[:,13:13+6]
+        vec = inertial_arr[:,(n*13):((n*13)+6)]/cmnew
+        
         ##### Attempt to subtract motion of the barycenter from state vectors
         # keeping this in just in case... probably should be removed eventually
         #print([phys_objects[i].mass for i in range(1,N)])
@@ -248,7 +251,8 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
         body_dict.setdefault('eccentricity_'+name_arr[n]        , orb_n[:,1])
         body_dict.setdefault('inclination_'+name_arr[n]         , 180./np.pi*orb_n[:,2])
         body_dict.setdefault('longitude_ascending_'+name_arr[n] , 180./np.pi*orb_n[:,3])
-        body_dict.setdefault('argument_periapse_'+name_arr[n]   , 180./np.pi*orb_n[:,4])
+        #body_dict.setdefault('argument_periapse_'+name_arr[n]   , 180./np.pi*orb_n[:,4])
+        body_dict.setdefault('argument_periapse_'+name_arr[n]   , (180./np.pi*orb_n[:,4] + 180./np.pi*orb_n[:,3])%360)
         body_dict.setdefault('mean_anomaly_'+name_arr[n]        , 180./np.pi*orb_n[:,5]) 
        
         # Euler angles, with respect to the orbit
@@ -270,7 +274,7 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
     body_dict.setdefault('Ly_tot'+name_arr[n], L_arr_sum[:,1] )
     body_dict.setdefault('Lz_tot'+name_arr[n], L_arr_sum[:,2] )   
     spinny_df = pd.DataFrame(body_dict)
-    #spinny_df.to_csv("out.csv")      <----- this is really useful for debugging purposes...
+    #spinny_df.to_csv("out.csv")      #<----- this is really useful for debugging purposes...
     return(spinny_df)     
 
 """    
