@@ -357,14 +357,32 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
         rel_pos_lat = Model_DeltaLat[0,:]
         rel_pos_long = Model_DeltaLong[0,:]
         
-
         delta_offset_lat = bright_ratio*rel_pos_lat
         delta_offset_long = bright_ratio*rel_pos_long
         
         Model_DeltaLat = Model_DeltaLat - delta_offset_lat
         Model_DeltaLong = Model_DeltaLong - delta_offset_long
 
+    if runprops.get('periodic_albedo'):
         
+        lat_amp = paramdf['lat_amp'][0]
+        lon_amp = paramdf['lon_amp'][0]
+        lat_phase = paramdf['lat_phase'][0]
+        lon_phase = paramdf['lon_phase'][0]
+        #print(paramdf)
+        if runprops.get('dynamicstoincludeflags')[0] != '0':
+            alb_per_days = 1/(paramdf['sprate_1'][0]*60*60*24/2/np.pi)
+        else:
+            G = 6.67e-11
+            period = np.sqrt((paramdf['sma_2']*1000)**3*4*np.pi**2/G/(paramdf['mass_1']+paramdf['mass_2']))
+            alb_per_days = 1/(period*60*60*24/2/np.pi)[0]
+        
+        rel_pos_lat = Model_DeltaLat[0,:]
+        rel_pos_long = Model_DeltaLong[0,:]
+        
+        #print(rel_pos_lat, time_arr, alb_per_days)
+        Model_DeltaLat = Model_DeltaLat - rel_pos_lat * lat_amp*np.sin(time_arr*(2*np.pi/alb_per_days)+lat_phase)
+        Model_DeltaLong = Model_DeltaLong - rel_pos_long * lon_amp*np.sin(time_arr*(2*np.pi/alb_per_days)+lon_phase)
     
     
     if runprops.get("com_offset"):
