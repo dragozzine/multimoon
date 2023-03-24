@@ -9,7 +9,7 @@ lan_2,139.11777174,2
 mea_2,170,10
 lat_offset,-0.007,0.001
 long_offset,0.002,0.001
-lat_amp,0.001,0.001
-lon_amp, 0.001,0.001
-lat_phase,1,1
-lon_phase,1,1
+lat_amp,0.001,0.005
+lon_amp, 0.001,0.005
+lat_phase,1,2
+lon_phase,1,2
