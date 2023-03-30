@@ -133,6 +133,11 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
         
         inertial_arr[t] = s.arr0
         
+        # Adding an if statement to check if the outputs are nans. This ensures that all canceled integrations
+        # are actually caught. 
+        if np.isnan(s.arr0).any():
+            raise Exception("NaNs in the output array, integration has likely been canceled.")
+        
         for n in range(0,N):
 
             quat_n = s.get_quaternion(n)     # quaternion, (qr, qi, qj, qk)
@@ -347,22 +352,22 @@ def build_spinny_ns(sys_df, runprops):
             ecc_n = 0.0
             
         if sys_df.loc["aop",name] != 0.00:
-            aop_n = sys_df.loc["aop",name]
+            aop_n = (np.pi/180.)*sys_df.loc["aop",name]
         else:
             aop_n = 0.0
             
         if sys_df.loc["inc",name] != 0.00:
-            inc_n = sys_df.loc["inc",name]
+            inc_n = (np.pi/180.)*sys_df.loc["inc",name]
         else:
             inc_n = 0.0 
             
         if sys_df.loc["lan",name] != 0.00:
-            lan_n = sys_df.loc["lan",name]
+            lan_n = (np.pi/180.)*sys_df.loc["lan",name]
         else:
             lan_n = 0.0
         
         if sys_df.loc["mea",name] != 0.00:
-            mea_n = sys_df.loc["mea",name]
+            mea_n = (np.pi/180.)*sys_df.loc["mea",name]
         else:
             mea_n = 0.0
             
@@ -380,17 +385,17 @@ def build_spinny_ns(sys_df, runprops):
         # default values are set to be aligned with the orbit (LAN for prec, inc for obliq, AOP for longitude)
         
         if sys_df.loc["sp_prc",name] != 0.00:
-            sp_prc_n = sys_df.loc["sp_prc",name]
+            sp_prc_n = (np.pi/180.)*sys_df.loc["sp_prc",name]
         else:
             sp_prc_n = orb_arr[i,4]
             
         if sys_df.loc["sp_obl",name] != 0.00:
-            sp_obl_n = sys_df.loc["sp_obl",name]
+            sp_obl_n = (np.pi/180.)*sys_df.loc["sp_obl",name]
         else:
             sp_obl_n = orb_arr[i,3]
             
         if sys_df.loc["sp_lon",name] != 0.00:
-            sp_lon_n = sys_df.loc["sp_lon",name]
+            sp_lon_n = (np.pi/180.)*sys_df.loc["sp_lon",name]
         else:
             sp_lon_n = orb_arr[i,2]
             

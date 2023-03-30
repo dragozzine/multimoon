@@ -87,7 +87,7 @@ def spinny_plot(plot_df, names, runprops):
     t_current = t_current.replace(":",".")
 
     if runprops.get('results_folder') == None:
-        filename = "../results/SPINNY-models/"+name_prim+"_figures_"+t_current+".pdf"
+        filename = "../results/SPINNYfigs/"+name_prim+"_figures_"+t_current+".pdf"
     elif runprops.get('animate'):
         filename = os.getcwd()+'/spinny_plots/0'+runprops.get('animate_num')+'_figs.pdf'
     else:
