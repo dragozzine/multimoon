@@ -46,11 +46,11 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	draws = flatchain[drawsindex,:]
 
 	# Get time arrays and set constants
-	converttimes = ["2024-03-01","2024-05-31"]
+	converttimes = ["2023-12-01 00:00","2024-09-30 00:00"]
 	t = Time(converttimes)
-	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
+	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '1h'}
 
-	sepmin = 0.0
+	sepmin = 0.3
 	rejectfrac = 0.95
 
 	# Make a geocentric position file
@@ -119,13 +119,15 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	# Now create info gain arrays
 	infogain = np.zeros((runprops.get('numobjects')-1, times.size))
 	infogain2 = np.zeros((runprops.get('numobjects')-1, times.size))
+	visiblefrac = np.zeros((runprops.get('numobjects')-1, times.size))
 	#print(dlongstd[0,:], typicalerror, np.sqrt(dlongstd[0,:]/typicalerror[0,0])**2)    
 	for i in range(1,runprops.get('numobjects')):
 		infogain[i-1,:] = np.sqrt( (dlongstd[i-1,:]/typicalerror[0,i-1])**2 + (dlatstd[i-1,:]/typicalerror[1,i-1])**2 )
 		boolarr = sep[:,i-1,:] > sepmin
 		frac = boolarr.sum(axis = 0)/numdraws
+		visiblefrac[i-1,:] = frac
 		accept = frac > rejectfrac
-		infogain[i-1,:] = accept*infogain[i-1,:]
+		#infogain[i-1,:] = accept*infogain[i-1,:]
 
 	# Plot
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
@@ -150,6 +152,22 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	plt.savefig("separation.pdf", format = "pdf")
 	plt.close()
 
+	# Create output csv with astrometry
+	for i in range(1,runprops.get('numobjects')):
+		out = np.empty((9,times.size), dtype = object)
+		out[0,:] = t.jd
+		out[1,:] = t.iso
+		out[2,:] = dlongmean[i-1,:]
+		out[3,:] = dlatmean[i-1,:]
+		out[4,:] = dlongstd[i-1,:]
+		out[5,:] = dlatstd[i-1,:]
+		out[6,:] = infogain[i-1,:]
+		out[7,:] = sepmean[i-1,:]
+		out[8,:] = visiblefrac[i-1,:]
+		outdf = pd.DataFrame(data = out.T,
+			     columns = ["jd","date","dLong","dLat","dLong uncertainty","dLat uncertainty","information gain",
+					"separation","% visible"])
+		outdf.to_csv(objectnames[i] + "_ephem.csv", index = False)
 
 
 	# Plot dlong vs dlat with color for j2
