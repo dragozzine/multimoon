@@ -91,8 +91,9 @@ if runprops.get("first_run") == True:
     if isinstance(runprops.get('numpy_seed'), int):
         np.random.seed(seed=runprops.get('numpy_seed'))
     else:
-        np.random.seed(seed=12)
-        runprops['numpy_seed'] = 12
+        seed = x.microsecond*x.second		# This now creates a "random" seed based on the time
+        np.random.seed(seed=seed)
+        runprops['numpy_seed'] = seed
     
     if ('runs' in runprops.get('runs_file')): 
         shutil.copy(runprops.get('runs_file')+'/runprops.txt', newpath+'/runprops.txt')
