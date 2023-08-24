@@ -23,7 +23,7 @@ class ReadJson(object):
 #chain = (nwalkers, nlink, ndim)
 
 def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names):
-	numdraws = 20
+	numdraws = 1000
 
 	# Getting log likelihood posterior values and flatchain for use throughout
 	burnin = int(runprops.get('nburnin'))
@@ -45,10 +45,13 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	drawsindex = np.random.randint(flatchain.shape[0], size = numdraws)
 	draws = flatchain[drawsindex,:]
 
-	# Get time arrays
-	converttimes = ["2022-10-01","2023-09-30"]
+	# Get time arrays and set constants
+	converttimes = ["2024-03-01","2024-05-31"]
 	t = Time(converttimes)
-	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '1d'}
+	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
+
+	sepmin = 0.0
+	rejectfrac = 0.95
 
 	# Make a geocentric position file
 	geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
@@ -66,40 +69,42 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	# Creating arrays to hold outputs
 	dlong = np.zeros((draws.shape[0], runprops.get('numobjects')-1, times.size))
 	dlat = np.zeros((draws.shape[0], runprops.get('numobjects')-1, times.size))
+	sep = np.zeros((draws.shape[0], runprops.get('numobjects')-1, times.size))
 
 	# Holding paramvalues
 	nobj = runprops.get('numobjects')
-	print(mm_param.from_fit_array_to_param_df(draws[0,:].flatten(), names, fixed_df, total_df_names, fit_scale, names_dict, runprops)[0])   
+	#print(mm_param.from_fit_array_to_param_df(draws[0,:].flatten(), names, fixed_df, total_df_names, fit_scale, names_dict, runprops)[0])   
 	ndims  = mm_param.from_fit_array_to_param_df(draws[0,:].flatten(), names, fixed_df, total_df_names, fit_scale, names_dict, runprops)[0].iloc[:,:-nobj].size
-	print(ndims)
+	#print(ndims)
 	paramnames  = mm_param.from_fit_array_to_param_df(draws[0,:].flatten(), names, fixed_df, total_df_names, fit_scale, names_dict, runprops)[0].columns.tolist()[0:-nobj]
-	print(paramnames)
+	#print(paramnames)
 	drawparams = np.zeros((ndims, numdraws))
 
 	# Looping to get model values
-	print('draws',draws)    
+	#print('draws',draws)    
 	for i in tqdm(range(draws.shape[0])):
 		paramdf = mm_param.from_fit_array_to_param_df(draws[i,:].flatten(), names, fixed_df, total_df_names, fit_scale, names_dict, runprops)[0]
 		drawparams[:,i] = paramdf.iloc[:,:-nobj].values
-		print(paramdf)
+		#print(paramdf)
 		DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
-		print(DeltaLong_Model)        
+		#print(DeltaLong_Model)        
 		for j in range(1,runprops.get('numobjects')):
 			dlong[i,j-1,:] = DeltaLong_Model[j-1]
 			dlat[i,j-1,:] = DeltaLat_Model[j-1]
+			sep[i,j-1,:] = np.sqrt(DeltaLong_Model[j-1]**2 + DeltaLat_Model[j-1]**2)
 
 	# Now collapse the arrays with a std call
 	dlongstd = np.std(dlong,axis = 0)
 	dlatstd = np.std(dlat,axis = 0)
+	sepstd = np.std(sep,axis = 0)
 	dlongmean = np.mean(dlong,axis = 0)
 	dlatmean = np.mean(dlat,axis = 0)
-	print(dlongstd.shape)
-	print(dlatstd.shape)
-
+	sepmean = np.mean(sep,axis = 0)
+	#print(dlongstd.shape)
+	#print(dlatstd.shape)
 
 	totaldf = pd.DataFrame(drawparams.T, columns = paramnames)
 	#print(totaldf)
-
 
 	# Calculate average (mean for now) error in the real data
 	name_dict = runprops.get("names_dict")
@@ -114,21 +119,35 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	# Now create info gain arrays
 	infogain = np.zeros((runprops.get('numobjects')-1, times.size))
 	infogain2 = np.zeros((runprops.get('numobjects')-1, times.size))
-	print(dlongstd[0,:], typicalerror, np.sqrt(dlongstd[0,:]/typicalerror[0,0])**2)    
+	#print(dlongstd[0,:], typicalerror, np.sqrt(dlongstd[0,:]/typicalerror[0,0])**2)    
 	for i in range(1,runprops.get('numobjects')):
 		infogain[i-1,:] = np.sqrt( (dlongstd[i-1,:]/typicalerror[0,i-1])**2 + (dlatstd[i-1,:]/typicalerror[1,i-1])**2 )
+		boolarr = sep[:,i-1,:] > sepmin
+		frac = boolarr.sum(axis = 0)/numdraws
+		accept = frac > rejectfrac
+		infogain[i-1,:] = accept*infogain[i-1,:]
 
 	# Plot
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
 	fig = plt.figure(figsize = (12.8,4.8))
 	t = Time(times, format = "jd")
 	for i in range(1,runprops.get('numobjects')):
-		plt.plot_date(t.plot_date, infogain[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 0.5)
+		plt.plot_date(t.plot_date, infogain[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 1.0)
 
 	plt.xlabel("Time")
 	plt.ylabel("Info gained")
 	plt.legend()
 	plt.savefig("predictions.pdf", format = "pdf")
+	plt.close()
+	fig = plt.figure(figsize = (12.8,4.8))
+	t = Time(times, format = "jd")
+	for i in range(1,runprops.get('numobjects')):
+		plt.plot_date(t.plot_date, sepmean[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 1.0)
+
+	plt.xlabel("Time")
+	plt.ylabel("Separation (arcsec)")
+	plt.legend()
+	plt.savefig("separation.pdf", format = "pdf")
 	plt.close()
 
 
