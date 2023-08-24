@@ -54,7 +54,13 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	rejectfrac = 0.95
 
 	# Make a geocentric position file
-	geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
+	import os.path
+	if os.path.exists("system_ephemeris.csv"):
+		geo_obj_pos = pd.read_csv("system_ephemeris.csv")
+	else:
+		geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
+		geo_obj_pos.to_csv("system_ephemeris.csv", index = False)
+		print("Making system ephemeris")
 
 	# Creating a fake observtions data frame
 	times = geo_obj_pos.values[:,0].flatten()
