@@ -268,16 +268,16 @@ def spinny_integrate_ns(s, name_arr, phys_objects, t_arr, runprops): # evolves t
         body_dict.setdefault('spin_orbit_angle_'+name_arr[n], spin_arr[n,:,0])
         body_dict.setdefault('spin_period_'+name_arr[n],  spin_arr[n,:,1])
         
-        body_dict.setdefault('Lx_'+name_arr[n], L_arr[n,:,0] )
-        body_dict.setdefault('Ly_'+name_arr[n], L_arr[n,:,1] )
-        body_dict.setdefault('Lz_'+name_arr[n], L_arr[n,:,2] )
+        #body_dict.setdefault('Lx_'+name_arr[n], L_arr[n,:,0] )
+        #body_dict.setdefault('Ly_'+name_arr[n], L_arr[n,:,1] )
+        #body_dict.setdefault('Lz_'+name_arr[n], L_arr[n,:,2] )
         
-        body_dict.setdefault('E_'+name_arr[n], E_arr[n,:] )
+        #body_dict.setdefault('E_'+name_arr[n], E_arr[n,:] )
                                
     
-    body_dict.setdefault('Lx_tot'+name_arr[n], L_arr_sum[:,0] )
-    body_dict.setdefault('Ly_tot'+name_arr[n], L_arr_sum[:,1] )
-    body_dict.setdefault('Lz_tot'+name_arr[n], L_arr_sum[:,2] )   
+    #body_dict.setdefault('Lx_tot'+name_arr[n], L_arr_sum[:,0] )
+    #body_dict.setdefault('Ly_tot'+name_arr[n], L_arr_sum[:,1] )
+    #body_dict.setdefault('Lz_tot'+name_arr[n], L_arr_sum[:,2] )   
     spinny_df = pd.DataFrame(body_dict)
     #spinny_df.to_csv("out.csv")      #<----- this is really useful for debugging purposes...
     return(spinny_df)     

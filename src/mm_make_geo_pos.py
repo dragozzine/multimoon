@@ -19,7 +19,7 @@ def mm_make_geo_pos(objname, times, runprops, synthetic = False):
     """
     # Begin by querying Horizons for the ephemerides and vectors for ther chosen object
     ourKBO = Horizons(id=objname,location=399,epochs = times)
-    ephKBO = ourKBO.ephemerides()['RA','DEC','datetime_jd']
+    ephKBO = ourKBO.ephemerides()['RA','DEC','datetime_jd','EclLon','EclLat']
     vecKBO = ourKBO.vectors(aberrations = 'astrometric')['lighttime','x','y','z']
 
     # Get the time delays and convert to system julian date
@@ -29,7 +29,8 @@ def mm_make_geo_pos(objname, times, runprops, synthetic = False):
     
     # taking care to convert the AU distances to kilometers
     geocentricFile = pd.DataFrame({'geocentricTime':ephKBO['datetime_jd'],'x':vecKBO['x']*149597870.7,'y':vecKBO['y']*149597870.7 ,'z':vecKBO['z']*149597870.7})
-    outFile = pd.DataFrame({'kboTIME':kboTime,'x':vecKBO['x']*149597870.7 ,'y':vecKBO['y']*149597870.7 ,'z':vecKBO['z']*149597870.7 })
+    outFile = pd.DataFrame({'kboTIME':kboTime,'geocentricTime':ephKBO['datetime_jd'],'x':vecKBO['x']*149597870.7 ,
+	               'y':vecKBO['y']*149597870.7 ,'z':vecKBO['z']*149597870.7 ,'EclLon':ephKBO['EclLon'], 'EclLat':ephKBO['EclLat']})
 
     # Output dataframe if synthetic == true
     if synthetic:
@@ -37,6 +38,45 @@ def mm_make_geo_pos(objname, times, runprops, synthetic = False):
 
     # Outputting to a file
     fileName2 = runprops.get('runs_file')+'/geocentric_'+objname+'_position.csv'
+    outFile.to_csv(fileName2)
+
+def mm_make_helio_pos(objname, times, runprops, synthetic = False):
+    """This function takes a name of a solar system body(a KBO), and creates a csv file of the body's ephemerides from the heliocenter
+
+    Inputs:
+        objname: string, name of the object in question
+        times: array, array of times in JD
+        runprops: runprops dict from MultiMoon
+        synthetic: bool, for when you need an output
+
+    Output:
+        none, unless synthetic == true
+
+    """
+    # Begin by querying Horizons for the ephemerides and vectors for ther chosen object
+    ourKBO = Horizons(id=objname,location="399",epochs = times)
+    ephKBO = ourKBO.ephemerides()['datetime_jd']
+    vecKBO = ourKBO.vectors(aberrations = 'astrometric')['lighttime']
+
+    ourKBO_helio = Horizons(id=objname,location="10",epochs = times)
+    ephKBO_helio = ourKBO.ephemerides()['RA','DEC','datetime_jd']
+    vecKBO_helio = ourKBO.vectors(aberrations = 'astrometric')['lighttime','x','y','z']
+
+    # Get the time delays and convert to system julian date
+    jdTime= ephKBO['datetime_jd']
+    lightTime = vecKBO['lighttime']
+    kboTime=jdTime-lightTime
+    
+    # taking care to convert the AU distances to kilometers
+    geocentricFile = pd.DataFrame({'geocentricTime':ephKBO['datetime_jd'],'x':vecKBO_helio['x']*149597870.7,'y':vecKBO_helio['y']*149597870.7 ,'z':vecKBO_helio['z']*149597870.7})
+    outFile = pd.DataFrame({'kboTIME':kboTime,'geocentricTime':ephKBO['datetime_jd'],'x':vecKBO_helio['x']*149597870.7 ,'y':vecKBO_helio['y']*149597870.7 ,'z':vecKBO_helio['z']*149597870.7 })
+
+    # Output dataframe if synthetic == true
+    if synthetic:
+        return outFile
+
+    # Outputting to a file
+    fileName2 = runprops.get('runs_file')+'/heliocentric_'+objname+'_position.csv'
     outFile.to_csv(fileName2)
     
 
