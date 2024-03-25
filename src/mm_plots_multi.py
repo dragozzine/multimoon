@@ -180,7 +180,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				chain[:,:,int(ecc_aop_index[b*2+1])] = pomega
 				chain[:,:,int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega/180*np.pi)
 			if undo_inc_lan[b]:
-
+				#'''
 				inc_new = chain[:,:,int(inc_lan_index[b*2])]
 				lan_new = chain[:,:,int(inc_lan_index[b*2+1])]
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([inc_new.T])),axis=0)
@@ -193,7 +193,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				chain[:,:,int(inc_lan_index[b*2])] = inc                
                 
                 
-				'''inc_new = chain[:,:,int(inc_lan_index[b*2])]
+				'''
+				inc_new = chain[:,:,int(inc_lan_index[b*2])]
 				lan_new = chain[:,:,int(inc_lan_index[b*2+1])]
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([inc_new.T])),axis=0)
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([lan_new.T])),axis=0)
@@ -202,7 +203,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				lan = (np.arctan2(inc_new,lan_new)*180/np.pi)%360
 				chain[:,:,int(inc_lan_index[b*2+1])] = lan
 				inc = (np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi)%180
-				chain[:,:,int(inc_lan_index[b*2])] = inc'''
+				chain[:,:,int(inc_lan_index[b*2])] = inc#'''
 			if undo_lambda[b]:
 				mea_new = chain[:,:,int(lambda_index[b*2])]
 				pomega = chain[:,:,int(lambda_index[b*2+1])]
@@ -283,7 +284,20 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	#print('llhoods shape',llhoods.shape)    
 	ind = np.argmax(llhoods)
 	params = flatchain[ind,:].flatten()
-
+	print(params)
+#Have to use the best likelihoods reported parameters instead because the best fit chain was likely thinned out.   
+	best_likelihoods = pd.read_csv('best_likelihoods.csv',index_col=0)
+	best = best_likelihoods.iloc[-(1)]
+	#print(best)   
+	#residuals = [np.tolist(best['Residuals    
+	best = best.drop(columns=['Likelihood','Degrees-of-freedom','P-val','Chi-sq','Reduced_chi_sq','Prior','Residuals_Lon_Obj_1','Residuals_Lat_Obj_1'])
+	if runprops.get('numobjects') == 3:    
+		best = best.drop(columns=['Residuals_Lon_Obj_2','Residuals_Lat_Obj_2'])
+    
+	params = []
+	for i in names:
+		params.append(best[i])        
+	print(params)    
 	# Making latex labels for values
 	latexnames = names.copy()
 	for i in range(len(latexnames)):
@@ -331,8 +345,14 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	#plt.rc('text', usetex=True)
 	fig = 0
 	    
-	print(flatchain[0])    
-	flatchain[np.isnan(flatchain)] = 0
+	#print(flatchain[0])
+	#print(np.isnan(flatchain)) 
+	#flatchain[np.isnan(flatchain)][0] = 1    
+	#flatchain[np.isnan(flatchain)] = 0    
+	#flatchain[0,2] = 0 
+	#flatchain[2,2] = 3 
+	#flatchain[4,2] = 5
+
 	fig = corner.corner(flatchain, labels = latexnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".3f", truths = params, label_kwargs=dict(fontsize=20))
@@ -356,10 +376,10 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
         
 		if len([n for n, l in enumerate(names) if l.startswith('mass_1')]) > 0:
 			mp_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
-			mp_arr = flatchain[:,mp_index]/1e18
+			mp_arr = flatchain[:,mp_index]
 		else:
 			mp_arr = np.zeros(len(flatchain[:,0]))
-			mp_arr[:] = fit_scale['mass_1'].values  
+			mp_arr[:] = fit_scale['mass_1'].values/1e18
 		if len([n for n, l in enumerate(names) if l.startswith('sma_'+str(i+1))]) > 0:
 			a_index = [n for n, l in enumerate(names) if l.startswith('sma_'+str(i+1))][0]
 			a_arr = flatchain[:,a_index]
@@ -368,10 +388,12 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			a_arr[:] = fit_scale['sma_'+str(i+1)].values            
 		if len([n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))]) > 0:
 			m_index = [n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))][0]
-			m_arr = flatchain[:,m_index]
+			m_arr = flatchain[:,m_index]/1e18
+			print('m_arr',m_arr)
 		else:
 			m_arr = np.zeros(len(flatchain[:,0]))
 			m_arr[:] = fit_scale['mass_'+str(i+1)].values/1e18
+			print('m_arr',m_arr)
 		#a_index = [n for n, l in enumerate(names) if l.startswith('sma_'+str(i+1))][0]
 		#m_index = [n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))][0]
 		#mp_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
@@ -406,8 +428,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			 
                 
 		m_ratio = mp_arr/m_arr
-		dnames = np.append(dnames, ["mass_" + str(i+1) + "/mass_1"])
-		dfchain = np.concatenate((dfchain, np.array([m_ratio]).T), axis = 1)
+		if 'mass_'+str(i+1) in float_names:        
+			dnames = np.append(dnames, ["mass_" + str(i+1) + "/mass_1"])
+			dfchain = np.concatenate((dfchain, np.array([m_ratio]).T), axis = 1)
 
 		dnames = np.append(dnames, ["period_" + str(i+1)])
 		#print(dfchain.shape)            
@@ -547,6 +570,20 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			mass3_arr = np.zeros(len(flatchain[:,0]))            
 			mass3_arr[:] = fit_scale['mass_3'].values*np.pi/180  
             
+		if 'sma_2' in float_names:         
+			sma2_index = [n for n, l in enumerate(names) if l.startswith('sma_2')][0]
+			sma2_arr = flatchain[:,sma2_index]
+		else:
+			sma2_arr = np.zeros(len(flatchain[:,0]))            
+			sma2_arr[:] = fit_scale['sma_2'].values*np.pi/180              
+		if 'sma_3' in float_names:         
+			sma3_index = [n for n, l in enumerate(names) if l.startswith('sma_3')][0]
+			sma3_arr = flatchain[:,sma3_index]
+		else:
+			sma3_arr = np.zeros(len(flatchain[:,0]))            
+			sma3_arr[:] = fit_scale['sma_3'].values*np.pi/180  
+
+            
 		#mass1_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
 		#mass2_index = [n for n, l in enumerate(names) if l.startswith('mass_2')][0]
 		#mass3_index = [n for n, l in enumerate(names) if l.startswith('mass_3')][0]
@@ -557,6 +594,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 		mass1_3_rat = mass3_arr/mass1_arr
 		mass2_3_rat = mass3_arr/mass2_arr
+		sma2_3_rat = sma2_arr/sma3_arr        
 
 		if np.std(mass1_3_rat) < 1e-10:
 			mass1_3_rat[0] = mass1_3_rat[0] - mass1_3_rat[0]*1e-10
@@ -565,9 +603,21 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			mass2_3_rat[0] = mass2_3_rat[0] - mass2_3_rat[0]*1e-10
 			#print('mass23',mass2_3_rat)
 
-		dnames = np.append(dnames, ["mass_3/mass_1","mass_3/mass_2"])
-		dfchain = np.concatenate((dfchain, np.array([mass1_3_rat]).T), axis = 1)
-		dfchain = np.concatenate((dfchain, np.array([mass2_3_rat]).T), axis = 1)
+		#dnames = np.append(dnames, ["mass_3/mass_1","mass_3/mass_2","sma_2/sma_3"])
+		if 'mass_1' in float_names and 'mass_3' in float_names:
+			print('m3/m1')            
+			dnames = np.append(dnames, ["mass_3/mass_1"])
+			dfchain = np.concatenate((dfchain, np.array([mass1_3_rat]).T), axis = 1)
+		if 'mass_2' in float_names and 'mass_3' in float_names:
+			dnames = np.append(dnames, ["mass_3/mass_2"])
+			dfchain = np.concatenate((dfchain, np.array([mass2_3_rat]).T), axis = 1)
+		if 'sma_2' in float_names and 'sma_3' in float_names:
+			dnames = np.append(dnames, ["sma_2/sma_3"])
+			dfchain = np.concatenate((dfchain, np.array([sma2_3_rat]).T), axis = 1)
+                
+		#dfchain = np.concatenate((dfchain, np.array([mass1_3_rat]).T), axis = 1)
+		#dfchain = np.concatenate((dfchain, np.array([mass2_3_rat]).T), axis = 1)
+		#dfchain = np.concatenate((dfchain, np.array([sma2_3_rat]).T), axis = 1)
 		print(dfchain)
 		mass_tot = mass1_arr+mass2_arr+mass3_arr
 		if np.std(mass_tot) < 1e-10:
@@ -697,6 +747,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	# Likelihood plots    
 	likelihoodspdf = PdfPages("likelihoods.pdf")
 	ylimmin = np.percentile(llhoods.flatten(), 1)
+	ylimmin = -30
 	ylimmax = llhoods.flatten().max() + 1
 	#print(chain.shape,flatchain.shape, llhoods.shape)
 	dfparams = dfchain.shape[1]
