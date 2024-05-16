@@ -128,8 +128,8 @@ def save(s_df,names, runprops):
     if save_yn=="Y":
         print("Generating .csv...")
         t_current = ctime().replace(" ","_")
-        filename = names[0]+"_SPINNY_"+t_current+".csv"
-        s_df.to_csv("../results/SPINNYout/"+filename)
+        filename = names[1]+"_SPINNY_"+t_current+".csv"
+        s_df.to_csv("output/"+filename)
         print("SPINNY data saved to the output file as "+filename)
         plot_q(s_df, names, runprops)
     elif save_yn == "N":

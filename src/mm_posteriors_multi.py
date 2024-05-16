@@ -31,14 +31,19 @@ def sample_deltas(i, draws, names, fixed_df, total_df_names, fit_scale, names_di
 		dlat = np.zeros((runprops.get('numobjects')-1, length))
 		resid_long = np.zeros((runprops.get('numobjects')-1, length))
 		resid_lat = np.zeros((runprops.get('numobjects')-1, length))
+		#print(paramdf.iloc[:,:-nobj].values)		
 		drawparams = paramdf.iloc[:,:-nobj].values
+		#print(paramdf)
 		DeltaLong_Model, DeltaLat_Model, obsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 		chisq_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
+		#print('Residuals ',residuals)        
 		for j in range(0,runprops.get('numobjects')-1):
 			dlong[j,:] = DeltaLong_Model[j]
 			dlat[j,:] = DeltaLat_Model[j]
 			resid_long[j,:] = residuals[2*j]
 			resid_lat[j,:] = residuals[2*j+1]
+		#print("dlong",dlong)
+		#print("dlat",dlat)
 		return dlong, dlat, drawparams, resid_long, resid_lat       
 
 def posterior(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names, pool):
@@ -51,6 +56,8 @@ def posterior(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fix
 	flatchain = sampler.get_chain(discard=int(burnin/thin_plots+clusterburn/thin_plots),flat = True, thin=thin_plots)
 	print(flatchain.shape, 'shape')
 	all_llhoods = sampler.get_log_prob(discard=int(burnin/thin_plots+clusterburn/thin_plots),flat = True, thin=thin_plots)
+	#ind = np.argmax(llhoods)
+	#params = flatchain[ind,:].flatten()
 
 	# Getting parameter names
 	names = []
@@ -61,6 +68,7 @@ def posterior(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fix
 	# Choose random draws from the flatchain
 	drawsindex = np.random.randint(flatchain.shape[0], size = numdraws)
 	draws = flatchain[drawsindex,:]
+	#all_llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
 	llhoods = all_llhoods[drawsindex]
 
 	# Get time arrays
@@ -105,6 +113,8 @@ def posterior(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fix
 	dlat = np.zeros((draws.shape[0],2,length))
 	resid_long = np.zeros((draws.shape[0],2,length))
 	resid_lat = np.zeros((draws.shape[0],2,length))
+	#print("DATA:    ", data[i][3])
+	#print(data[i][4])
 	for i in range(len(data)):          
 		dlong[i] = data[i][0]
 		dlat[i] = data[i][1]
@@ -112,6 +122,19 @@ def posterior(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fix
 		resid_long[i] = data[i][3]
 		resid_lat[i] = data[i][4]
         
+	'''
+	for i in tqdm(range(draws.shape[0])):
+		paramdf = mm_param.from_fit_array_to_param_df(draws[i,:].flatten(), names, fixed_df, total_df_names, fit_scale, names_dict, runprops)[0]
+		#print(paramdf.iloc[:,:-nobj].values)		
+		drawparams[:,i] = paramdf.iloc[:,:-nobj].values
+		#print(paramdf)
+		DeltaLong_Model, DeltaLat_Model, obsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
+		for j in range(1,runprops.get('numobjects')):
+			dlong[i,j-1,:] = DeltaLong_Model[j-1]
+			dlat[i,j-1,:] = DeltaLat_Model[j-1]
+		#print("dlong",dlong)
+		#print("dlat",dlat)
+	'''
 	# Now collapse the arrays with a std call
 	dlongstd = np.std(dlong,axis = 0)
 	dlatstd = np.std(dlat,axis = 0)
@@ -122,6 +145,7 @@ def posterior(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fix
 
 
 	totaldf = pd.DataFrame(drawparams.T, columns = paramnames)
+	#print(totaldf)
 
 
 	# Calculate average (mean for now) error in the real data
@@ -137,8 +161,15 @@ def posterior(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fix
 	# Plot dlong vs dlat with color for j2
 	from matplotlib.backends.backend_pdf import PdfPages
 
+	#print("deltas ", dlong[:,0,0], dlat[:,0,0],llhoods)
+	#print(dlong.shape, len(dlong[0,0,:]))
+#	exit()
+
 
 	#===================================Here we create the residuals heat map========================================
+	#for i in range(len(dlong[0,0,:])):
+	#	chisquare_total, residuals = mm_likelihood.mm_chisquare(drawparams[i,:], obsdf, runprops, geo_obj_pos)
+	#	resid_list[i] = residuals
 	residpdf = PdfPages("resid_map.pdf")
 	for i in range(1, runprops.get('numobjects')-1):        
 		colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
@@ -179,6 +210,8 @@ def posterior(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fix
 			plt.errorbar(np.median(dlong[:,j,i]), np.median(dlat[:,j,i]), xerr = typicalerror[0,j], yerr = typicalerror[1,j], ecolor = "red")
 		plt.xlabel("dLon")
 		plt.ylabel("dLat")
+		#plt.xlim(-0.5, 0.5)
+		#plt.ylim(-0.5, 0.5)
 		plt.title("JD "+str(obsdf['time'][i]))
 		color_bar = plt.colorbar()
 		color_bar.set_alpha(1)
@@ -201,6 +234,8 @@ def posterior(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fix
 			plt.scatter(dlong[:,0,i], dlat[:,0,i], c=bright_rat, cmap = "coolwarm", norm=colors.LogNorm())
 			plt.xlabel("dLon")
 			plt.ylabel("dLat")
+			#plt.xlim(-0.2, 0.2)
+			#plt.ylim(-0.2, 0.2)
 			plt.title("JD "+str(obsdf['time'][i]))
 			color_bar = plt.colorbar()
 			color_bar.set_alpha(1)
@@ -220,6 +255,8 @@ def posterior(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fix
 			plt.axvline(x=0.2, color='b')
 			plt.xlabel("total separation")
 			plt.ylabel("brightness ratio")   
+			#plt.xlim(0, 0.3)
+			#plt.ylim(0, 0.15)
 			plt.title("JD "+str(obsdf['time'][i]))
 			color_bar = plt.colorbar()
 			color_bar.set_label('Log-Likelihood')

@@ -9,6 +9,10 @@
 #
 #	TODO: Add some methods which can estimate the time?? or maybe just use tqdm
 #
+#
+#
+#
+#
 
 import matplotlib
 matplotlib.use("Agg")
@@ -41,10 +45,7 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0
 		emcee sampler object
 
 	"""
-
-	# Pull needed values from runprops
 	nthinning = runprops.get('nthinning')    
-
 	# First run the sampler for the specified number of initial steps
 	if verbose:
 		print("Running MultiMoon for ", initsteps, " steps")
@@ -71,7 +72,6 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0
 		print("Calculating the effective sample size.")
 	iat = autocorrelation(sampler, objname, filename = "_0")
 	print('iat is ' ,iat)
-
 	# Assess the accuracy of the iat estimate
 	ngens = sampler.get_chain().shape[0]	
 	counter = 1
@@ -123,6 +123,7 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0
 			state = sampler.run_mcmc(state, nthinning, progress = True, store=True, thin_by=int(nadditional/nthinning))
 		else:
 			state = sampler.run_mcmc(state, nadditional, progress = True, store=True)
+		#state = sampler.run_mcmc(state, nadditional, progress = True, store=True)
 		iat = autocorrelation(sampler,objname, filename = "_" + str(counter))
 		counter += 1
 		ngens = sampler.get_chain().shape[0]
@@ -130,6 +131,7 @@ def mm_autorun(sampler, essgoal, state, initsteps, maxiter, verbose, objname, p0
 			print("Maximum iterations has been reached, ending automated runs.")
 		return sampler, ngens/iat
 	else:
+		#state = sampler.run_mcmc(state, nadditional, progress = True, store=True)
 		if runprops.get('thin_run'):
 			state = sampler.run_mcmc(state, nthinning, progress = True, store=True, thin_by=int(nadditional/nthinning))
 		else:

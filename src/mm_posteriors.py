@@ -12,6 +12,8 @@ import commentjson as json
 import mm_param
 import mm_make_geo_pos
 from tqdm import tqdm
+import matplotlib.colors as colors
+
 
 class ReadJson(object):
     def __init__(self, filename):
@@ -21,9 +23,10 @@ class ReadJson(object):
         return self.data
 
 #chain = (nwalkers, nlink, ndim)
+   
 
-def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names):
-	numdraws = 20
+def posterior(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names):
+	numdraws = 100
 
 	# Getting log likelihood posterior values and flatchain for use throughout
 	burnin = int(runprops.get('nburnin'))
@@ -31,7 +34,7 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	thin_plots = int(runprops.get('nthinning'))
 	flatchain = sampler.get_chain(discard=int(burnin/thin_plots+clusterburn/thin_plots),flat = True, thin=thin_plots)
 	print(flatchain.shape, 'shape')
-	llhoods = sampler.get_log_prob(discard=int(burnin/thin_plots+clusterburn/thin_plots),flat = True, thin=thin_plots)
+	all_llhoods = sampler.get_log_prob(discard=int(burnin/thin_plots+clusterburn/thin_plots),flat = True, thin=thin_plots)
 	#ind = np.argmax(llhoods)
 	#params = flatchain[ind,:].flatten()
 
@@ -44,14 +47,16 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	# Choose random draws from the flatchain
 	drawsindex = np.random.randint(flatchain.shape[0], size = numdraws)
 	draws = flatchain[drawsindex,:]
+	#all_llhoods = sampler.get_log_prob(discard=int(burnin+clusterburn),flat = True, thin=thin_plots)
+	llhoods = all_llhoods[drawsindex]
 
 	# Get time arrays
-	converttimes = ["2022-10-01","2023-09-30"]
+	converttimes = ["2021-10-01","2022-09-30"]
 	t = Time(converttimes)
 	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '1d'}
 
 	# Make a geocentric position file
-	geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
+	#geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
 
 	# Creating a fake observtions data frame
 	times = geo_obj_pos.values[:,0].flatten()
@@ -77,20 +82,20 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 	drawparams = np.zeros((ndims, numdraws))
 
 	# Looping to get model values
-	print('draws',draws)    
+    
+	
 	for i in tqdm(range(draws.shape[0])):
 		paramdf = mm_param.from_fit_array_to_param_df(draws[i,:].flatten(), names, fixed_df, total_df_names, fit_scale, names_dict, runprops)[0]
 		#print(paramdf.iloc[:,:-nobj].values)		
 		drawparams[:,i] = paramdf.iloc[:,:-nobj].values
-		print(paramdf)
-		DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
-		print(DeltaLong_Model)        
+		#print(paramdf)
+		DeltaLong_Model, DeltaLat_Model, obsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 		for j in range(1,runprops.get('numobjects')):
 			dlong[i,j-1,:] = DeltaLong_Model[j-1]
 			dlat[i,j-1,:] = DeltaLat_Model[j-1]
 		#print("dlong",dlong)
 		#print("dlat",dlat)
-
+	
 	# Now collapse the arrays with a std call
 	dlongstd = np.std(dlong,axis = 0)
 	dlatstd = np.std(dlat,axis = 0)
@@ -114,61 +119,71 @@ def predictions(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, f
 		typicalerror[0,i-1] = np.median(obsdf["DeltaLong_" + objectnames[i] + "_err"].values.flatten())
 		typicalerror[1,i-1] = np.median(obsdf["DeltaLat_" + objectnames[i] + "_err"].values.flatten())
 
-	# Now create info gain arrays
-	infogain = np.zeros((runprops.get('numobjects')-1, times.size))
-	infogain2 = np.zeros((runprops.get('numobjects')-1, times.size))
-	print(dlongstd[0,:], typicalerror, np.sqrt(dlongstd[0,:]/typicalerror[0,0])**2)    
-	for i in range(1,runprops.get('numobjects')):
-		infogain[i-1,:] = np.sqrt( (dlongstd[i-1,:]/typicalerror[0,i-1])**2 + (dlatstd[i-1,:]/typicalerror[1,i-1])**2 )
-
-		#for j in range(times.size):
-		#	bitarr = (dlong[:,i-1,j] < (dlongmean[i-1,j] + typicalerror[0,i-1])) & (dlong[:,i-1,j] > (dlongmean[i-1,j] - typicalerror[0,i-1])) & (dlat[:,i-1,j] < (dlatmean[i-1,j] + typicalerror[1,i-1])) & (dlat[:,i-1,j] > (dlatmean[i-1,j] - typicalerror[1,i-1]))
-		#	#print(bitarr.sum()/draws.shape[0])
-		#	infogain2[i-1,j] = bitarr.sum()/draws.shape[0]/(2*typicalerror[0,i-1])/(2*typicalerror[1,i-1])
-
-
-	# Plot
-	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
-	fig = plt.figure(figsize = (12.8,4.8))
-	t = Time(times, format = "jd")
-	for i in range(1,runprops.get('numobjects')):
-		plt.plot_date(t.plot_date, infogain[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 0.5)
-		#plt.plot_date(t.plot_date, infogain2[i-1,:].flatten(), "-", color = colorcycle[i-1], label = objectnames[i], alpha = 0.5)
-
-
-	#if runprops.get('numobjects') > 2:
-	#	plt.plot(t.plot_date, np.sum(infogain, axis = 0).flatten()/2, color = "black", label = "Combined gain")
-
-	plt.xlabel("Time")
-	plt.ylabel("Info gained")
-	plt.legend()
-	plt.savefig("predictions.pdf", format = "pdf")
-	plt.close()
-
-
-
 	# Plot dlong vs dlat with color for j2
 	from matplotlib.backends.backend_pdf import PdfPages
 
-	predictionspdf = PdfPages("predictions_params.pdf")
-	for i in range(len(paramnames)):
+	#print("deltas ", dlong[:,0,0], dlat[:,0,0],llhoods)
+	#print(dlong.shape, len(dlong[0,0,:]))
+#	exit()    
+	predictionspdf = PdfPages("posterior.pdf")
+	for i in range(len(dlong[0,0,:])):
 		plt.figure()
 		plt.scatter(0,0, color = "black")
-		plt.scatter(dlong[:,0,15], dlat[:,0,15], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm")
-		plt.errorbar(np.median(dlong[:,0,15]), np.median(dlat[:,0,15]), xerr = typicalerror[0,0], yerr = typicalerror[1,0], ecolor = "red")
+		plt.scatter(dlong[:,0,i], dlat[:,0,i], c=llhoods, cmap = "coolwarm")
+		plt.errorbar(np.median(dlong[:,0,i]), np.median(dlat[:,0,i]), xerr = typicalerror[0,0], yerr = typicalerror[1,0], ecolor = "red")
         
-#		plt.scatter(dlong[:,1,15], dlat[:,1,15], c = totaldf[paramnames[i]], edgecolor = None, alpha = 0.5, s = 10, cmap = "coolwarm",marker='D')
-#		plt.errorbar(np.median(dlong[:,1,15]), np.median(dlat[:,1,15]), xerr = typicalerror[0,1], yerr = typicalerror[1,1], ecolor = "red")
+		plt.scatter(dlong[:,1,i], dlat[:,1,i], c=llhoods, cmap = "coolwarm",marker="D")
+		plt.errorbar(np.median(dlong[:,1,i]), np.median(dlat[:,1,i]), xerr = typicalerror[0,1], yerr = typicalerror[1,1], ecolor = "red")
 		plt.xlabel("dLon")
 		plt.ylabel("dLat")
-		plt.title(paramnames[i])
+		plt.xlim(-0.5, 0.5)
+		plt.ylim(-0.5, 0.5)
+		plt.title("JD "+str(obsdf['time'][i]))
 		color_bar = plt.colorbar()
 		color_bar.set_alpha(1)
 		color_bar.draw_all()
 		predictionspdf.savefig()
 	predictionspdf.close()
 
-
+	if runprops.get("photo_offset"):
+		brightnesspdf = PdfPages("brightness.pdf")
+		for i in range(len(dlong[0,0,:])):
+			plt.figure()
+			plt.scatter(0,0, color = "black")
+			plt.scatter(dlong[:,0,i], dlat[:,0,i], c=totaldf['f_val_1'], cmap = "coolwarm", norm=colors.LogNorm())
+			plt.xlabel("dLon")
+			plt.ylabel("dLat")
+			plt.xlim(-0.2, 0.2)
+			plt.ylim(-0.2, 0.2)
+			plt.title("JD "+str(obsdf['time'][i]))
+			color_bar = plt.colorbar()
+			color_bar.set_alpha(1)
+			color_bar.draw_all()
+			brightnesspdf.savefig()
+		brightnesspdf.close()
+        
+		mass_rat = totaldf['mass_2']/totaldf['mass_1']
+		bright_rat = totaldf['f_val_1']*mass_rat**(2/3)
+		hubble_sep_arc = 2.1*10**5*5.5*10**(-7)/2.4  
+		brightnessratpdf = PdfPages("brightness_ratio.pdf")
+		for i in range(len(dlong[0,0,:])):
+			plt.figure()            
+			sep = np.sqrt(dlong[:,0,i]**2+dlat[:,0,i]**2)        
+			plt.scatter(sep, bright_rat, c=llhoods, cmap = "coolwarm")
+			plt.axvline(x=hubble_sep_arc, color='r')
+			plt.axvline(x=0.2, color='b')
+			plt.xlabel("total separation")
+			plt.ylabel("brightness ratio")   
+			plt.xlim(0, 0.3)
+			plt.ylim(0, 0.15)
+			plt.title("JD "+str(obsdf['time'][i]))
+			color_bar = plt.colorbar()
+			color_bar.set_alpha(1)
+			color_bar.draw_all()
+			brightnessratpdf.savefig()
+		brightnessratpdf.close()
+            
+            
 #Actually build the plots here
 #====================================================================================================
 import glob, os
@@ -181,12 +196,12 @@ runprops = getData.outProps()
 objname = runprops.get("objectname")
 
 if not 'results' in os.getcwd():
-	os.chdir('../../../results/'+objname+'/')
-	results = max(glob.glob(os.path.join(os.getcwd(), '*/')), key=os.path.getmtime)
-	os.chdir(results)
-
+    os.chdir('../../../results/'+objname+'/')
+    results = max(glob.glob(os.path.join(os.getcwd(), '*/')), key=os.path.getmtime)
+    os.chdir(results)
+        
 backend = emcee.backends.HDFBackend('chain.h5')
-    
+          
 fit_scale = pd.read_csv('fit_scale.csv',index_col=0)
 float_names = runprops.get('float_names')
 obsdf = pd.read_csv(objname+'_obs_df.csv',index_col=0)
@@ -194,4 +209,4 @@ geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position.csv',index_col=0)
 fixed_df = pd.read_csv('fixed_df.csv',index_col=0)
 total_df_names = runprops.get('total_df_names')
 
-predictions(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)
+posterior(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)

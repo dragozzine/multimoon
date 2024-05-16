@@ -34,11 +34,20 @@ class ReadJson(object):
         return self.data
 import glob,os
 
-#This file can be activated at the end of a run to produce a new init guess file from the best fit of a previous run.
-
+#def create(objname,filename):
+#if 'results' in filename:
+        #os.chdir(filename)
 getData = ReadJson('runprops.txt')
+#else:
+        #getData = ReadJson('most_recent_runprops.txt')
 runprops = getData.outProps()
 objname = runprops.get("objectname")
+
+    #if not 'results' in os.getcwd():
+    #    os.chdir('../../../results/'+objname+'/')
+    #    results = max(glob.glob(os.path.join(os.getcwd(), '*/')), key=os.path.getmtime)
+    #    os.chdir(results)
+
 backend = emcee.backends.HDFBackend('chain.h5')
 
 init = pd.read_csv(objname+'_init_guess.csv',index_col=0)

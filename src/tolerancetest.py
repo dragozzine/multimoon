@@ -15,8 +15,8 @@
 #	chi-squared below 1, while maintaining the shortest possible run time. 
 #
 
-objectname = "2002 PD149"
-runtype = "10"
+objectname = "2006 BR284"
+runtype = "20"
 
 # Code starts
 class ReadJson(object):
@@ -53,8 +53,12 @@ import time
 print("../runs/" + objectname + "/" + runtype + "/runprops.txt")
 runprops = ReadJson("../runs/" + objectname + "/" + runtype + "/runprops.txt").outProps()
 initparams = pd.read_csv("../runs/" + objectname + "/" + runtype + "/" + objectname + "_init_guess.csv", index_col = 0)
+#obsdata = runprops.get('
 obsdf = runprops.get('obs_df')
 obsdata = "../runs/" + objectname + "/observations/" + obsdf
+#runprops = ReadJson("../data/227_2021/runs/2006 BR284/10_locked/runprops.txt").outProps()
+#initparams = pd.read_csv("../data/227_2021/runs/2006 BR284/10_locked/2006 BR284_init_guess.csv", index_col = 0)
+#obsdata = "../data/227_2021/runs/2006 BR284/observations/2006 BR284_obs_df.csv"
 
 tolvals = np.logspace(-14,-8,20)
 
@@ -79,7 +83,12 @@ for k in list(initparams.index):
 if runprops.get('includesun') == 1:
 	paramnames.append('name_0')
 	paramnames2.append('name_0') 
-
+#params.append(500.0)
+#params2.append(500.0)
+#params.append(1.0)
+#params2.append(1.0)
+#paramnames.append("ax_1")
+#paramnames2.append("ax_1")
 if runprops.get('includesun') == 1:
 	params.append('Sun')
 	params2.append('Sun')    
@@ -112,8 +121,10 @@ else:
 times = obsdf['time'].tolist()
 geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, times, runprops, True)
 
+#print(times)
 start_time = time.time()
 runprops["spinny_tolerance"] = 1e-15
+#print('paramdf',paramdf)
 Model_DeltaLong, Model_DeltaLat, obsdf = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = True)
 print("--- %s seconds ---" % (time.time() - start_time))
 
@@ -134,8 +145,14 @@ for k, tol in enumerate(tolvals):
 
 	for i in range(rows):
 		for j in range(1,nobjects):
+			# Add noise
+			#Model_DeltaLong[j-1][i] = Model_DeltaLong[j-1][i] + np.random.normal()*obsdf["DeltaLong_" + names[j] + "_err"][i]
+			#Model_DeltaLat[j-1][i] = Model_DeltaLat[j-1][i] + np.random.normal()*obsdf["DeltaLat_" + names[j] + "_err"][i]
+	
 			residuals[2*(j-1)][i] = ((Model_DeltaLong[j-1][i]-Model_DeltaLong2[j-1][i])/obsdf["DeltaLong_"+names[j]+"_err"][i])
 			residuals[2*(j-1)+1][i] = ((Model_DeltaLat[j-1][i]-Model_DeltaLat2[j-1][i])/obsdf["DeltaLat_"+names[j]+"_err"][i])
+			#print(names[j])
+			#print(residuals[2*(j-1)][i],residuals[2*(j-1)+1][i])
 
 	chisquares = residuals**2
 	chisq_tot = np.zeros(2*nobjects)

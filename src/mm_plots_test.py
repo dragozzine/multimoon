@@ -19,13 +19,6 @@ from mm_SPINNY.spinny_nosun import *
 from mm_SPINNY.mm_vpython import *
 from mm_SPINNY.keplerian import *
 
-import matplotlib.animation as animation
-
-
-def update(data):
-    points.set_ydata(data)
-    return points
-
 class ReadJson(object):
     def __init__(self, filename):
         print('Read the runprops.txt file')
@@ -75,10 +68,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	undo_masses = np.zeros(2)    
 	undo_masses[:] = False
 	masses_index = np.zeros(runprops.get('numobjects'))
-	#print(sampler)    
+	#print(os.getcwd())    
     
 	for i in range(runprops.get('numobjects')-1):
-		print(i, float_names)        
 		if 'ecc_'+str(i+2) in float_names and 'aop_'+str(i+2) in float_names:
 			undo_ecc_aop[i] = True
 			ecc_aop_index[2*i] = float_names.index('ecc_'+str(i+2))
@@ -121,21 +113,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		burnin = int(runprops.get('nburnin'))
 		clusterburn = int(runprops.get('clustering_burnin'))
 
-        
-        
-	#thin_plots = runprops.get('thin_plots') 
-	if isinstance(runprops.get('thin_plots'), int):          
-		thin_plots = runprops.get('thin_plots')
-		if runprops.get('thin_run') and thin_plots > 1:
-			print('Warning: You thinned your chain as you ran the data, and have a thin_plots parameter > 1, this could lead to an empty chain being read in.')
-		#burnin = burnin/thin_plots
-		#clusterburn = clusterburn/thin_plots     
-	else:
-		thin_plots = 1
-        
-        
-#	chain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots) 
-	print(os.getcwd(), '')
+	thin_plots = runprops.get('thin_plots') 
+#	chain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)  
 	chain = sampler.get_chain(flat = False, thin=thin_plots)  
 	fit = []
 
@@ -149,7 +128,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	# Getting final values for the shape of the chain
 	#shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
-	shortchain = sampler.get_chain(flat = False, thin= thin_plots)
+	shortchain = sampler.get_chain(flat = False, thin=thin_plots)
 	numparams = shortchain.shape[2]
 	numwalkers = shortchain.shape[1]
 	numgens = shortchain.shape[0]
@@ -158,12 +137,11 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	# Take chain "fit" values and make them into real values
 	for i in range(numparams):
 		chain[:,:,i] = chain[:,:,i]*fit[i]
-	print('First chain: ',chain.shape)
 
     
 	fitparam_chain = np.zeros((1,numwalkers,numgens))
 
-	#print(fitparam_chain.shape)    
+	print(fitparam_chain.shape)    
 	fitparam_names = []    
 	# Now de-transform the chain
 	print("Starting un transformations")
@@ -181,7 +159,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				chain[:,:,int(ecc_aop_index[b*2+1])] = pomega
 				chain[:,:,int(ecc_aop_index[b*2])] = ecc_new/np.sin(pomega/180*np.pi)
 			if undo_inc_lan[b]:
-
 				inc_new = chain[:,:,int(inc_lan_index[b*2])]
 				lan_new = chain[:,:,int(inc_lan_index[b*2+1])]
 				fitparam_chain = np.concatenate((fitparam_chain, np.array([inc_new.T])),axis=0)
@@ -190,20 +167,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				fitparam_names.append('equinoctial_p_'+str(b+1))
 				lan = (np.arctan2(inc_new,lan_new)*180/np.pi)%360
 				chain[:,:,int(inc_lan_index[b*2+1])] = lan
-				inc = (np.arccos(inc_new/np.sin(lan*np.pi/180))*2*180/np.pi)%180
-				chain[:,:,int(inc_lan_index[b*2])] = inc                
-                
-                
-				'''inc_new = chain[:,:,int(inc_lan_index[b*2])]
-				lan_new = chain[:,:,int(inc_lan_index[b*2+1])]
-				fitparam_chain = np.concatenate((fitparam_chain, np.array([inc_new.T])),axis=0)
-				fitparam_chain = np.concatenate((fitparam_chain, np.array([lan_new.T])),axis=0)
-				fitparam_names.append('equinoctial_q_'+str(b+1))
-				fitparam_names.append('equinoctial_p_'+str(b+1))
-				lan = (np.arctan2(inc_new,lan_new)*180/np.pi)%360
-				chain[:,:,int(inc_lan_index[b*2+1])] = lan
 				inc = (np.arctan2(inc_new,np.sin(lan*np.pi/180))*2*180/np.pi)%180
-				chain[:,:,int(inc_lan_index[b*2])] = inc'''
+				chain[:,:,int(inc_lan_index[b*2])] = inc
 			if undo_lambda[b]:
 				mea_new = chain[:,:,int(lambda_index[b*2])]
 				pomega = chain[:,:,int(lambda_index[b*2+1])]
@@ -228,6 +193,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				fitparam_names.append('spin_equinoctial_q_'+str(b+1))
 				splan = (np.arctan2(spinc_new,splan_new)*180/np.pi)%360
 				chain[:,:,int(spin_index[b*2+1])] = splan
+				#spinc = (np.arctan2(spinc_new,np.sin(splan*np.pi/180))*2*180/np.pi)%180
 				spinc = (np.arccos(spinc_new/np.sin(splan*np.pi/180))*2*180/np.pi)%180
 				chain[:,:,int(spin_index[b*2])] = spinc
 		if undo_masses[0]:
@@ -253,14 +219,14 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	fitparam_chain = np.delete(fitparam_chain,0,0)
 	fitparam_chain = fitparam_chain.T   
-	fitparam_chain = fitparam_chain[int(burnin/thin_plots+clusterburn/thin_plots) :: 1]
+	fitparam_chain = fitparam_chain[int(burnin+clusterburn + thin_plots - 1) :: 1]
         
 	print("Un transforming done")
 
 	# Cutting up chain
 	full_chain = np.copy(chain)
-	chain = chain[int(burnin/thin_plots+clusterburn/thin_plots) :: 1]
-	print('Burnin chain:',chain.shape)
+	chain = chain[int(burnin+clusterburn + thin_plots - 1) :: 1]
+	print(chain.shape)
 
 	# Flattening the chain based on method in emcee
 	s = list(chain.shape[1:])
@@ -331,9 +297,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	# Make corner plot
 	#plt.rc('text', usetex=True)
 	fig = 0
-	    
-	print(flatchain[0])    
-	flatchain[np.isnan(flatchain)] = 0
+	#print(flatchain[:,0], flatchain[:,1])    
 	fig = corner.corner(flatchain, labels = latexnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".3f", truths = params, label_kwargs=dict(fontsize=20))
@@ -350,84 +314,27 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	dtif = runprops.get("dynamicstoincludeflags")
 
 	# Orbital periods for each satellite
-	periods = []
+    
 	for i in range(1,runprops.get('numobjects')):
 		print(names)        
-		#if 'sma_'+str(i+1) in names and 'mass_'+str(i+1) in names and 'mass_1' in names:
-        
-		if len([n for n, l in enumerate(names) if l.startswith('mass_1')]) > 0:
-			mp_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
-			mp_arr = flatchain[:,mp_index]/1e18
-		else:
-			mp_arr = np.zeros(len(flatchain[:,0]))
-			mp_arr[:] = fit_scale['mass_1'].values  
-		if len([n for n, l in enumerate(names) if l.startswith('sma_'+str(i+1))]) > 0:
+		if 'sma_'+str(i+1) in names and 'mass_'+str(i+1) in names and 'mass_1' in names:
 			a_index = [n for n, l in enumerate(names) if l.startswith('sma_'+str(i+1))][0]
-			a_arr = flatchain[:,a_index]
-		else:
-			a_arr = np.zeros(len(flatchain[:,0]))
-			a_arr[:] = fit_scale['sma_'+str(i+1)].values            
-		if len([n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))]) > 0:
 			m_index = [n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))][0]
+			mp_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
+
+			a_arr = flatchain[:,a_index]
 			m_arr = flatchain[:,m_index]
-		else:
-			m_arr = np.zeros(len(flatchain[:,0]))
-			m_arr[:] = fit_scale['mass_'+str(i+1)].values/1e18
-		#a_index = [n for n, l in enumerate(names) if l.startswith('sma_'+str(i+1))][0]
-		#m_index = [n for n, l in enumerate(names) if l.startswith('mass_'+str(i+1))][0]
-		#mp_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
-		#a_arr = flatchain[:,a_index]
-		#m_arr = flatchain[:,m_index]
-		#mp_arr = flatchain[:,mp_index]
+			mp_arr = flatchain[:,mp_index]
 
-		#print('a_arr, ', a_arr)
-		#print('m_arr, ', m_arr)
-		#print('mp_arr, ', mp_arr)
-            
-		rho_prim = 2.4*10**9
-		rho_sat = 10**9
-		r_sat = runprops.get('axes_size').get('obj_'+str(i))
-		Qp = 100
-		G = 6.674e-20            
-		g = G*m_arr*10**18/r_sat**2            
-		mu_eff = 19*4e15/2/(rho_sat*g*r_sat)  
-		#print(mu_eff)            
-		k2p = 3/(2*(1+mu_eff))           
-		period = 2*np.pi*np.sqrt(a_arr**3/(G*(m_arr + mp_arr)*10**18))/3600.0/24.0
-		print('period:', i, ' ', period)
-         
+			period = 2*np.pi*np.sqrt(a_arr**3/(6.674e-20*(m_arr + mp_arr)*10**18))/3600.0/24.0
 
-		a_timescale = 3/18/np.pi*Qp/k2p*mp_arr/m_arr*(a_arr/r_sat)**5*period/365/10**6
-		despinning_time = 2/15/np.pi*Qp/k2p*(rho_sat/rho_prim)**1.5*(a_arr/r_sat)**4.5*period/365/10**6
-		ecc_timescale = 4/63*Qp*(a_arr**3/G/(mp_arr*10**18))**0.5*(m_arr/mp_arr)*(a_arr/r_sat)**5/365/24/3600/10**6
-		
-			#print('a:',a_timescale)          
-			#print('despin:',despinning_time)          
-			#print('ecc:',ecc_timescale)          
-			 
-                
-		m_ratio = mp_arr/m_arr
-		dnames = np.append(dnames, ["mass_" + str(i+1) + "/mass_1"])
-		dfchain = np.concatenate((dfchain, np.array([m_ratio]).T), axis = 1)
+			dnames = np.append(dnames, ["period_" + str(i+1)])
+			dfchain = np.concatenate((dfchain, np.array([period]).T), axis = 1)
 
-		dnames = np.append(dnames, ["period_" + str(i+1)])
-		#print(dfchain.shape)            
-		dfchain = np.concatenate((dfchain, np.array([period]).T), axis = 1)
-		periods = np.append(periods,len(dfchain[0])-1)
-            
-		dnames = np.append(dnames, ["a_timescale_" + str(i+1)])          
-		dfchain = np.concatenate((dfchain, np.array([a_timescale]).T), axis = 1)
-		dnames = np.append(dnames, ["despin_timescale_" + str(i+1)])       
-		dfchain = np.concatenate((dfchain, np.array([despinning_time]).T), axis = 1) 
-		dnames = np.append(dnames, ["e_timescale_" + str(i+1)])       
-		dfchain = np.concatenate((dfchain, np.array([ecc_timescale]).T), axis = 1)
-           
-            
-	#print(periods)
 	# Spin period
 	fixedparams = runprops.get("float_dict")
 	if dtif[0] == "1" or dtif[0] == "2":
-		if fixedparams["sprate_1"] == 1 and len([n for n, l in enumerate(names) if l.startswith('sprate_1')]) > 0:        
+		if fixedparams["sprate_1"] == 1:        
 			if 'sprate_1' in names and 'spin_period_1' in names:
 				sprate1_index = [n for n, l in enumerate(names) if l.startswith('sprate_1')][0]
 				sprate1_arr = flatchain[:,sprate1_index]
@@ -437,161 +344,53 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				dfchain = np.concatenate((dfchain, np.array([spinperiod]).T), axis = 1)
 
 	# Satellite-spin mutual inclination
-	if (dtif[0] == "1" or dtif[0] == "2"):
-		for i in range(1,runprops.get('numobjects')):
-			#print(names)
-			if len([n for n, l in enumerate(names) if l.startswith('spinc_1')]) > 0:
-				spinc1_index = [n for n, l in enumerate(names) if l.startswith('spinc_1')][0]
-				spinc1_arr = np.deg2rad(flatchain[:,spinc1_index])
-			else:
-				spinc1_arr = np.zeros(len(flatchain[:,0]))
-				spinc1_arr[:] = fit_scale['spinc_1'].values              
-			if len([n for n, l in enumerate(names) if l.startswith('splan_1')]) > 0:                
-				splan1_index = [n for n, l in enumerate(names) if l.startswith('splan_1')][0]
-				splan1_arr = np.deg2rad(flatchain[:,splan1_index])
-			else:
-				splan1_arr = np.zeros(len(flatchain[:,0]))
-				splan1_arr[:] = fit_scale['splan_1'].values
-			if len([n for n, l in enumerate(names) if l.startswith('inc_'+str(i+1))]) > 0:
-				inc_index = [n for n, l in enumerate(names) if l.startswith('inc_'+str(i+1))][0]
-				inc_arr = np.deg2rad(flatchain[:,inc_index])
-			else:
-				inc_arr = np.zeros(len(flatchain[:,0]))
-				inc_arr[:] = fit_scale['inc_'+str(i+1)].values
-			if len([n for n, l in enumerate(names) if l.startswith('lan_'+str(i+1))]) > 0:
-				lan_index = [n for n, l in enumerate(names) if l.startswith('lan_'+str(i+1))][0]
-				lan_arr = np.deg2rad(flatchain[:,lan_index])
-			else:
-				lan_arr = np.zeros(len(flatchain[:,0]))
-				lan_arr[:] = fit_scale['lan_'+str(i+1)].values  
-                
-			mutualinc = np.arccos( np.cos(spinc1_arr)*np.cos(inc_arr) + np.sin(spinc1_arr)*np.sin(inc_arr)*np.cos(splan1_arr - lan_arr) )
-			mutualinc = np.rad2deg(mutualinc)
-			if np.std(mutualinc) == 0:
-				mutualinc[0] = mutualinc[0] - mutualinc[0]*1e-10
-        
-
-			dnames = np.append(dnames, ["sat-spin inc_" + str(i+1)])
-			dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
+#	if dtif[0] == "1" or dtif[0] == "2":
+#		for i in range(1,runprops.get('numobjects')):
+#			print(names)            
+#			spinc1_index = [n for n, l in enumerate(names) if l.startswith('spinc_1')][0]
+#			splan1_index = [n for n, l in enumerate(names) if l.startswith('splan_1')][0]
+#			inc_index = [n for n, l in enumerate(names) if l.startswith('inc_'+str(i+1))][0]
+#			lan_index = [n for n, l in enumerate(names) if l.startswith('lan_'+str(i+1))][0]
 #
-	# Satellite-Satellite mutual inclination (this only works right now for 2 moons/satellites)
-	if runprops.get('numobjects') == 2:
-		if len([n for n, l in enumerate(names) if l.startswith('mass_1')]) > 0:
-			mass1_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
-			mass1_arr = flatchain[:,mass1_index]
-		else:
-			mass1_arr = np.zeros(len(flatchain[:,0]))
-			mass1_arr[:] = fit_scale['mass_1'].values 
-		if len([n for n, l in enumerate(names) if l.startswith('mass_2')]) > 0:
-			mass2_index = [n for n, l in enumerate(names) if l.startswith('mass_2')][0]
-			mass2_arr = flatchain[:,mass2_index]
-		else:
-			mass2_arr = np.zeros(len(flatchain[:,0]))           
-			mass2_arr[:] = fit_scale['mass_2'].values 
+#			spinc1_arr = np.deg2rad(flatchain[:,spinc1_index])
+#			splan1_arr = np.deg2rad(flatchain[:,splan1_index])
+#			inc_arr = np.deg2rad(flatchain[:,inc_index])
+#			lan_arr = np.deg2rad(flatchain[:,lan_index])
+#
+#			mutualinc = np.arccos( np.cos(spinc1_arr)*np.cos(inc_arr) + np.sin(spinc1_arr)*np.sin(inc_arr)*np.cos(splan1_arr - lan_arr) )
+#			mutualinc = np.rad2deg(mutualinc)
+#
+#			dnames = np.append(dnames, ["sat-spin inc_" + str(i+1)])
+#			dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
+#
+#	# Satellite-Satellite mutual inclination (this only works right now for 2 moons/satellites)
+#	if runprops.get("numobjects") > 2:
+#		inc2_index = [n for n, l in enumerate(names) if l.startswith('inc_2')][0]
+#		inc3_index = [n for n, l in enumerate(names) if l.startswith('inc_3')][0]
+#		lan2_index = [n for n, l in enumerate(names) if l.startswith('lan_2')][0]
+#		lan3_index = [n for n, l in enumerate(names) if l.startswith('lan_3')][0]
+#
+#		inc2_arr = np.deg2rad(flatchain[:,inc2_index])
+#		lan2_arr = np.deg2rad(flatchain[:,lan2_index])
+#		inc3_arr = np.deg2rad(flatchain[:,inc3_index])
+#		lan3_arr = np.deg2rad(flatchain[:,lan3_index])
+#
+#		mutualinc = np.arccos( np.cos(inc2_arr)*np.cos(inc3_arr) + np.sin(inc2_arr)*np.sin(inc3_arr)*np.cos(lan2_arr - lan3_arr) )
+#		mutualinc = np.rad2deg(mutualinc)
+#
+#		dnames = np.append(dnames, ["sat-sat inc"])
+#		dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
 
-		mass_tot = mass1_arr+mass2_arr
-		dnames = np.append(dnames,['mass_tot'])
-		dfchain = np.concatenate((dfchain, np.array([mass_tot]).T), axis = 1)        
-	if runprops.get("numobjects") > 2:
-		if 'inc_2' in float_names:
-			inc2_index = [n for n, l in enumerate(names) if l.startswith('inc_2')][0]
-			inc2_arr = np.deg2rad(flatchain[:,inc2_index])
-		else:
-			inc2_arr = np.zeros(len(flatchain[:,0]))            
-			inc2_arr[:] = fit_scale['inc_2'].values*np.pi/180            
-		if 'inc_3' in float_names:            
-			inc3_index = [n for n, l in enumerate(names) if l.startswith('inc_3')][0]
-			inc3_arr = np.deg2rad(flatchain[:,inc3_index])
-		else:
-			inc3_arr = np.zeros(len(flatchain[:,0]))            
-			inc3_arr[:] = fit_scale['inc_3'].values*np.pi/180  
-		if 'lan_2' in float_names:         
-			lan2_index = [n for n, l in enumerate(names) if l.startswith('lan_2')][0]
-			lan2_arr = np.deg2rad(flatchain[:,lan2_index])
-		else:
-			lan2_arr = np.zeros(len(flatchain[:,0]))            
-			lan2_arr[:] = fit_scale['lan_2'].values*np.pi/180  
-		if 'lan_3' in float_names:         
-			lan3_index = [n for n, l in enumerate(names) if l.startswith('lan_3')][0]
-			lan3_arr = np.deg2rad(flatchain[:,lan3_index])
-		else:
-			lan3_arr = np.zeros(len(flatchain[:,0]))            
-			lan3_arr[:] = fit_scale['lan_3'].values*np.pi/180  
-
-
-		mutualinc = np.arccos( np.cos(inc2_arr)*np.cos(inc3_arr) + np.sin(inc2_arr)*np.sin(inc3_arr)*np.cos(lan2_arr - lan3_arr) )
-		mutualinc = np.rad2deg(mutualinc)       
-		if np.std(mutualinc) == 0:
-			mutualinc[0] = mutualinc[0] - mutualinc[0]*1e-10
-			mutualinc[-1] = mutualinc[0] - mutualinc[0]*1e-10
-
-		dnames = np.append(dnames, ["sat-sat inc"])
-		dfchain = np.concatenate((dfchain, np.array([mutualinc]).T), axis = 1)
-        
-        
-		if 'mass_1' in float_names:         
-			mass1_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
-			mass1_arr = flatchain[:,mass1_index]
-		else:
-			mass1_arr = np.zeros(len(flatchain[:,0]))            
-			mass1_arr[:] = fit_scale['mass_1'].values*np.pi/180  
-		if 'mass_2' in float_names:         
-			mass2_index= [n for n, l in enumerate(names) if l.startswith('mass_2')][0]
-			mass2_arr = flatchain[:,mass2_index]
-		else:
-			mass2_arr = np.zeros(len(flatchain[:,0]))            
-			mass2_arr[:] = fit_scale['mass_2'].values*np.pi/180  
-		if 'mass_3' in float_names:         
-			mass3_index = [n for n, l in enumerate(names) if l.startswith('mass_3')][0]
-			mass3_arr = flatchain[:,mass3_index]
-		else:
-			mass3_arr = np.zeros(len(flatchain[:,0]))            
-			mass3_arr[:] = fit_scale['mass_3'].values*np.pi/180  
-            
-		#mass1_index = [n for n, l in enumerate(names) if l.startswith('mass_1')][0]
-		#mass2_index = [n for n, l in enumerate(names) if l.startswith('mass_2')][0]
-		#mass3_index = [n for n, l in enumerate(names) if l.startswith('mass_3')][0]
-
-		#mass1_arr = flatchain[:,mass1_index]
-		#mass2_arr = flatchain[:,mass2_index]
-		#mass3_arr = flatchain[:,mass3_index]
-
-		mass1_3_rat = mass3_arr/mass1_arr
-		mass2_3_rat = mass3_arr/mass2_arr
-
-		if np.std(mass1_3_rat) < 1e-10:
-			mass1_3_rat[0] = mass1_3_rat[0] - mass1_3_rat[0]*1e-10
-            
-		if np.std(mass2_3_rat) < 1e-10:
-			mass2_3_rat[0] = mass2_3_rat[0] - mass2_3_rat[0]*1e-10
-			#print('mass23',mass2_3_rat)
-
-		dnames = np.append(dnames, ["mass_3/mass_1","mass_3/mass_2"])
-		dfchain = np.concatenate((dfchain, np.array([mass1_3_rat]).T), axis = 1)
-		dfchain = np.concatenate((dfchain, np.array([mass2_3_rat]).T), axis = 1)
-		print(dfchain)
-		mass_tot = mass1_arr+mass2_arr+mass3_arr
-		if np.std(mass_tot) < 1e-10:
-			mass_tot[0] = mass_tot[0] - mass_tot[0]*1e-10
-		dnames = np.append(dnames,['mass_tot'])
-		dfchain = np.concatenate((dfchain, np.array([mass_tot]).T), axis = 1)
-		print(dfchain.shape, periods)
-		#period3 = dfchain[:,int(periods[1])]
-		#period2 = dfchain[:,int(periods[0])]       
-		#period_ratio = np.array(period3)/np.array(period2)
-		#dfchain = np.concatenate((dfchain, np.array([period_ratio]).T), axis = 1)
 # Creating corner+derived plot
-	if len(dfchain) > 0:
-		print(ind, dnames)        
-		fig = corner.corner(dfchain, labels = dnames, bins = 40, show_titles = True, 
+	fig = corner.corner(dfchain, labels = dnames, bins = 40, show_titles = True, 
 			    plot_datapoints = False, color = "blue", fill_contours = True,
 			    title_fmt = ".4f", truths = dfchain[ind,:].flatten())
 	#fig.tight_layout(pad = 1.08, h_pad = 0, w_pad = 0)
 	#for ax in fig.get_axes():
 	#	ax.tick_params(axis = "both", labelsize = 20, pad = 0.5)
-		fname = "corner+derived.pdf"       
-		fig.savefig(fname, format = 'pdf')
-		plt.close("all")
+	fname = "corner+derived.pdf"       
+	fig.savefig(fname, format = 'pdf')
+	plt.close("all")
 
 
 	# Creating corner_fitparams plot
@@ -618,7 +417,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	walkerpdf = PdfPages("walkers.pdf")
 	shortchain = sampler.get_chain(discard=int(burnin+clusterburn),flat = False, thin=thin_plots)
-	print('Shortchain:', shortchain.shape)    
 	#shortchain = sampler.get_chain(flat = False, thin=thin_plots)
 	numparams = shortchain.shape[2]
 	numwalkers = shortchain.shape[1]
@@ -641,18 +439,15 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	fullwalkerpdf = PdfPages("walkers_full.pdf")
 	backend = emcee.backends.HDFBackend('chain.h5')    
 
-	full_chain = sampler.get_chain(discard=0, flat = False, thin=thin_plots)  
+	full_chain = sampler.get_chain(discard=0, flat = False)  
 	fullgens = full_chain.shape[0]
-	#print(thin_plots, fullgens, full_chain.shape)
-	runnedthin = 1    
-	if runprops.get('thin_run'):
-		runnedthin = runprops.get('nthinning')        
+	#print(fullgens)
 	for i in range(numparams):
 		plt.figure(dpi = 50)
 		for j in range(numwalkers):
 			plt.plot(np.reshape(full_chain[0:fullgens,j,i], fullgens), alpha=0.2)
-		plt.axvline(x=int(burnin/thin_plots/runnedthin))
-		plt.axvline(x=int(clusterburn/thin_plots/runnedthin+burnin/thin_plots/runnedthin))
+		plt.axvline(x=burnin)
+		plt.axvline(x=(clusterburn+burnin))
 		plt.ylabel(names[i])
 		plt.xlabel("Generation")
 		#plt.savefig(runprops.get('results_folder')+"/walker_"+names[i]+".png")
@@ -701,33 +496,16 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	ylimmax = llhoods.flatten().max() + 1
 	#print(chain.shape,flatchain.shape, llhoods.shape)
 	dfparams = dfchain.shape[1]
-        
 	for i in range(numparams):
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
 		plt.hist(flatchain[:,i].flatten(), bins = 40, histtype = "step", color = "black")
-        
-		plt.subplot(222)      # zoomed in top right corner plot for original parameters              
-		plt.scatter(flatchain[:len(llhoods.flatten()),i].flatten(), llhoods.flatten(),
-			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
-			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1) 
-		plt.ylim(ylimmax + 0.2*ylimmax, ylimmax)
-		plt.xlabel(names[i])   
-		plt.ylabel('Log(L)')
-        
 		plt.subplot(223)
-		print(len(flatchain[:,i].flatten()), len(llhoods.flatten()))     
-		if len(flatchain[:,i].flatten()) != len(llhoods.flatten()):
-			plt.scatter(flatchain[:len(llhoods.flatten()),i].flatten(), llhoods.flatten(),
-			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
-			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
-		else:
-			plt.scatter(flatchain[:,i].flatten(), llhoods.flatten(),
+		plt.scatter(flatchain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
 			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
 		plt.xlabel(dnames[i])
 		plt.ylabel("Log(L)")
-		print(ylimmin, ylimmax)        
 		plt.ylim(ylimmin, ylimmax)
 		plt.subplot(224)
 		llflat = llhoods.flatten()
@@ -742,24 +520,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
 		plt.hist(dfchain[:,i].flatten(), bins = 40, histtype = "step", color = "black")
-		plt.ylabel('Log(L)')
-        
-		plt.subplot(222)     # im pretty confident i need to change things here
-		ymax = llhoods.flatten().max()
-		yzoom = [y for y in llhoods.flatten() if y > ymax-25]
-		y_ind = np.where(llhoods.flatten() > ymax-25)[0] 
-		print(y_ind)        
-		xzoom = dfchain[:,i].flatten()[y_ind]
-		plt.scatter(xzoom, yzoom, c = np.mod(np.linspace(0,len(yzoom) - 1, len(yzoom)), numwalkers),
-			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
-        
 		plt.subplot(223)
-		if len(dfchain[:,i].flatten()) != len(llhoods.flatten()):
-			plt.scatter(dfchain[:len(llhoods.flatten()),i].flatten(), llhoods.flatten(),
-			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
-			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
-		else:
-			plt.scatter(dfchain[:,i].flatten(), llhoods.flatten(),
+		plt.scatter(dfchain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
 			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
 		plt.xlabel(dnames[i])
@@ -778,25 +540,10 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		plt.figure(figsize = (9,9))
 		plt.subplot(221)
 		plt.hist(fitparam_chain[:,i].flatten(), bins = 40, histtype = "step", color = "black")
-        
-		plt.subplot(222)     # im pretty confident i need to change things here
-		ymax = llhoods.flatten().max()
-		yzoom = [y for y in llhoods.flatten() if y > ymax-25]
-		y_ind = np.where(llhoods.flatten() > ymax-25)[0] 
-		print(y_ind)        
-		xzoom = fitparam_chain[:,i].flatten()[y_ind]
-		plt.scatter(xzoom, yzoom)
-        
 		plt.subplot(223)
-		if len(fitparam_chain[:,i].flatten()) != len(llhoods.flatten()):
-			plt.scatter(fitparam_chain[:len(llhoods.flatten()),i].flatten(), llhoods.flatten(),
+		plt.scatter(fitparam_chain[:,i].flatten(), llhoods.flatten(),
 			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
 			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
-		else:
-			plt.scatter(fitparam_chain[:,i].flatten(), llhoods.flatten(),
-			    c = np.mod(np.linspace(0,llhoods.size - 1, llhoods.size), numwalkers),
-			    cmap = "nipy_spectral", edgecolors = "none", rasterized=True, alpha=0.1)
-            
 		plt.xlabel(fitparam_names[i])
 		plt.ylabel("Log(L)")
 		plt.ylim(ylimmin, ylimmax)
@@ -811,11 +558,11 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 
 	likelihoodspdf.close()
 	plt.close("all")
-	
+
 	# Residual plots
-	flatchain = sampler.get_chain(flat = True, thin=thin_plots)
+	flatchain = sampler.get_chain(flat = True)
 	nobjects = runprops.get('numobjects')
-	llhoods = sampler.get_log_prob(flat = True, thin=thin_plots)
+	llhoods = sampler.get_log_prob(flat = True)
 	ind = np.argmax(llhoods)
 	params = flatchain[ind,:].flatten()
     
@@ -839,60 +586,24 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 				paramnames.append(keys)
 
 	#print(paraminput)
-	print(fixed_df)
-	names_dict = runprops.get("names_dict")  
-	print('paraminput 1', paraminput)    
+	#print(paramnames)
+	names_dict = runprops.get("names_dict")    
 	paramdf,fit_params = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
-	print(paramdf)    
-	best_likelihoods = pd.read_csv('best_likelihoods.csv',index_col=0)
-	best = best_likelihoods.iloc[-(1)]
-	#print(best)   
-	#residuals = [np.tolist(best['Residuals    
-	best = best.drop(columns=['Likelihood','Degrees-of-freedom','P-val','Chi-sq','Reduced_chi_sq','Prior','Residuals_Lon_Obj_1','Residuals_Lat_Obj_1'])
-	if runprops.get('numobjects') == 3:    
-		best = best.drop(columns=['Residuals_Lon_Obj_2','Residuals_Lat_Obj_2'])
-	paraminput = []
-	for i in paramdf.columns:
-		if 'name' not in i and '0' not in i:
-			print(i)
-			print(paramdf[i])
-			print(best[i])
-			paramdf[i] = best[i]
-		#paramdf[i] = best[i]
-		#print(paramnames[i])
-		#print('fit',fit[i])
-		#print('best[paramanems]',best[paramnames[i]])
-		#print('fitted best',best[paramnames[i]]/fit[i])
-		#best[paramnames[i]] = best[paramnames[i]]/fit[i]
-	#for i in paramnames:
-		#paraminput = np.append(paraminput,[best[i]])   
-	#print('paraminput',paraminput)  
-	#paraminput = paraminput.tolist()
-	#print('paraminput',paraminput) 
-	#for i in fit_scale.columns:
-#		name = i
-#		if type(name) != str:
-#			name = name[0]
-#		if name in float_names:
-#			val = fit_scale.loc[0, i]
-#			fit.append(val)    
-	#paramdf,fit_params = mm_param.from_fit_array_to_param_df(paraminput, paramnames, fixed_df, total_df_names, fit_scale, names_dict, runprops)
-	print(paramdf)
+
 	#paramdf = pd.DataFrame(paraminput).transpose()
 	#paramdf.columns = paramnames
 
-	
+
 	#print(paramdf)
 #Currently this function call sends an error in the case of leaving any necessary value floating, since paramdf will be incomplete 
 	chisquare_total, residuals = mm_likelihood.mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos)
 	#best_likelihoods = pd.read_csv('best_likelihoods.csv')
 	#residuals = []
 	#print(best_likelihoods, best_likelihoods.iloc[-(i+1)])    
-	#for i in range(runprops.get('numobjects')-1):    
-		#residuals.insert(0,np.array(best_likelihoods.iloc[-(1)][-(2*i+1)]))
-		#residuals.insert(0,np.array(best_likelihoods.iloc[-(1)][-(2*i+2)]))
-	#residuals = np.array(residuals)        
-	print("Residuals: ",residuals)        
+	#for i in range(runprops.get('numobjects')):    
+	#	residuals.insert(0,best_likelihoods.iloc[-(i+1)][-1])
+	#	residuals.insert(0,best_likelihoods.iloc[-(i+2)][-1])
+	#print(residuals)        
 	#print(chisquare_total, residuals)
 
 	colorcycle = ['#377eb8', '#ff7f00', '#4daf4a', '#f781bf', '#a65628', '#984ea3','#999999', '#e41a1c', '#dede00']
@@ -912,18 +623,16 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.plot(xvals3, circle3, color = "black", alpha = 0.25)
 	plt.plot(xvals3,-circle3, color = "black", alpha = 0.25)
 	print(nobjects, np.array(residuals).shape, objectnames)  
-	#print(residuals)
-	#objectnames[1] = "S2"
+	print(residuals)  
 	for i in range(1, nobjects):
-	
 		print('plotting ', i, ' ',objectnames[i])
 		plt.scatter(residuals[2*(i-1)][:], residuals[2*(i-1)+1][:], c = colorcycle[i], label = objectnames[i], edgecolors = None)
-	plt.xlabel("Standard Deviation: Longitude")
-	plt.ylabel("Standard Deviation: Latitude")
+	plt.xlabel("Delta Longitude")
+	plt.ylabel("Delta Latitude")
 	plt.axis("equal")
 	plt.legend()
 	plt.savefig("best_residuals.pdf", format = "pdf")
-	
+
 	# Astrometry plots
 	time_arr = obsdf['time'].values.flatten()
 	tmin = time_arr.min()
@@ -935,7 +644,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	timesdic = {'start': t.isot[0], 'stop': t.isot[1], 'step': '6h'}
     
 	#geo_obj_pos = mm_make_geo_pos.mm_make_geo_pos(objname, timesdic, runprops, True)
-	geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position_analysis.csv',index_col=0)
+	geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position_analysis.csv')
 
 	times = geo_obj_pos.values[:,0].flatten()
 
@@ -974,18 +683,12 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		sys_df.loc['sp_obl','Sun'] = sp_obl
 		sys_df.loc['sp_prc','Sun'] = sp_prc
 		sys_df.loc['sp_lon','Sun'] = sp_lon          
-		#sma = paramdf['sma_0'][0]
-		#ecc = paramdf['ecc_0'][0]
-		#inc = paramdf['inc_0'][0]
-		#lan = paramdf['lan_0'][0]
-		#aop = paramdf['aop_0'][0]
-		#mea = paramdf['mea_0'][0]          
 		sma = paramdf['sma_0'][0]
-		ecc = 0
-		inc = 0
-		lan = 0
-		aop = 0
-		mea = 0
+		ecc = paramdf['ecc_0'][0]
+		inc = paramdf['inc_0'][0]
+		lan = paramdf['lan_0'][0]
+		aop = paramdf['aop_0'][0]
+		mea = paramdf['mea_0'][0]
 		sys_df.loc['sma','Sun'] = sma
 		sys_df.loc['ecc','Sun'] = ecc
 		sys_df.loc['inc','Sun'] = inc
@@ -1006,11 +709,11 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			sys_df.loc['sp_lon',names[i]] = 0
 		elif int(runprops.get('dynamicstoincludeflags')[i]) == 1:   
 			j2 = paramdf['j2r2_'+str(i+1)][0]
-			#c22 = paramdf['c22r2_'+str(i+1)][0]
+			c22 = paramdf['c22r2_'+str(i+1)][0]
 			sp_rate = paramdf['sprate_'+str(i+1)][0]
 			sp_obl = paramdf['spinc_'+str(i+1)][0]
 			sp_prc = paramdf['splan_'+str(i+1)][0]
-			#sp_lon = paramdf['spaop_'+str(i+1)][0]
+			sp_lon = paramdf['spaop_'+str(i+1)][0]
 			sys_df.loc['axis',names[i]] = axis
 			sys_df.loc['j2r2',names[i]] = j2        
 			sys_df.loc['c22r2',names[i]] = 0
@@ -1041,10 +744,10 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 			mea = paramdf['mea_'+str(i+1)][0]
 			sys_df.loc['sma',names[i]] = sma
 			sys_df.loc['ecc',names[i]] = ecc
-			sys_df.loc['inc',names[i]] = inc*np.pi/180
-			sys_df.loc['lan',names[i]] = lan*np.pi/180
-			sys_df.loc['aop',names[i]] = aop*np.pi/180
-			sys_df.loc['mea',names[i]] = mea*np.pi/180
+			sys_df.loc['inc',names[i]] = inc
+			sys_df.loc['lan',names[i]] = lan
+			sys_df.loc['aop',names[i]] = aop
+			sys_df.loc['mea',names[i]] = mea
     
 	#t_arr = times
 	N = len(sys_df.columns)
@@ -1064,8 +767,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		kepler_system = kepler_2body(paramdf,t_arr,runprops)
 		kepler_df = kepler_system[0]
 		names = kepler_system[1]
-		#spinny_plot(kepler_df, names,runprops)
-	elif runprops.get('includesun') == 0:
+		spinny_plot(kepler_df, names,runprops)
+	elif runprops.get('includesun') == 0 and N==3:
 		system = build_spinny_ns(sys_df,runprops)
 		spinny = evolve_spinny_ns(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,tol,runprops)
 		s_df = spinny[0]
@@ -1073,18 +776,26 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		spinny_plot(s_df,names, runprops)
 	elif runprops.get('includesun') == 1: 
 		system = build_spinny(sys_df, runprops)
-		spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,runprops)       
-		s_df = spinny[0]     
+		spinny = evolve_spinny(system[0],system[1],system[2],system[3],system[4],system[5],t_arr,runprops)
+		        
+		s_df = spinny[0]
+		#print(s_df)
+		#s_df = pd.DataFrame()
+		#s_df['X_Pos_'+]=
+		#s_df['']=
+		#s_df['']=
+		#s_df['']=
+		#s_df['']=
+		#s_df['']=        
 		names = spinny[1]
 		spinny_plot(s_df,names, runprops)
     
 	#Model_DeltaLong, Model_DeltaLat, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
-	print(paramdf, fakeobsdf,runprops,geo_obj_pos)    
 	DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
-	print(fakeobsdf)
+
 	modelx = np.empty((nobjects-1, fakeobsdf.shape[0]))
 	modely = np.empty((nobjects-1, fakeobsdf.shape[0]))
-	print('modelx len: ',len(modelx[0]))
+
 	x = np.empty((nobjects-1, obsdf.shape[0]))
 	xe = np.empty((nobjects-1, obsdf.shape[0]))
 	y = np.empty((nobjects-1, obsdf.shape[0]))
@@ -1101,8 +812,6 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	fig = plt.figure()
 	print(obsdf)
 	print(objectnames[1])
-	newnames = np.copy(objectnames)  
-	#newnames[1] = "S2"    
 	for i in range(1,nobjects):
 		modelx[i-1,:] = DeltaLat_Model[i-1]
 		modely[i-1,:] = DeltaLong_Model[i-1]
@@ -1111,25 +820,9 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 		xe[i-1,:] = obsdf["DeltaLat_" + objectnames[i] + "_err"].values
 		y[i-1,:] = obsdf["DeltaLong_" + objectnames[i]].values
 		ye[i-1,:] = obsdf["DeltaLong_" + objectnames[i] + "_err"].values
-		
-		print(modelx[i-1], x[i-1])
-		print(modely[i-1], y[i-1])        
-		plt.scatter(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = newnames[i], alpha = 0.5,s=5)
-		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko", ms = 2)
-     
-	#eris_circle = np.arctan(1163/14270012016)*180/np.pi*3600
-	#jwst_circle = 0.2*0.53
 
-	#angle = np.linspace( 0 , 2 * np.pi , 150 ) 
-	#x = eris_circle * np.cos( angle ) 
-	#y = eris_circle * np.sin( angle ) 
-	#plt.plot( x, y, color = colorcycle[4], label = "Eris actual size" ) 
-	#x = jwst_circle * np.cos( angle ) 
-	#y = jwst_circle * np.sin( angle ) 
-	#plt.plot( x, y, color = colorcycle[5], label = "JWST PSF" ) 
-	#x = 0.2 * np.cos( angle ) 
-	#y = 0.2 * np.sin( angle ) 
-	#plt.plot( x, y, color = colorcycle[6], label = "HST PSF" )
+		plt.scatter(modelx[i-1,:], modely[i-1,:], color = colorcycle[i], label = objectnames[i], alpha = 0.5,s=5)
+		plt.errorbar(x[i-1,:], y[i-1,:], xerr = xe[i-1,:], yerr = ye[i-1,:], fmt = "ko", ms = 2)
 
 	plt.axis('equal')
 	plt.xlabel("Delta Latitude")
@@ -1145,7 +838,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	objpos = [x,y]
 	objposerr = [xe,ye]
 	labels = ["dLat", "dLong"]
-	print(len(time_arr), len(objpos), len(modelpos))
+
 	for i in range(1,nobjects):
 		for j in range(2):
 			plt.figure()
@@ -1215,28 +908,26 @@ import glob, os
 
 if 'results' in os.getcwd():
     getData = ReadJson('runprops.txt')
-#else:
-    #getData = ReadJson('most_recent_runprops.txt')
-    runprops = getData.outProps()
-    objname = runprops.get("objectname")
+else:
+    getData = ReadJson('most_recent_runprops.txt')
+runprops = getData.outProps()
+objname = runprops.get("objectname")
 
-#if not 'results' in os.getcwd():
-#    objname = runprops.get('objectname')
-#    os.chdir('../../../results/'+objname+'/')
-#    results = max(glob.glob(os.path.join(os.getcwd(), '*/')), key=os.path.getmtime)
-#    os.chdir(results)
+if not 'results' in os.getcwd():
+	os.chdir('../../../results/'+objname+'/')
+	results = max(glob.glob(os.path.join(os.getcwd(), '*/')), key=os.path.getmtime)
+	os.chdir(results)
+
+backend = emcee.backends.HDFBackend('chain.h5')
     
+fit_scale = pd.read_csv('fit_scale.csv',index_col=0)
+float_names = runprops.get('float_names')
+obsdf = pd.read_csv(objname+'_obs_df.csv',index_col=0)
+geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position.csv',index_col=0)
+fixed_df = pd.read_csv('fixed_df.csv',index_col=0)
+total_df_names = runprops.get('total_df_names')
 
-    backend = emcee.backends.HDFBackend('chain.h5')
-
-    fit_scale = pd.read_csv('fit_scale.csv',index_col=0)
-    float_names = runprops.get('float_names')
-    obsdf = pd.read_csv(objname+'_obs_df.csv',index_col=0)
-    geo_obj_pos = pd.read_csv('geocentric_'+objname+'_position.csv',index_col=0)
-    fixed_df = pd.read_csv('fixed_df.csv',index_col=0)
-    total_df_names = runprops.get('total_df_names')
-    
-    plots(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)
+plots(backend, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_df, total_df_names)
 
 
 '''   
