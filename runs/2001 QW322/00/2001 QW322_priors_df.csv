@@ -1,0 +1,11 @@
+	dist. shape	uni-low	uni-up	log-uni-low	log-uni-up	norm-cen	norm-spread	log-norm-cen	log-norm-spread
+mass_1	0	0	1e30	0	0	4.006e+21	4e+18	4.006e+21	4e+18
+mass_2	0	0	1e30	0	0	1.79e+19	1.1e+18	1.79e+19	1.1e+18
+sma_2	0	0	1e20	0	0	49880	198	49880	198
+ecc_2	0	0	1	0	1	0.0513	0.0078	0.0513	0.0078
+aop_2	0	0	360	0	180	154.1	5.8	154.1	5.8
+inc_2	0	0	180	0	180	126.356	0.064	126.356	0.064
+lan_2	0	0	360	0	1	206.766	0.033	206.766	0.033
+mea_2	0	0	360	0	1	152.8	6.1	152.8	6.1
+lat_offset	0	-10	10	0	0	0	0	0	0
+long_offset	0	-10	10	0	0	0	0	0	0
