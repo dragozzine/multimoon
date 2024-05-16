@@ -17,7 +17,7 @@ Outputs:
 def from_param_df_to_fit_array(dataframe, runprops):
     #Hey
     fix_float_dict = runprops.get("float_dict")
-
+    print(fix_float_dict)
     total_df_names = np.array([])
     for i in dataframe.columns:
         if 'period' in i[0]:

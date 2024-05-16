@@ -54,6 +54,7 @@ def mm_priors(priors, params, runprops):
     
     for i in columnList:
         count += 1
+        #print(priors[i])
         theInt = int(priors[i][0])
 
         for j in range(runprops.get('numobjects')):
