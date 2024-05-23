@@ -95,32 +95,34 @@ def mm_priors(priors, params, runprops):
                     weights = []
                     spreads = []
                     centers = []
-                    for m in range(9, 12):
+                    for m in range(8, 12):
+                        print(priors[i][m],priors[i][m+8])
                         if priors[i][m] < 0: 
-                            print('Error: One or more specified weights is negative.') 
+                            print('Error: One or more specified weights is negative.') #Negative weights are invalid
                             return -np.inf
-                        #elif priors[i][m] == 0:
-                            #IGNORE THIS ONE
+                        elif priors[i][m] == 0:
+                            continue #ignore weights of zero
                         elif priors[i][m] > 0:
-                            weights.append(priors[i][m])
+                            weights.append(priors[i][m]) #if positive, add to vector of distributions 
                             spreads.append(priors[i][m+8])
                             centers.append(priors[i][m+4])
                         else: 
-                            print('Error: invalid weight input')
+                            print('Error: invalid weight input') 
+                            return -np.inf
                     
-                    normweights =  weights / np.sqrt(np.sum(weights**2))
+                    normweights =  (weights / np.sqrt(np.sum([x ** 2 for x in weights])))**2
                     print(normweights)
                     
                     multimodalprob = 0
-                    for m in len(spreads):
-                        if spread[m] > 0: 
+                    for m in range(len(spreads)):
+                        if spreads[m] > 0: 
                             #MAKE DISTRIBUTION AND ADD IT 
                             modedist = normweights[m] * np.exp(-1/2*((params[i][0]-spreads[m])/centers[m])**2)
                             multimodalprob = multimodalprob + modedist
                         else: 
                             print('Error: One or more specified distribution spreads is 0 or negative.')
                             return -np.inf
-                    allprobs.append(multimodalprob)
+                    allProbs.append(multimodalprob)
             
             else:
                 a = 1 #print('N/A input for column: ', i, ' in priors dataframe.') 

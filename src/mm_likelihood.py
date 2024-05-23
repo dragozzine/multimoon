@@ -106,7 +106,8 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     #print('Priors: ',priors)
     
     lp = prior.mm_priors(priors,params,runprops)
-    #print('LP: ', lp)
+    print('Params:', params)
+    print('LP: ', lp)
     if runprops.get('verbose'):
         print('LogPriors: ',lp)
     if not np.isfinite(lp):
@@ -116,7 +117,7 @@ def log_probability(float_params, float_names, fixed_df, total_df_names, fit_sca
     if not np.isfinite(log_likeli):
         return -np.inf
     llhood = lp + log_likeli
-    #print(llhood)
+    print('Llhood:',llhood)
     the_file = runprops.get('results_folder') + '/best_likelihoods.csv'
 
     #You will notice this differes from the regular runs way to save data
