@@ -11,7 +11,7 @@ import pandas as pd
 import sys
 sys.path.insert(1,"..")
 
-def generate_vector(paramsdf, t_arr, runprops):
+def generate_vector(paramsdf, t_arr, runprops, dfout = False):
     global G
     G = 6.674e-20 # Gravitational constant in km
     sys_df = paramsdf
@@ -63,6 +63,10 @@ def generate_vector(paramsdf, t_arr, runprops):
       
     # creates a new dataframe using x,y,z position and velocity for each body
     data = {"Times":t_arr}
+    
+    # Output s_df if flag is set to true
+    if dfout:
+        return s_df
 
     for name in names:
         data.setdefault("X_Pos_"+name, s_df["X_Pos_"+name])

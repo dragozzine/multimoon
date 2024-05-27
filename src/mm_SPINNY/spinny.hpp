@@ -514,13 +514,8 @@ void Spinny::oblate_grav(const std::vector<double> &arr,const unsigned &i,const 
     //ab0 += ((B+C-2.*A)*dr10)/dr5;
     //ab1 += ((C+A-2.*B)*dr11)/dr5;
     //ab2 += ((A+B-2.*C)*dr12)/dr5;
-
-    // BP 11/19/21: Added the final term in the equations for ab0,1,2
-    //              The final term governs apsial precession and is needed to match
-    //              analytical theory for apsidal precession.
-    //              Thes equation can be found in full on pg 198 of Solar System Dynamics
-
     const double f = (B+C-2.*A)*dr10*dr10 + (C+A-2.*B)*dr11*dr11 + (A+B-2.*C)*dr12*dr12;
+    //const double f = 0;
     //const double ab0 = (coef*dr10 + ((B+C-2.*A)*dr10)/dr5);
     //const double ab1 = (coef*dr11 + ((C+A-2.*B)*dr11)/dr5);
     //const double ab2 = (coef*dr12 + ((A+B-2.*C)*dr12)/dr5);
@@ -536,10 +531,9 @@ void Spinny::oblate_grav(const std::vector<double> &arr,const unsigned &i,const 
     darr[j2+5] += rot[2][0]*ab0 + rot[2][1]*ab1 + rot[2][2]*ab2;
 
     // Calculate torques in i's body frame and temporarily store them in darr
-    // BP 11/10/21: Added a coefficient to make the torques work. The factor of the "reduced mass" is
-    //              counterintuitive, but is present in Scheeres 2004.
-    const double rat = phys[i].mass/(phys[i].mass+phys[j].mass);
-    const double coef2 = phys[j].mass*rat;
+    // BP 09/05/23: Removed that coefficient and sticking with just the mass. Let's hope this one's right.... sigh
+    const double coef2 = phys[j].mass;
+    //const double coef2 = phys[j].mass*rat;
     // BP 11/10/21: Switched = for +=. This allows for calculations of torques from an arbitrary number of bodies.
     darr[i2+6] += coef2*(3.*(C-B)*dr11*dr12)/dr5;
     darr[i2+7] += coef2*(3.*(A-C)*dr12*dr10)/dr5;

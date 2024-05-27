@@ -160,7 +160,7 @@ def mm_priors(priors, params, runprops):
             mutualinc = np.arccos( np.cos(spinc_1_n)*np.cos(inc_i_n) + np.sin(spinc_1_n)*np.sin(inc_i_n)*np.cos(splan_1_n - lan_i_n) )
             mutualinc = np.rad2deg(mutualinc).values
             if mutualinc > 90:
-                print('mutualinc > 90')
+                #print('mutualinc > 90', mutualinc,spinc_1_n,splan_1_n,inc_i_n,lan_i_n)
                 return -np.inf
         
         # Making sure min periapse is obeyed        

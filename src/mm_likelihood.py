@@ -190,7 +190,7 @@ Outputs:
 1) The chi-squared number of the likelihood
 """
 # calculates the chi-square for parameters given observations
-def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
+def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False, dfout = False):
 
     # Get things from runprops
     numObj = runprops.get("numobjects")
@@ -215,6 +215,12 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     # Start a timer to time how long this step takes
     begin = time.time()
+
+    # Run a simulation for output rather than chi-square if appropriate flag is used
+    if dfout:
+        time_arr_sec = time_arr*86400
+        s_df = generate_vector(paramdf, time_arr_sec, runprops, dfout = True)
+        return s_df
 
     # Run spinny simulation inside of try except
     try:
@@ -293,7 +299,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False):
 
     # Outputting the Model_DeltaLong and Lat if gensynth flag is included in function call
     if gensynth:
-        print("Returning the Model_DeltaLong and Lat dataframes for use in synthetic astrometry.")
+        #print("Returning the Model_DeltaLong and Lat dataframes for use in synthetic astrometry.")
         return Model_DeltaLong, Model_DeltaLat, obsdf
 
     # Now we have model delta Long and delta Lat for each object and each time 
