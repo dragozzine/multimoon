@@ -143,9 +143,10 @@ def mm_priors(priors, params, runprops):
     # Check that objects are ordered correctly.
     for i in range(2,runprops.get('numobjects')):
         if params['sma_'+str(i)].values > params['sma_'+str(i+1)].values:
-            print('Objects should be input from closest to furthest object in orbit. We detect that your satellites are not input in this order right now in your initial guess folder. Please change this before running again.')
-            import sys
-            sys.exit()
+            print('Objects should be input from closest to furthest object in orbit. Either your satellites are not input in this order right now in your initial guess folder, or the simulation is producing poor guesses. We recommend changing the order on your next run.')
+            #import sys
+            #sys.exit()
+            return -np.inf
     
     # Ensure sat-spin inc is <90 (forces prograde orbits). This can be removed to loosen this restriction.
     # TODO: Make this a setting in runprops?
