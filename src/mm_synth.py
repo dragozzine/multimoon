@@ -58,7 +58,7 @@ import mm_relast
 #runprops = getData.outProps()
 
 runprops = mm_runprops.runprops
-
+print(runprops)
 verbose = runprops.get("verbose")
 nobjects = runprops.get("numobjects")
 objname = runprops.get('objectname')
@@ -182,7 +182,7 @@ except FileExistsError:
 #	os.remove(savedir + "astrometry.png")
 #	os.remove(savedir + "obsdf.csv")
 plt.savefig(savedir + "astrometry.png")
-obsdf.to_csv(savedir + runprops.get("run_dir")+"_obs_df.csv")
+obsdf.to_csv(savedir + runprops.get("run_dir")+"_obs_df_synth.csv")
 shutil.copy("runprops_gensynth.txt", savedir)
 
 

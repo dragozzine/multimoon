@@ -35,8 +35,8 @@ ErisData = [1.616, 0.1163]
 global sims
 global color_map
 def loop1(j):
-    run_num=20
-    if j%10==0:
+    run_num=100
+    if j%5==0:
         print(j)
     sims = np.zeros(run_num)
     color_map = np.zeros(run_num)
@@ -53,14 +53,14 @@ def loop1(j):
         sim.move_to_com()
 #sim.status()
         rebound.OrbitPlot(sim)
-        Noutputs = 1
+        Noutputs = 10
 
         year = 2.*np.pi # One year in units where G=1
         times = np.linspace(0.,10**4*year, Noutputs)
         x = np.zeros((2,Noutputs))
         y = np.zeros((2,Noutputs))
 
-        sim.integrator = "mercurius" # IAS15 is the default integrator, so we actually don't need this line
+        sim.integrator = "ias15" # IAS15 is the default integrator, so we actually don't need this line
         sim.move_to_com()        # We always move to the center of momentum frame before an integration
         ps = sim.particles       # ps is now an array of pointers and will change as the simulation runs
 
@@ -89,7 +89,7 @@ def loop1(j):
     return sims, color_map
         
 with MPIPool() as pool:   
-    run_num = 20
+    run_num = 100
     data = pool.map(loop1, range(run_num))
     sims = np.zeros((run_num,run_num))
     color_map = np.zeros((run_num,run_num))
@@ -105,7 +105,7 @@ with MPIPool() as pool:
     plt.imshow(np.flip(sims,axis=0), cmap='binary',extent=[1.0,3.0,18,20])
     plt.xlabel('Kilometers (in 10,000)')
     plt.ylabel('Mass (1.6e_) kg')
-    plt.savefig('sims_binary_chart_100.pdf')
+    plt.savefig('sims_binary_chart_short.pdf')
     
     plt.imshow(np.flip(color_map,axis=0), extent=[1.0,3.0,18,20], norm=LogNorm())
     plt.xlabel('Kilometers (in 10,000)')
@@ -114,7 +114,7 @@ with MPIPool() as pool:
     plt.colorbar()
     plt.show()
 
-    plt.savefig('delta_a_color_100.pdf')
+    plt.savefig('delta_a_color_short.pdf')
 
-    np.savetxt('sims_long_100.txt',sims)
-    np.savetxt('delta_a_arr_100.txt', color_map)
+    np.savetxt('sims_long_short.txt',sims)
+    np.savetxt('delta_a_arr_short.txt', color_map)

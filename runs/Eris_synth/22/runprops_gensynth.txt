@@ -12,12 +12,15 @@
     "verbose" : false,
     "dynamicstoincludeflags" : "22",
     "includesun" : 0,
-    "epoch_SJD":  2454300.0,
+    "epoch_SJD":  2453979.0,
     "com_offset" : false,
     "photo_offset" : false,
 
     "obsdata_file": "../runs/Eris/observations/Eris_obs_df.csv",
-
+    "axes_size":{
+       "obj_1": 1163,
+       "obj_2": 350
+    },
     "names_dict" :
     {
         "name_1": "Eris",
@@ -27,24 +30,24 @@
     {
         "mass_1": 1.6127e+22,
         "mass_2": 3.65e+20,
-        "sma_2": 37370.0,
-        "ecc_2": 0.007,
-        "aop_2": 212,
-        "inc_2": 61.553,
+        "sma_2": 37273.0,
+        "ecc_2": 0.006,
+        "aop_2": 204,
+        "inc_2": 62.34,
         "lan_2": 139.5,
-        "mea_2": 125.635,
-        "j2r2_1": 505177,
-        "c22r2_1": 40000,
-        "spinc_1": 61.5,
-        "splan_1": 50.9,
-        "spaop_1": 140.1,
-        "sprate_1": 5.0e-6,
-        "j2r2_2": 331000,
-        "c22r2_2": 31013,
+        "mea_2": 130,
+        "j2r2_1": 15000,
+        "c22r2_1": 1000,
+        "spinc_1": 62.5,
+        "splan_1": 50,
+        "spaop_1": 140,
+        "sprate_1": 4.61111e-6,
+        "j2r2_2": 2000,
+        "c22r2_2": 500,
         "spinc_2": 61.3,
-        "splan_2": 87.9,
-        "spaop_2": 176.1,
-        "sprate_2": 5.0e-6
+        "splan_2": 88,
+        "spaop_2": 176,
+        "sprate_2": 4.61111e-6
     },
     "float_dict" :
     {

@@ -207,25 +207,25 @@ def spinny_plot(plot_df, names, runprops):
             ax0[0].plot(t,globals()[name+'_obliq'],label=name)
             ax0[1].plot(t,globals()[name+'_prec'],label=name)
             #ax0[2].plot(t,globals()[name+'_spin_angle'],label=name)
-            #ax0[3].plot(t,globals()[name+'_spin_period'],label=name)
+            ax0[3].plot(t,globals()[name+'_spin_period']/24,label=name)
             
             ax0[0].set_title('Axial Obliquity')
             ax0[1].set_title('Axial Precession')
-            #ax0[2].set_title('Spin–Orbit Angle')
-            #ax0[3].set_title('Spin Period')
+            ax0[2].set_title('Spin–Orbit Angle')
+            ax0[3].set_title('Spin Period')
 
             ax0[0].set_ylabel('Degrees')
             ax0[1].set_ylabel('Degrees')
-            #ax0[2].set_ylabel('Degrees')
-            #ax0[3].set_ylabel('Hours')
+            ax0[2].set_ylabel('Degrees')
+            ax0[3].set_ylabel('Days')
 
             ax0[0].ticklabel_format(useOffset=False,style='plain',axis='y')
             ax0[1].ticklabel_format(useOffset=False,style='plain',axis='y')
-            #ax0[2].ticklabel_format(useOffset=False,style='plain',axis='y')
+            ax0[2].ticklabel_format(useOffset=False,style='plain',axis='y')
 
             ax0[0].grid()
             ax0[1].grid()
-            #ax0[2].grid()
+            ax0[2].grid()
 
             fig0.suptitle('Spin Parameters -- '+name,fontsize=18,fontweight='bold')
             fig0.tight_layout(rect=[0, 0.03, 1, 0.95]) 
