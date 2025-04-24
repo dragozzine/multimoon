@@ -1,0 +1,10 @@
+README.md
+cashkarp.hpp
+setup.py
+simplespin.hpp
+spinny.cpp
+spinny.hpp
+spinny.egg-info/PKG-INFO
+spinny.egg-info/SOURCES.txt
+spinny.egg-info/dependency_links.txt
+spinny.egg-info/top_level.txt

@@ -271,7 +271,7 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False, dfout 
         prim_to_sat_pos = [positionData[i*3],positionData[i*3+1],positionData[i*3+2]]
         Model_DeltaLong[i-1], Model_DeltaLat[i-1] = mm_relast.convert_ecl_rel_pos_to_geo_rel_ast(obs_to_prim_pos, prim_to_sat_pos)
     
-    '''
+    #'''
     # We are commenting this out until MultiMoon 2.0. We will release this as a feature then.
     # Putting in photocenter-braycenter offset for hidden objects in >2 object systems
     if runprops.get('photo_offset'):
@@ -279,19 +279,34 @@ def mm_chisquare(paramdf, obsdf, runprops, geo_obj_pos, gensynth = False, dfout 
         mass_ratio = paramdf['mass_2'][0]/paramdf['mass_1'][0]
         
         f_val = paramdf['f_val_1'][0]
-        
-        bright_ratio = f_val*mass_ratio**(2/3)
-        
-        rel_pos_lat = Model_DeltaLat[0,:]
-        rel_pos_long = Model_DeltaLong[0,:]
-        
+        bright_ratio = f_val
+        if runprops.get('lightcurve'):
+            lc_amp = paramdf['lc_amp_2'][0]
+            lc_per = paramdf['lc_per_2'][0]
+            lc_phase = paramdf['lc_phase_2'][0]/180*np.pi
 
-        delta_offset_lat = bright_ratio*rel_pos_lat
-        delta_offset_long = bright_ratio*rel_pos_long
+            time_arr_day = time_arr_sec/60/60/24
+
+            rel_pos_lat = Model_DeltaLat[0,:]
+            rel_pos_long = Model_DeltaLong[0,:]
+
+            #4*pi because rotation will cause 2 peaks and 2 troughs per spin, so observed spin is twice as fast. 
+            delta_offset_lat = rel_pos_lat*bright_ratio*(1+lc_amp*np.sin(4*np.pi/lc_per*time_arr_day+lc_phase))
+            delta_offset_long = rel_pos_long*bright_ratio*(1+lc_amp*np.sin(4*np.pi/lc_per*time_arr_day+lc_phase))
         
-        Model_DeltaLat = Model_DeltaLat - delta_offset_lat
-        Model_DeltaLong = Model_DeltaLong - delta_offset_long
-    '''
+            Model_DeltaLat = Model_DeltaLat - delta_offset_lat
+            Model_DeltaLong = Model_DeltaLong - delta_offset_long
+            
+        else:
+            rel_pos_lat = Model_DeltaLat[0,:]
+            rel_pos_long = Model_DeltaLong[0,:]
+
+            delta_offset_lat = bright_ratio*rel_pos_lat
+            delta_offset_long = bright_ratio*rel_pos_long
+        
+            Model_DeltaLat = Model_DeltaLat - delta_offset_lat
+            Model_DeltaLong = Model_DeltaLong - delta_offset_long
+    #'''
     # Adding in center of mass center of light offsets    
     if runprops.get("com_offset"):
         Model_DeltaLong = Model_DeltaLong + paramdf["long_offset"].iloc[0]

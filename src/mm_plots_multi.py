@@ -849,6 +849,8 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
     
 	DeltaLong_Model, DeltaLat_Model, fakeobsdf = mm_likelihood.mm_chisquare(paramdf, fakeobsdf, runprops, geo_obj_pos, gensynth = True)
 
+    
+    
 	modelx = np.empty((nobjects-1, fakeobsdf.shape[0]))
 	modely = np.empty((nobjects-1, fakeobsdf.shape[0]))
 
@@ -889,7 +891,7 @@ def plots(sampler, fit_scale, float_names, obsdf, runprops, geo_obj_pos, fixed_d
 	plt.ylabel("Delta Longitude")
 	plt.legend()
 
-	plt.savefig("best_astrometry.pdf", format = "pdf")
+	plt.savefig("best_astrometry_lines.pdf", format = "pdf")
 	plt.close()
 
 	obspdf = PdfPages("observations.pdf")
